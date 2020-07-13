@@ -61,7 +61,7 @@ Go to `localhost:8080` to login into the admin interface
 A public endpoint is available: `/request_token`:
 
    ```bash
-   curl -d '{"namespace": "my_namespace","username":"my_username","password":"my_password"}' -H \
+   curl -d '{"namespace":"my_namespace","username":"my_username","password":"my_password"}' -H \
    "Content-Type: application/json" -X POST http://localhost:8082/request_token
    ```
 

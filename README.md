@@ -55,3 +55,18 @@ Run the frontend:
 Go to `localhost:8080` to login into the admin interface
 
 ![Screenshot](doc/img/screenshot.png)
+
+## Request a token
+
+A public endpoint is available: `/request_token`:
+
+   ```bash
+   curl -d '{"namespace": "my_namespace","username":"my_username","password":"my_password"}' -H \
+   "Content-Type: application/json" -X POST http://localhost:8082/request_token
+   ```
+
+Response:
+
+   ```bash
+   {"key":"eyJhbGciOiJIUzI1NiIsInR5cCI6IzpXVCJ9..."}
+   ```

@@ -1,6 +1,5 @@
 import Vue from 'vue'
 import router from './router'
-import axios from "axios";
 import VueCookies from 'vue-cookies'
 
 import { BootstrapVue, BootstrapVueIcons } from 'bootstrap-vue'
@@ -24,10 +23,8 @@ const axiosConfig = {
   baseURL: Conf.quidUrl,
   timeout: 5000
 };
-const ax = axios.create(axiosConfig);
 
 Vue.prototype.$axiosConfig = axiosConfig
-Vue.prototype.$axios = ax
 Vue.prototype.$api = Api
 
 const vue = new Vue({

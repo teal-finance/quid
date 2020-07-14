@@ -36,7 +36,7 @@ export default {
     };
   },
   methods: {
-    fetchNamespaces() {
+    async fetchNamespaces() {
       this.state.isFormValid = false;
       this.$emit("unvalidate");
       if (this.value === "") {
@@ -44,29 +44,13 @@ export default {
         return;
       }
       this.state.isLoading = true;
-      let vue = this;
-      vue.$axios
-        .post("/admin/namespaces/find", {
-          name: vue.value
-        })
-        .then(function(response) {
-          vue.items = response.data;
-        })
-        .catch(e => {
-          if (e.response.status != 200) {
-            if (e.response.status === 401) {
-              vue.$bvToast.toast(e.response.error, {
-                title: "Error",
-                variant: "danger"
-              });
-            } else {
-              console.log(e);
-            }
-          }
-        })
-        .finally(function() {
-          vue.state.isLoading = false;
-        });
+      let { response, error } = await this.$api.post("/admin/namespaces/find", {
+        name: this.value
+      });
+      this.state.isLoading = false;
+      if (error === null) {
+        this.items = response.data;
+      }
     },
     select(item) {
       this.value = item.name;

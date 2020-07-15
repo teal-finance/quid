@@ -115,9 +115,11 @@ func CreateNamespace(c echo.Context) error {
 		return err
 	}
 	name := m["name"].(string)
+	ttl := m["ttl"].(string)
+	endpoint := m["endpoint"].(bool)
 
 	key := tokens.GenKey()
-	ns, exists, err := createNamespace(name, key)
+	ns, exists, err := createNamespace(name, key, ttl, endpoint)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, echo.Map{
 			"error": "error creating namespace",
@@ -135,7 +137,7 @@ func CreateNamespace(c echo.Context) error {
 }
 
 // createNamespace : create a namespace
-func createNamespace(name string, key string) (models.Namespace, bool, error) {
+func createNamespace(name, key, ttl string, endpoint bool) (models.Namespace, bool, error) {
 	ns := models.Namespace{}
 
 	exists, err := db.NamespaceExists(name)
@@ -146,7 +148,7 @@ func createNamespace(name string, key string) (models.Namespace, bool, error) {
 		return ns, true, nil
 	}
 
-	uid, err := db.CreateNamespace(name, key)
+	uid, err := db.CreateNamespace(name, key, ttl, endpoint)
 	if err != nil {
 		return ns, false, err
 	}

@@ -1,12 +1,25 @@
 <template>
   <div>
-    <h1 class="text-muted mt-3">Namespaces</h1>
+    <h1 class="text-muted mt-3">
+      Namespaces&nbsp;
+      <b-icon-plus
+        v-if="action!=='addNamespace'"
+        class="mr-1"
+        style="color:lightgrey"
+        @click="$store.commit('action', 'addNamespace')"
+      />
+    </h1>
     <div>
       <b-collapse id="collapse-4" v-model="showActionBar" class="mt-2">
         <add v-if="action === 'addNamespace'" @refresh="refresh"></add>
       </b-collapse>
     </div>
-    <b-table hover bordeless :items="data" :fields="fields" class="mt-4" style="max-width:450px">
+    <b-table hover bordeless :items="data" :fields="fields" class="mt-4" style="max-width:850px">
+      <template v-slot:cell(public_endpoint_enabled)="row">
+        <b-form-group class="text-center" v-if="row.item.name !== 'quid'">
+          <b-form-checkbox v-model="row.item.public_endpoint_enabled" switch></b-form-checkbox>
+        </b-form-group>
+      </template>
       <template v-slot:cell(action)="row">
         <b-button
           class="mr-2"
@@ -16,6 +29,7 @@
         <b-button
           class="mr-2"
           variant="outline-secondary"
+          v-if="row.item.name !== 'quid'"
           @click="showKey(row.item.id, row.item.name)"
         >Show key</b-button>
         <b-button
@@ -57,7 +71,13 @@ export default {
   data() {
     return {
       data: [],
-      fields: ["id", "name", "action"],
+      fields: [
+        { key: "id", sortable: true },
+        { key: "name", sortable: true },
+        { key: "public_endpoint_enabled", sortable: false },
+        { key: "max_token_ttl", sortable: true },
+        { key: "action", sortable: false }
+      ],
       namespaceToDelete: {},
       rowDetails: {},
       selectedNs: { title: "" }

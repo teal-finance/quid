@@ -1,9 +1,9 @@
 package db
 
 import (
-	// pg import
 	"database/sql"
 
+	// pg import
 	_ "github.com/lib/pq"
 
 	"github.com/synw/quid/quidlib/models"
@@ -11,16 +11,18 @@ import (
 
 // SelectAllNamespaces : get the namespaces
 func SelectAllNamespaces() ([]models.Namespace, error) {
-	data := []user{}
+	data := []namespace{}
 	res := []models.Namespace{}
-	err := db.Select(&data, "SELECT id,name FROM namespace ORDER BY name")
+	err := db.Select(&data, "SELECT id,name,max_token_ttl,public_endpoint_enabled FROM namespace ORDER BY name")
 	if err != nil {
 		return res, err
 	}
 	for _, u := range data {
 		res = append(res, models.Namespace{
-			ID:   u.ID,
-			Name: u.Name,
+			ID:                    u.ID,
+			Name:                  u.Name,
+			MaxTokenTTL:           u.MaxTokenTTL,
+			PublicEndpointEnabled: u.PublicEndpointEnabled,
 		})
 	}
 	return res, nil
@@ -70,13 +72,13 @@ func SelectNamespaceID(name string) (int64, error) {
 }
 
 // CreateNamespace : create a namespace
-func CreateNamespace(name string, key string) (int64, error) {
+func CreateNamespace(name, ttl, key string, endpoint bool) (int64, error) {
 	/*k, err := encrypt(key)
 	if err != nil {
 		return 0, err
 	}*/
-	q := "INSERT INTO namespace(name,key) VALUES($1,$2) RETURNING id"
-	rows, err := db.Query(q, name, key)
+	q := "INSERT INTO namespace(name,key,max_token_ttl,public_endpoint_enabled) VALUES($1,$2,$3,$4) RETURNING id"
+	rows, err := db.Query(q, name, key, ttl, endpoint)
 	if err != nil {
 		return 0, err
 	}

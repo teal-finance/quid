@@ -1,14 +1,16 @@
 <template>
   <b-card title="Login" tag="article" style="max-width: 20rem;" class="mb-2">
-    <b-card-text>
-      <b-form-group>
-        <b-form-input v-model="form.username" placeholder="name"></b-form-input>
-      </b-form-group>
-      <b-form-group>
-        <b-form-input type="password" v-model="form.password" placeholder="password"></b-form-input>
-      </b-form-group>
-    </b-card-text>
-    <b-button variant="primary" @click="postForm">Submit</b-button>
+    <b-form @submit.prevent="postForm">
+      <b-card-text>
+        <b-form-group>
+          <b-form-input v-model="form.username" placeholder="name"></b-form-input>
+        </b-form-group>
+        <b-form-group>
+          <b-form-input type="password" v-model="form.password" placeholder="password"></b-form-input>
+        </b-form-group>
+      </b-card-text>
+      <b-button variant="primary" type="submit">Submit</b-button>
+    </b-form>
   </b-card>
 </template>
 

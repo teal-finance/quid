@@ -4,7 +4,9 @@ package db
 var schema = `CREATE TABLE IF NOT EXISTS namespace (
 	id SERIAL PRIMARY KEY,
 	name TEXT UNIQUE NOT NULL,
-	key TEXT NOT NULL
+	key TEXT NOT NULL,
+	max_token_ttl TEXT NOT NULL DEFAULT '1h',
+	public_endpoint_enabled BOOLEAN NOT NULL DEFAULT false
 );
 
 CREATE INDEX IF NOT EXISTS namespace_name_idx ON namespace(name);

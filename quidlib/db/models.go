@@ -39,7 +39,9 @@ type token struct {
 }
 
 type namespace struct {
-	ID   int64  `db:"id" json:"id"`
-	Name string `db:"name" json:"name"`
-	Key  string `db:"key" json:"key"`
+	ID                    int64  `db:"id" json:"id"`
+	Name                  string `db:"name" json:"name"`
+	Key                   string `db:"key" json:"key"`
+	MaxTokenTTL           string `db:"max_token_ttl" json:"max_token_ttl"`
+	PublicEndpointEnabled bool   `db:"public_endpoint_enabled" json:"public_endpoint_enabled"`
 }

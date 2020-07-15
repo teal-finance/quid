@@ -23,7 +23,7 @@ func InitDbConf() {
 	if !nsexists {
 		key := tokens.GenKey()
 		fmt.Println("Creating the quid namespace")
-		nsid, err = db.CreateNamespace("quid", key)
+		nsid, err = db.CreateNamespace("quid", key, "1h", false)
 		if err != nil {
 			log.Fatal(err)
 		}

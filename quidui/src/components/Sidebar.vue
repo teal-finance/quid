@@ -2,7 +2,7 @@
   <div class="mt-3">
     <div>
       <h4 class="text-muted" @click="$router.push('/namespaces')">
-        <b-icon-person class="mr-1 text-muted" />Namespaces
+        <b-icon-box class="mr-1 text-muted" />Namespaces
       </h4>
       <a @click="action('/namespaces', 'addNamespace')">
         <b-icon-plus class="mr-1 text-muted" />Add

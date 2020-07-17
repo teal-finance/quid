@@ -3,7 +3,6 @@ import store from './store'
 import vue from './main'
 
 function apiError(e) {
-  console.log("API ERR", e);
   if (e.response !== undefined) {
     if (e.response.status !== 200) {
       if (e.response.status === 401) {
@@ -31,10 +30,17 @@ function apiError(e) {
     }
   } else {
     console.log("API ERROR:", e);
+    vue.$bvToast.toast(
+      `${e}`,
+      {
+        title: "Error",
+        variant: "danger"
+      }
+    );
   }
 }
 
-const Api = {
+const api = {
   get: async function (uri) {
     try {
       let response = await axios.get(uri, vue.$axiosConfig);
@@ -46,7 +52,6 @@ const Api = {
         }
       }
       apiError(e)
-      return { response: null, error: e }
     }
   },
   post:
@@ -61,9 +66,8 @@ const Api = {
           }
         }
         apiError(e)
-        return { response: null, error: e }
       }
     }
 }
 
-export default Api;
+export default api;

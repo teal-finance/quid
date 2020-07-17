@@ -108,11 +108,13 @@ export default {
     },
     async showKey(id, title) {
       this.selectedNs = { id: id, title: title, key: null };
-      let { response } = await this.$api.post("/admin/namespaces/key", {
+      let { response, error } = await this.$api.post("/admin/namespaces/key", {
         id: id
       });
-      this.selectedNs.key = response.data.key;
-      this.$refs["nskey-modal"].show();
+      if (!error) {
+        this.selectedNs.key = response.data.key;
+        this.$refs["nskey-modal"].show();
+      }
     },
     getRowDetails(row) {
       if (!row.detailsShowing) {

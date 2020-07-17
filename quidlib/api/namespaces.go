@@ -108,6 +108,27 @@ func DeleteNamespace(c echo.Context) error {
 
 }
 
+// SetNamespaceEndpointAvailability
+func SetNamespaceEndpointAvailability(c echo.Context) error {
+	m := echo.Map{}
+	if err := c.Bind(&m); err != nil {
+		return err
+	}
+	ID := int64(m["id"].(float64))
+	enable := m["enable"].(bool)
+
+	err := db.SetNamespaceEndpointAvailability(ID, enable)
+	if err != nil {
+		return c.JSON(http.StatusConflict, echo.Map{
+			"error": "error updating namespace",
+		})
+	}
+
+	return c.JSON(http.StatusOK, echo.Map{
+		"message": "ok",
+	})
+}
+
 // CreateNamespace : namespace creation http handler
 func CreateNamespace(c echo.Context) error {
 	m := echo.Map{}

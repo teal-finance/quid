@@ -10,13 +10,24 @@ function apiError(e) {
         store.commit("unauthenticate");
         return
       }
-      vue.$bvToast.toast(
-        `${e.response.status} ${e.response.data.error}`,
-        {
-          title: "Error",
-          variant: "danger"
-        }
-      );
+      if (e.response.status === 404) {
+        vue.$bvToast.toast(
+          `Not found`,
+          {
+            title: "Error",
+            variant: "warning"
+          }
+        );
+        return
+      } else {
+        vue.$bvToast.toast(
+          `${e.response.status} ${e.response.data.error}`,
+          {
+            title: "Error",
+            variant: "danger"
+          }
+        );
+      }
     }
   } else {
     console.log("API ERROR:", e);
@@ -30,9 +41,12 @@ const Api = {
       return { response: response, error: null };
     } catch (e) {
       if (e.response !== undefined) {
-        return { response: null, error: e }
+        if (e.response.status !== 404) {
+          return { response: null, error: e }
+        }
       }
       apiError(e)
+      return { response: null, error: e }
     }
   },
   post:
@@ -42,9 +56,12 @@ const Api = {
         return { response: response, error: null };
       } catch (e) {
         if (e.response !== undefined) {
-          return { response: null, error: e }
+          if (e.response.status !== 404) {
+            return { response: null, error: e }
+          }
         }
         apiError(e)
+        return { response: null, error: e }
       }
     }
 }

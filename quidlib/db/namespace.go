@@ -71,8 +71,18 @@ func SelectNamespaceID(name string) (int64, error) {
 	return data[0].ID, nil
 }
 
+// SetNamespaceEndpointAvailability
+func SetNamespaceEndpointAvailability(ID int64, enable bool) error {
+	q := "UPDATE namespace SET public_endpoint_enabled=$2 WHERE id=$1"
+	_, err := db.Query(q, ID, enable)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
 // CreateNamespace : create a namespace
-func CreateNamespace(name, ttl, key string, endpoint bool) (int64, error) {
+func CreateNamespace(name, key, ttl string, endpoint bool) (int64, error) {
 	/*k, err := encrypt(key)
 	if err != nil {
 		return 0, err

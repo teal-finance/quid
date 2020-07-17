@@ -111,6 +111,7 @@ func main() {
 	ns.POST("/find", api.FindNamespace)
 	ns.POST("/info", api.NamespaceInfo)
 	ns.POST("/key", api.GetNamespaceKey)
+	ns.POST("/endpoint", api.SetNamespaceEndpointAvailability)
 	ns.GET("/all", func(c echo.Context) error {
 		data, err := db.SelectAllNamespaces()
 		if err != nil {

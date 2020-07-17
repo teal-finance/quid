@@ -17,7 +17,11 @@
     <b-table hover bordeless :items="data" :fields="fields" class="mt-4" style="max-width:850px">
       <template v-slot:cell(public_endpoint_enabled)="row">
         <b-form-group class="text-center" v-if="row.item.name !== 'quid'">
-          <b-form-checkbox v-model="row.item.public_endpoint_enabled" switch></b-form-checkbox>
+          <b-form-checkbox
+            v-model="row.item.public_endpoint_enabled"
+            switch
+            @change="toggleEndpoint(row)"
+          ></b-form-checkbox>
         </b-form-group>
       </template>
       <template v-slot:cell(action)="row">
@@ -84,6 +88,20 @@ export default {
     };
   },
   methods: {
+    async toggleEndpoint(row) {
+      let enabled = !row.item.public_endpoint_enabled;
+      let { error } = await this.$api.post("/admin/namespaces/endpoint", {
+        id: row.item.id,
+        enable: enabled
+      });
+      if (error === null) {
+        this.$bvToast.toast("ok", {
+          title: "Namespace endpoint availability saved",
+          variant: "success",
+          autoHideDelay: 1500
+        });
+      }
+    },
     async showKey(id, title) {
       this.selectedNs = { id: id, title: title, key: null };
       let { response } = await this.$api.post("/admin/namespaces/key", {

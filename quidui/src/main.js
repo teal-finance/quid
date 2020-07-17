@@ -10,7 +10,7 @@ import 'bootstrap-vue/dist/bootstrap-vue.css'
 import App from './App.vue'
 import store from './store'
 import Conf from './conf';
-import Api from "./api";
+import api from "./api";
 
 Vue.config.productionTip = false
 
@@ -25,7 +25,7 @@ const axiosConfig = {
 };
 
 Vue.prototype.$axiosConfig = axiosConfig
-Vue.prototype.$api = Api
+Vue.prototype.$api = api
 
 const vue = new Vue({
   router,

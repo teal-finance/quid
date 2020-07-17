@@ -24,6 +24,10 @@
           ></b-form-checkbox>
         </b-form-group>
       </template>
+      <template v-slot:cell(max_token_ttl)="row">
+        <b-icon-stopwatch class="mr-1 text-superlight" />
+        &nbsp;{{ row.item.max_token_ttl }}
+      </template>
       <template v-slot:cell(action)="row">
         <b-button
           class="mr-2"

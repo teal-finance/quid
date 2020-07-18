@@ -19,6 +19,7 @@ import (
 func main() {
 	init := flag.Bool("init", false, "initialize and create a superuser")
 	key := flag.Bool("key", false, "create a random key")
+	isDevMode := flag.Bool("dev", false, "development mode")
 	genConf := flag.Bool("conf", false, "generate a config file")
 	flag.Parse()
 
@@ -78,8 +79,10 @@ func main() {
 
 	// admin routes
 	a := e.Group("/admin")
-	a.Use(middleware.JWTWithConfig(config))
-	a.Use(api.AdminMiddleware)
+	if !*isDevMode {
+		a.Use(middleware.JWTWithConfig(config))
+		a.Use(api.AdminMiddleware)
+	}
 
 	g := a.Group("/groups")
 	g.POST("/add", api.CreateGroup)
@@ -119,6 +122,10 @@ func main() {
 		}
 		return c.JSON(http.StatusOK, &data)
 	})
+
+	if *isDevMode {
+		fmt.Println("Running in development mode")
+	}
 
 	// run server
 	e.Logger.Fatal(e.Start(":8082"))

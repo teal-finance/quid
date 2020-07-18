@@ -19,13 +19,19 @@ func AdminLogin(c echo.Context) error {
 	password := m["password"].(string)
 	namespace := m["namespace"].(string)
 
-	// get the namespace id
-	nsid, err := db.SelectNamespaceID(namespace)
+	// get the namespace
+	exists, ns, err := db.SelectNamespace(namespace)
 	if err != nil {
 		return err
 	}
+	if !exists {
+		return c.JSON(http.StatusBadRequest, echo.Map{
+			"error": "namespace does not exist",
+		})
+	}
+
 	// check the user password
-	isAuthorized, u, err := checkUserPassword(username, password, nsid)
+	isAuthorized, u, err := checkUserPassword(username, password, ns.ID)
 	if err != nil {
 		return err
 	}
@@ -34,7 +40,7 @@ func AdminLogin(c echo.Context) error {
 		return c.NoContent(http.StatusUnauthorized)
 	}
 	// check the user admin group
-	isAdmin, err := isUserInAdminGroup(u.ID, nsid)
+	isAdmin, err := isUserInAdminGroup(u.ID, ns.ID)
 	if err != nil {
 		return err
 	}
@@ -44,7 +50,7 @@ func AdminLogin(c echo.Context) error {
 	}
 
 	// set the token
-	token, err := tokens.GenAdminToken(u.Name)
+	token, err := tokens.GenAdminToken(u.Name, ns.Key)
 	if err != nil {
 		return err
 	}

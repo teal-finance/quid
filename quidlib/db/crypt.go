@@ -3,52 +3,66 @@ package db
 import (
 	"crypto/aes"
 	"crypto/cipher"
-	"crypto/rand"
 	"encoding/hex"
-	"errors"
-	"io"
-
-	"github.com/synw/quid/quidlib/conf"
 )
 
-func encrypt(plaintext string) ([]byte, error) {
-	key, _ := hex.DecodeString(conf.EncodingKey)
-	//key := []byte(conf.EncodingKey)
-	c, err := aes.NewCipher(key)
+func encrypt(plaintext, key string) (string, error) {
+	k := []byte(key)
+	c, err := aes.NewCipher(k)
 	if err != nil {
-		return nil, err
+		return "", err
 	}
-
 	gcm, err := cipher.NewGCM(c)
 	if err != nil {
-		return nil, err
+		return "", err
 	}
-
 	nonce := make([]byte, gcm.NonceSize())
-	if _, err = io.ReadFull(rand.Reader, nonce); err != nil {
-		return nil, err
-	}
-
-	return gcm.Seal(nonce, nonce, []byte(plaintext), nil), nil
+	ciphertext := gcmEncrypt(key, plaintext, nonce, nil)
+	return ciphertext, nil
 }
 
-func decrypt(ciphertext []byte) ([]byte, error) {
-	key, _ := hex.DecodeString(conf.EncodingKey)
-	c, err := aes.NewCipher(key)
+func decrypt(plaintext, key string) (string, error) {
+	k := []byte(key)
+	c, err := aes.NewCipher(k)
 	if err != nil {
-		return nil, err
+		return "", err
 	}
-
 	gcm, err := cipher.NewGCM(c)
 	if err != nil {
-		return nil, err
+		return "", err
 	}
+	nonce := make([]byte, gcm.NonceSize())
+	ciphertext := gcmDecrypt(key, plaintext, nonce, nil)
+	return ciphertext, nil
+}
 
-	nonceSize := gcm.NonceSize()
-	if len(ciphertext) < nonceSize {
-		return nil, errors.New("ciphertext too short")
+func gcmEncrypt(key string, plaintext string, iv []byte, additionalData []byte) string {
+	block, err := aes.NewCipher([]byte(key))
+	if err != nil {
+		panic(err.Error())
 	}
+	aesgcm, err := cipher.NewGCM(block)
+	if err != nil {
+		panic(err.Error())
+	}
+	ciphertext := aesgcm.Seal(nil, iv, []byte(plaintext), additionalData)
+	return hex.EncodeToString(ciphertext)
+}
 
-	nonce, ciphertext := ciphertext[:nonceSize], ciphertext[nonceSize:]
-	return gcm.Open(nil, nonce, ciphertext, nil)
+func gcmDecrypt(key string, ct string, iv []byte, additionalData []byte) string {
+	ciphertext, _ := hex.DecodeString(ct)
+	block, err := aes.NewCipher([]byte(key))
+	if err != nil {
+		panic(err.Error())
+	}
+	aesgcm, err := cipher.NewGCM(block)
+	if err != nil {
+		panic(err.Error())
+	}
+	plaintext, err := aesgcm.Open(nil, iv, ciphertext, additionalData)
+	if err != nil {
+		panic(err.Error())
+	}
+	s := string(plaintext[:])
+	return s
 }

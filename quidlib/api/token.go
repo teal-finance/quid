@@ -4,10 +4,8 @@ import (
 	"fmt"
 	"log"
 	"net/http"
-	"time"
 
 	"github.com/labstack/echo/v4"
-	"github.com/synw/quid/quidlib/conf"
 	"github.com/synw/quid/quidlib/db"
 	"github.com/synw/quid/quidlib/tokens"
 )
@@ -23,12 +21,17 @@ func RequestToken(c echo.Context) error {
 	password := m["password"].(string)
 	namespace := m["namespace"].(string)
 
-	nsid, err := db.SelectNamespaceID(namespace)
+	exists, ns, err := db.SelectNamespace(namespace)
 	if err != nil {
 		return err
 	}
+	if !exists {
+		return c.JSON(http.StatusBadRequest, echo.Map{
+			"error": "namespace does not exist",
+		})
+	}
 
-	isAuthorized, u, err := checkUserPassword(username, password, nsid)
+	isAuthorized, u, err := checkUserPassword(username, password, ns.ID)
 	if err != nil {
 		return err
 	}
@@ -43,7 +46,7 @@ func RequestToken(c echo.Context) error {
 
 	fmt.Println("User", u.Name, "is connected")
 
-	t, err := tokens.GenUserToken(u.Name, u.GroupNames(), time.Now().Add(conf.DefaultTokenTimeout))
+	t, err := tokens.GenUserToken(u.Name, ns.Key, u.GroupNames(), ns.MaxTokenTTL)
 	if err != nil {
 		log.Fatal(err)
 	}

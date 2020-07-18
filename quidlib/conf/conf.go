@@ -1,10 +1,8 @@
 package conf
 
 import (
-	"crypto/hmac"
 	"crypto/rand"
-	"crypto/sha256"
-	"encoding/hex"
+	"encoding/base64"
 	"encoding/json"
 	"io/ioutil"
 	"log"
@@ -34,7 +32,7 @@ func Create() {
 		"db_user":                "pguser",
 		"db_password":            "",
 		"default_tokens_timeout": "24h",
-		"key":                    genKey(),
+		"key":                    generateRandomKey(),
 	}
 	jsonString, _ := json.MarshalIndent(data, "", "    ")
 	ioutil.WriteFile("config.json", jsonString, os.ModePerm)
@@ -69,23 +67,9 @@ func Init() (bool, error) {
 	return true, nil
 }
 
-// GenKey : generate a random key
-func genKey() string {
-	b, err := generateRandomBytes(32)
-	if err != nil {
-		log.Fatal(err)
-	}
-	h := hmac.New(sha256.New, []byte(b))
-	token := hex.EncodeToString(h.Sum(nil))
-	return token
-
-}
-
-func generateRandomBytes(n int) ([]byte, error) {
-	b := make([]byte, n)
-	_, err := rand.Read(b)
-	if err != nil {
-		return nil, err
-	}
-	return b, nil
+func generateRandomKey() string {
+	buff := make([]byte, 32)
+	rand.Read(buff)
+	str := base64.StdEncoding.EncodeToString(buff)
+	return str[:32]
 }

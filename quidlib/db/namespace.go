@@ -6,6 +6,7 @@ import (
 	// pg import
 	_ "github.com/lib/pq"
 
+	"github.com/synw/quid/quidlib/conf"
 	"github.com/synw/quid/quidlib/models"
 )
 
@@ -45,6 +46,29 @@ func SelectNamespaceStartsWith(name string) ([]models.Namespace, error) {
 	return res, nil
 }
 
+// SelectNamespace : get the id and key for a namespace
+func SelectNamespace(name string) (bool, models.Namespace, error) {
+	data := namespace{}
+	ns := models.Namespace{}
+	row := db.QueryRowx("SELECT id,key,max_token_ttl,public_endpoint_enabled FROM namespace WHERE name='$1'", name)
+	err := row.StructScan(&data)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return false, ns, nil
+		}
+		return true, ns, err
+	}
+	k, err := decrypt(data.Key, conf.EncodingKey)
+	if err != nil {
+		return true, ns, err
+	}
+	ns.ID = data.ID
+	ns.Key = k
+	ns.MaxTokenTTL = data.MaxTokenTTL
+	ns.PublicEndpointEnabled = data.PublicEndpointEnabled
+	return true, ns, nil
+}
+
 // SelectNamespaceKey : get the key for a namespace
 func SelectNamespaceKey(ID int64) (bool, string, error) {
 	data := namespace{}
@@ -57,7 +81,11 @@ func SelectNamespaceKey(ID int64) (bool, string, error) {
 		}
 		return false, key, err
 	}
-	key = data.Key
+	k, err := decrypt(data.Key, conf.EncodingKey)
+	if err != nil {
+		return true, "", err
+	}
+	key = k
 	return true, key, nil
 }
 
@@ -71,7 +99,7 @@ func SelectNamespaceID(name string) (int64, error) {
 	return data[0].ID, nil
 }
 
-// SetNamespaceEndpointAvailability
+// SetNamespaceEndpointAvailability : enable or disable public endpoint
 func SetNamespaceEndpointAvailability(ID int64, enable bool) error {
 	q := "UPDATE namespace SET public_endpoint_enabled=$2 WHERE id=$1"
 	_, err := db.Query(q, ID, enable)
@@ -83,12 +111,12 @@ func SetNamespaceEndpointAvailability(ID int64, enable bool) error {
 
 // CreateNamespace : create a namespace
 func CreateNamespace(name, key, ttl string, endpoint bool) (int64, error) {
-	/*k, err := encrypt(key)
+	k, err := encrypt(key, conf.EncodingKey)
 	if err != nil {
 		return 0, err
-	}*/
+	}
 	q := "INSERT INTO namespace(name,key,max_token_ttl,public_endpoint_enabled) VALUES($1,$2,$3,$4) RETURNING id"
-	rows, err := db.Query(q, name, key, ttl, endpoint)
+	rows, err := db.Query(q, name, string(k), ttl, endpoint)
 	if err != nil {
 		return 0, err
 	}

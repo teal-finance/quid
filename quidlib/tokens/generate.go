@@ -9,14 +9,18 @@ import (
 	"time"
 
 	"github.com/dgrijalva/jwt-go"
-	"github.com/synw/quid/quidlib/conf"
 )
 
 // GenUserToken : generate a token for a user
-func GenUserToken(name string, groups []string, timeout time.Time) (string, error) {
-	claims := standardUserClaims(name, groups, timeout)
+func GenUserToken(name, key string, groups []string, timeout string) (string, error) {
+	d, err := time.ParseDuration(timeout)
+	if err != nil {
+		return "", err
+	}
+	to := time.Now().Add(d)
+	claims := standardUserClaims(name, groups, to)
 	t := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-	token, err := t.SignedString([]byte(conf.EncodingKey))
+	token, err := t.SignedString([]byte(key))
 	if err != nil {
 		return "", err
 	}
@@ -24,11 +28,11 @@ func GenUserToken(name string, groups []string, timeout time.Time) (string, erro
 }
 
 // GenAdminToken : generate a token for a quid admin frontend user
-func GenAdminToken(name string) (string, error) {
+func GenAdminToken(name, key string) (string, error) {
 	timeout := time.Now().Add(time.Hour * 24)
 	claims := standardUserClaims(name, []string{"quid_admin"}, timeout)
 	t := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-	token, err := t.SignedString([]byte(conf.EncodingKey))
+	token, err := t.SignedString([]byte(key))
 	if err != nil {
 		return "", err
 	}

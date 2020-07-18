@@ -3,7 +3,7 @@
     <div v-if="isAuthorized()">
       <navbar></navbar>
       <b-container fluid class="h-100">
-        <b-row style="align-items:stretch;height:100%">
+        <b-row class="full-height-content-zone">
           <b-col class="bg-light">
             <sidebar></sidebar>
           </b-col>

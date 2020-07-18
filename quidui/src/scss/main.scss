@@ -1,5 +1,9 @@
 @import "./_variables.scss";
 
+.full-height-content-zone {
+  min-height: calc(100vh - 58px);
+}
+
 .text-superlight {
     color: $super-light;
 }

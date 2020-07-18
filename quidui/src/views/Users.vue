@@ -95,8 +95,10 @@ export default {
       });
     },
     async fetchUsers() {
-      let { response } = await this.$api.get("/admin/users/all");
-      this.data = response.data;
+      let { response, error } = await this.$api.get("/admin/users/all");
+      if (!error) {
+        this.data = response.data;
+      }
     },
     confirmDeleteItem(id, name) {
       this.itemToDelete = {

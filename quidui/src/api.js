@@ -3,7 +3,17 @@ import store from './store'
 import vue from './main'
 
 function apiError(e) {
-  if (e.response !== undefined) {
+  if (e.response === undefined || e.response === null) {
+    console.log("API ERROR:", e);
+    vue.$bvToast.toast(
+      `${e}`,
+      {
+        title: "Error",
+        variant: "danger"
+      }
+    );
+  }
+  else {
     if (e.response.status !== 200) {
       if (e.response.status === 401) {
         store.commit("unauthenticate");
@@ -28,15 +38,6 @@ function apiError(e) {
         );
       }
     }
-  } else {
-    console.log("API ERROR:", e);
-    vue.$bvToast.toast(
-      `${e}`,
-      {
-        title: "Error",
-        variant: "danger"
-      }
-    );
   }
 }
 

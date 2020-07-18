@@ -1,16 +1,18 @@
 <template>
   <div class="main">
-    <navbar v-if="isAuthenticated"></navbar>
-    <b-container fluid v-if="isAuthenticated" class="h-100">
-      <b-row style="align-items: stretch;height:100%">
-        <b-col class="bg-light">
-          <sidebar></sidebar>
-        </b-col>
-        <b-col cols="10">
-          <router-view></router-view>
-        </b-col>
-      </b-row>
-    </b-container>
+    <div v-if="isAuthorized()">
+      <navbar></navbar>
+      <b-container fluid class="h-100">
+        <b-row style="align-items:stretch;height:100%">
+          <b-col class="bg-light">
+            <sidebar></sidebar>
+          </b-col>
+          <b-col cols="10">
+            <router-view></router-view>
+          </b-col>
+        </b-row>
+      </b-container>
+    </div>
     <div class="vertical-center" v-else>
       <div class="inner-block">
         <login></login>
@@ -18,7 +20,6 @@
     </div>
   </div>
 </template>
-
 
 <script>
 import { mapState } from "vuex";
@@ -32,14 +33,36 @@ export default {
     Sidebar,
     Login
   },
-  created: function() {
-    /* let exists = this.$cookies.isKey("quidkey");
-    if (exists) {
-      let key = this.$cookies.get("quidkey");
-      this.$store.commit("authenticate", key);
-    }*/
+  methods: {
+    isAuthorized() {
+      if (!this.isProduction) {
+        if (this.isDevModeEnabled) {
+          return true;
+        }
+      }
+      if (this.isAuthenticated) {
+        return true;
+      }
+      return false;
+    }
   },
-  computed: mapState(["isAuthenticated"])
+  computed: {
+    ...mapState(["isAuthenticated"]),
+    isDevModeEnabled() {
+      if (process.env.VUE_APP_ENABLE_DEV_MODE !== undefined) {
+        return process.env.VUE_APP_ENABLE_DEV_MODE;
+      }
+      return false;
+    },
+    isProduction() {
+      return process.env.NODE_ENV === "production";
+    }
+  },
+  mounted() {
+    console.log("IS AUTHENTICATED", this.isAuthenticated);
+    console.log("IS PRODUCTION", this.isProduction);
+    console.log("IS DEV_MODE", this.isDevModeEnabled);
+  }
 };
 </script>
 

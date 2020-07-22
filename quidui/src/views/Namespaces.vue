@@ -99,8 +99,9 @@ export default {
         enable: enabled
       });
       if (error === null) {
-        this.$bvToast.toast("ok", {
-          title: "Namespace endpoint availability saved",
+        let msg = row.item.public_endpoint_enabled ? "enabled" : "disabled";
+        this.$bvToast.toast(`Namespace endpoint ${msg}`, {
+          title: "Ok",
           variant: "success",
           autoHideDelay: 1500
         });

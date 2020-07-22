@@ -2,7 +2,7 @@ package conf
 
 import (
 	"crypto/rand"
-	"encoding/base64"
+	"encoding/hex"
 	"encoding/json"
 	"io/ioutil"
 	"log"
@@ -68,8 +68,10 @@ func Init() (bool, error) {
 }
 
 func generateRandomKey() string {
-	buff := make([]byte, 32)
-	rand.Read(buff)
-	str := base64.StdEncoding.EncodeToString(buff)
-	return str[:32]
+	bytes := make([]byte, 32)
+	if _, err := rand.Read(bytes); err != nil {
+		panic(err.Error())
+	}
+	key := hex.EncodeToString(bytes)
+	return key
 }

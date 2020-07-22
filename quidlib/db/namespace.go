@@ -133,6 +133,16 @@ func CreateNamespace(name, key, ttl string, endpoint bool) (int64, error) {
 	return id, nil
 }
 
+// UpdateNamespaceMaxTTL : update a max token ttl for a namespace
+func UpdateNamespaceMaxTTL(ID int64, maxTTL string) error {
+	q := "UPDATE namespace set max_token_ttl=$2 WHERE id=$1"
+	_, err := db.Query(q, ID, maxTTL)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
 // DeleteNamespace : delete a namespace
 func DeleteNamespace(ID int64) error {
 	q := "DELETE FROM namespace where id=$1"

@@ -10,6 +10,25 @@ import (
 	"github.com/synw/quid/quidlib/tokens"
 )
 
+// SetNamespaceTTL : set a max token ttl for a namespace
+func SetNamespaceTTL(c echo.Context) error {
+	m := echo.Map{}
+	if err := c.Bind(&m); err != nil {
+		return err
+	}
+	ID := int64(m["id"].(float64))
+	maxTTL := m["max_ttl"].(string)
+
+	err := db.UpdateNamespaceMaxTTL(ID, maxTTL)
+	if err != nil {
+		log.Fatal(err)
+		return c.JSON(http.StatusInternalServerError, echo.Map{
+			"error": "error updating tokens max ttl in namespace",
+		})
+	}
+	return c.NoContent(http.StatusOK)
+}
+
 // NamespaceInfo : info about a namespace
 func NamespaceInfo(c echo.Context) error {
 	m := echo.Map{}
@@ -108,7 +127,7 @@ func DeleteNamespace(c echo.Context) error {
 
 }
 
-// SetNamespaceEndpointAvailability
+// SetNamespaceEndpointAvailability :
 func SetNamespaceEndpointAvailability(c echo.Context) error {
 	m := echo.Map{}
 	if err := c.Bind(&m); err != nil {

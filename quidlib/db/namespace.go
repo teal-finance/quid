@@ -6,7 +6,6 @@ import (
 	// pg import
 	_ "github.com/lib/pq"
 
-	"github.com/synw/quid/quidlib/conf"
 	"github.com/synw/quid/quidlib/models"
 )
 
@@ -58,7 +57,7 @@ func SelectNamespace(name string) (bool, models.Namespace, error) {
 		}
 		return true, ns, err
 	}
-	k, err := decrypt(data.Key, conf.EncodingKey)
+	k, err := aesGcmDecrypt(data.Key, nil)
 	if err != nil {
 		return true, ns, err
 	}
@@ -81,9 +80,10 @@ func SelectNamespaceKey(ID int64) (bool, string, error) {
 		}
 		return false, key, err
 	}
-	k, err := decrypt(data.Key, conf.EncodingKey)
-	if err != nil {
-		return true, "", err
+	k, tr := aesGcmDecrypt(data.Key, nil)
+	if tr != nil {
+		tr.Pass()
+		return true, "", tr.Err()
 	}
 	key = k
 	return true, key, nil
@@ -111,9 +111,10 @@ func SetNamespaceEndpointAvailability(ID int64, enable bool) error {
 
 // CreateNamespace : create a namespace
 func CreateNamespace(name, key, ttl string, endpoint bool) (int64, error) {
-	k, err := encrypt(key, conf.EncodingKey)
-	if err != nil {
-		return 0, err
+	k, tr := aesGcmEncrypt(key, nil)
+	if tr != nil {
+		tr.Pass()
+		return 0, tr.Err()
 	}
 	q := "INSERT INTO namespace(name,key,max_token_ttl,public_endpoint_enabled) VALUES($1,$2,$3,$4) RETURNING id"
 	rows, err := db.Query(q, name, string(k), ttl, endpoint)

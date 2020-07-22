@@ -4,65 +4,49 @@ import (
 	"crypto/aes"
 	"crypto/cipher"
 	"encoding/hex"
+
+	"github.com/synw/terr"
+
+	"github.com/synw/quid/quidlib/conf"
 )
 
-func encrypt(plaintext, key string) (string, error) {
-	k := []byte(key)
-	c, err := aes.NewCipher(k)
+func aesGcmEncrypt(plaintext string, additionalData []byte) (string, *terr.Trace) {
+	key, _ := hex.DecodeString(conf.EncodingKey)
+	block, err := aes.NewCipher(key)
 	if err != nil {
-		return "", err
-	}
-	gcm, err := cipher.NewGCM(c)
-	if err != nil {
-		return "", err
-	}
-	nonce := make([]byte, gcm.NonceSize())
-	ciphertext := gcmEncrypt(key, plaintext, nonce, nil)
-	return ciphertext, nil
-}
-
-func decrypt(plaintext, key string) (string, error) {
-	k := []byte(key)
-	c, err := aes.NewCipher(k)
-	if err != nil {
-		return "", err
-	}
-	gcm, err := cipher.NewGCM(c)
-	if err != nil {
-		return "", err
-	}
-	nonce := make([]byte, gcm.NonceSize())
-	ciphertext := gcmDecrypt(key, plaintext, nonce, nil)
-	return ciphertext, nil
-}
-
-func gcmEncrypt(key string, plaintext string, iv []byte, additionalData []byte) string {
-	block, err := aes.NewCipher([]byte(key))
-	if err != nil {
-		panic(err.Error())
+		tr := terr.New(err)
+		return "", tr
 	}
 	aesgcm, err := cipher.NewGCM(block)
 	if err != nil {
-		panic(err.Error())
+		tr := terr.New(err.Error)
+		return "", tr
 	}
-	ciphertext := aesgcm.Seal(nil, iv, []byte(plaintext), additionalData)
-	return hex.EncodeToString(ciphertext)
+	iv := make([]byte, aesgcm.NonceSize())
+	ciphertext := aesgcm.Seal(iv, iv, []byte(plaintext), additionalData)
+	return hex.EncodeToString(ciphertext), nil
 }
 
-func gcmDecrypt(key string, ct string, iv []byte, additionalData []byte) string {
-	ciphertext, _ := hex.DecodeString(ct)
-	block, err := aes.NewCipher([]byte(key))
+func aesGcmDecrypt(encryptedString string, additionalData []byte) (string, *terr.Trace) {
+	key, _ := hex.DecodeString(conf.EncodingKey)
+	block, err := aes.NewCipher(key)
 	if err != nil {
-		panic(err.Error())
+		tr := terr.New(err)
+		return "", tr
 	}
 	aesgcm, err := cipher.NewGCM(block)
 	if err != nil {
-		panic(err.Error())
+		tr := terr.New(err)
+		return "", tr
 	}
+	nonceSize := aesgcm.NonceSize()
+	enc, _ := hex.DecodeString(encryptedString)
+	iv, ciphertext := enc[:nonceSize], enc[nonceSize:]
 	plaintext, err := aesgcm.Open(nil, iv, ciphertext, additionalData)
 	if err != nil {
-		panic(err.Error())
+		tr := terr.New(err)
+		return "", tr
 	}
 	s := string(plaintext[:])
-	return s
+	return s, nil
 }

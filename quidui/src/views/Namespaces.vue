@@ -25,8 +25,20 @@
         </b-form-group>
       </template>
       <template v-slot:cell(max_token_ttl)="row">
-        <b-icon-stopwatch class="mr-1 text-superlight" />
-        &nbsp;{{ row.item.max_token_ttl }}
+        <b-icon-stopwatch
+          class="mr-1 text-superlight"
+          @click="toggleEditTtl(row.item.id,row.item.max_token_ttl)"
+        />&nbsp;
+        <span v-if="editTtl !== row.item.id">{{ row.item.max_token_ttl }}</span>
+        <b-form-input
+          v-else
+          :value="newTtl"
+          v-on:keyup.enter="submitTt(row)"
+          v-model="newTtl"
+          style="display:inline-block;width:52px"
+          size="sm"
+          autofocus
+        ></b-form-input>
       </template>
       <template v-slot:cell(action)="row">
         <b-button
@@ -74,7 +86,7 @@ import Info from "@/components/namespace/Info";
 export default {
   components: {
     Add,
-    Info
+    Info,
   },
   data() {
     return {
@@ -84,33 +96,63 @@ export default {
         { key: "name", sortable: true },
         { key: "public_endpoint_enabled", sortable: false },
         { key: "max_token_ttl", sortable: true },
-        { key: "action", sortable: false }
+        { key: "action", sortable: false },
       ],
       namespaceToDelete: {},
       rowDetails: {},
-      selectedNs: { title: "" }
+      selectedNs: { title: "" },
+      editTtl: null,
+      isEditTtl: false,
+      newTtl: null,
     };
   },
   methods: {
+    async submitTt(row) {
+      let { error } = await this.$api.post("/admin/namespaces/maxttl", {
+        id: row.item.id,
+        max_ttl: this.newTtl,
+      });
+      if (error == null) {
+        this.editTtl = null;
+        this.isEditTtl = false;
+        this.data[row.index].max_token_ttl = this.newTtl;
+        this.$bvToast.toast(`Namespace max token ttl set to ${this.newTtl}`, {
+          title: "Ok",
+          variant: "success",
+          autoHideDelay: 1500,
+        });
+        this.newTtl = null;
+      }
+    },
+    toggleEditTtl(id, value) {
+      if (this.isEditTtl) {
+        this.editTtl = null;
+        this.isEditTtl = false;
+      } else {
+        this.editTtl = id;
+        this.newTtl = value;
+        this.isEditTtl = true;
+      }
+    },
     async toggleEndpoint(row) {
       let enabled = !row.item.public_endpoint_enabled;
       let { error } = await this.$api.post("/admin/namespaces/endpoint", {
         id: row.item.id,
-        enable: enabled
+        enable: enabled,
       });
       if (error === null) {
         let msg = row.item.public_endpoint_enabled ? "enabled" : "disabled";
         this.$bvToast.toast(`Namespace endpoint ${msg}`, {
           title: "Ok",
           variant: "success",
-          autoHideDelay: 1500
+          autoHideDelay: 1500,
         });
       }
     },
     async showKey(id, title) {
       this.selectedNs = { id: id, title: title, key: null };
       let { response, error } = await this.$api.post("/admin/namespaces/key", {
-        id: id
+        id: id,
       });
       if (!error) {
         this.selectedNs.key = response.data.key;
@@ -128,7 +170,7 @@ export default {
     async toggleDetails(row) {
       if (!row.detailsShowing) {
         let { response } = await this.$api.post("/admin/namespaces/info", {
-          id: row.item.id
+          id: row.item.id,
         });
         this.rowDetails[row.index] = response.data;
       }
@@ -139,7 +181,7 @@ export default {
       this.$bvToast.toast("ok", {
         title: "Namespace saved",
         variant: "success",
-        autoHideDelay: 1500
+        autoHideDelay: 1500,
       });
     },
     async fetchNamespaces() {
@@ -149,20 +191,20 @@ export default {
     confirmDeleteNamespace(id, name) {
       this.namespaceToDelete = {
         name: name,
-        id: id
+        id: id,
       };
       this.$refs["delete-modal"].show();
     },
     async deleteNamespace(ns) {
       this.$refs["delete-modal"].hide();
       let { error } = await this.$api.post("/admin/namespaces/delete", {
-        id: ns.id
+        id: ns.id,
       });
       if (error === null) {
         this.$bvToast.toast("Ok", {
           title: "Namespace deleted",
           autoHideDelay: 1000,
-          variant: "success"
+          variant: "success",
         });
       }
       this.fetchNamespaces();
@@ -170,15 +212,15 @@ export default {
     nsKeyModalTitle() {
       if (this.selectedNs === null) return;
       return `Key for namespace ${this.selectedNs.title}`;
-    }
+    },
   },
-  mounted: function() {
+  mounted: function () {
     this.fetchNamespaces();
   },
   computed: {
     ...mapState(["action"]),
     ...mapGetters({
-      s: "showActionBar"
+      s: "showActionBar",
     }),
     showActionBar: {
       get() {
@@ -186,8 +228,8 @@ export default {
       },
       set(newName) {
         return newName;
-      }
-    }
-  }
+      },
+    },
+  },
 };
 </script>

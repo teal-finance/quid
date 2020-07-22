@@ -39,7 +39,7 @@ func GenAdminToken(name, key string) (string, error) {
 	return token, nil
 }
 
-// GenKey : generate a random key
+// GenKey : generate a random hmac key
 func GenKey() string {
 	b, err := generateRandomBytes(32)
 	if err != nil {

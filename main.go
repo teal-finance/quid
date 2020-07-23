@@ -89,7 +89,7 @@ func main() {
 	g.POST("/delete", api.DeleteGroup)
 	g.POST("/info", api.GroupsInfo)
 	g.GET("/all", func(c echo.Context) error {
-		data, err := db.SelectGroups()
+		data, err := db.SelectAllGroups()
 		if err != nil {
 			log.Fatalln(err)
 		}

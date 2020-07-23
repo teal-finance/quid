@@ -59,16 +59,3 @@ func generateRandomBytes(n int) ([]byte, error) {
 	}
 	return b, nil
 }
-
-/*
-func genKeyForNamespace(name string) (string, error) {
-	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
-		"ns_name": name,
-	})
-	tokenString, err := token.SignedString(conf.EncodingKey)
-	if err != nil {
-		return "", err
-	}
-	return tokenString, nil
-
-}*/

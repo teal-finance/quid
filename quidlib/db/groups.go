@@ -7,8 +7,8 @@ import (
 	"github.com/synw/quid/quidlib/models"
 )
 
-// SelectGroups : get the groups for a namespace
-func SelectGroups() ([]models.Group, error) {
+// SelectAllGroups : get all the groups
+func SelectAllGroups() ([]models.Group, error) {
 	data := []models.Group{}
 	err := db.Select(&data, "SELECT grouptable.id,grouptable.name,namespace.name as namespace FROM grouptable "+
 		"JOIN namespace ON grouptable.namespace_id = namespace.id ORDER BY grouptable.name")
@@ -18,7 +18,7 @@ func SelectGroups() ([]models.Group, error) {
 	return data, nil
 }
 
-// SelectGroupsNamesForUser : get the groups for a namespace
+// SelectGroupsNamesForUser : get the groups for a user
 func SelectGroupsNamesForUser(userID int64) ([]string, error) {
 	data := []userGroupName{}
 	err := db.Select(&data, "SELECT grouptable.name as name FROM usergroup "+

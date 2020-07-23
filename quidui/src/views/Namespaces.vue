@@ -29,11 +29,14 @@
           class="mr-1 text-superlight"
           @click="toggleEditTtl(row.item.id,row.item.max_token_ttl)"
         />&nbsp;
-        <span v-if="editTtl !== row.item.id">{{ row.item.max_token_ttl }}</span>
+        <span
+          v-if="editTtl !== row.item.id || row.item.name=='quid'"
+        >{{ row.item.max_token_ttl }}</span>
         <b-form-input
           v-else
           :value="newTtl"
           v-on:keyup.enter="submitTt(row)"
+          v-on:keyup.escape="undeditTtl"
           v-model="newTtl"
           style="display:inline-block;width:52px"
           size="sm"
@@ -123,6 +126,11 @@ export default {
         });
         this.newTtl = null;
       }
+    },
+    undeditTtl() {
+      this.editTtl = false;
+      this.editTtl = null;
+      this.newTtl = null;
     },
     toggleEditTtl(id, value) {
       if (this.isEditTtl) {

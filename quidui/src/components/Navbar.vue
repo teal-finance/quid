@@ -8,7 +8,7 @@
           <b-nav-item tag="router-link" :to="{ path: '/namespaces' }">Namespaces</b-nav-item>
           <b-nav-item tag="router-link" :to="{ path: '/users' }">Users</b-nav-item>
           <b-nav-item tag="router-link" :to="{ path: '/groups' }">Groups</b-nav-item>
-          <b-nav-item tag="router-link" :to="{ path: '/tokens' }">Tokens</b-nav-item>
+          <!-- b-nav-item tag="router-link" :to="{ path: '/tokens' }">Tokens</b-nav-item -->
           <b-button size="sm" class="ml-3 my-2 my-sm-0" @click="logout">Logout</b-button>
         </b-navbar-nav>
       </b-collapse>
@@ -19,11 +19,11 @@
 <script>
 export default {
   methods: {
-    logout: function() {
+    logout: function () {
       this.$cookies.remove("quidkey", null, "");
       this.$axios.defaults.headers.common = {};
       window.location.reload();
-    }
-  }
+    },
+  },
 };
 </script>

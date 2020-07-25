@@ -24,14 +24,14 @@
         <b-icon-plus class="mr-1 text-muted" />Add
       </a>
     </div>
-    <div class="mt-3">
+    <!-- div class="mt-3">
       <h4 class="text-muted" @click="$router.push('/tokens')">
         <b-icon-puzzle class="mr-1" />Tokens
       </h4>
       <a @click="a">
         <b-icon-plus class="mr-1 text-muted" />Add
       </a>
-    </div>
+    </div-->
   </div>
 </template>
 
@@ -39,14 +39,14 @@
 // v-if="$route.path.startsWith('/users')"
 export default {
   methods: {
-    action: async function(path, name) {
+    action: async function (path, name) {
       if (!this.$route.path.startsWith(path)) {
         await this.$router.push(path);
       }
       this.$store.commit("action", name);
     },
-    a: function() {}
-  }
+    a: function () {},
+  },
 };
 </script>
 

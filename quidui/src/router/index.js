@@ -7,23 +7,23 @@ Vue.use(VueRouter)
 const routes = [
   {
     path: '/',
-    component: () => import('../views/Home.vue'),
+    component: () => import('../views/ViewHome.vue'),
   },
   {
     path: '/users',
-    component: () => import('../views/Users.vue'),
+    component: () => import('../views/ViewUsers.vue'),
   },
   {
     path: '/groups',
-    component: () => import('../views/Groups.vue'),
+    component: () => import('../views/ViewGroups.vue'),
   },
   {
     path: '/tokens',
-    component: () => import('../views/Tokens.vue'),
+    component: () => import('../views/ViewTokens.vue'),
   },
   {
     path: '/namespaces',
-    component: () => import('../views/Namespaces.vue'),
+    component: () => import('../views/ViewNamespaces.vue'),
   },
 ]
 

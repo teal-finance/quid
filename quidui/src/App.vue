@@ -1,11 +1,11 @@
 <template>
   <div class="main">
     <div v-if="isAuthorized()">
-      <navbar></navbar>
+      <the-navbar></the-navbar>
       <b-container fluid class="h-100">
         <b-row class="full-height-content-zone">
           <b-col class="bg-light">
-            <sidebar></sidebar>
+            <the-sidebar></the-sidebar>
           </b-col>
           <b-col cols="10">
             <router-view></router-view>
@@ -15,7 +15,7 @@
     </div>
     <div class="vertical-center" v-else>
       <div class="inner-block">
-        <login></login>
+        <the-login></the-login>
       </div>
     </div>
   </div>
@@ -23,15 +23,15 @@
 
 <script>
 import { mapState } from "vuex";
-import Navbar from "@/components/Navbar.vue";
-import Sidebar from "@/components/Sidebar.vue";
-import Login from "@/views/Login";
+import TheNavbar from "@/components/TheNavbar.vue";
+import TheSidebar from "@/components/TheSidebar.vue";
+import TheLogin from "@/components/TheLogin";
 
 export default {
   components: {
-    Navbar,
-    Sidebar,
-    Login
+    TheNavbar,
+    TheSidebar,
+    TheLogin,
   },
   methods: {
     isAuthorized() {
@@ -44,7 +44,7 @@ export default {
         return true;
       }
       return false;
-    }
+    },
   },
   computed: {
     ...mapState(["isAuthenticated"]),
@@ -56,13 +56,13 @@ export default {
     },
     isProduction() {
       return process.env.NODE_ENV === "production";
-    }
+    },
   },
   mounted() {
     console.log("IS AUTHENTICATED", this.isAuthenticated);
     console.log("IS PRODUCTION", this.isProduction);
     console.log("IS DEV_MODE", this.isDevModeEnabled);
-  }
+  },
 };
 </script>
 

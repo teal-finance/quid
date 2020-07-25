@@ -2,6 +2,7 @@ package db
 
 import (
 	"database/sql"
+	"strconv"
 
 	// pg import
 	_ "github.com/lib/pq"
@@ -49,16 +50,21 @@ func SelectNamespaceStartsWith(name string) ([]models.Namespace, error) {
 func SelectNamespace(name string) (bool, models.Namespace, error) {
 	data := namespace{}
 	ns := models.Namespace{}
-	row := db.QueryRowx("SELECT id,key,max_token_ttl,public_endpoint_enabled FROM namespace WHERE name='$1'", name)
+	q := "SELECT id,key,max_token_ttl,public_endpoint_enabled FROM namespace WHERE name=$1"
+	emo.Query(q)
+	row := db.QueryRowx(q, name)
 	err := row.StructScan(&data)
 	if err != nil {
+		emo.QueryError(q)
 		if err == sql.ErrNoRows {
-			return false, ns, nil
+			return false, ns, err
 		}
 		return true, ns, err
 	}
+	emo.Decrypt("Decrypting key data for the " + name + " namespace")
 	k, err := aesGcmDecrypt(data.Key, nil)
 	if err != nil {
+		emo.DecryptError(err)
 		return true, ns, err
 	}
 	ns.ID = data.ID
@@ -80,10 +86,11 @@ func SelectNamespaceKey(ID int64) (bool, string, error) {
 		}
 		return false, key, err
 	}
-	k, tr := aesGcmDecrypt(data.Key, nil)
-	if tr != nil {
-		tr.Pass()
-		return true, "", tr.Err()
+	emo.Decrypt("Decrypting key data for the namespace id " + strconv.FormatInt(ID, 10))
+	k, err := aesGcmDecrypt(data.Key, nil)
+	if err != nil {
+		emo.DecryptError(err)
+		return true, "", err
 	}
 	key = k
 	return true, key, nil
@@ -111,10 +118,11 @@ func SetNamespaceEndpointAvailability(ID int64, enable bool) error {
 
 // CreateNamespace : create a namespace
 func CreateNamespace(name, key, ttl string, endpoint bool) (int64, error) {
-	k, tr := aesGcmEncrypt(key, nil)
-	if tr != nil {
-		tr.Pass()
-		return 0, tr.Err()
+	emo.Encrypt("Encrypting key for namespace " + name)
+	k, err := aesGcmEncrypt(key, nil)
+	if err != nil {
+		emo.EncryptError(err)
+		return 0, err
 	}
 	q := "INSERT INTO namespace(name,key,max_token_ttl,public_endpoint_enabled) VALUES($1,$2,$3,$4) RETURNING id"
 	rows, err := db.Query(q, name, string(k), ttl, endpoint)
@@ -126,6 +134,7 @@ func CreateNamespace(name, key, ttl string, endpoint bool) (int64, error) {
 		var idi interface{}
 		err := rows.Scan(&idi)
 		if err != nil {
+			emo.QueryError(err)
 			return 0, err
 		}
 		id = idi.(int64)

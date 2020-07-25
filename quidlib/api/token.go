@@ -6,6 +6,7 @@ import (
 	"net/http"
 
 	"github.com/labstack/echo/v4"
+
 	"github.com/synw/quid/quidlib/db"
 	"github.com/synw/quid/quidlib/tokens"
 )
@@ -20,6 +21,7 @@ func RequestToken(c echo.Context) error {
 	username := m["username"].(string)
 	password := m["password"].(string)
 	namespace := m["namespace"].(string)
+	timeout := c.Param("timeout")
 
 	// get the namespace
 	exists, ns, err := db.SelectNamespace(namespace)
@@ -40,9 +42,7 @@ func RequestToken(c echo.Context) error {
 	// Respond with unauthorized status
 	if isAuthorized == false {
 		fmt.Println(username, "unauthorized")
-		return c.JSON(http.StatusUnauthorized, echo.Map{
-			"message": "unauthorized",
-		})
+		return c.NoContent(http.StatusUnauthorized)
 	}
 
 	// get the user group names
@@ -52,12 +52,17 @@ func RequestToken(c echo.Context) error {
 	}
 
 	// generate the token
-	t, err := tokens.GenUserToken(u.Name, ns.Key, groupNames, ns.MaxTokenTTL)
+	isAuth, t, err := tokens.GenUserToken(u.Name, ns.Key, groupNames, timeout, ns.MaxTokenTTL)
 	if err != nil {
 		log.Fatal(err)
 	}
+	if !isAuth {
+		return c.JSON(http.StatusUnauthorized, echo.Map{
+			"error": "max timeout exceeded",
+		})
+	}
 
 	return c.JSON(http.StatusOK, echo.Map{
-		"key": t,
+		"token": t,
 	})
 }

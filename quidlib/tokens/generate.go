@@ -9,22 +9,32 @@ import (
 	"time"
 
 	"github.com/dgrijalva/jwt-go"
+	"github.com/karrick/tparse"
 )
 
 // GenUserToken : generate a token for a user
-func GenUserToken(name, key string, groups []string, timeout string) (string, error) {
-	d, err := time.ParseDuration(timeout)
+func GenUserToken(name, key string, groups []string, timeout, maxTimeout string) (bool, string, error) {
+	isAuthorized, err := isTimeoutAuthorized(timeout, maxTimeout)
 	if err != nil {
-		return "", err
+		emo.ParamError(err)
+		return false, "", err
 	}
-	to := time.Now().Add(d)
+	if !isAuthorized {
+		return false, "", nil
+	}
+	to, err := tparse.ParseNow(time.RFC3339, "now+"+timeout)
+	if err != nil {
+		emo.TimeError(err)
+		return false, "", err
+	}
 	claims := standardUserClaims(name, groups, to)
 	t := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 	token, err := t.SignedString([]byte(key))
 	if err != nil {
-		return "", err
+		emo.EncryptError(err)
+		return false, "", err
 	}
-	return token, nil
+	return true, token, nil
 }
 
 // GenAdminToken : generate a token for a quid admin frontend user
@@ -58,4 +68,16 @@ func generateRandomBytes(n int) ([]byte, error) {
 		return nil, err
 	}
 	return b, nil
+}
+
+func isTimeoutAuthorized(timeout, maxTimeout string) (bool, error) {
+	requested, err := tparse.ParseNow(time.RFC3339, "now+"+timeout)
+	if err != nil {
+		return false, err
+	}
+	max, err := tparse.ParseNow(time.RFC3339, "now+"+maxTimeout)
+	if err != nil {
+		return false, err
+	}
+	return requested.Before(max), err
 }

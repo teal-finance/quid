@@ -48,6 +48,7 @@ func main() {
 	}
 
 	// db
+	db.Init(*isDevMode)
 	err = db.Connect()
 	if err != nil {
 		log.Fatalln(err)
@@ -60,6 +61,9 @@ func main() {
 		return
 	}
 
+	api.Init(*isDevMode)
+	tokens.Init(*isDevMode)
+
 	// http server
 	e := echo.New()
 
@@ -69,7 +73,7 @@ func main() {
 	e.Use(middleware.CORS())
 
 	// public routes
-	e.POST("/request_token", api.RequestToken)
+	e.POST("/request_token/:timeout", api.RequestToken)
 	e.POST("/admin_login", api.AdminLogin)
 
 	config := middleware.JWTConfig{

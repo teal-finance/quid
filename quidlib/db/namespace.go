@@ -55,7 +55,6 @@ func SelectNamespace(name string) (bool, models.Namespace, error) {
 	row := db.QueryRowx(q, name)
 	err := row.StructScan(&data)
 	if err != nil {
-		emo.QueryError(q)
 		if err == sql.ErrNoRows {
 			return false, ns, err
 		}
@@ -153,15 +152,18 @@ func UpdateNamespaceMaxTTL(ID int64, maxTTL string) error {
 }
 
 // DeleteNamespace : delete a namespace
-func DeleteNamespace(ID int64) error {
+func DeleteNamespace(ID int64) QueryResult {
 	q := "DELETE FROM namespace where id=$1"
-	tx := db.MustBegin()
-	tx.MustExec(q, ID)
-	err := tx.Commit()
+	tx, err := db.Begin()
+	_, err = tx.Exec(q, ID)
 	if err != nil {
-		return err
+		return queryError(err)
 	}
-	return nil
+	err = tx.Commit()
+	if err != nil {
+		return queryError(err)
+	}
+	return queryNoError()
 }
 
 // NamespaceExists : check if an namespace exists

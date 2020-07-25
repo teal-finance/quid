@@ -13,13 +13,13 @@ import (
 var db *sqlx.DB
 
 var emo = emolib.Zone{
-	Name:            "db",
-	DeactivatePrint: true,
+	Name:    "db",
+	NoPrint: true,
 }
 
 // Init : init the db conf
 func Init(isDev bool) {
-	emo.DeactivatePrint = !isDev
+	emo.NoPrint = !isDev
 }
 
 // Connect : connect to the db

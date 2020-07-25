@@ -1,5 +1,20 @@
 package emo
 
+// Info :
+func (zone Zone) Info(errObjs ...interface{}) Event {
+	return processEvent("ℹ️", zone, true, errObjs)
+}
+
+// Warning :
+func (zone Zone) Warning(errObjs ...interface{}) Event {
+	return processEvent("🔔", zone, true, errObjs)
+}
+
+// Error :
+func (zone Zone) Error(errObjs ...interface{}) Event {
+	return processEvent("💢", zone, true, errObjs)
+}
+
 // Query :
 func (zone Zone) Query(errObjs ...interface{}) Event {
 	return processEvent("🗄️", zone, false, errObjs)

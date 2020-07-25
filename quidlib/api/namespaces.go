@@ -114,11 +114,15 @@ func DeleteNamespace(c echo.Context) error {
 	}
 	ID := int64(m["id"].(float64))
 
-	err := db.DeleteNamespace(ID)
-	if err != nil {
-		return c.JSON(http.StatusConflict, echo.Map{
-			"error": "error deleting namespace",
-		})
+	qRes := db.DeleteNamespace(ID)
+	if qRes.HasError {
+		emo.QueryError(qRes.Error.Message)
+		if qRes.Error.HasUserMessage {
+			return c.JSON(http.StatusConflict, echo.Map{
+				"error": "error deleting namespace: " + qRes.Error.Message,
+			})
+		}
+		return c.NoContent(http.StatusInternalServerError)
 	}
 
 	return c.JSON(http.StatusOK, echo.Map{

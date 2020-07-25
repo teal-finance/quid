@@ -12,8 +12,8 @@ import (
 
 // Zone : base emo zone
 type Zone struct {
-	Name            string
-	DeactivatePrint bool
+	Name    string
+	NoPrint bool
 }
 
 // Event : base emo event
@@ -28,6 +28,18 @@ type Event struct {
 	IsError bool
 }
 
+// ObjectInfo : print debug info about something
+func (zone Zone) ObjectInfo(args ...interface{}) {
+	numArgs := len(args)
+	if numArgs < 1 {
+		return
+	}
+	for _, o := range args {
+		msg := "[" + skittles.Yellow("object info") + "] "
+		fmt.Println(msg + fmt.Sprintf("Type: %T Value: %#v", o, o))
+	}
+}
+
 func processEvent(emoji string, zone Zone, IsError bool, errObjs []interface{}) Event {
 	event := Event{
 		Zone: zone,
@@ -38,7 +50,7 @@ func processEvent(emoji string, zone Zone, IsError bool, errObjs []interface{}) 
 		panic(err)
 	}
 	e.Msg = e.getMsg(IsError)
-	if !zone.DeactivatePrint {
+	if !zone.NoPrint {
 		fmt.Println(e.Msg)
 	}
 	return e

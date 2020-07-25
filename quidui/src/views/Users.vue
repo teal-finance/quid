@@ -7,15 +7,7 @@
         <add v-if="action === 'addUser'" @refresh="refresh"></add>
       </b-collapse>
     </div>
-    <b-table
-      striped
-      hover
-      bordeless
-      :items="data"
-      :fields="fields"
-      class="mt-4"
-      style="max-width:650px"
-    >
+    <b-table hover bordeless :items="data" :fields="fields" class="mt-4" style="max-width:650px">
       <template v-slot:cell(action)="row">
         <b-button
           class="mr-2"
@@ -50,22 +42,22 @@ import Info from "@/components/users/Info";
 export default {
   components: {
     Add,
-    Info
+    Info,
   },
   data() {
     return {
       data: [],
       state: {
-        isLoading: false
+        isLoading: false,
       },
       fields: [
         { key: "id", sortable: true },
         { key: "name", sortable: true },
         { key: "namespace", sortable: true },
-        { key: "action", sortable: false }
+        { key: "action", sortable: false },
       ],
       itemToDelete: {},
-      rowDetails: {}
+      rowDetails: {},
     };
   },
   methods: {
@@ -80,7 +72,7 @@ export default {
     async toggleDetails(row) {
       if (!row.detailsShowing) {
         let { response } = await this.$api.post("/admin/users/info", {
-          id: row.item.id
+          id: row.item.id,
         });
         this.rowDetails[row.index] = response.data;
       }
@@ -91,7 +83,7 @@ export default {
       this.$bvToast.toast("ok", {
         title: "User saved",
         variant: "success",
-        autoHideDelay: 1500
+        autoHideDelay: 1500,
       });
     },
     async fetchUsers() {
@@ -103,32 +95,32 @@ export default {
     confirmDeleteItem(id, name) {
       this.itemToDelete = {
         name: name,
-        id: id
+        id: id,
       };
       this.$refs["delete-modal"].show();
     },
     async deleteItem(ns) {
       this.$refs["delete-modal"].hide();
       let { error } = await this.$api.post("/admin/users/delete", {
-        id: ns.id
+        id: ns.id,
       });
       if (error === null) {
         this.$bvToast.toast("Ok", {
           title: "User deleted",
           autoHideDelay: 1000,
-          variant: "success"
+          variant: "success",
         });
         this.fetchUsers();
       }
-    }
+    },
   },
-  mounted: function() {
+  mounted: function () {
     this.fetchUsers();
   },
   computed: {
     ...mapState(["action", "username"]),
     ...mapGetters({
-      s: "showActionBar"
+      s: "showActionBar",
     }),
     showActionBar: {
       get() {
@@ -136,9 +128,9 @@ export default {
       },
       set(newName) {
         return newName;
-      }
-    }
-  }
+      },
+    },
+  },
   //computed: mapState(["action", "showActionBar"])
 };
 </script>

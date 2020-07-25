@@ -7,13 +7,13 @@
         <add v-if="action === 'addGroup'" @refresh="refresh"></add>
       </b-collapse>
     </div>
-    <b-table striped hover :items="data" :fields="fields" class="mt-4" style="max-width:650px">
+    <b-table hover bordeless :items="data" :fields="fields" class="mt-4" style="max-width:650px">
       <template v-slot:cell(action)="row">
         <b-button
           class="mr-2"
           variant="outline-secondary"
           @click="toggleDetails(row)"
-        >{{ row.detailsShowing ? 'Hide' : 'Show'}} info</b-button>
+        >{{ row.detailsShowing ? 'Hide' : 'Show'}} users</b-button>
         <b-button
           variant="outline-danger"
           v-if="row.item.name !== 'quid_admin'"
@@ -45,22 +45,22 @@ export default {
   components: {
     Add,
     Info,
-    Loading
+    Loading,
   },
   data() {
     return {
       data: [],
       state: {
-        isLoading: false
+        isLoading: false,
       },
       fields: [
         { key: "id", sortable: true },
         { key: "name", sortable: true },
         { key: "namespace", sortable: true },
-        { key: "action", sortable: false }
+        { key: "action", sortable: false },
       ],
       itemToDelete: {},
-      rowDetails: {}
+      rowDetails: {},
     };
   },
   methods: {
@@ -75,7 +75,7 @@ export default {
     async toggleDetails(row) {
       if (!row.detailsShowing) {
         let { response } = await this.$api.post("/admin/groups/info", {
-          id: row.item.id
+          id: row.item.id,
         });
         this.rowDetails[row.index] = response.data;
       }
@@ -86,7 +86,7 @@ export default {
       this.$bvToast.toast("ok", {
         title: "Group saved",
         variant: "success",
-        autoHideDelay: 1500
+        autoHideDelay: 1500,
       });
     },
     async fetchGroups() {
@@ -98,32 +98,32 @@ export default {
     confirmDeleteItem(id, name) {
       this.itemToDelete = {
         name: name,
-        id: id
+        id: id,
       };
       this.$refs["delete-modal"].show();
     },
     async deleteItem(ns) {
       this.$refs["delete-modal"].hide();
       let { error } = await this.$api.post("/admin/groups/delete", {
-        id: ns.id
+        id: ns.id,
       });
       if (error === null) {
         this.$bvToast.toast("Ok", {
           title: "Group deleted",
           autoHideDelay: 1000,
-          variant: "success"
+          variant: "success",
         });
         this.fetchGroups();
       }
-    }
+    },
   },
-  mounted: function() {
+  mounted: function () {
     this.fetchGroups();
   },
   computed: {
     ...mapState(["action"]),
     ...mapGetters({
-      s: "showActionBar"
+      s: "showActionBar",
     }),
     showActionBar: {
       get() {
@@ -131,8 +131,8 @@ export default {
       },
       set(newName) {
         return newName;
-      }
-    }
-  }
+      },
+    },
+  },
 };
 </script>

@@ -3,8 +3,8 @@ import store from './store'
 import vue from './main'
 
 function apiError(e) {
+  console.log("API ERROR:", e);
   if (e.response === undefined || e.response === null) {
-    console.log("API ERROR:", e);
     vue.$bvToast.toast(
       `${e}`,
       {
@@ -33,7 +33,8 @@ function apiError(e) {
           `${e.response.status} ${e.response.data.error}`,
           {
             title: "Error",
-            variant: "danger"
+            variant: "danger",
+            noAutoHide: true
           }
         );
       }
@@ -47,12 +48,12 @@ const api = {
       let response = await axios.get(uri, vue.$axiosConfig);
       return { response: response, error: null };
     } catch (e) {
+      apiError(e)
       if (e.response !== undefined) {
         if (e.response.status !== 404) {
           return { response: null, error: e }
         }
       }
-      apiError(e)
     }
   },
   post:
@@ -61,12 +62,12 @@ const api = {
         let response = await axios.post(uri, payload, vue.$axiosConfig);
         return { response: response, error: null };
       } catch (e) {
+        apiError(e)
         if (e.response !== undefined) {
           if (e.response.status !== 404) {
             return { response: null, error: e }
           }
         }
-        apiError(e)
       }
     }
 }

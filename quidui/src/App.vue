@@ -36,7 +36,8 @@ export default {
   methods: {
     isAuthorized() {
       if (!this.isProduction) {
-        if (this.isDevModeEnabled) {
+        if (this.isDevModeEnabled === true) {
+          console.log("Dev mode is on");
           return true;
         }
       }

@@ -20,8 +20,7 @@
 export default {
   methods: {
     logout: function () {
-      this.$cookies.remove("quidkey", null, "");
-      this.$axios.defaults.headers.common = {};
+      this.$store.commit("unauthenticate");
       window.location.reload();
     },
   },

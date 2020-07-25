@@ -1,6 +1,15 @@
 <template>
   <div>
-    <h1 class="text-muted mt-3">Users</h1>
+    <h1 class="text-muted mt-3">
+      Users
+      &nbsp;
+      <b-icon-plus
+        v-if="action!=='addUser'"
+        class="mr-1"
+        style="color:lightgrey"
+        @click="$store.commit('action', 'addUser')"
+      />
+    </h1>
     <loading v-if="state.isLoading"></loading>
     <div>
       <b-collapse id="collapse-4" v-model="showActionBar" class="mt-2">

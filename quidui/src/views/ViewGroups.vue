@@ -1,6 +1,14 @@
 <template>
   <div>
-    <h1 class="text-muted mt-3">Groups</h1>
+    <h1 class="text-muted mt-3">
+      Groups&nbsp;
+      <b-icon-plus
+        v-if="action!=='addGroup'"
+        class="mr-1"
+        style="color:lightgrey"
+        @click="$store.commit('action', 'addGroup')"
+      />
+    </h1>
     <loading-indicator v-if="state.isLoading"></loading-indicator>
     <div>
       <b-collapse id="collapse-4" v-model="showActionBar" class="mt-2">

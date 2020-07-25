@@ -59,7 +59,7 @@ Go to `localhost:8080` to login into the admin interface
 ## Request a token
 
 A public endpoint is available to request tokens for namespaces. A max time to live must be provided. 
-Ex: request a token with 24h lifetime `/request_token/24h`:
+Ex: request a token with a 24h lifetime `/request_token/24h`:
 
    ```bash
    curl -d '{"namespace":"my_namespace","username":"my_username","password":"my_password"}' -H \

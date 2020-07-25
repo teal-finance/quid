@@ -214,8 +214,8 @@ export default {
           autoHideDelay: 1000,
           variant: "success",
         });
+        this.fetchNamespaces();
       }
-      this.fetchNamespaces();
     },
     nsKeyModalTitle() {
       if (this.selectedNs === null) return;

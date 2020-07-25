@@ -3,9 +3,11 @@ module github.com/synw/quid
 go 1.14
 
 require (
-	github.com/acmacalister/skittles v0.0.0-20160609003031-7423546701e1 // indirect
+	github.com/acmacalister/skittles v0.0.0-20160609003031-7423546701e1
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible
+	github.com/etdub/goparsetime v0.0.0-20160315173935-ea17b0ac3318 // indirect
 	github.com/jmoiron/sqlx v1.2.0
+	github.com/karrick/tparse v2.4.2+incompatible
 	github.com/labstack/echo/v4 v4.1.16
 	github.com/lib/pq v1.7.0
 	github.com/manifoldco/promptui v0.7.0

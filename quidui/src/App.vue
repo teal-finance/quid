@@ -37,7 +37,6 @@ export default {
     isAuthorized() {
       if (!this.isProduction) {
         if (this.isDevModeEnabled === true) {
-          console.log("Dev mode is on");
           return true;
         }
       }
@@ -51,7 +50,9 @@ export default {
     ...mapState(["isAuthenticated"]),
     isDevModeEnabled() {
       if (process.env.VUE_APP_ENABLE_DEV_MODE !== undefined) {
-        return process.env.VUE_APP_ENABLE_DEV_MODE;
+        if (process.env.VUE_APP_ENABLE_DEV_MODE === "true") {
+          return true;
+        }
       }
       return false;
     },
@@ -60,9 +61,13 @@ export default {
     },
   },
   mounted() {
-    console.log("IS AUTHENTICATED", this.isAuthenticated);
-    console.log("IS PRODUCTION", this.isProduction);
-    console.log("IS DEV_MODE", this.isDevModeEnabled);
+    if (this.isDevModeEnabled) {
+      console.log("IS AUTHENTICATED", this.isAuthenticated);
+      console.log("IS PRODUCTION", this.isProduction);
+      console.log("IS DEV_MODE", this.isDevModeEnabled);
+      console.log("IS AUTHORIZED", this.isAuthorized());
+      console.log("Dev mode is on");
+    }
   },
 };
 </script>

@@ -82,4 +82,4 @@ In python:
    payload = jwt.decode(token, key, algorithms=['HS256'])
    ```
 
-Check the [python example](example/python/README.md)
+Check the [python example](example/python)

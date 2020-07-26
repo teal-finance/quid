@@ -73,3 +73,13 @@ Response:
    ```
 
 Note: if the requested duration exceeds the max authorized tokens time to live for the namespace the demand will be rejected
+
+## Decode tokens
+
+In python:
+
+   ```python
+   payload = jwt.decode(token, key, algorithms=['HS256'])
+   ```
+
+Check the [python example](example/python/README.md)

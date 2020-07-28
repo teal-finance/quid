@@ -20,8 +20,8 @@ export default {
     return {
       form: {
         username: "",
-        password: ""
-      }
+        password: "",
+      },
     };
   },
   methods: {
@@ -29,22 +29,23 @@ export default {
       let { response, error } = await this.$api.post("/admin_login", {
         namespace: "quid",
         username: this.form.username,
-        password: this.form.password
+        password: this.form.password,
       });
       if (error === null) {
         this.$store.commit("authenticate", {
           key: response.data.key,
-          username: this.form.username
+          username: this.form.username,
         });
+        this.$router.push({ path: "/namespaces" });
       } else {
         if (error.response.status === 401) {
           this.$bvToast.toast("Login refused", {
             title: "Authentication failed",
-            variant: "danger"
+            variant: "danger",
           });
         }
       }
-    }
-  }
+    },
+  },
 };
 </script>

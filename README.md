@@ -82,4 +82,10 @@ In python:
    payload = jwt.decode(token, key, algorithms=['HS256'])
    ```
 
+Example payload:
+
+   ```json
+   {'namespace': 'my_namespace1', 'name': 'bob', 'groups': ['my_group1', 'my_group2'], 'exp': 1595950745}
+   ```
+
 Check the [python example](example/python)

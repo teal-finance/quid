@@ -38,6 +38,7 @@ func main() {
 		return
 	}
 
+	// init conf flag
 	found, err := conf.Init()
 	if err != nil {
 		log.Fatal(err)
@@ -64,13 +65,28 @@ func main() {
 	api.Init(*isDevMode)
 	tokens.Init(*isDevMode)
 
+	// get the admin namespace
+	_, adminNS, err := db.SelectNamespaceFromName("quid")
+	if err != nil {
+		log.Fatal(err)
+	}
 	// http server
 	e := echo.New()
 
 	e.Use(middleware.Logger())
-	//e.Use(middleware.Recover())
+	if !*isDevMode {
+		e.Use(middleware.Recover())
+	} else {
+		e.Use(middleware.CORS())
+	}
 	e.Use(middleware.Secure())
-	e.Use(middleware.CORS())
+
+	// serve static files in production
+	if !*isDevMode {
+		e.File("/", "quidui/dist/index.html")
+		e.Static("/js", "quidui/dist/js")
+		e.Static("/css", "quidui/dist/css")
+	}
 
 	// public routes
 	e.POST("/request_token/:timeout", api.RequestToken)
@@ -78,7 +94,7 @@ func main() {
 
 	config := middleware.JWTConfig{
 		Claims:     &tokens.StandardUserClaims{},
-		SigningKey: []byte(conf.EncodingKey),
+		SigningKey: []byte(adminNS.Key),
 	}
 
 	// admin routes

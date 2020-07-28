@@ -24,7 +24,7 @@ func RequestToken(c echo.Context) error {
 	timeout := c.Param("timeout")
 
 	// get the namespace
-	exists, ns, err := db.SelectNamespace(namespace)
+	exists, ns, err := db.SelectNamespaceFromName(namespace)
 	if err != nil {
 		return err
 	}
@@ -52,7 +52,7 @@ func RequestToken(c echo.Context) error {
 	}
 
 	// generate the token
-	isAuth, t, err := tokens.GenUserToken(u.Name, ns.Key, groupNames, timeout, ns.MaxTokenTTL)
+	isAuth, t, err := tokens.GenUserToken(ns, u.Name, groupNames, timeout, ns.MaxTokenTTL)
 	if err != nil {
 		log.Fatal(err)
 	}

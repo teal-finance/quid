@@ -18,7 +18,7 @@ func GroupsForNamespace(c echo.Context) error {
 	}
 	namespace := m["namespace"].(string)
 
-	hasResult, ns, err := db.SelectNamespace(namespace)
+	hasResult, ns, err := db.SelectNamespaceFromName(namespace)
 	if err != nil || !hasResult {
 		return c.JSON(http.StatusInternalServerError, echo.Map{
 			"error": "error selecting namespace",

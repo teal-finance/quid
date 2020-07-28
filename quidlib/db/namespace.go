@@ -46,11 +46,11 @@ func SelectNamespaceStartsWith(name string) ([]models.Namespace, error) {
 	return res, nil
 }
 
-// SelectNamespace : get the id and key for a namespace
-func SelectNamespace(name string) (bool, models.Namespace, error) {
+// SelectNamespaceFromName : get a namespace
+func SelectNamespaceFromName(name string) (bool, models.Namespace, error) {
 	data := namespace{}
 	ns := models.Namespace{}
-	q := "SELECT id,key,max_token_ttl,public_endpoint_enabled FROM namespace WHERE name=$1"
+	q := "SELECT id,name,key,max_token_ttl,public_endpoint_enabled FROM namespace WHERE name=$1"
 	emo.Query(q, name)
 	row := db.QueryRowx(q, name)
 	err := row.StructScan(&data)
@@ -67,6 +67,7 @@ func SelectNamespace(name string) (bool, models.Namespace, error) {
 		return true, ns, err
 	}
 	ns.ID = data.ID
+	ns.Name = data.Name
 	ns.Key = k
 	ns.MaxTokenTTL = data.MaxTokenTTL
 	ns.PublicEndpointEnabled = data.PublicEndpointEnabled

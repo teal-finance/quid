@@ -8,15 +8,16 @@ import (
 
 // StandardUserClaims : standard claims for a user
 type StandardUserClaims struct {
-	Name   string   `json:"name"`
-	Groups []string `json:"groups"`
+	Namespace string   `json:"namespace"`
+	Name      string   `json:"name"`
+	Groups    []string `json:"groups"`
 	jwt.StandardClaims
 }
 
 // SetStandardClaim : get a standard claim for a user
-func standardUserClaims(name string, groups []string, timeout time.Time) *StandardUserClaims {
+func standardUserClaims(namespaceName, name string, groups []string, timeout time.Time) *StandardUserClaims {
 	claims := &StandardUserClaims{
-		name, groups,
+		namespaceName, name, groups,
 		jwt.StandardClaims{
 			ExpiresAt: timeout.Unix(),
 		},

@@ -20,7 +20,7 @@ func AdminLogin(c echo.Context) error {
 	namespace := m["namespace"].(string)
 
 	// get the namespace
-	exists, ns, err := db.SelectNamespace(namespace)
+	exists, ns, err := db.SelectNamespaceFromName(namespace)
 	if err != nil {
 		return err
 	}
@@ -50,7 +50,7 @@ func AdminLogin(c echo.Context) error {
 	}
 
 	// set the token
-	token, err := tokens.GenAdminToken(u.Name, ns.Key)
+	token, err := tokens.GenAdminToken(ns, u.Name)
 	if err != nil {
 		return err
 	}

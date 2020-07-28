@@ -10,10 +10,11 @@ import (
 
 	"github.com/dgrijalva/jwt-go"
 	"github.com/karrick/tparse"
+	"github.com/synw/quid/quidlib/models"
 )
 
 // GenUserToken : generate a token for a user
-func GenUserToken(name, key string, groups []string, timeout, maxTimeout string) (bool, string, error) {
+func GenUserToken(namespace models.Namespace, name string, groups []string, timeout, maxTimeout string) (bool, string, error) {
 	isAuthorized, err := isTimeoutAuthorized(timeout, maxTimeout)
 	if err != nil {
 		emo.ParamError(err)
@@ -27,9 +28,9 @@ func GenUserToken(name, key string, groups []string, timeout, maxTimeout string)
 		emo.TimeError(err)
 		return false, "", err
 	}
-	claims := standardUserClaims(name, groups, to)
+	claims := standardUserClaims(namespace.Name, name, groups, to)
 	t := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-	token, err := t.SignedString([]byte(key))
+	token, err := t.SignedString([]byte(namespace.Key))
 	if err != nil {
 		emo.EncryptError(err)
 		return false, "", err
@@ -38,11 +39,11 @@ func GenUserToken(name, key string, groups []string, timeout, maxTimeout string)
 }
 
 // GenAdminToken : generate a token for a quid admin frontend user
-func GenAdminToken(name, key string) (string, error) {
+func GenAdminToken(namespace models.Namespace, name string) (string, error) {
 	timeout := time.Now().Add(time.Hour * 24)
-	claims := standardUserClaims(name, []string{"quid_admin"}, timeout)
+	claims := standardUserClaims(namespace.Name, name, []string{"quid_admin"}, timeout)
 	t := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-	token, err := t.SignedString([]byte(key))
+	token, err := t.SignedString([]byte(namespace.Key))
 	if err != nil {
 		return "", err
 	}

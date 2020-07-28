@@ -20,8 +20,8 @@
 export default {
   methods: {
     logout: function () {
+      this.$router.push({ path: "/" });
       this.$store.commit("unauthenticate");
-      window.location.reload();
     },
   },
 };

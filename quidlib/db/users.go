@@ -79,6 +79,46 @@ func SelectUsersInGroup(name string, namespaceID int64) (models.Group, error) {
 	return data[0], nil
 }
 
+// CreateUserFromNameAndPassword : create a user
+func CreateUserFromNameAndPassword(name string, passwordHash string, namespaceID int64) (int64, error) {
+	q := "INSERT INTO usertable(name,password,namespace_id) VALUES($1,$2,$3) RETURNING id"
+	rows, err := db.Query(q, name, passwordHash, namespaceID)
+	if err != nil {
+		log.Fatal(err)
+	}
+	var id int64
+	for rows.Next() {
+		var idi interface{}
+		err := rows.Scan(&idi)
+		if err != nil {
+			log.Fatalln(err)
+		}
+		id = idi.(int64)
+	}
+	return id, nil
+}
+
+/*
+// SelectGroupsForUser : get the groups for a user in a namespace
+func SelectGroupsForUser(userID int64) ([]models.Group, error) {
+	data := []group{}
+	err := db.Select(&data, "SELECT grouptable.id,grouptable.name FROM usergroup "+
+		"JOIN grouptable ON usergroup.group_id = grouptable.id WHERE usergroup.user_id=$1 ORDER BY grouptable.name",
+		userID)
+	gr := []models.Group{}
+	if err != nil {
+		return gr, err
+	}
+	for _, g := range gr {
+		res := models.Group{
+			ID:   g.ID,
+			Name: g.Name,
+		}
+		gr = append(gr, res)
+	}
+	return gr, nil
+}*/
+
 // CountUsersInGroup : count the users in a group
 func CountUsersInGroup(groupID int64) (int, error) {
 	var n int
@@ -102,25 +142,6 @@ func UserNameExists(name string) (bool, error) {
 		return true, nil
 	}
 	return false, nil
-}
-
-// CreateUserFromNameAndPassword : create a user
-func CreateUserFromNameAndPassword(name string, passwordHash string, namespaceID int64) (int64, error) {
-	q := "INSERT INTO usertable(name,password,namespace_id) VALUES($1,$2,$3) RETURNING id"
-	rows, err := db.Query(q, name, passwordHash, namespaceID)
-	if err != nil {
-		log.Fatal(err)
-	}
-	var id int64
-	for rows.Next() {
-		var idi interface{}
-		err := rows.Scan(&idi)
-		if err != nil {
-			log.Fatalln(err)
-		}
-		id = idi.(int64)
-	}
-	return id, nil
 }
 
 // DeleteUser : delete a user

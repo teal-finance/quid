@@ -18,6 +18,18 @@ func SelectAllGroups() ([]models.Group, error) {
 	return data, nil
 }
 
+// SelectGroupsForUser : get the groups for a user
+func SelectGroupsForUser(userID int64) ([]models.Group, error) {
+	data := []models.Group{}
+	err := db.Select(&data, "SELECT grouptable.id as id, grouptable.name as name FROM usergroup "+
+		"JOIN grouptable ON usergroup.group_id = grouptable.id WHERE usergroup.user_id=$1 ORDER BY grouptable.name",
+		userID)
+	if err != nil {
+		return data, err
+	}
+	return data, nil
+}
+
 // SelectGroupsNamesForUser : get the groups for a user
 func SelectGroupsNamesForUser(userID int64) ([]string, error) {
 	data := []userGroupName{}
@@ -105,6 +117,18 @@ func GroupExists(name string, namespaceID int64) (bool, error) {
 // AddUserInGroup : add a user into a group
 func AddUserInGroup(userID int64, groupID int64) error {
 	q := "INSERT INTO usergroup(user_id,group_id) VALUES($1,$2)"
+	tx := db.MustBegin()
+	tx.MustExec(q, userID, groupID)
+	err := tx.Commit()
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+// RemoveUserFromGroup : remove a user from a group
+func RemoveUserFromGroup(userID int64, groupID int64) error {
+	q := "DELETE FROM usergroup WHERE user_id=$1 AND group_id=$2"
 	tx := db.MustBegin()
 	tx.MustExec(q, userID, groupID)
 	err := tx.Commit()

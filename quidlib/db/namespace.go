@@ -51,7 +51,7 @@ func SelectNamespace(name string) (bool, models.Namespace, error) {
 	data := namespace{}
 	ns := models.Namespace{}
 	q := "SELECT id,key,max_token_ttl,public_endpoint_enabled FROM namespace WHERE name=$1"
-	emo.Query(q)
+	emo.Query(q, name)
 	row := db.QueryRowx(q, name)
 	err := row.StructScan(&data)
 	if err != nil {

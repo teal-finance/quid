@@ -19,13 +19,6 @@ type group struct {
 	DateCreated time.Time `db:"date_created" json:"date_created"`
 }
 
-/*
-type userGroup struct {
-	ID      int32 `db:"id" json:"id"`
-	UserID  int64 `db:"user_id" json:"user_id"`
-	GroupID int64 `db:"group_id" json:"group_id"`
-}*/
-
 type userGroupName struct {
 	Name string `db:"name" json:"name"`
 }

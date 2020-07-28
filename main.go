@@ -92,6 +92,8 @@ func main() {
 	g.POST("/add", api.CreateGroup)
 	g.POST("/delete", api.DeleteGroup)
 	g.POST("/info", api.GroupsInfo)
+	g.POST("/add_user", api.AddUserInGroup)
+	g.POST("/remove_user", api.RemoveUserFromGroup)
 	g.GET("/all", func(c echo.Context) error {
 		data, err := db.SelectAllGroups()
 		if err != nil {
@@ -119,6 +121,7 @@ func main() {
 	ns.POST("/info", api.NamespaceInfo)
 	ns.POST("/key", api.GetNamespaceKey)
 	ns.POST("/maxttl", api.SetNamespaceTTL)
+	ns.POST("/groups", api.GroupsForNamespace)
 	ns.POST("/endpoint", api.SetNamespaceEndpointAvailability)
 	ns.GET("/all", func(c echo.Context) error {
 		data, err := db.SelectAllNamespaces()

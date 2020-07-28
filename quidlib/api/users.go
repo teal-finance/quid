@@ -10,6 +10,71 @@ import (
 	"github.com/synw/quid/quidlib/models"
 )
 
+// GroupsForNamespace : get the groups of a user
+func GroupsForNamespace(c echo.Context) error {
+	m := echo.Map{}
+	if err := c.Bind(&m); err != nil {
+		return err
+	}
+	namespace := m["namespace"].(string)
+
+	hasResult, ns, err := db.SelectNamespace(namespace)
+	if err != nil || !hasResult {
+		return c.JSON(http.StatusInternalServerError, echo.Map{
+			"error": "error selecting namespace",
+		})
+	}
+
+	g, err := db.SelectGroupsForNamespace(ns.ID)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, echo.Map{
+			"error": "error selecting groups",
+		})
+	}
+	return c.JSON(http.StatusOK, echo.Map{
+		"groups": g,
+	})
+
+}
+
+// AddUserInGroup : add a user in a group
+func AddUserInGroup(c echo.Context) error {
+	m := echo.Map{}
+	if err := c.Bind(&m); err != nil {
+		return err
+	}
+	userID := int64(m["user_id"].(float64))
+	groupID := int64(m["group_id"].(float64))
+
+	err := db.AddUserInGroup(userID, groupID)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, echo.Map{
+			"error": "error adding user in group",
+		})
+	}
+	return c.NoContent(http.StatusOK)
+
+}
+
+// RemoveUserFromGroup : add a user in a group
+func RemoveUserFromGroup(c echo.Context) error {
+	m := echo.Map{}
+	if err := c.Bind(&m); err != nil {
+		return err
+	}
+	userID := int64(m["user_id"].(float64))
+	groupID := int64(m["group_id"].(float64))
+
+	err := db.RemoveUserFromGroup(userID, groupID)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, echo.Map{
+			"error": "error removing user from group",
+		})
+	}
+	return c.NoContent(http.StatusOK)
+
+}
+
 // UserInfo : get info for a user
 func UserInfo(c echo.Context) error {
 	m := echo.Map{}
@@ -18,13 +83,12 @@ func UserInfo(c echo.Context) error {
 	}
 	ID := int64(m["id"].(float64))
 
-	g, err := db.SelectGroupsNamesForUser(ID)
+	g, err := db.SelectGroupsForUser(ID)
 	if err != nil {
-		return c.JSON(http.StatusConflict, echo.Map{
+		return c.JSON(http.StatusInternalServerError, echo.Map{
 			"error": "error selecting groups",
 		})
 	}
-
 	return c.JSON(http.StatusOK, echo.Map{
 		"groups": g,
 	})

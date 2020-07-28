@@ -84,7 +84,7 @@ In python:
 
 Example payload:
 
-   ```json
+   ```javascript
    {'namespace': 'my_namespace1', 'name': 'bob', 'groups': ['my_group1', 'my_group2'], 'exp': 1595950745}
    ```
 

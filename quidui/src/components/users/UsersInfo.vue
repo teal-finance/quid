@@ -1,10 +1,10 @@
 <template>
-  <b-card>
+  <div>
     <b-row class="mb-2">
       <b-col sm="3" class="text-sm-right">
         <b>Groups</b>
       </b-col>
-      <b-col>
+      <b-col v-if="details.groups.length > 0">
         <b-badge
           variant="primary"
           class="mr-2"
@@ -12,8 +12,9 @@
           :key="group"
         >{{ group }}</b-badge>
       </b-col>
+      <b-col v-else class="text-superlight">the user has no groups</b-col>
     </b-row>
-  </b-card>
+  </div>
 </template>
 
 <script>
@@ -21,8 +22,8 @@ export default {
   props: {
     details: {
       type: Object,
-      default: () => {}
-    }
-  }
+      default: () => {},
+    },
+  },
 };
 </script>

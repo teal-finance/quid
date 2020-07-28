@@ -10,7 +10,7 @@
         @click="$store.commit('action', 'addUser')"
       />
     </h1>
-    <loading v-if="state.isLoading"></loading>
+    <loading-indicator v-if="state.isLoading"></loading-indicator>
     <div>
       <b-collapse id="collapse-4" v-model="showActionBar" class="mt-2">
         <users-add v-if="action === 'addUser'" @refresh="refresh"></users-add>
@@ -22,7 +22,7 @@
           class="mr-2"
           variant="outline-secondary"
           @click="toggleDetails(row)"
-        >{{ row.detailsShowing ? 'Hide' : 'Show'}} info</b-button>
+        >{{ row.detailsShowing ? 'Hide' : 'Show'}} groups</b-button>
         <b-button
           variant="outline-danger"
           v-if="row.item.name !== username"
@@ -30,7 +30,12 @@
         >Delete</b-button>
       </template>
       <template v-slot:row-details="row">
-        <users-info v-if="rowDetails[row.index] != undefined" :details="rowDetails[row.index]"></users-info>
+        <b-card v-if="users[row.index] !== undefined">
+          <users-manage-groups
+            :user="users[row.index]"
+            @user-added-in-group="userAddedToGroup(row, $event)"
+          ></users-manage-groups>
+        </b-card>
       </template>
     </b-table>
     <b-modal title="Delete user" ref="delete-modal">
@@ -45,13 +50,15 @@
 
 <script>
 import { mapState, mapGetters } from "vuex";
+import LoadingIndicator from "@/components/LoadingIndicator";
 import UsersAdd from "@/components/users/UsersAdd";
-import UsersInfo from "@/components/users/UsersInfo";
+import UsersManageGroups from "@/components/users/UsersManageGroups";
 
 export default {
   components: {
+    LoadingIndicator,
     UsersAdd,
-    UsersInfo,
+    UsersManageGroups,
   },
   data() {
     return {
@@ -66,24 +73,28 @@ export default {
         { key: "action", sortable: false },
       ],
       itemToDelete: {},
-      rowDetails: {},
+      users: {},
     };
   },
   methods: {
-    getRowDetails(row) {
-      if (!row.detailsShowing) {
-        if (this.rowDetails[row.index] !== undefined) {
-          return this.rowDetails[row.index];
-        }
-      }
-      return { groups: [] };
+    async userAddedToGroup(row, group) {
+      this.users[row.index].groups.add(group);
+      row.toggleDetails();
+      await new Promise((r) => setTimeout(r, 10));
+      row.toggleDetails();
+    },
+    async fetchUserDetails(row) {
+      let { response } = await this.$api.post("/admin/users/info", {
+        id: row.item.id,
+      });
+      let user = row.item;
+      user.index = row.index;
+      user.groups = new Set(response.data.groups);
+      this.users[row.index] = user;
     },
     async toggleDetails(row) {
       if (!row.detailsShowing) {
-        let { response } = await this.$api.post("/admin/users/info", {
-          id: row.item.id,
-        });
-        this.rowDetails[row.index] = response.data;
+        await this.fetchUserDetails(row);
       }
       row.toggleDetails();
     },

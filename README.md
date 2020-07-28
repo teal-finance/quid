@@ -93,6 +93,6 @@ Example payload:
    }
    ```
 
-Exp is the expiration timestamp
+`exp` is the expiration timestamp
 
 Check the [python example](example/python)

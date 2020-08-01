@@ -32,6 +32,7 @@ _testmain.go
 .DS_Store
 node_modules
 quidui/dist
+bin
 
 # local env files
 .env.local

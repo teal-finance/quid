@@ -36,12 +36,12 @@ Edit the config file to provide your database credentials. Initialize the databa
    go run main.go -init
    ```
 
-## Run
+### Run in dev mode
 
 Run the backend:
 
    ```bash
-   go run main.go
+   go run main.go -dev
    ```
 
 Run the frontend:
@@ -56,14 +56,34 @@ Go to `localhost:8080` to login into the admin interface
 
 ![Screenshot](doc/img/screenshot.png)
 
-## Request a token
+## Request tokens
 
-A public endpoint is available to request tokens for namespaces. A max time to live must be provided. 
-Ex: request a token with a 24h lifetime `/request_token/24h`:
+Request a refresh token and use it to request access tokens
+
+### Refresh token
+
+A public endpoint is available to request refresh tokens for namespaces. A max time to live must be provided. 
+Ex: request a refresh token with a 24h lifetime `/token/refresh/24h`:
 
    ```bash
    curl -d '{"namespace":"my_namespace","username":"my_username","password":"my_password"}' -H \
-   "Content-Type: application/json" -X POST http://localhost:8082/request_token/24h
+   "Content-Type: application/json" -X POST http://localhost:8082/token/refresh/24h
+   ```
+
+   Response:
+
+   ```bash
+   {"token":"eyJhbGciOiJIUzI1NiIsInR5cCI6IzpXVCJ9..."}
+   ```
+
+### Access token
+
+A public endpoint is available to request access tokens for namespaces. A max time to live must be provided. 
+Ex: request an access token with a 24h lifetime `/token/access/10m`:
+
+   ```bash
+   curl -d '{"namespace":"my_namespace","refresh_token":"zpXVCJ9..."}' -H \
+   "Content-Type: application/json" -X POST http://localhost:8082/request_token/10m
    ```
 
 Response:
@@ -96,3 +116,7 @@ Example payload:
 `exp` is the expiration timestamp
 
 Check the [python example](example/python)
+
+## Client library
+
+[Javascript](tree/master/quidui/quidjs/requests.js) client library: [example](tree/master/quidui/api.js) usage

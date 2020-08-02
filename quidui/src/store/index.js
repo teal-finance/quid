@@ -33,7 +33,7 @@ const store = new Vuex.Store({
             state.isAuthenticated = true;
             state.username = username
             if (token && !conf.isProduction) {
-                console.log("Storing refresh token", token)
+                //console.log("Storing refresh token", token)
                 localStorage.setItem("refreshToken", token)
                 localStorage.setItem("username", username)
             }

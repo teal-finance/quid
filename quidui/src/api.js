@@ -61,7 +61,7 @@ const api = {
     } catch (e) {
       if (e.hasToLogin) {
         console.log("has to login")
-        this.$store.commit("unauthenticate")
+        vue.$store.commit("unauthenticate")
         return
       }
       apiError(e)
@@ -81,7 +81,7 @@ const api = {
       } catch (e) {
         if (e.hasToLogin) {
           console.log("has to login")
-          this.$store.commit("unauthenticate")
+          vue.$store.commit("unauthenticate")
           return
         }
         apiError(e)

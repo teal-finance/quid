@@ -6,7 +6,6 @@ type User struct {
 	Name         string  `json:"name"`
 	PasswordHash string  `json:"-"`
 	Groups       []Group `json:"groups,omitempty"`
-	Tokens       []Token `json:"tokens,omitempty"`
 	Namespace    string  `json:"namespace,omitempty"`
 }
 

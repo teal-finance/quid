@@ -9,6 +9,11 @@ import (
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 
+	"github.com/gorilla/sessions"
+	"github.com/labstack/echo-contrib/session"
+
+	. "github.com/logrusorgru/aurora"
+
 	"github.com/synw/quid/quidlib"
 	"github.com/synw/quid/quidlib/api"
 	"github.com/synw/quid/quidlib/conf"
@@ -16,11 +21,15 @@ import (
 	"github.com/synw/quid/quidlib/tokens"
 )
 
+// SessionsStore : the session cookies store
+var SessionsStore = sessions.NewCookieStore([]byte(conf.EncodingKey))
+
 func main() {
 	init := flag.Bool("init", false, "initialize and create a superuser")
 	key := flag.Bool("key", false, "create a random key")
 	isDevMode := flag.Bool("dev", false, "development mode")
 	genConf := flag.Bool("conf", false, "generate a config file")
+	//heroku := flag.Bool("heroku", false, "Run the app on Heroku")
 	flag.Parse()
 
 	// key flag
@@ -39,7 +48,7 @@ func main() {
 	}
 
 	// init conf flag
-	found, err := conf.Init()
+	found, err := conf.Init(*isDevMode)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -70,40 +79,45 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
+
 	// http server
 	e := echo.New()
 
 	e.Use(middleware.Logger())
 	if !*isDevMode {
 		e.Use(middleware.Recover())
+		e.Use(middleware.Secure())
 	} else {
-		e.Use(middleware.CORS())
+		e.Use(middleware.CORSWithConfig(middleware.CORSConfig{
+			AllowOrigins: []string{"http://localhost:8080"},
+			AllowHeaders: []string{echo.HeaderOrigin, echo.HeaderContentType, echo.HeaderAuthorization},
+			//AllowCredentials: true,
+		}))
 	}
-	e.Use(middleware.Secure())
+
+	e.Use(session.MiddlewareWithConfig(session.Config{Store: SessionsStore}))
 
 	// serve static files in production
-	if !*isDevMode {
+	if !conf.IsDevMode {
 		e.File("/", "quidui/dist/index.html")
 		e.Static("/js", "quidui/dist/js")
 		e.Static("/css", "quidui/dist/css")
 	}
 
 	// public routes
-	e.POST("/request_token/:timeout", api.RequestToken)
+	e.POST("/token/refresh/:timeout", api.RequestRefreshToken)
+	e.POST("/token/access/:timeout", api.RequestAccessToken)
 	e.POST("/admin_login", api.AdminLogin)
-
-	config := middleware.JWTConfig{
-		Claims:     &tokens.StandardUserClaims{},
-		SigningKey: []byte(adminNS.Key),
-	}
 
 	// admin routes
 	a := e.Group("/admin")
-	if !*isDevMode {
-		a.Use(middleware.JWTWithConfig(config))
-		a.Use(api.AdminMiddleware)
+	config := middleware.JWTConfig{
+		Claims:     &tokens.StandardAccessClaims{},
+		SigningKey: []byte(adminNS.Key),
 	}
-
+	a.Use(middleware.JWTWithConfig(config))
+	a.Use(api.AdminMiddleware)
+	a.GET("/logout", api.AdminLogout)
 	g := a.Group("/groups")
 	g.POST("/add", api.CreateGroup)
 	g.POST("/delete", api.DeleteGroup)
@@ -136,7 +150,8 @@ func main() {
 	ns.POST("/find", api.FindNamespace)
 	ns.POST("/info", api.NamespaceInfo)
 	ns.POST("/key", api.GetNamespaceKey)
-	ns.POST("/maxttl", api.SetNamespaceTTL)
+	ns.POST("/max-ttl", api.SetNamespaceTokenMaxTTL)
+	ns.POST("/max-refresh-ttl", api.SetNamespaceRefreshTokenMaxTTL)
 	ns.POST("/groups", api.GroupsForNamespace)
 	ns.POST("/endpoint", api.SetNamespaceEndpointAvailability)
 	ns.GET("/all", func(c echo.Context) error {
@@ -147,8 +162,8 @@ func main() {
 		return c.JSON(http.StatusOK, &data)
 	})
 
-	if *isDevMode {
-		fmt.Println("Running in development mode")
+	if conf.IsDevMode {
+		fmt.Println(Bold(Red("Running in development mode")))
 	}
 
 	// run server

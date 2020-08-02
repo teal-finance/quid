@@ -4,10 +4,22 @@ import (
 	"fmt"
 	"net/http"
 
+	"github.com/gorilla/sessions"
+	"github.com/labstack/echo-contrib/session"
+
 	"github.com/labstack/echo/v4"
+	"github.com/synw/quid/quidlib/conf"
 	"github.com/synw/quid/quidlib/db"
 	"github.com/synw/quid/quidlib/tokens"
 )
+
+// AdminLogout : http logout handler for the admin interface
+func AdminLogout(c echo.Context) error {
+	sess, _ := session.Get("session", c)
+	sess.Values["is_admin"] = "false"
+	sess.Save(c.Request(), c.Response())
+	return c.NoContent(http.StatusOK)
+}
 
 // AdminLogin : http login handler for the admin interface
 func AdminLogin(c echo.Context) error {
@@ -37,7 +49,9 @@ func AdminLogin(c echo.Context) error {
 	}
 	if isAuthorized == false {
 		fmt.Println(username, "unauthorized")
-		return c.NoContent(http.StatusUnauthorized)
+		return c.JSON(http.StatusUnauthorized, echo.Map{
+			"error": "unauthorized",
+		})
 	}
 	// check the user admin group
 	isAdmin, err := isUserInAdminGroup(u.ID, ns.ID)
@@ -46,18 +60,53 @@ func AdminLogin(c echo.Context) error {
 	}
 	if isAdmin == false {
 		fmt.Println(username, "unauthorized: not in admin group")
-		return c.NoContent(http.StatusUnauthorized)
+		return c.JSON(http.StatusUnauthorized, echo.Map{
+			"error": "unauthorized",
+		})
 	}
 
-	// set the token
-	token, err := tokens.GenAdminToken(ns, u.Name)
+	// set the session
+	sameSite := http.SameSiteStrictMode
+	if conf.IsDevMode {
+		sameSite = http.SameSiteNoneMode
+	}
+	secure := !conf.IsDevMode
+	if !conf.IsDevMode {
+		// sessions are not used in dev mode
+		sess, _ := session.Get("session", c)
+		sess.Options = &sessions.Options{
+			Path:     "/",
+			MaxAge:   3600 * 24,
+			HttpOnly: true,
+			SameSite: sameSite,
+			Secure:   secure,
+		}
+		sess.Values["is_admin"] = "true"
+		sess.Values["user"] = u.Name
+		err = sess.Save(c.Request(), c.Response())
+		if err != nil {
+			emo.Error("Error saving session", err)
+		}
+	}
+
+	// set the refresh token
+	exists, token, err := tokens.GenRefreshToken(ns, u.Name, "24h")
+	if !exists {
+		emo.Error(err)
+		return c.JSON(http.StatusUnauthorized, echo.Map{
+			"error": "unauthorized",
+		})
+	}
 	if err != nil {
-		return err
+		emo.Error("Error generating refresh token", err)
+		return c.JSON(http.StatusInternalServerError, echo.Map{
+			"error": true,
+		})
 	}
 
-	fmt.Println("User", u.Name, "is connected")
+	fmt.Println("Admin user", u.Name, "is connected")
 
 	return c.JSON(http.StatusOK, echo.Map{
-		"key": token,
+		"token": token,
 	})
 }

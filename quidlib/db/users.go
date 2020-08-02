@@ -10,17 +10,20 @@ import (
 	"github.com/synw/quid/quidlib/models"
 )
 
-// SelectUser : get a user from it's name
-func SelectUser(name string, namespaceID int64) (bool, models.User, error) {
+// SelectNonDisabledUser : get a user from it's name
+func SelectNonDisabledUser(name string, namespaceID int64) (bool, models.User, error) {
 	u := user{}
 	ux := models.User{}
-	row := db.QueryRowx("SELECT id,name,password FROM usertable WHERE(name=$1 AND namespace_id=$2)", name, namespaceID)
+	row := db.QueryRowx("SELECT id,name,password,is_disabled FROM usertable WHERE(name=$1 AND namespace_id=$2)", name, namespaceID)
 	err := row.StructScan(&u)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			return false, ux, nil
 		}
 		return false, ux, err
+	}
+	if u.IsDisabled {
+		return false, ux, nil
 	}
 	ux.Name = u.Name
 	ux.PasswordHash = u.Password

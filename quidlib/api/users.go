@@ -52,7 +52,9 @@ func AddUserInGroup(c echo.Context) error {
 			"error": "error adding user in group",
 		})
 	}
-	return c.NoContent(http.StatusOK)
+	return c.JSON(http.StatusOK, echo.Map{
+		"ok": true,
+	})
 
 }
 
@@ -71,7 +73,9 @@ func RemoveUserFromGroup(c echo.Context) error {
 			"error": "error removing user from group",
 		})
 	}
-	return c.NoContent(http.StatusOK)
+	return c.JSON(http.StatusOK, echo.Map{
+		"ok": true,
+	})
 
 }
 
@@ -169,7 +173,7 @@ func CreateUser(username string, password string, namespaceID int64) (models.Use
 }
 
 func checkUserPassword(username string, password string, namespaceID int64) (bool, models.User, error) {
-	found, u, err := db.SelectUser(username, namespaceID)
+	found, u, err := db.SelectNonDisabledUser(username, namespaceID)
 	if err != nil {
 		return false, u, err
 	}

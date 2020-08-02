@@ -13,8 +13,29 @@ import (
 	"github.com/synw/quid/quidlib/models"
 )
 
-// GenUserToken : generate a token for a user
-func GenUserToken(namespace models.Namespace, name string, groups []string, timeout, maxTimeout string) (bool, string, error) {
+// GenRefreshToken : generate a refresh token for a user in a namespace
+func GenRefreshToken(namespace models.Namespace, username string, timeout string) (bool, string, error) {
+	isAuthorized, err := isTimeoutAuthorized(timeout, namespace.MaxRefreshTokenTTL)
+	if err != nil {
+		emo.ParamError(err)
+		return false, "", err
+	}
+	if !isAuthorized {
+		return false, "", nil
+	}
+	to, err := tparse.ParseNow(time.RFC3339, "now+"+timeout)
+	claims := standardRefreshClaims(namespace.Name, username, to)
+	t := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+	token, err := t.SignedString([]byte(namespace.RefreshKey))
+	if err != nil {
+		emo.EncryptError(err)
+		return false, "", err
+	}
+	return true, token, nil
+}
+
+// GenAccessToken : generate an access token for a user in a namespace
+func GenAccessToken(namespace models.Namespace, name string, groups []string, timeout, maxTimeout string) (bool, string, error) {
 	isAuthorized, err := isTimeoutAuthorized(timeout, maxTimeout)
 	if err != nil {
 		emo.ParamError(err)
@@ -28,7 +49,7 @@ func GenUserToken(namespace models.Namespace, name string, groups []string, time
 		emo.TimeError(err)
 		return false, "", err
 	}
-	claims := standardUserClaims(namespace.Name, name, groups, to)
+	claims := standardAccessClaims(namespace.Name, name, groups, to)
 	t := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 	token, err := t.SignedString([]byte(namespace.Key))
 	if err != nil {
@@ -36,18 +57,6 @@ func GenUserToken(namespace models.Namespace, name string, groups []string, time
 		return false, "", err
 	}
 	return true, token, nil
-}
-
-// GenAdminToken : generate a token for a quid admin frontend user
-func GenAdminToken(namespace models.Namespace, name string) (string, error) {
-	timeout := time.Now().Add(time.Hour * 24)
-	claims := standardUserClaims(namespace.Name, name, []string{"quid_admin"}, timeout)
-	t := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-	token, err := t.SignedString([]byte(namespace.Key))
-	if err != nil {
-		return "", err
-	}
-	return token, nil
 }
 
 // GenKey : generate a random hmac key

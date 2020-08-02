@@ -10,6 +10,7 @@ type user struct {
 	Password    string    `db:"password" json:"password"`
 	Namespace   string    `db:"namespace" json:"namespace"`
 	DateCreated time.Time `db:"date_created" json:"date_created"`
+	IsDisabled  bool      `db:"is_disabled" json:"is_disabled"`
 }
 
 type group struct {
@@ -35,6 +36,8 @@ type namespace struct {
 	ID                    int64  `db:"id" json:"id"`
 	Name                  string `db:"name" json:"name"`
 	Key                   string `db:"key" json:"key"`
+	RefreshKey            string `db:"refresh_key" json:"refresh_key"`
 	MaxTokenTTL           string `db:"max_token_ttl" json:"max_token_ttl"`
+	MaxRefreshTokenTTL    string `db:"max_refresh_token_ttl" json:"max_refresh_token_ttl"`
 	PublicEndpointEnabled bool   `db:"public_endpoint_enabled" json:"public_endpoint_enabled"`
 }

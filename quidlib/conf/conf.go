@@ -4,10 +4,10 @@ import (
 	"crypto/rand"
 	"encoding/hex"
 	"encoding/json"
+	"fmt"
 	"io/ioutil"
 	"log"
 	"os"
-	"time"
 
 	"github.com/spf13/viper"
 )
@@ -22,31 +22,34 @@ var ConnStr string
 // EncodingKey : the encoding key
 var EncodingKey string
 
-// DefaultTokenTimeout : default timeout for user tokens
-var DefaultTokenTimeout time.Duration
+// IsDevMode : enable development mode
+var IsDevMode = false
+
+// Port : the port to run on
+var Port = "8082"
 
 // Create : create a config file
 func Create() {
 	data := map[string]interface{}{
-		"db_name":                "quid",
-		"db_user":                "pguser",
-		"db_password":            "",
-		"default_tokens_timeout": "24h",
-		"key":                    generateRandomKey(),
+		"db_name":     "quid",
+		"db_user":     "pguser",
+		"db_password": "",
+		"key":         generateRandomKey(),
+		"domain":      "localhost",
 	}
 	jsonString, _ := json.MarshalIndent(data, "", "    ")
 	ioutil.WriteFile("config.json", jsonString, os.ModePerm)
 }
 
 // Init : get the config
-func Init() (bool, error) {
+func Init(isDevMode bool) (bool, error) {
 	viper.SetConfigName("config")
 	viper.AddConfigPath(".")
 	viper.SetDefault("db_name", "quid")
 	viper.SetDefault("db_user", "pguser")
 	viper.SetDefault("db_password", nil)
-	viper.SetDefault("default_tokens_timeout", "24h")
 	viper.SetDefault("key", nil)
+	viper.SetDefault("enable_dev_mode", false)
 	if err := viper.ReadInConfig(); err != nil {
 		if _, ok := err.(viper.ConfigFileNotFoundError); ok {
 			// Config file not found
@@ -54,14 +57,18 @@ func Init() (bool, error) {
 		}
 		log.Fatal(err)
 	}
+	if isDevMode {
+		if viper.Get("enable_dev_mode") == true {
+			IsDevMode = true
+		} else {
+			fmt.Println("Please set enable_dev_mode to true in config in order to run in dev mode")
+			os.Exit(1)
+		}
+	}
 	dbName = viper.Get("db_name").(string)
 	dbUser = viper.Get("db_user").(string)
+	dbUser = viper.Get("db_user").(string)
 	dbPassword = viper.Get("db_password").(string)
-	var err error
-	DefaultTokenTimeout, err = time.ParseDuration(viper.Get("default_tokens_timeout").(string))
-	if err != nil {
-		return true, err
-	}
 	EncodingKey = viper.Get("key").(string)
 	ConnStr = "user=" + dbUser + " password=" + dbPassword + " dbname=" + dbName + " sslmode=disable"
 	return true, nil

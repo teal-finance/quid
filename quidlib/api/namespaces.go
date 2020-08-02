@@ -10,8 +10,29 @@ import (
 	"github.com/synw/quid/quidlib/tokens"
 )
 
-// SetNamespaceTTL : set a max token ttl for a namespace
-func SetNamespaceTTL(c echo.Context) error {
+// SetNamespaceRefreshTokenMaxTTL : set a max refresh token ttl for a namespace
+func SetNamespaceRefreshTokenMaxTTL(c echo.Context) error {
+	m := echo.Map{}
+	if err := c.Bind(&m); err != nil {
+		return err
+	}
+	ID := int64(m["id"].(float64))
+	refreshMxTTL := m["refresh_max_ttl"].(string)
+
+	err := db.UpdateNamespaceRefreshTokenMaxTTL(ID, refreshMxTTL)
+	if err != nil {
+		log.Fatal(err)
+		return c.JSON(http.StatusInternalServerError, echo.Map{
+			"error": "error updating tokens max ttl in namespace",
+		})
+	}
+	return c.JSON(http.StatusOK, echo.Map{
+		"ok": true,
+	})
+}
+
+// SetNamespaceTokenMaxTTL : set a max access token ttl for a namespace
+func SetNamespaceTokenMaxTTL(c echo.Context) error {
 	m := echo.Map{}
 	if err := c.Bind(&m); err != nil {
 		return err
@@ -19,14 +40,16 @@ func SetNamespaceTTL(c echo.Context) error {
 	ID := int64(m["id"].(float64))
 	maxTTL := m["max_ttl"].(string)
 
-	err := db.UpdateNamespaceMaxTTL(ID, maxTTL)
+	err := db.UpdateNamespaceTokenMaxTTL(ID, maxTTL)
 	if err != nil {
 		log.Fatal(err)
 		return c.JSON(http.StatusInternalServerError, echo.Map{
 			"error": "error updating tokens max ttl in namespace",
 		})
 	}
-	return c.NoContent(http.StatusOK)
+	return c.JSON(http.StatusOK, echo.Map{
+		"ok": true,
+	})
 }
 
 // NamespaceInfo : info about a namespace
@@ -159,11 +182,13 @@ func CreateNamespace(c echo.Context) error {
 		return err
 	}
 	name := m["name"].(string)
-	ttl := m["ttl"].(string)
-	endpoint := m["endpoint"].(bool)
+	maxTTL := m["max_ttl"].(string)
+	refreshMaxTTL := m["refresh_max_ttl"].(string)
+	enableEndpoint := m["enable_endpoint"].(bool)
 
 	key := tokens.GenKey()
-	ns, exists, err := createNamespace(name, key, ttl, endpoint)
+	refreshKey := tokens.GenKey()
+	ns, exists, err := createNamespace(name, key, refreshKey, maxTTL, refreshMaxTTL, enableEndpoint)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, echo.Map{
 			"error": "error creating namespace",
@@ -181,7 +206,7 @@ func CreateNamespace(c echo.Context) error {
 }
 
 // createNamespace : create a namespace
-func createNamespace(name, key, ttl string, endpoint bool) (models.Namespace, bool, error) {
+func createNamespace(name, key, refreshKey, ttl, refreshMaxTTL string, endpoint bool) (models.Namespace, bool, error) {
 	ns := models.Namespace{}
 
 	exists, err := db.NamespaceExists(name)
@@ -192,7 +217,7 @@ func createNamespace(name, key, ttl string, endpoint bool) (models.Namespace, bo
 		return ns, true, nil
 	}
 
-	uid, err := db.CreateNamespace(name, key, ttl, endpoint)
+	uid, err := db.CreateNamespace(name, key, refreshKey, ttl, refreshMaxTTL, endpoint)
 	if err != nil {
 		return ns, false, err
 	}

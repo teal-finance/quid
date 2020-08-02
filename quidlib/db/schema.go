@@ -5,7 +5,9 @@ var schema = `CREATE TABLE IF NOT EXISTS namespace (
 	id SERIAL PRIMARY KEY,
 	name TEXT UNIQUE NOT NULL,
 	key TEXT NOT NULL,
-	max_token_ttl TEXT NOT NULL DEFAULT '1h',
+	refresh_key TEXT NOT NULL,
+	max_token_ttl TEXT NOT NULL DEFAULT '20m',
+	max_refresh_token_ttl TEXT NOT NULL DEFAULT '24h',
 	public_endpoint_enabled BOOLEAN NOT NULL DEFAULT false
 );
 
@@ -29,6 +31,7 @@ CREATE TABLE IF NOT EXISTS usertable (
 	password TEXT,
 	namespace_id INTEGER NOT NULL,
 	date_created DATE NOT NULL DEFAULT CURRENT_DATE,
+	is_disabled BOOLEAN DEFAULT false,
 	properties JSONB,
 	FOREIGN KEY(namespace_id) REFERENCES namespace(id) ON DELETE RESTRICT,
 	UNIQUE (name, namespace_id)

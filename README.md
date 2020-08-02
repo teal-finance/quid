@@ -94,7 +94,7 @@ Ex: request an access token with a 10 minutes lifetime `/token/access/10m`:
 
    ```bash
    curl -d '{"namespace":"my_namespace","refresh_token":"zpXVCJ9..."}' -H \
-   "Content-Type: application/json" -X POST http://localhost:8082/request_token/10m
+   "Content-Type: application/json" -X POST http://localhost:8082/token/access/10m
    ```
 
 Response:

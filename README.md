@@ -56,6 +56,17 @@ Go to `localhost:8080` to login into the admin interface
 
 ![Screenshot](doc/img/screenshot.png)
 
+## Run in production mode
+
+   ```bash
+   cd quidui
+   npm build
+   cd ..
+   go run main.go
+   ```
+
+Go to `localhost:8082` to login into the admin interface
+
 ## Request tokens
 
 Request a refresh token and use it to request access tokens

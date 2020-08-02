@@ -73,7 +73,7 @@ Request a refresh token and use it to request access tokens
 
 ### Refresh token
 
-A public endpoint is available to request refresh tokens for namespaces. A max time to live must be provided. 
+A public endpoint is available to request refresh tokens for namespaces. A time to live must be provided. 
 Ex: request a refresh token with a 24h lifetime `/token/refresh/24h`:
 
    ```bash
@@ -89,8 +89,8 @@ Ex: request a refresh token with a 24h lifetime `/token/refresh/24h`:
 
 ### Access token
 
-A public endpoint is available to request access tokens for namespaces. A max time to live must be provided. 
-Ex: request an access token with a 24h lifetime `/token/access/10m`:
+A public endpoint is available to request access tokens for namespaces. A time to live must be provided. 
+Ex: request an access token with a 10 minutes lifetime `/token/access/10m`:
 
    ```bash
    curl -d '{"namespace":"my_namespace","refresh_token":"zpXVCJ9..."}' -H \

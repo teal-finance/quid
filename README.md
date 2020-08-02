@@ -119,4 +119,4 @@ Check the [python example](example/python)
 
 ## Client library
 
-[Javascript](tree/master/quidui/quidjs/requests.js) client library: [example](tree/master/quidui/api.js) usage
+[Javascript](quidui/src/quidjs/requests.js) client library: [example](quidui/src/api.js) usage

@@ -26,24 +26,15 @@ export default {
   },
   methods: {
     async postForm() {
-      let { response, error } = await this.$api.post("/admin_login", {
-        namespace: "quid",
-        username: this.form.username,
-        password: this.form.password,
-      });
+      let error = await this.$api.adminLogin(
+        this.form.username,
+        this.form.password
+      );
       if (error === null) {
         this.$store.commit("authenticate", {
-          key: response.data.key,
           username: this.form.username,
+          token: this.$api.requests.refreshToken,
         });
-        this.$router.push({ path: "/namespaces" });
-      } else {
-        if (error.response.status === 401) {
-          this.$bvToast.toast("Login refused", {
-            title: "Authentication failed",
-            variant: "danger",
-          });
-        }
       }
     },
   },

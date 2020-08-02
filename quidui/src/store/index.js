@@ -1,7 +1,6 @@
 import Vue from 'vue'
 import Vuex from 'vuex'
-import axios from "axios";
-import Conf from "@/conf";
+import conf from '@/conf'
 
 Vue.use(Vuex)
 
@@ -9,7 +8,6 @@ const store = new Vuex.Store({
     state: {
         isAuthenticated: false,
         username: null,
-        key: null,
         action: null,
         showActionBar: false,
         refreshAction: null,
@@ -31,40 +29,28 @@ const store = new Vuex.Store({
             state.action = null;
             state.showActionBar = false;
         },
-        authenticate(state, payload) {
+        authenticate(state, { username, token = null }) {
             state.isAuthenticated = true;
-            state.username = payload.username;
-            state.key = payload.key;
-            const axiosConf = {
-                baseURL: Conf.quidUrl,
-                timeout: 5000,
-                headers: { Authorization: "Bearer " + payload.key }
+            state.username = username
+            if (token && !conf.isProduction) {
+                console.log("Storing refresh token", token)
+                localStorage.setItem("refreshToken", token)
+                localStorage.setItem("username", username)
             }
-            const ax = axios.create(axiosConf);
-            /*ax.interceptors.request.use(request => {
-                console.log("Starting Request", request);
-                return request;
-            });*/
-            Vue.prototype.$axiosConfig = axiosConf
-            Vue.prototype.$axios = ax;
         },
         unauthenticate(state) {
             state.isAuthenticated = false;
-            state.key = null;
             state.username = null;
-            const axiosConf = {
-                baseURL: Conf.quidUrl,
-                timeout: 5000,
+            if (!conf.isProduction) {
+                localStorage.removeItem("refreshToken")
+                localStorage.removeItem("username")
             }
-            const ax = axios.create(axiosConf);
-            Vue.prototype.$axiosConfig = axiosConf
-            Vue.prototype.$axios = ax;
         },
     },
     getters: {
         showActionBar: (state) => {
             return state.showActionBar;
-        }
+        },
     }
 });
 

@@ -19,9 +19,16 @@
 <script>
 export default {
   methods: {
-    logout: function () {
-      this.$router.push({ path: "/" });
-      this.$store.commit("unauthenticate");
+    logout: async function () {
+      /*eslint-disable */
+      let { response, error } = await this.$api.get("/admin/logout");
+      console.log(response);
+      console.log(error);
+      /*eslint-enable */
+      if (error === null) {
+        this.$store.commit("unauthenticate");
+        this.$router.push({ path: "/" });
+      }
     },
   },
 };

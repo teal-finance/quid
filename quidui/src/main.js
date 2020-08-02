@@ -1,6 +1,6 @@
 import Vue from 'vue'
 import router from './router'
-import VueCookies from 'vue-cookies'
+//import VueCookies from 'vue-cookies'
 
 import { BootstrapVue, BootstrapVueIcons } from 'bootstrap-vue'
 
@@ -11,17 +11,19 @@ import App from './App.vue'
 import store from './store'
 import Conf from './conf';
 import api from "./api";
+import notify from "./notify";
 
 Vue.config.productionTip = false
 
 Vue.use(BootstrapVue)
 Vue.use(BootstrapVueIcons)
-Vue.use(VueCookies)
-Vue.$cookies.config('1d', '', '', false, 'Strict')
+//Vue.use(VueCookies)
+//Vue.$cookies.config('1d', '', '', false, 'Strict')
 
 const axiosConfig = {
   baseURL: Conf.quidUrl,
-  timeout: 5000
+  timeout: 5000,
+  withCredentials: false,
 };
 
 Vue.prototype.$axiosConfig = axiosConfig
@@ -32,5 +34,7 @@ const vue = new Vue({
   store: store,
   render: h => h(App)
 }).$mount('#app');
+
+Vue.prototype.$notify = notify(vue)
 
 export default vue;

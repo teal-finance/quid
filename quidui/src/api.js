@@ -1,73 +1,96 @@
-import axios from 'axios'
-import store from './store'
 import vue from './main'
+import QuidRequests from '@/quidjs/requests'
+import Conf from "@/conf";
+
+var requests = new QuidRequests({
+  namespace: "quid",
+  timeouts: {
+    accessToken: "5m",
+    refreshToken: "24h"
+  },
+  axiosConfig: {
+    baseURL: Conf.quidUrl,
+    timeout: 5000,
+    withCredentials: process.env.NODE === 'production',
+    headers: { 'Content-Type': 'application/json' }
+  }
+})
 
 function apiError(e) {
   console.log("API ERROR:", e);
   if (e.response === undefined || e.response === null) {
-    vue.$bvToast.toast(
-      `${e}`,
-      {
-        title: "Error",
-        variant: "danger"
-      }
-    );
+    vue.$notify.error(`${e}`)
   }
   else {
     if (e.response.status !== 200) {
-      if (e.response.status === 401) {
-        store.commit("unauthenticate");
-        return
-      }
       if (e.response.status === 404) {
-        vue.$bvToast.toast(
-          `Not found`,
-          {
-            title: "Error",
-            variant: "warning"
-          }
-        );
+        vue.$notify.warning({
+          title: "Not found",
+          content: e.response.uri
+        })
         return
       } else {
-        vue.$bvToast.toast(
-          `${e.response.status} ${e.response.data.error}`,
-          {
-            title: "Error",
-            variant: "danger",
-            noAutoHide: true
-          }
-        );
+        vue.$notify.error(`${e.response.status} ${e.response.data.error}`)
       }
     }
   }
 }
 
 const api = {
+  requests: requests,
+  adminLogin: async function (username, password) {
+    try {
+      await requests.adminLogin(username, password)
+    } catch (e) {
+      if (e.unauthorized) {
+        vue.$notify.warning({
+          title: "Login failed",
+          content: "Authentication refused"
+        });
+        return "unauthorized"
+      } else {
+        return e
+      }
+    }
+    return null
+  },
   get: async function (uri) {
     try {
-      let response = await axios.get(uri, vue.$axiosConfig);
-      return { response: response, error: null };
+      let response = await this.requests.get(uri);
+      return { response: response, error: null }
     } catch (e) {
+      if (e.hasToLogin) {
+        console.log("has to login")
+        this.$store.commit("unauthenticate")
+        return
+      }
       apiError(e)
       if (e.response !== undefined) {
         if (e.response.status !== 404) {
           return { response: null, error: e }
         }
       }
+      return e;
     }
   },
   post:
     async function (uri, payload) {
       try {
-        let response = await axios.post(uri, payload, vue.$axiosConfig);
-        return { response: response, error: null };
+        let response = await this.requests.post(uri, payload)
+        return { response: response, error: null }
       } catch (e) {
+        if (e.hasToLogin) {
+          console.log("has to login")
+          this.$store.commit("unauthenticate")
+          return
+        }
         apiError(e)
         if (e.response !== undefined) {
           if (e.response.status !== 404) {
             return { response: null, error: e }
           }
         }
+        return e
       }
     }
 }

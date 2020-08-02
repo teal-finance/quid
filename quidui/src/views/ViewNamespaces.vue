@@ -14,7 +14,7 @@
         <namespace-add v-if="action === 'addNamespace'" @refresh="refresh"></namespace-add>
       </b-collapse>
     </div>
-    <b-table hover bordeless :items="data" :fields="fields" class="mt-4" style="max-width:850px">
+    <b-table hover bordeless :items="data" :fields="fields" class="mt-4" style="max-width:950px">
       <template v-slot:cell(public_endpoint_enabled)="row">
         <b-form-group class="text-center" v-if="row.item.name !== 'quid'">
           <b-form-checkbox
@@ -27,21 +27,34 @@
       <template v-slot:cell(max_token_ttl)="row">
         <b-icon-stopwatch
           class="mr-1 text-superlight"
-          @click="toggleEditTtl(row.item.id,row.item.max_token_ttl)"
+          @click="toggleEditTtl(row.item.id)"
+          v-if="row.item.name!=='quid'"
         />&nbsp;
-        <span
-          v-if="editTtl !== row.item.id || row.item.name=='quid'"
-        >{{ row.item.max_token_ttl }}</span>
-        <b-form-input
+        <b-icon-stopwatch style="color:transparent" v-else />&nbsp;
+        <span v-if="editTtl !== row.item.id ">{{ row.item.max_token_ttl }}</span>
+        <namespace-edit-max-ttl
           v-else
-          :value="newTtl"
-          v-on:keyup.enter="submitTt(row)"
-          v-on:keyup.escape="undeditTtl"
-          v-model="newTtl"
-          style="display:inline-block;width:52px"
-          size="sm"
-          autofocus
-        ></b-form-input>
+          :namespaceId="row.item.id"
+          :value="row.item.max_token_ttl"
+          @end-edit="undeditTtl(row, $event)"
+        ></namespace-edit-max-ttl>
+      </template>
+      <template v-slot:cell(max_refresh_token_ttl)="row">
+        <b-icon-stopwatch
+          class="mr-1 text-superlight"
+          @click="toggleEditRefreshTtl(row.item.id)"
+          v-if="row.item.name!=='quid'"
+        />&nbsp;
+        <b-icon-stopwatch style="color:transparent" v-else />&nbsp;
+        <span
+          v-if="editRefreshTtl !== row.item.id || row.item.name=='quid'"
+        >{{ row.item.max_refresh_token_ttl }}</span>
+        <namespace-edit-max-refresh-ttl
+          v-else
+          :namespaceId="row.item.id"
+          :value="row.item.max_refresh_token_ttl"
+          @end-edit="undeditRefreshTtl(row, $event)"
+        ></namespace-edit-max-refresh-ttl>
       </template>
       <template v-slot:cell(action)="row">
         <b-button
@@ -85,11 +98,15 @@
 import { mapState, mapGetters } from "vuex";
 import NamespaceAdd from "@/components/namespace/NamespaceAdd";
 import NamespaceInfo from "@/components/namespace/NamespaceInfo";
+import NamespaceEditMaxTtl from "@/components/namespace/NamespaceEditMaxTtl";
+import NamespaceEditMaxRefreshTtl from "@/components/namespace/NamespaceEditMaxRefreshTtl";
 
 export default {
   components: {
     NamespaceAdd,
     NamespaceInfo,
+    NamespaceEditMaxTtl,
+    NamespaceEditMaxRefreshTtl,
   },
   data() {
     return {
@@ -97,48 +114,58 @@ export default {
       fields: [
         { key: "id", sortable: true },
         { key: "name", sortable: true },
-        { key: "public_endpoint_enabled", sortable: false },
-        { key: "max_token_ttl", sortable: true },
-        { key: "action", sortable: false },
+        {
+          key: "public_endpoint_enabled",
+          label: "Public endpoint",
+          sortable: false,
+        },
+        { key: "max_token_ttl", label: "Access tokens ttl", sortable: true },
+        {
+          key: "max_refresh_token_ttl",
+          label: "Refresh tokens ttl",
+          sortable: true,
+        },
+        { key: "action", label: "", sortable: false },
       ],
       namespaceToDelete: {},
       rowDetails: {},
       selectedNs: { title: "" },
-      editTtl: null,
       isEditTtl: false,
-      newTtl: null,
+      editTtl: null,
+      isEditRefreshTtl: false,
+      editRefreshTtl: null,
     };
   },
   methods: {
-    async submitTt(row) {
-      let { error } = await this.$api.post("/admin/namespaces/maxttl", {
-        id: row.item.id,
-        max_ttl: this.newTtl,
-      });
-      if (error == null) {
-        this.editTtl = null;
-        this.isEditTtl = false;
-        this.data[row.index].max_token_ttl = this.newTtl;
-        this.$bvToast.toast(`Namespace max token ttl set to ${this.newTtl}`, {
-          title: "Ok",
-          variant: "success",
-          autoHideDelay: 1500,
-        });
-        this.newTtl = null;
+    undeditRefreshTtl(row, value) {
+      this.isEditRefreshTtl = false;
+      this.editRefreshTtl = null;
+      if (value != null) {
+        this.data[row.index].max_refresh_token_ttl = value;
       }
     },
-    undeditTtl() {
-      this.editTtl = false;
-      this.editTtl = null;
-      this.newTtl = null;
+    toggleEditRefreshTtl(id) {
+      if (this.isEditRefreshTtl) {
+        this.editRefreshTtl = null;
+        this.isEditRefreshTtl = false;
+      } else {
+        this.editRefreshTtl = id;
+        this.isEditRefreshTtl = true;
+      }
     },
-    toggleEditTtl(id, value) {
+    undeditTtl(row, value) {
+      this.isEditTtl = false;
+      this.editTtl = null;
+      if (value != null) {
+        this.data[row.index].max_token_ttl = value;
+      }
+    },
+    toggleEditTtl(id) {
       if (this.isEditTtl) {
         this.editTtl = null;
         this.isEditTtl = false;
       } else {
         this.editTtl = id;
-        this.newTtl = value;
         this.isEditTtl = true;
       }
     },
@@ -150,11 +177,7 @@ export default {
       });
       if (error === null) {
         let msg = row.item.public_endpoint_enabled ? "enabled" : "disabled";
-        this.$bvToast.toast(`Namespace endpoint ${msg}`, {
-          title: "Ok",
-          variant: "success",
-          autoHideDelay: 1500,
-        });
+        this.$notify.done(`Namespace endpoint ${msg}`);
       }
     },
     async showKey(id, title) {
@@ -167,14 +190,6 @@ export default {
         this.$refs["nskey-modal"].show();
       }
     },
-    getRowDetails(row) {
-      if (!row.detailsShowing) {
-        if (this.rowDetails[row.index] !== undefined) {
-          return this.rowDetails[row.index];
-        }
-      }
-      return { num_users: 0, groups: [] };
-    },
     async toggleDetails(row) {
       if (!row.detailsShowing) {
         let { response } = await this.$api.post("/admin/namespaces/info", {
@@ -186,22 +201,11 @@ export default {
     },
     refresh() {
       this.fetchNamespaces();
-      this.$bvToast.toast("ok", {
-        title: "Namespace saved",
-        variant: "success",
-        autoHideDelay: 1500,
-      });
+      this.$notify.done("Namespace saved");
     },
     async fetchNamespaces() {
       let { response } = await this.$api.get("/admin/namespaces/all");
       this.data = response.data;
-    },
-    confirmDeleteNamespace(id, name) {
-      this.namespaceToDelete = {
-        name: name,
-        id: id,
-      };
-      this.$refs["delete-modal"].show();
     },
     async deleteNamespace(ns) {
       this.$refs["delete-modal"].hide();
@@ -209,13 +213,24 @@ export default {
         id: ns.id,
       });
       if (error === null) {
-        this.$bvToast.toast("Ok", {
-          title: "Namespace deleted",
-          autoHideDelay: 1000,
-          variant: "success",
-        });
+        this.$notify.done("Namespace deleted");
         this.fetchNamespaces();
       }
+    },
+    getRowDetails(row) {
+      if (!row.detailsShowing) {
+        if (this.rowDetails[row.index] !== undefined) {
+          return this.rowDetails[row.index];
+        }
+      }
+      return { num_users: 0, groups: [] };
+    },
+    confirmDeleteNamespace(id, name) {
+      this.namespaceToDelete = {
+        name: name,
+        id: id,
+      };
+      this.$refs["delete-modal"].show();
     },
     nsKeyModalTitle() {
       if (this.selectedNs === null) return;

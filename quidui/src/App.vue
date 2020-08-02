@@ -1,6 +1,6 @@
 <template>
   <div class="main">
-    <div v-if="isAuthorized()">
+    <div v-if="isAuthenticated">
       <the-navbar></the-navbar>
       <b-container fluid class="h-100">
         <b-row class="full-height-content-zone">
@@ -23,6 +23,7 @@
 
 <script>
 import { mapState } from "vuex";
+import conf from "@/conf";
 import TheNavbar from "@/components/TheNavbar.vue";
 import TheSidebar from "@/components/TheSidebar.vue";
 import TheLogin from "@/components/TheLogin";
@@ -33,40 +34,21 @@ export default {
     TheSidebar,
     TheLogin,
   },
-  methods: {
-    isAuthorized() {
-      if (!this.isProduction) {
-        if (this.isDevModeEnabled === true) {
-          return true;
-        }
-      }
-      if (this.isAuthenticated) {
-        return true;
-      }
-      return false;
-    },
-  },
   computed: {
     ...mapState(["isAuthenticated"]),
-    isDevModeEnabled() {
-      if (process.env.VUE_APP_ENABLE_DEV_MODE !== undefined) {
-        if (process.env.VUE_APP_ENABLE_DEV_MODE === "true") {
-          return true;
-        }
-      }
-      return false;
-    },
-    isProduction() {
-      return process.env.NODE_ENV === "production";
-    },
   },
   mounted() {
-    if (this.isDevModeEnabled) {
+    if (!conf.isProduction) {
+      let rt = localStorage.getItem("refreshToken");
+      if (rt) {
+        this.$api.requests.refreshToken = rt;
+        let username = localStorage.getItem("username");
+        this.$store.commit("authenticate", username);
+      }
+    }
+    if (process.env.VUE_APP_DEBUG === "true") {
       console.log("IS AUTHENTICATED", this.isAuthenticated);
-      console.log("IS PRODUCTION", this.isProduction);
-      console.log("IS DEV_MODE", this.isDevModeEnabled);
-      console.log("IS AUTHORIZED", this.isAuthorized());
-      console.log("Dev mode is on");
+      console.log("IS PRODUCTION", conf.isProduction);
     }
   },
 };

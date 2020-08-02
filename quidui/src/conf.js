@@ -6,6 +6,6 @@ function getQuidUrl() {
     return url;
 }
 
-const Conf = { quidUrl: getQuidUrl() }
+const Conf = { quidUrl: getQuidUrl(), isProduction: process.env.NODE === 'production' }
 
 export default Conf;

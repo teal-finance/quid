@@ -32,10 +32,10 @@ func RequestAccessToken(c echo.Context) error {
 	}
 	timeout := c.Param("timeout")
 
-	// get the refresh key
+	// get the namespace
 	exists, ns, err := db.SelectNamespaceFromName(namespace)
 	if !exists {
-		emo.Error("The refresh key does not exist")
+		emo.Error("The namepsace does not exist")
 		return c.JSON(http.StatusBadRequest, echo.Map{
 			"error": true,
 		})
@@ -44,6 +44,11 @@ func RequestAccessToken(c echo.Context) error {
 		log.Fatal(err)
 		return c.JSON(http.StatusInternalServerError, echo.Map{
 			"error": true,
+		})
+	}
+	if !ns.PublicEndpointEnabled {
+		return c.JSON(http.StatusUnauthorized, echo.Map{
+			"error": "unauthorized",
 		})
 	}
 
@@ -128,6 +133,11 @@ func RequestRefreshToken(c echo.Context) error {
 	if !exists {
 		return c.JSON(http.StatusBadRequest, echo.Map{
 			"error": "namespace does not exist",
+		})
+	}
+	if !ns.PublicEndpointEnabled {
+		return c.JSON(http.StatusUnauthorized, echo.Map{
+			"error": "unauthorized",
 		})
 	}
 

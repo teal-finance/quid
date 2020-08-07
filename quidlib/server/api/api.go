@@ -1,6 +1,8 @@
 package api
 
-import emolib "github.com/synw/quid/quidlib/emo"
+import (
+	emolib "github.com/synw/quid/quidlib/emo"
+)
 
 var emo = emolib.Zone{
 	Name:    "api",

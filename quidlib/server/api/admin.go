@@ -9,7 +9,7 @@ import (
 
 	"github.com/labstack/echo/v4"
 	"github.com/synw/quid/quidlib/conf"
-	"github.com/synw/quid/quidlib/db"
+	"github.com/synw/quid/quidlib/server/db"
 	"github.com/synw/quid/quidlib/tokens"
 )
 
@@ -90,9 +90,9 @@ func AdminLogin(c echo.Context) error {
 	}
 
 	// set the refresh token
-	exists, token, err := tokens.GenRefreshToken(ns, u.Name, "24h")
+	exists, token, err := tokens.GenRefreshToken(ns.Name, ns.RefreshKey, ns.MaxRefreshTokenTTL, u.Name, "24h")
 	if !exists {
-		emo.Error(err)
+		emo.Error("Unauthorized: timeout max (", ns.MaxRefreshTokenTTL, ") for refresh token for namespace", ns.Name)
 		return c.JSON(http.StatusUnauthorized, echo.Map{
 			"error": "unauthorized",
 		})

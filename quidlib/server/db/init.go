@@ -1,4 +1,4 @@
-package quidlib
+package db
 
 import (
 	"errors"
@@ -6,8 +6,6 @@ import (
 	"log"
 
 	"github.com/manifoldco/promptui"
-	"github.com/synw/quid/quidlib/api"
-	"github.com/synw/quid/quidlib/db"
 	"github.com/synw/quid/quidlib/tokens"
 )
 
@@ -15,7 +13,7 @@ import (
 func InitDbConf() {
 	fmt.Println("Initializing Quid database")
 	// check namespace
-	nsexists, err := db.NamespaceExists("quid")
+	nsexists, err := NamespaceExists("quid")
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -24,37 +22,37 @@ func InitDbConf() {
 		key := tokens.GenKey()
 		refreshKey := tokens.GenKey()
 		fmt.Println("Creating the quid namespace")
-		nsid, err = db.CreateNamespace("quid", key, refreshKey, "20m", "24h", false)
+		nsid, err = CreateNamespace("quid", key, refreshKey, "20m", "24h", false)
 		if err != nil {
 			log.Fatal(err)
 		}
 	} else {
-		nsid, err = db.SelectNamespaceID("quid")
+		nsid, err = SelectNamespaceID("quid")
 		if err != nil {
 			log.Fatal(err)
 		}
 	}
 	// check base admin group
-	exists, err := db.GroupExists("quid_admin", nsid)
+	exists, err := GroupExists("quid_admin", nsid)
 	if err != nil {
 		log.Fatal(err)
 	}
 	var gid int64
 	if !exists {
 		fmt.Println("Creating the quid admin group")
-		gid, err = db.CreateGroup("quid_admin", nsid)
+		gid, err = CreateGroup("quid_admin", nsid)
 		if err != nil {
 			log.Fatal(err)
 		}
 	} else {
-		group, err := db.SelectGroup("quid_admin", nsid)
+		group, err := SelectGroup("quid_admin", nsid)
 		if err != nil {
 			log.Fatal(err)
 		}
 		gid = group.ID
 	}
 	// check superuser
-	n, err := db.CountUsersInGroup(gid)
+	n, err := CountUsersInGroup(gid)
 	if n == 0 {
 		fmt.Println("Create a superuser")
 		username, err := promptForUsername()
@@ -65,11 +63,11 @@ func InitDbConf() {
 		if err != nil {
 			log.Fatal(err)
 		}
-		u, err := api.CreateUser(username, pwd, nsid)
+		u, err := CreateUser(username, pwd, nsid)
 		if err != nil {
 			log.Fatal(err)
 		}
-		err = db.AddUserInGroup(u.ID, gid)
+		err = AddUserInGroup(u.ID, gid)
 		if err != nil {
 			log.Fatal(err)
 		}

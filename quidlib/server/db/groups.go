@@ -4,12 +4,12 @@ import (
 	// pg import
 	_ "github.com/lib/pq"
 
-	"github.com/synw/quid/quidlib/models"
+	"github.com/synw/quid/quidlib/server"
 )
 
 // SelectAllGroups : get all the groups
-func SelectAllGroups() ([]models.Group, error) {
-	data := []models.Group{}
+func SelectAllGroups() ([]server.Group, error) {
+	data := []server.Group{}
 	err := db.Select(&data, "SELECT grouptable.id,grouptable.name,namespace.name as namespace FROM grouptable "+
 		"JOIN namespace ON grouptable.namespace_id = namespace.id ORDER BY grouptable.name")
 	if err != nil {
@@ -19,8 +19,8 @@ func SelectAllGroups() ([]models.Group, error) {
 }
 
 // SelectGroupsForUser : get the groups for a user
-func SelectGroupsForUser(userID int64) ([]models.Group, error) {
-	data := []models.Group{}
+func SelectGroupsForUser(userID int64) ([]server.Group, error) {
+	data := []server.Group{}
 	err := db.Select(&data, "SELECT grouptable.id as id, grouptable.name as name FROM usergroup "+
 		"JOIN grouptable ON usergroup.group_id = grouptable.id WHERE usergroup.user_id=$1 ORDER BY grouptable.name",
 		userID)
@@ -47,8 +47,8 @@ func SelectGroupsNamesForUser(userID int64) ([]string, error) {
 }
 
 // SelectGroupsForNamespace : get the groups for a namespace
-func SelectGroupsForNamespace(namespaceID int64) ([]models.Group, error) {
-	data := []models.Group{}
+func SelectGroupsForNamespace(namespaceID int64) ([]server.Group, error) {
+	data := []server.Group{}
 	err := db.Select(&data, "SELECT grouptable.id,grouptable.name,namespace.name as namespace FROM grouptable "+
 		"JOIN namespace ON grouptable.namespace_id = namespace.id WHERE grouptable.namespace_id=$1 ORDER BY grouptable.name",
 		namespaceID)
@@ -59,8 +59,8 @@ func SelectGroupsForNamespace(namespaceID int64) ([]models.Group, error) {
 }
 
 // SelectGroup : get a group
-func SelectGroup(name string, namespaceID int64) (models.Group, error) {
-	data := []models.Group{}
+func SelectGroup(name string, namespaceID int64) (server.Group, error) {
+	data := []server.Group{}
 	err := db.Select(&data, "SELECT id,name FROM grouptable WHERE(name=$1 AND namespace_id=$2)", name, namespaceID)
 	if err != nil {
 		return data[0], err

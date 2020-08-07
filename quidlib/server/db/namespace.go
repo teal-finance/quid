@@ -6,19 +6,20 @@ import (
 	// pg import
 	_ "github.com/lib/pq"
 
-	"github.com/synw/quid/quidlib/models"
+	"github.com/synw/quid/quidlib/crypt"
+	"github.com/synw/quid/quidlib/server"
 )
 
 // SelectAllNamespaces : get the namespaces
-func SelectAllNamespaces() ([]models.Namespace, error) {
+func SelectAllNamespaces() ([]server.Namespace, error) {
 	data := []namespace{}
-	res := []models.Namespace{}
+	res := []server.Namespace{}
 	err := db.Select(&data, "SELECT id,name,max_token_ttl,max_refresh_token_ttl,public_endpoint_enabled FROM namespace ORDER BY name")
 	if err != nil {
 		return res, err
 	}
 	for _, u := range data {
-		res = append(res, models.Namespace{
+		res = append(res, server.Namespace{
 			ID:                    u.ID,
 			Name:                  u.Name,
 			MaxTokenTTL:           u.MaxTokenTTL,
@@ -30,15 +31,15 @@ func SelectAllNamespaces() ([]models.Namespace, error) {
 }
 
 // SelectNamespaceStartsWith : get a namespace
-func SelectNamespaceStartsWith(name string) ([]models.Namespace, error) {
+func SelectNamespaceStartsWith(name string) ([]server.Namespace, error) {
 	data := []namespace{}
-	res := []models.Namespace{}
+	res := []server.Namespace{}
 	err := db.Select(&data, "SELECT id,name FROM namespace WHERE name LIKE '"+name+"%'")
 	if err != nil {
 		return res, err
 	}
 	for _, u := range data {
-		res = append(res, models.Namespace{
+		res = append(res, server.Namespace{
 			ID:   u.ID,
 			Name: u.Name,
 		})
@@ -47,9 +48,9 @@ func SelectNamespaceStartsWith(name string) ([]models.Namespace, error) {
 }
 
 // SelectNamespaceFromName : get a namespace
-func SelectNamespaceFromName(name string) (bool, models.Namespace, error) {
+func SelectNamespaceFromName(name string) (bool, server.Namespace, error) {
 	data := namespace{}
-	ns := models.Namespace{}
+	ns := server.Namespace{}
 	q := "SELECT id,name,key,refresh_key,max_token_ttl,max_refresh_token_ttl,public_endpoint_enabled FROM namespace WHERE name=$1"
 	emo.Query(q, name)
 	row := db.QueryRowx(q, name)
@@ -60,12 +61,12 @@ func SelectNamespaceFromName(name string) (bool, models.Namespace, error) {
 		}
 		return true, ns, err
 	}
-	k, err := aesGcmDecrypt(data.Key, nil)
+	k, err := crypt.AesGcmDecrypt(data.Key, nil)
 	if err != nil {
 		emo.DecryptError(err)
 		return true, ns, err
 	}
-	rk, err := aesGcmDecrypt(data.RefreshKey, nil)
+	rk, err := crypt.AesGcmDecrypt(data.RefreshKey, nil)
 	if err != nil {
 		emo.DecryptError(err)
 		return true, ns, err
@@ -93,7 +94,7 @@ func SelectNamespaceKey(ID int64) (bool, string, error) {
 		return false, key, err
 	}
 	//emo.Decrypt("Decrypting key data for the namespace id " + strconv.FormatInt(ID, 10))
-	k, err := aesGcmDecrypt(data.Key, nil)
+	k, err := crypt.AesGcmDecrypt(data.Key, nil)
 	if err != nil {
 		emo.DecryptError(err)
 		return true, "", err
@@ -150,11 +151,11 @@ func SetNamespaceEndpointAvailability(ID int64, enable bool) error {
 
 // CreateNamespace : create a namespace
 func CreateNamespace(name, key, refreshKey, ttl, refreshTTL string, endpoint bool) (int64, error) {
-	k, err := aesGcmEncrypt(key, nil)
+	k, err := crypt.AesGcmEncrypt(key, nil)
 	if err != nil {
 		return 0, err
 	}
-	rk, err := aesGcmEncrypt(refreshKey, nil)
+	rk, err := crypt.AesGcmEncrypt(refreshKey, nil)
 	if err != nil {
 		return 0, err
 	}

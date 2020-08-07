@@ -3,6 +3,7 @@ package emo
 import (
 	"errors"
 	"fmt"
+	"reflect"
 	"runtime"
 	"strconv"
 	"strings"
@@ -78,7 +79,8 @@ func getErr(event Event, errObjs []interface{}) (Event, error) {
 		if !isErr {
 			msg, isString := e.(string)
 			if !isString {
-				return ev, errors.New("The parameters must be string or an error")
+				t := reflect.TypeOf(e).String()
+				return ev, errors.New("The parameters must be string or an error. It is of type " + t)
 			}
 			msgs = append(msgs, msg)
 		} else {
@@ -88,7 +90,7 @@ func getErr(event Event, errObjs []interface{}) (Event, error) {
 	msg := strings.Join(msgs[:], " ")
 	err := errors.New(msg)
 	pc := make([]uintptr, 10)
-	runtime.Callers(2, pc)
+	runtime.Callers(3, pc)
 	f := runtime.FuncForPC(pc[0])
 	file, line := f.FileLine(pc[0])
 	from := f.Name()

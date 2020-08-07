@@ -8,7 +8,7 @@ import (
 	"github.com/dgrijalva/jwt-go"
 	"github.com/labstack/echo/v4"
 
-	"github.com/synw/quid/quidlib/db"
+	db "github.com/synw/quid/quidlib/server/db"
 	"github.com/synw/quid/quidlib/tokens"
 )
 
@@ -89,7 +89,7 @@ func RequestAccessToken(c echo.Context) error {
 	}
 
 	// generate the access token
-	isAuth, t, err := tokens.GenAccessToken(ns, u.Name, groupNames, timeout, ns.MaxTokenTTL)
+	isAuth, t, err := tokens.GenAccessToken(ns.Name, ns.Key, u.Name, groupNames, timeout, ns.MaxTokenTTL)
 	if !isAuth {
 		emo.Error("Timeout unauthorized")
 		return c.JSON(http.StatusUnauthorized, echo.Map{
@@ -145,7 +145,7 @@ func RequestRefreshToken(c echo.Context) error {
 	}
 
 	// generate the token
-	isAuth, t, err := tokens.GenRefreshToken(ns, u.Name, timeout)
+	isAuth, t, err := tokens.GenRefreshToken(ns.Name, ns.RefreshKey, ns.MaxRefreshTokenTTL, u.Name, timeout)
 	if err != nil {
 		log.Fatal(err)
 	}

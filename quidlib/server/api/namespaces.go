@@ -5,10 +5,22 @@ import (
 	"net/http"
 
 	"github.com/labstack/echo/v4"
-	"github.com/synw/quid/quidlib/db"
-	"github.com/synw/quid/quidlib/models"
+	"github.com/synw/quid/quidlib/server"
+	db "github.com/synw/quid/quidlib/server/db"
 	"github.com/synw/quid/quidlib/tokens"
 )
+
+// AllNamespaces : get all namespaces
+func AllNamespaces(c echo.Context) error {
+	data, err := db.SelectAllNamespaces()
+	if err != nil {
+		log.Fatal(err)
+		return c.JSON(http.StatusInternalServerError, echo.Map{
+			"error": "error selecting namespaces",
+		})
+	}
+	return c.JSON(http.StatusOK, &data)
+}
 
 // SetNamespaceRefreshTokenMaxTTL : set a max refresh token ttl for a namespace
 func SetNamespaceRefreshTokenMaxTTL(c echo.Context) error {
@@ -76,7 +88,7 @@ func NamespaceInfo(c echo.Context) error {
 		})
 	}
 
-	data := models.NamespaceInfo{
+	data := server.NamespaceInfo{
 		NumUsers: nu,
 		Groups:   g,
 	}
@@ -206,8 +218,8 @@ func CreateNamespace(c echo.Context) error {
 }
 
 // createNamespace : create a namespace
-func createNamespace(name, key, refreshKey, ttl, refreshMaxTTL string, endpoint bool) (models.Namespace, bool, error) {
-	ns := models.Namespace{}
+func createNamespace(name, key, refreshKey, ttl, refreshMaxTTL string, endpoint bool) (server.Namespace, bool, error) {
+	ns := server.Namespace{}
 
 	exists, err := db.NamespaceExists(name)
 	if err != nil {

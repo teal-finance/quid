@@ -10,23 +10,23 @@ import (
 
 	"github.com/dgrijalva/jwt-go"
 	"github.com/karrick/tparse"
-	"github.com/synw/quid/quidlib/models"
 )
 
 // GenRefreshToken : generate a refresh token for a user in a namespace
-func GenRefreshToken(namespace models.Namespace, username string, timeout string) (bool, string, error) {
-	isAuthorized, err := isTimeoutAuthorized(timeout, namespace.MaxRefreshTokenTTL)
+func GenRefreshToken(namespaceName, namespaceRefreshKey, maxTokenTTL, username string, timeout string) (bool, string, error) {
+	isAuthorized, err := isTimeoutAuthorized(timeout, maxTokenTTL)
 	if err != nil {
 		emo.ParamError(err)
 		return false, "", err
 	}
 	if !isAuthorized {
+		emo.ParamError("Unauthorized timeout", timeout)
 		return false, "", nil
 	}
 	to, err := tparse.ParseNow(time.RFC3339, "now+"+timeout)
-	claims := standardRefreshClaims(namespace.Name, username, to)
+	claims := standardRefreshClaims(namespaceName, username, to)
 	t := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-	token, err := t.SignedString([]byte(namespace.RefreshKey))
+	token, err := t.SignedString([]byte(namespaceRefreshKey))
 	if err != nil {
 		emo.EncryptError(err)
 		return false, "", err
@@ -35,7 +35,7 @@ func GenRefreshToken(namespace models.Namespace, username string, timeout string
 }
 
 // GenAccessToken : generate an access token for a user in a namespace
-func GenAccessToken(namespace models.Namespace, name string, groups []string, timeout, maxTimeout string) (bool, string, error) {
+func GenAccessToken(namespaceName, namespaceKey, name string, groups []string, timeout, maxTimeout string) (bool, string, error) {
 	isAuthorized, err := isTimeoutAuthorized(timeout, maxTimeout)
 	if err != nil {
 		emo.ParamError(err)
@@ -49,9 +49,9 @@ func GenAccessToken(namespace models.Namespace, name string, groups []string, ti
 		emo.TimeError(err)
 		return false, "", err
 	}
-	claims := standardAccessClaims(namespace.Name, name, groups, to)
+	claims := standardAccessClaims(namespaceName, name, groups, to)
 	t := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-	token, err := t.SignedString([]byte(namespace.Key))
+	token, err := t.SignedString([]byte(namespaceKey))
 	if err != nil {
 		emo.EncryptError(err)
 		return false, "", err
@@ -85,9 +85,9 @@ func isTimeoutAuthorized(timeout, maxTimeout string) (bool, error) {
 	if err != nil {
 		return false, err
 	}
-	max, err := tparse.ParseNow(time.RFC3339, "now+"+maxTimeout)
+	max, err := tparse.ParseNow(time.RFC3339, "now+1s+"+maxTimeout)
 	if err != nil {
 		return false, err
 	}
-	return requested.Before(max), err
+	return requested.UTC().Before(max), err
 }

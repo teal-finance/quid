@@ -6,14 +6,15 @@ import (
 
 	// pg import
 	_ "github.com/lib/pq"
+	"golang.org/x/crypto/bcrypt"
 
-	"github.com/synw/quid/quidlib/models"
+	"github.com/synw/quid/quidlib/server"
 )
 
 // SelectNonDisabledUser : get a user from it's name
-func SelectNonDisabledUser(name string, namespaceID int64) (bool, models.User, error) {
+func SelectNonDisabledUser(name string, namespaceID int64) (bool, server.User, error) {
 	u := user{}
-	ux := models.User{}
+	ux := server.User{}
 	row := db.QueryRowx("SELECT id,name,password,is_disabled FROM usertable WHERE(name=$1 AND namespace_id=$2)", name, namespaceID)
 	err := row.StructScan(&u)
 	if err != nil {
@@ -32,9 +33,9 @@ func SelectNonDisabledUser(name string, namespaceID int64) (bool, models.User, e
 }
 
 // SelectAllUsers : get the users
-func SelectAllUsers() ([]models.User, error) {
+func SelectAllUsers() ([]server.User, error) {
 	data := []user{}
-	usrs := []models.User{}
+	usrs := []server.User{}
 	err := db.Select(&data,
 		"SELECT usertable.id,usertable.name,namespace.name as namespace FROM usertable "+
 			"JOIN namespace ON usertable.namespace_id = namespace.id ORDER BY name")
@@ -43,7 +44,7 @@ func SelectAllUsers() ([]models.User, error) {
 		return usrs, err
 	}
 	for _, u := range data {
-		usrs = append(usrs, models.User{
+		usrs = append(usrs, server.User{
 			ID:        u.ID,
 			Name:      u.Name,
 			Namespace: u.Namespace,
@@ -53,9 +54,9 @@ func SelectAllUsers() ([]models.User, error) {
 }
 
 // SelectUsersInNamespace : get the users in a namespace
-func SelectUsersInNamespace(namespaceID int64) ([]models.User, error) {
+func SelectUsersInNamespace(namespaceID int64) ([]server.User, error) {
 	data := []user{}
-	usrs := []models.User{}
+	usrs := []server.User{}
 	err := db.Select(&data,
 		"SELECT usertable.id,usertable.name,namespace.name as namespace FROM usertable WHERE usertable.namespace_id=$1"+
 			"JOIN namespace ON usertable.namespace_id = namespace.id ORDER BY name", namespaceID)
@@ -63,7 +64,7 @@ func SelectUsersInNamespace(namespaceID int64) ([]models.User, error) {
 		return usrs, err
 	}
 	for _, u := range data {
-		usrs = append(usrs, models.User{
+		usrs = append(usrs, server.User{
 			ID:        u.ID,
 			Name:      u.Name,
 			Namespace: u.Namespace,
@@ -73,13 +74,30 @@ func SelectUsersInNamespace(namespaceID int64) ([]models.User, error) {
 }
 
 // SelectUsersInGroup : get the users in a group
-func SelectUsersInGroup(name string, namespaceID int64) (models.Group, error) {
-	data := []models.Group{}
+func SelectUsersInGroup(name string, namespaceID int64) (server.Group, error) {
+	data := []server.Group{}
 	err := db.Select(&data, "SELECT id,name FROM grouptable WHERE(name=$1 AND namespace_id=$2)", name, namespaceID)
 	if err != nil {
 		return data[0], err
 	}
 	return data[0], nil
+}
+
+// CreateUser : create a user
+func CreateUser(username string, password string, namespaceID int64) (server.User, error) {
+	user := server.User{}
+	pwd := []byte(password)
+	hashedPassword, err := bcrypt.GenerateFromPassword(pwd, bcrypt.DefaultCost)
+	if err != nil {
+		return user, err
+	}
+	uid, err := CreateUserFromNameAndPassword(username, string(hashedPassword), namespaceID)
+	if err != nil {
+		return user, err
+	}
+	user.ID = uid
+	user.Name = username
+	return user, nil
 }
 
 // CreateUserFromNameAndPassword : create a user
@@ -103,17 +121,17 @@ func CreateUserFromNameAndPassword(name string, passwordHash string, namespaceID
 
 /*
 // SelectGroupsForUser : get the groups for a user in a namespace
-func SelectGroupsForUser(userID int64) ([]models.Group, error) {
+func SelectGroupsForUser(userID int64) ([]server.Group, error) {
 	data := []group{}
 	err := db.Select(&data, "SELECT grouptable.id,grouptable.name FROM usergroup "+
 		"JOIN grouptable ON usergroup.group_id = grouptable.id WHERE usergroup.user_id=$1 ORDER BY grouptable.name",
 		userID)
-	gr := []models.Group{}
+	gr := []server.Group{}
 	if err != nil {
 		return gr, err
 	}
 	for _, g := range gr {
-		res := models.Group{
+		res := server.Group{
 			ID:   g.ID,
 			Name: g.Name,
 		}

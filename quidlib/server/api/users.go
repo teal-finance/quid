@@ -6,9 +6,20 @@ import (
 	"golang.org/x/crypto/bcrypt"
 
 	"github.com/labstack/echo/v4"
-	"github.com/synw/quid/quidlib/db"
-	"github.com/synw/quid/quidlib/models"
+	"github.com/synw/quid/quidlib/server"
+	db "github.com/synw/quid/quidlib/server/db"
 )
+
+// AllUsers : add a user in a group
+func AllUsers(c echo.Context) error {
+	data, err := db.SelectAllUsers()
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, echo.Map{
+			"error": "error selecting users",
+		})
+	}
+	return c.JSON(http.StatusOK, &data)
+}
 
 // GroupsForNamespace : get the groups of a user
 func GroupsForNamespace(c echo.Context) error {
@@ -144,7 +155,7 @@ func CreateUserHandler(c echo.Context) error {
 	}
 
 	// create user
-	u, err := CreateUser(name, password, namespaceID)
+	u, err := db.CreateUser(name, password, namespaceID)
 	if err != nil {
 		return c.JSON(http.StatusConflict, echo.Map{
 			"error": "error creating user",
@@ -155,24 +166,7 @@ func CreateUserHandler(c echo.Context) error {
 	})
 }
 
-// CreateUser : create a user
-func CreateUser(username string, password string, namespaceID int64) (models.User, error) {
-	user := models.User{}
-	pwd := []byte(password)
-	hashedPassword, err := bcrypt.GenerateFromPassword(pwd, bcrypt.DefaultCost)
-	if err != nil {
-		return user, err
-	}
-	uid, err := db.CreateUserFromNameAndPassword(username, string(hashedPassword), namespaceID)
-	if err != nil {
-		return user, err
-	}
-	user.ID = uid
-	user.Name = username
-	return user, nil
-}
-
-func checkUserPassword(username string, password string, namespaceID int64) (bool, models.User, error) {
+func checkUserPassword(username string, password string, namespaceID int64) (bool, server.User, error) {
 	found, u, err := db.SelectNonDisabledUser(username, namespaceID)
 	if err != nil {
 		return false, u, err

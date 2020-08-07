@@ -4,9 +4,21 @@ import (
 	"net/http"
 
 	"github.com/labstack/echo/v4"
-	"github.com/synw/quid/quidlib/db"
-	"github.com/synw/quid/quidlib/models"
+	"github.com/synw/quid/quidlib/server"
+	db "github.com/synw/quid/quidlib/server/db"
 )
+
+// AllGroups : get all groups for a namespace http handler
+func AllGroups(c echo.Context) error {
+	data, err := db.SelectAllGroups()
+	if err != nil {
+		return c.JSON(http.StatusConflict, echo.Map{
+			"error": "error selecting groups",
+		})
+	}
+	return c.JSON(http.StatusOK, &data)
+
+}
 
 // GroupsInfo : group creation http handler
 func GroupsInfo(c echo.Context) error {
@@ -77,8 +89,8 @@ func CreateGroup(c echo.Context) error {
 }
 
 // createGroup : create a group
-func createGroup(name string, namespaceID int64) (models.Group, bool, error) {
-	ns := models.Group{}
+func createGroup(name string, namespaceID int64) (server.Group, bool, error) {
+	ns := server.Group{}
 
 	exists, err := db.GroupExists(name, namespaceID)
 	if err != nil {

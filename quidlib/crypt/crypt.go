@@ -1,4 +1,4 @@
-package db
+package crypt
 
 import (
 	"crypto/aes"
@@ -15,7 +15,8 @@ const (
 	aesGcmNonceSize = 12
 )
 
-func aesGcmEncrypt(plaintext string, additionalData []byte) (string, error) {
+// AesGcmEncrypt : encrypt content
+func AesGcmEncrypt(plaintext string, additionalData []byte) (string, error) {
 	key, err := hex.DecodeString(conf.EncodingKey)
 	if err != nil {
 		return "", err
@@ -36,7 +37,8 @@ func aesGcmEncrypt(plaintext string, additionalData []byte) (string, error) {
 	return hex.EncodeToString(append(iv, ciphertext...)), nil
 }
 
-func aesGcmDecrypt(encryptedString string, additionalData []byte) (string, error) {
+// AesGcmDecrypt : decrypt content
+func AesGcmDecrypt(encryptedString string, additionalData []byte) (string, error) {
 	key, err := hex.DecodeString(conf.EncodingKey)
 	if err != nil {
 		return "", err

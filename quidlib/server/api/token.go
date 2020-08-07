@@ -89,7 +89,7 @@ func RequestAccessToken(c echo.Context) error {
 	}
 
 	// generate the access token
-	isAuth, t, err := tokens.GenAccessToken(ns.Name, ns.Key, u.Name, groupNames, timeout, ns.MaxTokenTTL)
+	isAuth, t, err := tokens.GenAccessToken(ns.Name, ns.Key, ns.MaxTokenTTL, u.Name, groupNames, timeout)
 	if !isAuth {
 		emo.Error("Timeout unauthorized")
 		return c.JSON(http.StatusUnauthorized, echo.Map{

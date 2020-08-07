@@ -13,8 +13,8 @@ import (
 )
 
 // GenRefreshToken : generate a refresh token for a user in a namespace
-func GenRefreshToken(namespaceName, namespaceRefreshKey, maxTokenTTL, username string, timeout string) (bool, string, error) {
-	isAuthorized, err := isTimeoutAuthorized(timeout, maxTokenTTL)
+func GenRefreshToken(namespaceName, namespaceRefreshKey, maxRefreshokenTTL, username string, timeout string) (bool, string, error) {
+	isAuthorized, err := isTimeoutAuthorized(timeout, maxRefreshokenTTL)
 	if err != nil {
 		emo.ParamError(err)
 		return false, "", err
@@ -35,13 +35,14 @@ func GenRefreshToken(namespaceName, namespaceRefreshKey, maxTokenTTL, username s
 }
 
 // GenAccessToken : generate an access token for a user in a namespace
-func GenAccessToken(namespaceName, namespaceKey, name string, groups []string, timeout, maxTimeout string) (bool, string, error) {
-	isAuthorized, err := isTimeoutAuthorized(timeout, maxTimeout)
+func GenAccessToken(namespaceName, namespaceKey, maxTokenTTL, name string, groups []string, timeout string) (bool, string, error) {
+	isAuthorized, err := isTimeoutAuthorized(timeout, maxTokenTTL)
 	if err != nil {
 		emo.ParamError(err)
 		return false, "", err
 	}
 	if !isAuthorized {
+		emo.ParamError("Unauthorized timeout", timeout)
 		return false, "", nil
 	}
 	to, err := tparse.ParseNow(time.RFC3339, "now+"+timeout)

@@ -11,7 +11,18 @@ import (
 
 // InitDbConf : initialize the database content
 func InitDbConf() {
-	fmt.Println("Initializing Quid database")
+	initDbConf(true, "", "")
+}
+
+// InitDbAutoConf : initialize the database content
+func InitDbAutoConf(username, password string) {
+	initDbConf(false, username, password)
+}
+
+func initDbConf(prompt bool, username, password string) {
+	if prompt {
+		fmt.Println("Initializing Quid database")
+	}
 	// check namespace
 	nsexists, err := NamespaceExists("quid")
 	if err != nil {
@@ -54,16 +65,26 @@ func InitDbConf() {
 	// check superuser
 	n, err := CountUsersInGroup(gid)
 	if n == 0 {
-		fmt.Println("Create a superuser")
-		username, err := promptForUsername()
-		if err != nil {
-			log.Fatal(err)
+		var uname string
+		if prompt {
+			fmt.Println("Create a superuser")
+			uname, err = promptForUsername()
+			if err != nil {
+				log.Fatal(err)
+			}
+		} else {
+			uname = username
 		}
-		pwd, err := promptForPassword()
-		if err != nil {
-			log.Fatal(err)
+		var pwd string
+		if prompt {
+			pwd, err = promptForPassword()
+			if err != nil {
+				log.Fatal(err)
+			}
+		} else {
+			pwd = password
 		}
-		u, err := CreateUser(username, pwd, nsid)
+		u, err := CreateUser(uname, pwd, nsid)
 		if err != nil {
 			log.Fatal(err)
 		}
@@ -71,9 +92,13 @@ func InitDbConf() {
 		if err != nil {
 			log.Fatal(err)
 		}
-		fmt.Println("Superuser", username, "created")
+		if prompt {
+			fmt.Println("Superuser", username, "created")
+		}
 	}
-	fmt.Println("Initialization complete")
+	if prompt {
+		fmt.Println("Initialization complete")
+	}
 }
 
 func promptForUsername() (string, error) {

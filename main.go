@@ -26,6 +26,7 @@ var SessionsStore = sessions.NewCookieStore([]byte(conf.EncodingKey))
 func main() {
 	init := flag.Bool("init", false, "initialize and create a superuser")
 	key := flag.Bool("key", false, "create a random key")
+	env := flag.Bool("env", false, "init from environment variables not config file")
 	isDevMode := flag.Bool("dev", false, "development mode")
 	genConf := flag.Bool("conf", false, "generate a config file")
 	//heroku := flag.Bool("heroku", false, "Run the app on Heroku")
@@ -46,19 +47,25 @@ func main() {
 		return
 	}
 
-	// init conf flag
-	found, err := conf.Init(*isDevMode)
-	if err != nil {
-		log.Fatal(err)
-	}
-	if !found {
-		fmt.Println("No config file found. Use the -conf option to generate one")
-		return
+	autoConfDb := false
+	// env flag
+	if *env {
+		autoConfDb = conf.InitFromEnv(*isDevMode)
+	} else {
+		// init conf flag
+		found, err := conf.Init(*isDevMode)
+		if err != nil {
+			log.Fatal(err)
+		}
+		if !found {
+			fmt.Println("No config file found. Use the -conf option to generate one")
+			return
+		}
 	}
 
 	// db
 	db.Init(*isDevMode)
-	err = db.Connect()
+	err := db.Connect()
 	if err != nil {
 		log.Fatalln(err)
 	}
@@ -68,6 +75,10 @@ func main() {
 	if *init {
 		db.InitDbConf()
 		return
+	}
+	if autoConfDb {
+		fmt.Println("Autoconf")
+		db.InitDbAutoConf(conf.DefaultAdminUser, conf.DefaultAdminPassword)
 	}
 
 	api.Init(*isDevMode)
@@ -166,5 +177,5 @@ func main() {
 	}
 
 	// run server
-	e.Logger.Fatal(e.Start(":8082"))
+	e.Logger.Fatal(e.Start(":" + conf.Port))
 }

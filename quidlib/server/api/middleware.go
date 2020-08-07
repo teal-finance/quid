@@ -1,7 +1,6 @@
 package api
 
 import (
-	"fmt"
 	"net/http"
 
 	"github.com/dgrijalva/jwt-go"
@@ -33,8 +32,8 @@ func AdminMiddleware(next echo.HandlerFunc) echo.HandlerFunc {
 			return next(c)
 		}
 		sess, _ := session.Get("session", c)
-		fmt.Println("IS ADMIN", sess.Values["is_admin"])
-		fmt.Println("USER", sess.Values["user"])
+		//fmt.Println("IS ADMIN", sess.Values["is_admin"])
+		//fmt.Println("USER", sess.Values["user"])
 		if sess.Values["is_admin"] == "true" {
 			return next(c)
 		}

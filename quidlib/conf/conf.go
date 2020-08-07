@@ -12,10 +12,6 @@ import (
 	"github.com/spf13/viper"
 )
 
-var dbName string
-var dbUser string
-var dbPassword string
-
 // ConnStr : the postgres connection string
 var ConnStr string
 
@@ -65,10 +61,9 @@ func Init(isDevMode bool) (bool, error) {
 			os.Exit(1)
 		}
 	}
-	dbName = viper.Get("db_name").(string)
-	dbUser = viper.Get("db_user").(string)
-	dbUser = viper.Get("db_user").(string)
-	dbPassword = viper.Get("db_password").(string)
+	dbName := viper.Get("db_name").(string)
+	dbUser := viper.Get("db_user").(string)
+	dbPassword := viper.Get("db_password").(string)
 	EncodingKey = viper.Get("key").(string)
 	ConnStr = "user=" + dbUser + " password=" + dbPassword + " dbname=" + dbName + " sslmode=disable"
 	return true, nil

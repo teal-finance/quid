@@ -26,7 +26,7 @@ func RunServer(adminNsKey string) {
 	echoServer.Use(middleware.Logger())
 	if !conf.IsDevMode {
 		echoServer.Use(middleware.Recover())
-		echoServer.Use(middleware.Secure())
+		//echoServer.Use(middleware.Secure())
 	} else {
 		echoServer.Use(middleware.CORSWithConfig(middleware.CORSConfig{
 			AllowOrigins: []string{"http://localhost:8080"},

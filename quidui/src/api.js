@@ -19,6 +19,12 @@ var requests = new QuidRequests({
 function apiError(e) {
   console.log("API ERROR:", e);
   if (e.response === undefined || e.response === null) {
+    if (typeof e === 'object') {
+      if ("error" in e) {
+        vue.$notify.error(`${e.error}`)
+        return
+      }
+    }
     vue.$notify.error(`${e}`)
   }
   else {

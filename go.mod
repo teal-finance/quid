@@ -11,11 +11,9 @@ require (
 	github.com/karrick/tparse v2.4.2+incompatible
 	github.com/labstack/echo-contrib v0.9.0
 	github.com/labstack/echo/v4 v4.1.16
-	github.com/lib/pq v1.7.0
+	github.com/lib/pq v1.8.0
 	github.com/logrusorgru/aurora v2.0.3+incompatible
 	github.com/manifoldco/promptui v0.7.0
-	github.com/spf13/viper v1.7.0
-	github.com/stretchr/testify v1.5.1 // indirect
-	golang.org/x/crypto v0.0.0-20200221231518-2aa609cf4a9d
-	google.golang.org/appengine v1.6.6 // indirect
+	github.com/spf13/viper v1.7.1
+	golang.org/x/crypto v0.0.0-20200728195943-123391ffb6de
 )

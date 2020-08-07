@@ -14,10 +14,9 @@ import (
 
 	. "github.com/logrusorgru/aurora"
 
-	"github.com/synw/quid/quidlib"
-	"github.com/synw/quid/quidlib/api"
 	"github.com/synw/quid/quidlib/conf"
-	"github.com/synw/quid/quidlib/db"
+	"github.com/synw/quid/quidlib/server/api"
+	"github.com/synw/quid/quidlib/server/db"
 	"github.com/synw/quid/quidlib/tokens"
 )
 
@@ -67,7 +66,7 @@ func main() {
 
 	// initialization flag
 	if *init {
-		quidlib.InitDbConf()
+		db.InitDbConf()
 		return
 	}
 

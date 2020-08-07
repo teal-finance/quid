@@ -17,11 +17,14 @@ func main() {
 	env := flag.Bool("env", false, "init from environment variables not config file")
 	isDevMode := flag.Bool("dev", false, "development mode")
 	genConf := flag.Bool("conf", false, "generate a config file")
-	//heroku := flag.Bool("heroku", false, "Run the app on Heroku")
 	flag.Parse()
 
 	// key flag
 	if *key {
+		if *env {
+			fmt.Println("The key command is not allowed when initializing from environment variables")
+			log.Fatal()
+		}
 		k := tokens.GenKey()
 		fmt.Println(k)
 		return
@@ -29,6 +32,10 @@ func main() {
 
 	// gen conf flag
 	if *genConf {
+		if *env {
+			fmt.Println("The conf command is not allowed when initializing from environment variables")
+			log.Fatal()
+		}
 		fmt.Println("Generating config file")
 		conf.Create()
 		fmt.Println("Config file created: edit config.json to provide your database settings")
@@ -61,11 +68,14 @@ func main() {
 
 	// initialization flag
 	if *init {
+		if *env {
+			fmt.Println("The init command is not allowed when initializing from environment variables")
+			log.Fatal()
+		}
 		db.InitDbConf()
 		return
 	}
 	if autoConfDb {
-		fmt.Println("Autoconf")
 		db.InitDbAutoConf(conf.DefaultAdminUser, conf.DefaultAdminPassword)
 	}
 

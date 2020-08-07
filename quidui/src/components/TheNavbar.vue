@@ -19,12 +19,12 @@
 <script>
 export default {
   methods: {
-    logout: async function () {
-      let { error } = await this.$api.get("/admin/logout");
-      if (error === null) {
-        this.$store.commit("unauthenticate");
+    async logout() {
+      this.$store.commit("unauthenticate");
+      if (!this.$router.currentRoute.path !== "/") {
         this.$router.push({ path: "/" });
       }
+      await this.$api.get("/admin/logout");
     },
   },
 };

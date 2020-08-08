@@ -33,7 +33,7 @@ func initDbConf(prompt bool, username, password string) {
 		key := tokens.GenKey()
 		refreshKey := tokens.GenKey()
 		fmt.Println("Creating the quid namespace")
-		nsid, err = CreateNamespace("quid", key, refreshKey, "20m", "24h", false)
+		nsid, err = CreateNamespace("quid", key, refreshKey, "6m", "24h", true)
 		if err != nil {
 			log.Fatal(err)
 		}

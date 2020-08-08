@@ -20,12 +20,14 @@ func RequestAccessToken(c echo.Context) error {
 	}
 	refreshToken, ok := m["refresh_token"].(string)
 	if !ok {
+		emo.ParamError("provide a refresh_token parameter")
 		return c.JSON(http.StatusBadRequest, echo.Map{
 			"error": "provide a refresh_token parameter",
 		})
 	}
 	namespace, ok := m["namespace"].(string)
 	if !ok {
+		emo.ParamError("provide a namespace parameter")
 		return c.JSON(http.StatusBadRequest, echo.Map{
 			"error": "provide a namespace parameter",
 		})
@@ -41,12 +43,16 @@ func RequestAccessToken(c echo.Context) error {
 		})
 	}
 	if err != nil {
+		emo.Error(err)
 		log.Fatal(err)
 		return c.JSON(http.StatusInternalServerError, echo.Map{
 			"error": true,
 		})
 	}
+
+	// check if the endpoint is available
 	if !ns.PublicEndpointEnabled {
+		emo.Error("Public endpoint unanuthorized")
 		return c.JSON(http.StatusUnauthorized, echo.Map{
 			"error": "unauthorized",
 		})
@@ -136,6 +142,14 @@ func RequestRefreshToken(c echo.Context) error {
 		})
 	}
 	if !ns.PublicEndpointEnabled {
+		return c.JSON(http.StatusUnauthorized, echo.Map{
+			"error": "unauthorized",
+		})
+	}
+
+	// check if the endpoint is available
+	if !ns.PublicEndpointEnabled {
+		emo.Error("Public endpoint unanuthorized")
 		return c.JSON(http.StatusUnauthorized, echo.Map{
 			"error": "unauthorized",
 		})

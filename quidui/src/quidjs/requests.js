@@ -8,7 +8,9 @@ export default class QuidRequests {
   constructor({ namespace, axiosConfig, timeouts = {
     accessToken: "20m",
     refreshToken: "24h"
-  }, verbose = false }) {
+  },
+    accessTokenUri = null,
+    verbose = false }) {
     if (typeof namespace !== 'string') {
       throw quidException({ error: 'Parameter namespace has to be set' });
     }
@@ -20,6 +22,7 @@ export default class QuidRequests {
     this.axios = axios.create(this.axiosConfig);
     this.timeouts = timeouts
     this.verbose = verbose
+    this.accessTokenUri = accessTokenUri
   }
 
   async get(uri) {
@@ -115,17 +118,19 @@ export default class QuidRequests {
   }
 
   async _getAccessToken() {
-    if (this.verbose) {
-      console.log("Getting an access token")
-    }
     try {
       let payload = {
         namespace: this.namespace,
         refresh_token: this.refreshToken,
       }
       let url = "/token/access/" + this.timeouts.accessToken
+      if (this.accessTokenUri !== null) {
+        url = this.accessTokenUri
+      }
+      if (this.verbose) {
+        console.log("Getting an access token from", url, payload)
+      }
       let response = await axios.post(url, payload, this.axiosConfig);
-      //console.log("Access token", response.data.token);
       return { token: response.data.token, error: null, statusCode: response.status };
     } catch (e) {
       if (e.response !== undefined) {

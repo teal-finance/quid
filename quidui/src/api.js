@@ -8,12 +8,14 @@ var requests = new QuidRequests({
     accessToken: "5m",
     refreshToken: "24h"
   },
+  accessTokenUri: "/admin_token/access/",
   axiosConfig: {
     baseURL: Conf.quidUrl,
     timeout: 5000,
     withCredentials: process.env.NODE === 'production',
     headers: { 'Content-Type': 'application/json' }
-  }
+  },
+  verbose: Conf.isProduction
 })
 
 function apiError(e) {

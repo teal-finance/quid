@@ -4,7 +4,7 @@ A Json web tokens server
 
 ## Install and run
 
-Clone the repository
+Download the latest [release](release) to run a binary or clone the repository to compile from source
 
 ### Create the database
 
@@ -21,16 +21,6 @@ Create a Postgresql database:
    ```
 
 Replace `pguser` by your database user
-
-### Compile for production
-
-   ```bash
-   cd quidui
-   npm install
-   npm run build
-   cd ..
-   go build
-   ```
 
 ### Configure
 
@@ -55,6 +45,16 @@ Edit the config file to provide your database credentials. Initialize the databa
 Go to `localhost:8082` to login into the admin interface
 
 ![Screenshot](doc/img/screenshot.png)
+
+### Compile from source
+
+   ```bash
+   cd quidui
+   npm install
+   npm run build
+   cd ..
+   go build
+   ```
 
 [Run in dev mode](doc/dev_mode.md)
 

@@ -3,7 +3,6 @@ package emo
 import (
 	"errors"
 	"fmt"
-	"reflect"
 	"runtime"
 	"strconv"
 	"strings"
@@ -73,9 +72,11 @@ func (event Event) getMsg(withError bool) string {
 
 func getErr(event Event, errObjs []interface{}) (Event, error) {
 	msgs := []string{}
-	ev := Event{}
 	for _, e := range errObjs {
-		err, isErr := e.(error)
+		msg := fmt.Sprintf("%v", e)
+		msgs = append(msgs, msg)
+
+		/*err, isErr := e.(error)
 		if !isErr {
 			msg, isString := e.(string)
 			if !isString {
@@ -85,7 +86,7 @@ func getErr(event Event, errObjs []interface{}) (Event, error) {
 			msgs = append(msgs, msg)
 		} else {
 			msgs = append(msgs, err.Error())
-		}
+		}*/
 	}
 	msg := strings.Join(msgs[:], " ")
 	err := errors.New(msg)

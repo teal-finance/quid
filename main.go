@@ -16,6 +16,7 @@ func main() {
 	key := flag.Bool("key", false, "create a random key")
 	env := flag.Bool("env", false, "init from environment variables not config file")
 	isDevMode := flag.Bool("dev", false, "development mode")
+	isVerbose := flag.Bool("v", false, "verbose mode")
 	genConf := flag.Bool("conf", false, "generate a config file")
 	flag.Parse()
 
@@ -59,7 +60,7 @@ func main() {
 	}
 
 	// db
-	db.Init(*isDevMode)
+	db.Init(*isVerbose)
 	err := db.Connect()
 	if err != nil {
 		log.Fatalln(err)
@@ -79,8 +80,8 @@ func main() {
 		db.InitDbAutoConf(conf.DefaultAdminUser, conf.DefaultAdminPassword)
 	}
 
-	api.Init(*isDevMode)
-	tokens.Init(*isDevMode)
+	api.Init(*isVerbose)
+	tokens.Init(*isVerbose)
 
 	// get the admin namespace
 	_, adminNS, err := db.SelectNamespaceFromName("quid")

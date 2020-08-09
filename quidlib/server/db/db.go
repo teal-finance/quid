@@ -18,8 +18,8 @@ var emo = emolib.Zone{
 }
 
 // Init : init the db conf
-func Init(isDev bool) {
-	emo.NoPrint = !isDev
+func Init(isVerbose bool) {
+	emo.NoPrint = !isVerbose
 }
 
 // Connect : connect to the db

@@ -25,18 +25,19 @@ func AdminMiddleware(next echo.HandlerFunc) echo.HandlerFunc {
 			}
 		}
 		if !isAdmin {
+			emo.ParamError("The user " + claims.Name + " is not in the quid_admin group")
 			return c.NoContent(http.StatusUnauthorized)
 		}
-		// check session in production
+		// check session data in prouction
 		if conf.IsDevMode {
 			return next(c)
 		}
 		sess, _ := session.Get("session", c)
-		//fmt.Println("IS ADMIN", sess.Values["is_admin"])
-		//fmt.Println("USER", sess.Values["user"])
 		if sess.Values["is_admin"] == "true" {
 			return next(c)
 		}
+
+		emo.Error("Unauthorized session from admin middleware")
 		return c.NoContent(http.StatusUnauthorized)
 	}
 }

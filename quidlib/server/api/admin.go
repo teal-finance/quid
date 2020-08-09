@@ -68,25 +68,23 @@ func AdminLogin(c echo.Context) error {
 	// set the session
 	sameSite := http.SameSiteStrictMode
 	if conf.IsDevMode {
-		sameSite = http.SameSiteNoneMode
+		sameSite = http.SameSiteLaxMode
 	}
 	secure := !conf.IsDevMode
-	if !conf.IsDevMode {
-		// sessions are not used in dev mode
-		sess, _ := session.Get("session", c)
-		sess.Options = &sessions.Options{
-			Path:     "/",
-			MaxAge:   3600 * 24,
-			HttpOnly: true,
-			SameSite: sameSite,
-			Secure:   secure,
-		}
-		sess.Values["is_admin"] = "true"
-		sess.Values["user"] = u.Name
-		err = sess.Save(c.Request(), c.Response())
-		if err != nil {
-			emo.Error("Error saving session", err)
-		}
+	sess, _ := session.Get("session", c)
+	sess.Options = &sessions.Options{
+		Path:     "/",
+		MaxAge:   3600 * 24,
+		HttpOnly: true,
+		SameSite: sameSite,
+		Secure:   secure,
+	}
+	sess.Values["is_admin"] = "true"
+	sess.Values["user"] = u.Name
+	//emo.Info("Setting session", u.Name, sess.Values["is_admin"])
+	err = sess.Save(c.Request(), c.Response())
+	if err != nil {
+		emo.Error("Error saving session", err)
 	}
 
 	// set the refresh token

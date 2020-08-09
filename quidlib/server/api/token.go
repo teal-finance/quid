@@ -12,6 +12,100 @@ import (
 	"github.com/synw/quid/quidlib/tokens"
 )
 
+// RequestAdminAccessToken : request an access token from a refresh token
+// for the quid namespace
+func RequestAdminAccessToken(c echo.Context) error {
+	m := echo.Map{}
+	if err := c.Bind(&m); err != nil {
+		return err
+	}
+	refreshToken, ok := m["refresh_token"].(string)
+	if !ok {
+		emo.ParamError("provide a refresh_token parameter")
+		return c.JSON(http.StatusBadRequest, echo.Map{
+			"error": "provide a refresh_token parameter",
+		})
+	}
+
+	// get the namespace
+	_, ns, err := db.SelectNamespaceFromName("quid")
+	if err != nil {
+		emo.Error(err)
+		log.Fatal(err)
+		return c.JSON(http.StatusInternalServerError, echo.Map{
+			"error": true,
+		})
+	}
+
+	// verify the refresh token
+	var username string
+	token, err := jwt.ParseWithClaims(refreshToken, &tokens.StandardRefreshClaims{}, func(token *jwt.Token) (interface{}, error) {
+		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
+			return nil, fmt.Errorf("Unexpected signing method: %v", token.Header["alg"])
+		}
+		return []byte(ns.RefreshKey), nil
+	})
+	if claims, ok := token.Claims.(*tokens.StandardRefreshClaims); ok && token.Valid {
+		username = claims.Name
+		fmt.Printf("%v %v", claims.Name, claims.StandardClaims.ExpiresAt)
+	} else {
+		emo.Error(err.Error())
+		return c.JSON(http.StatusUnauthorized, echo.Map{
+			"error": "unauthorized",
+		})
+	}
+
+	// get the user
+	found, u, err := db.SelectNonDisabledUser(username, ns.ID)
+	if !found {
+		emo.Error("User not found: " + username)
+		return c.JSON(http.StatusUnauthorized, echo.Map{
+			"error": "unauthorized",
+		})
+	}
+	if err != nil {
+		log.Fatal(err)
+		return c.JSON(http.StatusInternalServerError, echo.Map{
+			"error": true,
+		})
+	}
+
+	// get the user group names
+	groupNames, err := db.SelectGroupsNamesForUser(u.ID)
+	if err != nil {
+		emo.Error("Groups error")
+		log.Fatal(err)
+		return err
+	}
+	// check if the user is in the admin group
+	isAdmin := false
+	for _, gn := range groupNames {
+		if gn == "quid_admin" {
+			isAdmin = true
+			break
+		}
+	}
+	if !isAdmin {
+		emo.Warning("Admin access token request from user", u.Name, "that is not in the quid_admin group")
+		return c.JSON(http.StatusUnauthorized, echo.Map{
+			"error": "unauthorized",
+		})
+	}
+
+	// generate the access token
+	_, t, err := tokens.GenAccessToken(ns.Name, ns.Key, ns.MaxTokenTTL, u.Name, groupNames, "5m")
+	if err != nil {
+		log.Fatal(err)
+		return c.JSON(http.StatusInternalServerError, echo.Map{
+			"error": true,
+		})
+	}
+
+	return c.JSON(http.StatusOK, echo.Map{
+		"token": t,
+	})
+}
+
 // RequestAccessToken : request an access token from a refresh token
 func RequestAccessToken(c echo.Context) error {
 	m := echo.Map{}

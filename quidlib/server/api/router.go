@@ -44,11 +44,12 @@ func RunServer(adminNsKey string) {
 		echoServer.Static("/css", "quidui/dist/css")
 	}
 
-	// SetHTTPRoutes :
+	// HTTP Routes
 	// public routes
 	echoServer.POST("/token/refresh/:timeout", RequestRefreshToken)
 	echoServer.POST("/token/access/:timeout", RequestAccessToken)
 	echoServer.POST("/admin_login", AdminLogin)
+	echoServer.POST("/admin_token/access/", RequestAdminAccessToken)
 
 	// admin routes
 	a := echoServer.Group("/admin")
@@ -59,7 +60,6 @@ func RunServer(adminNsKey string) {
 	a.Use(middleware.JWTWithConfig(config))
 	a.Use(AdminMiddleware)
 	a.GET("/logout", AdminLogout)
-
 	g := a.Group("/groups")
 	g.POST("/add", CreateGroup)
 	g.POST("/delete", DeleteGroup)

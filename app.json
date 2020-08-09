@@ -1,0 +1,28 @@
+{
+    "name": "Quid",
+    "description": "A json web tokens server",
+    "repository": "https://github.com/synw/quid",
+    "keywords": [
+        "jwt",
+        "json web tokens"
+    ],
+    "addons": [
+        {
+            "plan": "heroku-postgresql"
+        }
+    ],
+    "env": {
+        "KEY": {
+            "description": "A secret key for the app",
+            "generator": "secret"
+        },
+        "ADMIN_USER": {
+            "description": "The admin username",
+            "required": true
+        },
+        "ADMIN_PWD": {
+            "description": "The admin password",
+            "required": true
+        }
+    }
+}

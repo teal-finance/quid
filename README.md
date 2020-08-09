@@ -4,7 +4,7 @@ A Json web tokens server
 
 ## Install and run
 
-Download the latest [release](release) to run a binary or clone the repository to compile from source
+Download the latest [release](releases) to run a binary or clone the repository to compile from source
 
 ### Create the database
 

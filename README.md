@@ -36,7 +36,24 @@ Edit the config file to provide your database credentials. Initialize the databa
    go run main.go -init
    ```
 
+## Run in production mode
+
+   ```bash
+   cd quidui
+   npm install
+   npm run build
+   cd ..
+   go build -o bin/quid
+   ./bin/quid
+   ```
+
+Go to `localhost:8082` to login into the admin interface
+
+![Screenshot](doc/img/screenshot.png)
+
 ### Run in dev mode
+
+Set an `enable_dev_mode` parameter to `true` in config.json
 
 Run the backend:
 
@@ -53,19 +70,6 @@ Run the frontend:
    ```
 
 Go to `localhost:8080` to login into the admin interface
-
-![Screenshot](doc/img/screenshot.png)
-
-## Run in production mode
-
-   ```bash
-   cd quidui
-   npm build
-   cd ..
-   go run main.go
-   ```
-
-Go to `localhost:8082` to login into the admin interface
 
 ## Request tokens
 

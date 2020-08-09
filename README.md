@@ -2,13 +2,13 @@
 
 A Json web tokens server
 
-## Install
+## Install and run
 
 Clone the repository
 
-### Database
+### Create the database
 
-Create the Postgresql database:
+Create a Postgresql database:
 
    ```bash
    sudo su postgres
@@ -22,29 +22,34 @@ Create the Postgresql database:
 
 Replace `pguser` by your database user
 
-### Configuration
-
-Create a config file:
-
-   ```bash
-   go run main.go -conf
-   ```
-
-Edit the config file to provide your database credentials. Initialize the database and create an admin user:
-
-   ```bash
-   go run main.go -init
-   ```
-
-## Run in production mode
+### Compile for production
 
    ```bash
    cd quidui
    npm install
    npm run build
    cd ..
-   go build -o bin/quid
-   ./bin/quid
+   go build
+   ```
+
+### Configure
+
+Create a config file:
+
+   ```bash
+   ./quid -conf
+   ```
+
+Edit the config file to provide your database credentials. Initialize the database and create an admin user:
+
+   ```bash
+   ./quid -init
+   ```
+
+### Run
+
+   ```bash
+   ./quid
    ```
 
 Go to `localhost:8082` to login into the admin interface

@@ -1,60 +1,80 @@
 # Quid
 
-A Json web tokens server
+A Json Web Tokens (JWT) server
 
 ## Install and run
 
-Download the latest [release](https://github.com/synw/quid/releases) to run a binary or clone the repository to compile from source
+Download the latest [release](https://github.com/synw/quid/releases) to run a binary or clone the repository to compile from source.
 
-### Create the database
+### Check PostreSQL
 
-Create a Postgresql database:
+Quid expects PostreSQL listens to the port 5432.
 
-   ```bash
-   sudo su postgres
-   psql
-   create database quid;
-   \c quid;
-   GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA public to pguser;
-   \q
-   exit
-   ```
+You can check your PostreSQL status and the port:
 
-Replace `pguser` by your database user
+```bash
+$ sudo service postgresql status
+$ ss -nlt | grep 5432
+LISTEN  0        244            127.0.0.1:5432           0.0.0.0:*
+```
+
+### Create user and database
+
+If you do not have already created a priviledged user, create it:
+
+```bash
+$ sudo -u postgres psql
+postgres=# create user pguser with password 'my_password';
+CREATE ROLE
+```
+
+Create the Quid database:
+
+```bash
+$ sudo -u postgres psql
+postgres=# create database quid;
+CREATE DATABASE
+postgres=# GRANT ALL PRIVILEGES ON DATABASE quid to pguser;
+GRANT
+```
+
+You may replace the above last statement by:
+
+```bash
+postgres=# GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA public to pguser;
+```
 
 ### Configure
 
-Create a config file:
+1. Create the default config file:
 
-   ```bash
-   ./quid -conf
-   ```
+       ./quid -conf
 
-Edit the config file to provide your database credentials. Initialize the database and create an admin user:
+2. Edit the configuration file to set your database credentials:
 
-   ```bash
-   ./quid -init
-   ```
+        vim config.json
+
+3. Initialize the database and create an admin user:
+
+       ./quid -init
 
 ### Run
 
-   ```bash
-   ./quid
-   ```
+    ./quid
 
-Go to `localhost:8082` to login into the admin interface
+Go to [`localhost:8082`](http://localhost:8082) to login into the admin interface
+
+    xdg-open http://localhost:8082
 
 ![Screenshot](doc/img/screenshot.png)
 
 ### Compile from source
 
-   ```bash
-   cd quidui
-   npm install
-   npm run build
-   cd ..
-   go build
-   ```
+    cd quidui
+    npm install
+    npm run build
+    cd ..
+    go build
 
 [Run in dev mode](doc/dev_mode.md)
 
@@ -67,32 +87,34 @@ Request a refresh token and use it to request access tokens
 A public endpoint is available to request refresh tokens for namespaces. A time to live must be provided. 
 Ex: request a refresh token with a 24h lifetime `/token/refresh/24h`:
 
-   ```bash
-   curl -d '{"namespace":"my_namespace","username":"my_username","password":"my_password"}' -H \
-   "Content-Type: application/json" -X POST http://localhost:8082/token/refresh/24h
-   ```
+```php
+curl -X POST http://localhost:8082/token/refresh/10m          \
+     -H 'Content-Type: application/json'                      \
+     -d '{"namespace":"my_namespace","username":"my_username","password":"my_password"}'
+```
 
-   Response:
+Response:
 
-   ```bash
-   {"token":"eyJhbGciOiJIUzI1NiIsInR5cCI6IzpXVCJ9..."}
-   ```
+```json
+{"token":"eyJhbGciOiJIUzI1NiIsInR5cCI6IzpXVCJ9..."}
+```
 
 ### Access token
 
 A public endpoint is available to request access tokens for namespaces. A time to live must be provided. 
 Ex: request an access token with a 10 minutes lifetime `/token/access/10m`:
 
-   ```bash
-   curl -d '{"namespace":"my_namespace","refresh_token":"zpXVCJ9..."}' -H \
-   "Content-Type: application/json" -X POST http://localhost:8082/token/access/10m
-   ```
+```php
+curl -X POST http://localhost:8082/token/access/10m           \
+     -H 'Content-Type: application/json'                      \
+     -d '{"namespace":"my_namespace","refresh_token":"zpXVCJ9..."}'
+```
 
 Response:
 
-   ```bash
-   {"token":"eyJhbGciOiJIUzI1NiIsInR5cCI6IzpXVCJ9..."}
-   ```
+```json
+{"token":"eyJhbGciOiJIUzI1NiIsInR5cCI6IzpXVCJ9..."}
+```
 
 Note: if the requested duration exceeds the max authorized tokens time to live for the namespace the demand will be rejected
 
@@ -100,24 +122,24 @@ Note: if the requested duration exceeds the max authorized tokens time to live f
 
 In python:
 
-   ```python
-   payload = jwt.decode(token, key, algorithms=['HS256'])
-   ```
+```python
+payload = jwt.decode(token, key, algorithms=['HS256'])
+```
 
 Example payload:
 
-   ```javascript
-   {
-      'namespace': 'my_namespace1', 
-      'name': 'my_username', 
-      'groups': ['my_group1', 'my_group2'], 
-      'exp': 1595950745
-   }
-   ```
+```yaml
+{
+    'namespace': 'my_namespace1', 
+    'name': 'my_username', 
+    'groups': ['my_group1', 'my_group2'], 
+    'exp': 1595950745
+}
+```
 
-`exp` is the expiration timestamp
+`exp` is the expiration timestamp in [Unix time](https://en.wikipedia.org/wiki/Unix_time) format (seconds since 1970).
 
-Check the [python example](example/python)
+See also the [python example](example/python)
 
 ## Client library
 

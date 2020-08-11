@@ -132,19 +132,13 @@ var requests = new QuidRequests({
 
 async function get(uri) {
     try {
-      let response = await this.requests.get(uri);
+      let response = await requests.get(uri);
       return { response: response, error: null }
     } catch (e) {
       if (e.hasToLogin) {
         // the user has no refresh token: a login is required
       }
-      apiError(e)
-      if (e.response !== undefined) {
-        if (e.response.status !== 404) {
-          return { response: null, error: e }
-        }
-      }
-      return e;
+      return { response: null, error: e }
     }
   }
 ```

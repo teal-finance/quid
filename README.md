@@ -110,8 +110,6 @@ See also the [python example](example/python)
 ### Go
 
 ```go
-package main
-
 import (
    "github.com/dgrijalva/jwt-go"
    "github.com/synw/quid/quidlib/tokens"

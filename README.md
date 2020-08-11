@@ -46,13 +46,17 @@ postgres=# GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA public to pguser;
 
 ### Configure
 
-Create a config file:
+1. Create the default config file:
 
-    ./quid -conf
+       ./quid -conf
 
-Edit the config file to provide your database credentials. Initialize the database and create an admin user:
+2. Edit the configuration file to set your database credentials:
 
-    ./quid -init
+        vim config.json
+
+3. Initialize the database and create an admin user:
+
+       ./quid -init
 
 ### Run
 

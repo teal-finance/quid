@@ -86,7 +86,7 @@ Note: if the requested duration exceeds the max authorized tokens time to live f
 
 ## Decode tokens
 
-In python:
+### Python:
 
 ```python
 payload = jwt.decode(token, key, algorithms=['HS256'])
@@ -106,6 +106,23 @@ Example payload:
 `exp` is the expiration timestamp in [Unix time](https://en.wikipedia.org/wiki/Unix_time) format (seconds since 1970).
 
 See also the [python example](example/python)
+
+### Go
+
+```go
+package main
+
+import (
+	"github.com/dgrijalva/jwt-go"
+    "github.com/synw/quid/quidlib/tokens"
+)
+
+func main()  {
+    claims := u.Claims.(*tokens.StandardAccessClaims)
+    groups := claims.Groups
+    username  := claims.Name
+}
+```
 
 ## Client library
 

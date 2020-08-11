@@ -85,7 +85,7 @@ A public endpoint is available to request refresh tokens for namespaces. A time 
 Ex: request a refresh token with a 24h lifetime `/token/refresh/24h`:
 
 ```php
-curl -X POST http://localhost:8082/token/access/10m           \
+curl -X POST http://localhost:8082/token/refresh/10m          \
      -H 'Content-Type: application/json'                      \
      -d '{"namespace":"my_namespace","username":"my_username","password":"my_password"}'
 ```

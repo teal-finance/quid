@@ -8,13 +8,12 @@ Download the latest [release](https://github.com/synw/quid/releases) to run a bi
 
 ### Check PostreSQL
 
-Quid requires PostreSQL. Please check your PostreSQL status:
+Quid expects PostreSQL listens to the port 5432.
 
-    sudo service postgresql status
-
-Quid expects PostreSQL listens to the port 5432. Please check the port:
+You can check your PostreSQL status and the port:
 
 ```bash
+$ sudo service postgresql status
 $ ss -nlt | grep 5432
 LISTEN  0        244            127.0.0.1:5432           0.0.0.0:*
 ```

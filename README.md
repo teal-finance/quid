@@ -109,4 +109,42 @@ See also the [python example](example/python)
 
 ## Client library
 
-[Javascript](quidui/src/quidjs/requests.js) client library: [example](quidui/src/api.js) usage
+Client libraries transparently manage the requests to api servers. If a server returns a 401 Unauthorized response
+when an access token is expired the client linrary will request a new access token from a Quid server, using a refresh
+token, and will retry the request with the new access token
+
+### Javascript
+
+The [javascript](quidui/src/quidjs/requests.js) client library: [example](quidui/src/api.js) usage. Ex:
+
+```javascript
+var requests = new QuidRequests({
+  namespace: "my_namespace",
+  timeouts: {
+    accessToken: "5m",
+    refreshToken: "24h"
+  },
+  axiosConfig: {
+    baseURL: conf.quidUrl,
+    timeout: 5000
+  },
+})
+
+async function get(uri) {
+    try {
+      let response = await this.requests.get(uri);
+      return { response: response, error: null }
+    } catch (e) {
+      if (e.hasToLogin) {
+        // the user has no refresh token: a login is required
+      }
+      apiError(e)
+      if (e.response !== undefined) {
+        if (e.response.status !== 404) {
+          return { response: null, error: e }
+        }
+      }
+      return e;
+    }
+  }
+```

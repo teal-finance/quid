@@ -107,21 +107,6 @@ Example payload:
 
 See also the [python example](example/python)
 
-### Go
-
-```go
-import (
-   "github.com/dgrijalva/jwt-go"
-   "github.com/synw/quid/quidlib/tokens"
-)
-
-func main()  {
-    claims := myAccessToken.Claims.(*tokens.StandardAccessClaims)
-    groups := claims.Groups
-    username  := claims.Name
-}
-```
-
 ## Client library
 
 Client libraries transparently manage the requests to api servers. If a server returns a 401 Unauthorized response

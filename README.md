@@ -113,8 +113,8 @@ See also the [python example](example/python)
 package main
 
 import (
-	"github.com/dgrijalva/jwt-go"
-    "github.com/synw/quid/quidlib/tokens"
+   "github.com/dgrijalva/jwt-go"
+   "github.com/synw/quid/quidlib/tokens"
 )
 
 func main()  {

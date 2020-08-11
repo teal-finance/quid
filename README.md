@@ -116,7 +116,7 @@ import (
 )
 
 func main()  {
-    claims := u.Claims.(*tokens.StandardAccessClaims)
+    claims := myAccessToken.Claims.(*tokens.StandardAccessClaims)
     groups := claims.Groups
     username  := claims.Name
 }

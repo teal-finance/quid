@@ -107,10 +107,10 @@ Example payload:
 
 See also the [python example](example/python)
 
-## Client library
+## Client libraries
 
 Client libraries transparently manage the requests to api servers. If a server returns a 401 Unauthorized response
-when an access token is expired the client linrary will request a new access token from a Quid server, using a refresh
+when an access token is expired the client library will request a new access token from a Quid server, using a refresh
 token, and will retry the request with the new access token
 
 ### Javascript

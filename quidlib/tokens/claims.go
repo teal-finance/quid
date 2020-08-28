@@ -6,10 +6,18 @@ import (
 	"github.com/dgrijalva/jwt-go"
 )
 
+// StandardAdminUserConfigClaims : standard claims for a user autoconfig
+/*type StandardAdminUserConfigClaims struct {
+	Namespace string   `json:"namespace"`
+	Name      string   `json:"username"`
+	Groups    []string `json:"groups"`
+	jwt.StandardClaims
+}*/
+
 // StandardAccessClaims : standard claims for a user access token
 type StandardAccessClaims struct {
 	Namespace string   `json:"namespace"`
-	Name      string   `json:"name"`
+	UserName  string   `json:"username"`
 	Groups    []string `json:"groups"`
 	jwt.StandardClaims
 }
@@ -17,14 +25,14 @@ type StandardAccessClaims struct {
 // StandardRefreshClaims : standard claims for a user refresh token
 type StandardRefreshClaims struct {
 	Namespace string `json:"namespace"`
-	Name      string `json:"name"`
+	UserName  string `json:"username"`
 	jwt.StandardClaims
 }
 
 // standardAccessClaims : get a standard claim for a user access token
-func standardAccessClaims(namespaceName, name string, groups []string, timeout time.Time) *StandardAccessClaims {
+func standardAccessClaims(namespaceName, username string, groups []string, timeout time.Time) *StandardAccessClaims {
 	claims := &StandardAccessClaims{
-		namespaceName, name, groups,
+		namespaceName, username, groups,
 		jwt.StandardClaims{
 			ExpiresAt: timeout.Unix(),
 		},
@@ -33,9 +41,9 @@ func standardAccessClaims(namespaceName, name string, groups []string, timeout t
 }
 
 // standardRefreshClaims : get a standard claim for a user refresh token
-func standardRefreshClaims(namespaceName, name string, timeout time.Time) *StandardRefreshClaims {
+func standardRefreshClaims(namespaceName, username string, timeout time.Time) *StandardRefreshClaims {
 	claims := &StandardRefreshClaims{
-		namespaceName, name,
+		namespaceName, username,
 		jwt.StandardClaims{
 			ExpiresAt: timeout.Unix(),
 		},

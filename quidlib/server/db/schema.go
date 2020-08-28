@@ -27,17 +27,17 @@ CREATE INDEX IF NOT EXISTS grouptable_name_idx ON grouptable(name);
 
 CREATE TABLE IF NOT EXISTS usertable (
 	id SERIAL PRIMARY KEY,
-	name TEXT NOT NULL,
+	username TEXT NOT NULL,
 	password TEXT,
 	namespace_id INTEGER NOT NULL,
 	date_created DATE NOT NULL DEFAULT CURRENT_DATE,
 	is_disabled BOOLEAN DEFAULT false,
 	properties JSONB,
 	FOREIGN KEY(namespace_id) REFERENCES namespace(id) ON DELETE RESTRICT,
-	UNIQUE (name, namespace_id)
+	UNIQUE (username, namespace_id)
 );
 
-CREATE INDEX IF NOT EXISTS user_name_idx ON usertable(name);
+CREATE INDEX IF NOT EXISTS user_name_idx ON usertable(username);
 
 CREATE TABLE IF NOT EXISTS usergroup (
 	id SERIAL PRIMARY KEY,

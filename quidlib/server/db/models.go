@@ -6,7 +6,7 @@ import "time"
 
 type user struct {
 	ID          int64     `db:"id" json:"id"`
-	Name        string    `db:"name" json:"name"`
+	UserName    string    `db:"username" json:"username"`
 	Password    string    `db:"password" json:"password"`
 	Namespace   string    `db:"namespace" json:"namespace"`
 	DateCreated time.Time `db:"date_created" json:"date_created"`

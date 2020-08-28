@@ -25,7 +25,7 @@ func AdminMiddleware(next echo.HandlerFunc) echo.HandlerFunc {
 			}
 		}
 		if !isAdmin {
-			emo.ParamError("The user " + claims.Name + " is not in the quid_admin group")
+			emo.ParamError("The user " + claims.UserName + " is not in the quid_admin group")
 			return c.NoContent(http.StatusUnauthorized)
 		}
 		// check session data in prouction

@@ -20,7 +20,7 @@ type NamespaceInfo struct {
 // User : base model
 type User struct {
 	ID           int64   `json:"id"`
-	Name         string  `json:"name"`
+	UserName     string  `json:"username"`
 	PasswordHash string  `json:"-"`
 	Groups       []Group `json:"groups,omitempty"`
 	Namespace    string  `json:"namespace,omitempty"`

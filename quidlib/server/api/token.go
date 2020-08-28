@@ -46,8 +46,8 @@ func RequestAdminAccessToken(c echo.Context) error {
 		return []byte(ns.RefreshKey), nil
 	})
 	if claims, ok := token.Claims.(*tokens.StandardRefreshClaims); ok && token.Valid {
-		username = claims.Name
-		fmt.Printf("%v %v", claims.Name, claims.StandardClaims.ExpiresAt)
+		username = claims.UserName
+		fmt.Printf("%v %v", claims.UserName, claims.StandardClaims.ExpiresAt)
 	} else {
 		emo.Error(err.Error())
 		return c.JSON(http.StatusUnauthorized, echo.Map{
@@ -86,14 +86,14 @@ func RequestAdminAccessToken(c echo.Context) error {
 		}
 	}
 	if !isAdmin {
-		emo.Warning("Admin access token request from user", u.Name, "that is not in the quid_admin group")
+		emo.Warning("Admin access token request from user", u.UserName, "that is not in the quid_admin group")
 		return c.JSON(http.StatusUnauthorized, echo.Map{
 			"error": "unauthorized",
 		})
 	}
 
 	// generate the access token
-	_, t, err := tokens.GenAccessToken(ns.Name, ns.Key, ns.MaxTokenTTL, u.Name, groupNames, "5m")
+	_, t, err := tokens.GenAccessToken(ns.Name, ns.Key, ns.MaxTokenTTL, u.UserName, groupNames, "5m")
 	if err != nil {
 		log.Fatal(err)
 		return c.JSON(http.StatusInternalServerError, echo.Map{
@@ -161,8 +161,8 @@ func RequestAccessToken(c echo.Context) error {
 		return []byte(ns.RefreshKey), nil
 	})
 	if claims, ok := token.Claims.(*tokens.StandardRefreshClaims); ok && token.Valid {
-		username = claims.Name
-		fmt.Printf("%v %v", claims.Name, claims.StandardClaims.ExpiresAt)
+		username = claims.UserName
+		fmt.Printf("%v %v", claims.UserName, claims.StandardClaims.ExpiresAt)
 	} else {
 		emo.Error(err.Error())
 		return c.JSON(http.StatusUnauthorized, echo.Map{
@@ -194,7 +194,7 @@ func RequestAccessToken(c echo.Context) error {
 	}
 
 	// generate the access token
-	isAuth, t, err := tokens.GenAccessToken(ns.Name, ns.Key, ns.MaxTokenTTL, u.Name, groupNames, timeout)
+	isAuth, t, err := tokens.GenAccessToken(ns.Name, ns.Key, ns.MaxTokenTTL, u.UserName, groupNames, timeout)
 	if !isAuth {
 		emo.Error("Timeout unauthorized")
 		return c.JSON(http.StatusUnauthorized, echo.Map{
@@ -263,7 +263,7 @@ func RequestRefreshToken(c echo.Context) error {
 	}
 
 	// generate the token
-	isAuth, t, err := tokens.GenRefreshToken(ns.Name, ns.RefreshKey, ns.MaxRefreshTokenTTL, u.Name, timeout)
+	isAuth, t, err := tokens.GenRefreshToken(ns.Name, ns.RefreshKey, ns.MaxRefreshTokenTTL, u.UserName, timeout)
 	if err != nil {
 		log.Fatal(err)
 	}

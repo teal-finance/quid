@@ -80,7 +80,7 @@ func AdminLogin(c echo.Context) error {
 		Secure:   secure,
 	}
 	sess.Values["is_admin"] = "true"
-	sess.Values["user"] = u.Name
+	sess.Values["user"] = u.UserName
 	//emo.Info("Setting session", u.Name, sess.Values["is_admin"])
 	err = sess.Save(c.Request(), c.Response())
 	if err != nil {
@@ -88,7 +88,7 @@ func AdminLogin(c echo.Context) error {
 	}
 
 	// set the refresh token
-	exists, token, err := tokens.GenRefreshToken(ns.Name, ns.RefreshKey, ns.MaxRefreshTokenTTL, u.Name, "24h")
+	exists, token, err := tokens.GenRefreshToken(ns.Name, ns.RefreshKey, ns.MaxRefreshTokenTTL, u.UserName, "24h")
 	if !exists {
 		emo.Error("Unauthorized: timeout max (", ns.MaxRefreshTokenTTL, ") for refresh token for namespace", ns.Name)
 		return c.JSON(http.StatusUnauthorized, echo.Map{
@@ -102,7 +102,7 @@ func AdminLogin(c echo.Context) error {
 		})
 	}
 
-	fmt.Println("Admin user", u.Name, "is connected")
+	fmt.Println("Admin user", u.UserName, "is connected")
 
 	return c.JSON(http.StatusOK, echo.Map{
 		"token": token,

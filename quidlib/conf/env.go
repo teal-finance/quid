@@ -21,9 +21,9 @@ func InitFromEnv(isDevMode bool) bool {
 	Port = os.Getenv("PORT")
 	connStr := os.Getenv("DATABASE_URL")
 	ConnStr = strings.Replace(connStr, "postgresql://", "", 1)
-	EncodingKey = os.Getenv("KEY")
-	DefaultAdminUser = os.Getenv("ADMIN_USER")
-	DefaultAdminPassword = os.Getenv("ADMIN_PWD")
+	EncodingKey = os.Getenv("QUID_KEY")
+	DefaultAdminUser = os.Getenv("QUID_ADMIN_USER")
+	DefaultAdminPassword = os.Getenv("QUID_ADMIN_PWD")
 	mustRunAutoconf := false
 	if DefaultAdminUser != "" && DefaultAdminPassword != "" {
 		mustRunAutoconf = true

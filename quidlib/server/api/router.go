@@ -90,5 +90,5 @@ func RunServer(adminNsKey string) {
 		fmt.Println(color.Bold(color.Red("Running in development mode")))
 	}
 
-	echoServer.Logger.Fatal(echoServer.Start(":8082"))
+	echoServer.Logger.Fatal(echoServer.Start(":" + conf.Port))
 }

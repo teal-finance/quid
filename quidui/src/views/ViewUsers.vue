@@ -25,8 +25,8 @@
         >{{ row.detailsShowing ? 'Hide' : 'Show'}} groups</b-button>
         <b-button
           variant="outline-danger"
-          v-if="row.item.name !== username"
-          @click="confirmDeleteItem(row.item.id, row.item.name)"
+          v-if="row.item.username !== username"
+          @click="confirmDeleteItem(row.item.id, row.item.username)"
         >Delete</b-button>
       </template>
       <template v-slot:row-details="row">
@@ -39,7 +39,7 @@
       </template>
     </b-table>
     <b-modal title="Delete user" ref="delete-modal">
-      Delete {{ itemToDelete.name }}?
+      Delete {{ itemToDelete.username }}?
       <template v-slot:modal-footer="{ ok, cancel }">
         <b-button variant="danger" @click="deleteItem(itemToDelete)">Delete</b-button>
         <b-button variant="warning" @click="cancel()">Cancel</b-button>
@@ -68,7 +68,7 @@ export default {
       },
       fields: [
         { key: "id", sortable: true },
-        { key: "name", sortable: true },
+        { key: "username", sortable: true },
         { key: "namespace", sortable: true },
         { key: "action", sortable: false },
       ],
@@ -112,9 +112,9 @@ export default {
         this.data = response.data;
       }
     },
-    confirmDeleteItem(id, name) {
+    confirmDeleteItem(id, username) {
       this.itemToDelete = {
-        name: name,
+        username: username,
         id: id,
       };
       this.$refs["delete-modal"].show();

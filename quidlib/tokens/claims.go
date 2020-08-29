@@ -6,14 +6,6 @@ import (
 	"github.com/dgrijalva/jwt-go"
 )
 
-// StandardAdminUserConfigClaims : standard claims for a user autoconfig
-/*type StandardAdminUserConfigClaims struct {
-	Namespace string   `json:"namespace"`
-	Name      string   `json:"username"`
-	Groups    []string `json:"groups"`
-	jwt.StandardClaims
-}*/
-
 // StandardAccessClaims : standard claims for a user access token
 type StandardAccessClaims struct {
 	Namespace string   `json:"namespace"`

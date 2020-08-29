@@ -44,6 +44,8 @@ Go to [`localhost:8082`](http://localhost:8082) to login into the admin interfac
 
 [Run in dev mode](doc/dev_mode.md)
 
+[![Deploy](https://www.herokucdn.com/deploy/button.svg)](https://heroku.com/deploy?template=https://github.com/synw/quid)
+
 ## Request tokens
 
 Request a refresh token and use it to request access tokens

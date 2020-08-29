@@ -24,6 +24,7 @@ func GenRefreshToken(namespaceName, namespaceRefreshKey, maxRefreshokenTTL, user
 		return false, "", nil
 	}
 	to, err := tparse.ParseNow(time.RFC3339, "now+"+timeout)
+	to = to.UTC()
 	claims := standardRefreshClaims(namespaceName, username, to)
 	t := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 	token, err := t.SignedString([]byte(namespaceRefreshKey))
@@ -46,6 +47,7 @@ func GenAccessToken(namespaceName, namespaceKey, maxTokenTTL, name string, group
 		return false, "", nil
 	}
 	to, err := tparse.ParseNow(time.RFC3339, "now+"+timeout)
+	to = to.UTC()
 	if err != nil {
 		emo.TimeError(err)
 		return false, "", err
@@ -86,9 +88,11 @@ func isTimeoutAuthorized(timeout, maxTimeout string) (bool, error) {
 	if err != nil {
 		return false, err
 	}
+	requested = requested.UTC()
 	max, err := tparse.ParseNow(time.RFC3339, "now+1s+"+maxTimeout)
 	if err != nil {
 		return false, err
 	}
-	return requested.UTC().Before(max), err
+	max = max.UTC()
+	return requested.Before(max), err
 }

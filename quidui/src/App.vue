@@ -46,10 +46,10 @@ export default {
         this.$store.commit("authenticate", username);
       }
     }
-    if (process.env.VUE_APP_DEBUG === "true") {
-      console.log("IS AUTHENTICATED", this.isAuthenticated);
-      console.log("IS PRODUCTION", conf.isProduction);
-    }
+    //if (process.env.VUE_APP_DEBUG === "true") {
+    //console.log("IS AUTHENTICATED", this.isAuthenticated);
+    console.log("ENV", process.env.NODE_ENV);
+    //}
   },
 };
 </script>

@@ -1,6 +1,6 @@
 function getQuidUrl() {
     let url = "";
-    if (process.env.NODE !== 'production') {
+    if (process.env.NODE_ENV === 'development') {
         url = "http://localhost:8082";
     }
     if (process.env.VUE_APP_SERVER_URL !== undefined) {
@@ -9,6 +9,6 @@ function getQuidUrl() {
     return url;
 }
 
-const Conf = { quidUrl: getQuidUrl(), isProduction: process.env.NODE === 'production' }
+const Conf = { quidUrl: getQuidUrl(), isProduction: process.env.NODE_ENV === 'production' }
 
 export default Conf;

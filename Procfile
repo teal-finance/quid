@@ -1,1 +1,1 @@
-web: bin/quid -env
+web: bin/quid -env -v

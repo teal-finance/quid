@@ -12,15 +12,15 @@
         }
     ],
     "env": {
-        "KEY": {
+        "QUID_KEY": {
             "description": "A secret key for the app",
             "generator": "secret"
         },
-        "ADMIN_USER": {
+        "QUID_ADMIN_USER": {
             "description": "The admin username",
             "required": true
         },
-        "ADMIN_PWD": {
+        "QUID_ADMIN_PWD": {
             "description": "The admin password",
             "required": true
         }

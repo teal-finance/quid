@@ -46,6 +46,9 @@ func main() {
 	autoConfDb := false
 	// env flag
 	if *env {
+		if *isVerbose {
+			fmt.Println("Initializing from env")
+		}
 		autoConfDb = conf.InitFromEnv(*isDevMode)
 	} else {
 		// init conf flag
@@ -77,6 +80,9 @@ func main() {
 		return
 	}
 	if autoConfDb {
+		if *isVerbose {
+			fmt.Println("Running autoconf")
+		}
 		db.InitDbAutoConf(conf.DefaultAdminUser, conf.DefaultAdminPassword)
 	}
 

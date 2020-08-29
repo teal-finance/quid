@@ -6,7 +6,10 @@ import (
 	"strings"
 )
 
+// DefaultAdminUser :
 var DefaultAdminUser string = ""
+
+// DefaultAdminPassword ;
 var DefaultAdminPassword string = ""
 
 // InitFromEnv : get the config from environment variables

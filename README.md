@@ -117,30 +117,4 @@ token, and will retry the request with the new access token
 
 ### Javascript
 
-The [javascript](quidui/src/quidjs/requests.js) client library: [example](quidui/src/api.js) usage. Ex:
-
-```javascript
-var requests = new QuidRequests({
-  namespace: "my_namespace",
-  timeouts: {
-    accessToken: "5m",
-    refreshToken: "24h"
-  },
-  axiosConfig: {
-    baseURL: conf.quidUrl,
-    timeout: 5000
-  },
-})
-
-async function get(uri) {
-    try {
-      let response = await requests.get(uri);
-      return { response: response, error: null }
-    } catch (e) {
-      if (e.hasToLogin) {
-        // the user has no refresh token: a login is required
-      }
-      return { response: null, error: e }
-    }
-  }
-```
+[Quidjs](https://github.com/synw/quidjs) : the javascript requests library

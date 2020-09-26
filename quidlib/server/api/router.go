@@ -2,6 +2,7 @@ package api
 
 import (
 	"fmt"
+	"net/http"
 
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
@@ -24,16 +25,19 @@ var echoServer = echo.New()
 func RunServer(adminNsKey string) {
 
 	echoServer.Use(middleware.Logger())
+	creds := false
 	if !conf.IsDevMode {
+		creds = true
 		echoServer.Use(middleware.Recover())
-		//echoServer.Use(middleware.Secure())
 	} else {
-		echoServer.Use(middleware.CORSWithConfig(middleware.CORSConfig{
-			AllowOrigins: []string{"http://localhost:8080"},
-			AllowHeaders: []string{echo.HeaderOrigin, echo.HeaderContentType, echo.HeaderAuthorization},
-			//AllowCredentials: true,
-		}))
+		echoServer.Use(middleware.Secure())
 	}
+	echoServer.Use(middleware.CORSWithConfig(middleware.CORSConfig{
+		AllowOrigins:     []string{"*"},
+		AllowHeaders:     []string{echo.HeaderOrigin, echo.HeaderContentType, echo.HeaderAuthorization},
+		AllowMethods:     []string{http.MethodGet, http.MethodOptions, http.MethodPost, http.MethodDelete},
+		AllowCredentials: creds,
+	}))
 
 	echoServer.Use(session.MiddlewareWithConfig(session.Config{Store: SessionsStore}))
 

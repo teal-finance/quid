@@ -215,14 +215,41 @@ func RequestAccessToken(c echo.Context) error {
 
 // RequestRefreshToken : http login handler
 func RequestRefreshToken(c echo.Context) error {
-
 	m := echo.Map{}
 	if err := c.Bind(&m); err != nil {
 		return err
 	}
-	username := m["username"].(string)
-	password := m["password"].(string)
-	namespace := m["namespace"].(string)
+	// username
+	usernameParam, ok := m["username"]
+	var username string
+	if ok {
+		username = usernameParam.(string)
+	} else {
+		return c.JSON(http.StatusBadRequest, echo.Map{
+			"error": "provide a username",
+		})
+	}
+	// password
+	passwordParam, ok := m["password"]
+	var password string
+	if ok {
+		password = passwordParam.(string)
+	} else {
+		return c.JSON(http.StatusBadRequest, echo.Map{
+			"error": "provide a password",
+		})
+	}
+	// namespace
+	nsParam, ok := m["namespace"]
+	var namespace string
+	if ok {
+		namespace = nsParam.(string)
+	} else {
+		return c.JSON(http.StatusBadRequest, echo.Map{
+			"error": "provide a namespace",
+		})
+	}
+	// timeout
 	timeout := c.Param("timeout")
 
 	// get the namespace

@@ -57,7 +57,7 @@ func SelectNamespaceFromName(name string) (bool, server.Namespace, error) {
 	err := row.StructScan(&data)
 	if err != nil {
 		if err == sql.ErrNoRows {
-			return false, ns, err
+			return false, ns, nil
 		}
 		return true, ns, err
 	}

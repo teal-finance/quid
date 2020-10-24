@@ -104,7 +104,7 @@ Example payload:
 ```yaml
 {
     'namespace': 'my_namespace1', 
-    'name': 'my_username', 
+    'username': 'my_username', 
     'groups': ['my_group1', 'my_group2'], 
     'exp': 1595950745
 }

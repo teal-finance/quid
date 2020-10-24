@@ -91,7 +91,12 @@ Note: if the requested duration exceeds the max authorized tokens time to live f
 ### Python:
 
 ```python
-payload = jwt.decode(token, key, algorithms=['HS256'])
+import jwt
+
+try:
+    payload = jwt.decode(token, key, algorithms=['HS256'])
+except jwt.ExpiredSignatureError:
+    # ...
 ```
 
 Example payload:

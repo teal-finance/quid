@@ -107,7 +107,9 @@ Example payload:
 
 `exp` is the expiration timestamp in [Unix time](https://en.wikipedia.org/wiki/Unix_time) format (seconds since 1970).
 
-See also the [python example](example/python)
+### Examples
+
+See the [examples](https://github.com/synw/quid_examples) for various backends
 
 ## Client libraries
 

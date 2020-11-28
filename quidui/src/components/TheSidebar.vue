@@ -9,6 +9,14 @@
       </a>
     </div>
     <div class="mt-3">
+      <h4 class="text-muted" @click="$router.push('/orgs')">
+        <b-icon-box class="mr-1 text-muted" />Orgs
+      </h4>
+      <a @click="action('/orgs', 'addOrg')">
+        <b-icon-plus class="mr-1 text-muted" />Add
+      </a>
+    </div>
+    <div class="mt-3">
       <h4 class="text-muted" @click="$router.push('/users')">
         <b-icon-person class="mr-1 text-muted" />Users
       </h4>

@@ -18,6 +18,10 @@ const routes = [
     component: () => import('../views/ViewGroups.vue'),
   },
   {
+    path: '/orgs',
+    component: () => import('../views/ViewOrgs.vue'),
+  },
+  {
     path: '/tokens',
     component: () => import('../views/ViewTokens.vue'),
   },

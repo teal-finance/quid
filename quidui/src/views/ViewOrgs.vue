@@ -1,21 +1,18 @@
 <template>
   <div>
     <h1 class="text-muted mt-3">
-      Groups&nbsp;
+      Orgs&nbsp;
       <b-icon-plus
-        v-if="action !== 'addGroup'"
+        v-if="action !== 'addOrg'"
         class="mr-1"
         style="color: lightgrey"
-        @click="$store.commit('action', 'addGroup')"
+        @click="$store.commit('action', 'addOrg')"
       />
     </h1>
     <loading-indicator v-if="state.isLoading"></loading-indicator>
     <div>
       <b-collapse id="collapse-4" v-model="showActionBar" class="mt-2">
-        <groups-add
-          v-if="action === 'addGroup'"
-          @refresh="refresh"
-        ></groups-add>
+        <orgs-add v-if="action === 'addOrg'" @refresh="refresh"></orgs-add>
       </b-collapse>
     </div>
     <b-table
@@ -28,26 +25,13 @@
     >
       <template v-slot:cell(action)="row">
         <b-button
-          class="mr-2"
-          variant="outline-secondary"
-          @click="toggleDetails(row)"
-          >{{ row.detailsShowing ? "Hide" : "Show" }} users</b-button
-        >
-        <b-button
           variant="outline-danger"
-          v-if="row.item.name !== 'quid_admin'"
           @click="confirmDeleteItem(row.item.id, row.item.name)"
           >Delete</b-button
         >
       </template>
-      <template v-slot:row-details="row">
-        <groups-info
-          v-if="rowDetails[row.index] != undefined"
-          :details="rowDetails[row.index]"
-        ></groups-info>
-      </template>
     </b-table>
-    <b-modal title="Delete group" ref="delete-modal">
+    <b-modal title="Delete org" ref="delete-modal">
       Delete {{ itemToDelete.name }}?
       <template v-slot:modal-footer="mod">
         <b-button variant="danger" @click="deleteItem(itemToDelete)"
@@ -59,18 +43,15 @@
   </div>
 </template>
 
-
 <script>
 import { mapState, mapGetters } from "vuex";
-import GroupsAdd from "@/components/groups/GroupsAdd";
-import GroupsInfo from "@/components/groups/GroupsInfo";
 import LoadingIndicator from "@/components/LoadingIndicator";
+import OrgsAdd from "@/components/orgs/OrgsAdd";
 
 export default {
   components: {
-    GroupsAdd,
-    GroupsInfo,
     LoadingIndicator,
+    OrgsAdd,
   },
   data() {
     return {
@@ -81,42 +62,15 @@ export default {
       fields: [
         { key: "id", sortable: true },
         { key: "name", sortable: true },
-        { key: "namespace", sortable: true },
         { key: "action", sortable: false },
       ],
       itemToDelete: {},
-      rowDetails: {},
     };
   },
   methods: {
-    getRowDetails(row) {
-      if (!row.detailsShowing) {
-        if (this.rowDetails[row.index] !== undefined) {
-          return this.rowDetails[row.index];
-        }
-      }
-      return { users: null };
-    },
-    async toggleDetails(row) {
-      if (!row.detailsShowing) {
-        let { response } = await this.$api.post("/admin/groups/info", {
-          id: row.item.id,
-        });
-        this.rowDetails[row.index] = response.data;
-      }
-      row.toggleDetails();
-    },
-    refresh() {
-      this.fetchGroups();
-      this.$bvToast.toast("ok", {
-        title: "Group saved",
-        variant: "success",
-        autoHideDelay: 1500,
-      });
-    },
-    async fetchGroups() {
+    async fetchOrgs() {
       this.state.isLoading = true;
-      let { response } = await this.$api.get("/admin/groups/all");
+      let { response } = await this.$api.get("/admin/orgs/all");
       this.data = response.data;
       this.state.isLoading = false;
     },
@@ -129,21 +83,26 @@ export default {
     },
     async deleteItem(ns) {
       this.$refs["delete-modal"].hide();
-      let { error } = await this.$api.post("/admin/groups/delete", {
+      let { error } = await this.$api.post("/admin/orgs/delete", {
         id: ns.id,
       });
       if (error === null) {
         this.$bvToast.toast("Ok", {
-          title: "Group deleted",
+          title: "Org deleted",
           autoHideDelay: 1000,
           variant: "success",
         });
-        this.fetchGroups();
+        this.fetchOrgs();
       }
     },
-  },
-  mounted: function () {
-    this.fetchGroups();
+    refresh() {
+      this.fetchOrgs();
+      this.$bvToast.toast("ok", {
+        title: "Org saved",
+        variant: "success",
+        autoHideDelay: 1500,
+      });
+    },
   },
   computed: {
     ...mapState(["action"]),
@@ -158,6 +117,9 @@ export default {
         return newName;
       },
     },
+  },
+  mounted() {
+    this.fetchOrgs();
   },
 };
 </script>

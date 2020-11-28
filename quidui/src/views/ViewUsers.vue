@@ -1,12 +1,11 @@
 <template>
   <div>
     <h1 class="text-muted mt-3">
-      Users
-      &nbsp;
+      Users &nbsp;
       <b-icon-plus
-        v-if="action!=='addUser'"
+        v-if="action !== 'addUser'"
         class="mr-1"
-        style="color:lightgrey"
+        style="color: lightgrey"
         @click="$store.commit('action', 'addUser')"
       />
     </h1>
@@ -16,33 +15,64 @@
         <users-add v-if="action === 'addUser'" @refresh="refresh"></users-add>
       </b-collapse>
     </div>
-    <b-table hover bordeless :items="data" :fields="fields" class="mt-4" style="max-width:650px">
+    <b-table
+      hover
+      bordeless
+      :items="data"
+      :fields="fields"
+      class="mt-4"
+      style="max-width: 650px"
+    >
       <template v-slot:cell(action)="row">
         <b-button
           class="mr-2"
           variant="outline-secondary"
-          @click="toggleDetails(row)"
-        >{{ row.detailsShowing ? 'Hide' : 'Show'}} groups</b-button>
+          @click="toggleUserGroups(row)"
+          >{{
+            row.detailsShowing && actionType === "groups" ? "Hide" : "Show"
+          }}
+          groups</b-button
+        >
+        <b-button
+          class="mr-2"
+          variant="outline-secondary"
+          @click="toggleUserOrgs(row)"
+          >{{
+            row.detailsShowing && actionType === "orgs" ? "Hide" : "Show"
+          }}
+          orgs</b-button
+        >
         <b-button
           variant="outline-danger"
           v-if="row.item.username !== username"
           @click="confirmDeleteItem(row.item.id, row.item.username)"
-        >Delete</b-button>
+          >Delete</b-button
+        >
       </template>
       <template v-slot:row-details="row">
-        <b-card v-if="users[row.index] !== undefined">
-          <users-manage-groups
-            :user="users[row.index]"
-            @user-added-in-group="userAddedToGroup(row, $event)"
-          ></users-manage-groups>
-        </b-card>
+        <div v-if="users[row.index] !== undefined">
+          <b-card v-if="actionType === 'groups'">
+            <users-manage-groups
+              :user="users[row.index]"
+              @user-added-in-group="userAddedToGroup(row, $event)"
+            ></users-manage-groups>
+          </b-card>
+          <b-card v-else-if="actionType === 'orgs'">
+            <users-manage-orgs
+              :user="users[row.index]"
+              @user-added-in-org="userAddedToOrg(row, $event)"
+            ></users-manage-orgs>
+          </b-card>
+        </div>
       </template>
     </b-table>
     <b-modal title="Delete user" ref="delete-modal">
       Delete {{ itemToDelete.username }}?
-      <template v-slot:modal-footer="{ ok, cancel }">
-        <b-button variant="danger" @click="deleteItem(itemToDelete)">Delete</b-button>
-        <b-button variant="warning" @click="cancel()">Cancel</b-button>
+      <template v-slot:modal-footer="mod">
+        <b-button variant="danger" @click="deleteItem(itemToDelete)"
+          >Delete</b-button
+        >
+        <b-button variant="warning" @click="mod.cancel()">Cancel</b-button>
       </template>
     </b-modal>
   </div>
@@ -53,12 +83,14 @@ import { mapState, mapGetters } from "vuex";
 import LoadingIndicator from "@/components/LoadingIndicator";
 import UsersAdd from "@/components/users/UsersAdd";
 import UsersManageGroups from "@/components/users/UsersManageGroups";
+import UsersManageOrgs from "@/components/users/UsersManageOrgs";
 
 export default {
   components: {
     LoadingIndicator,
     UsersAdd,
     UsersManageGroups,
+    UsersManageOrgs,
   },
   data() {
     return {
@@ -74,6 +106,7 @@ export default {
       ],
       itemToDelete: {},
       users: {},
+      actionType: null,
     };
   },
   methods: {
@@ -83,8 +116,14 @@ export default {
       await new Promise((r) => setTimeout(r, 10));
       row.toggleDetails();
     },
-    async fetchUserDetails(row) {
-      let { response } = await this.$api.post("/admin/users/info", {
+    async userAddedToOrg(row, org) {
+      this.users[row.index].orgs.add(org);
+      row.toggleDetails();
+      await new Promise((r) => setTimeout(r, 10));
+      row.toggleDetails();
+    },
+    async fetchUserGroups(row) {
+      let { response } = await this.$api.post("/admin/users/groups", {
         id: row.item.id,
       });
       let user = row.item;
@@ -92,9 +131,30 @@ export default {
       user.groups = new Set(response.data.groups);
       this.users[row.index] = user;
     },
-    async toggleDetails(row) {
+    async fetchUserOrgs(row) {
+      let { response } = await this.$api.post("/admin/users/orgs", {
+        id: row.item.id,
+      });
+      let user = row.item;
+      user.index = row.index;
+      user.orgs = new Set(response.data.orgs);
+      this.users[row.index] = user;
+    },
+    async toggleUserOrgs(row) {
       if (!row.detailsShowing) {
-        await this.fetchUserDetails(row);
+        this.actionType = "orgs";
+        await this.fetchUserOrgs(row);
+      } else {
+        this.actionType = null;
+      }
+      row.toggleDetails();
+    },
+    async toggleUserGroups(row) {
+      if (!row.detailsShowing) {
+        this.actionType = "groups";
+        await this.fetchUserGroups(row);
+      } else {
+        this.actionType = null;
       }
       row.toggleDetails();
     },

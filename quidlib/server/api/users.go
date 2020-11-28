@@ -184,7 +184,7 @@ func CreateUserHandler(c echo.Context) error {
 	namespaceID := int64(m["namespace_id"].(float64))
 
 	// check if user exists
-	exists, err := db.UserNameExists(name)
+	exists, err := db.UserNameExists(name, namespaceID)
 	if err != nil {
 		return c.JSON(http.StatusConflict, echo.Map{
 			"error": "error checking user",

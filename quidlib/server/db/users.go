@@ -153,10 +153,10 @@ func CountUsersInGroup(groupID int64) (int, error) {
 }
 
 // UserNameExists : check if a username exists
-func UserNameExists(username string) (bool, error) {
+func UserNameExists(username string, namespaceID int64) (bool, error) {
 	var n int
-	q := "SELECT COUNT(id) FROM usertable WHERE username=$1"
-	err := db.Get(&n, q, username)
+	q := "SELECT COUNT(id) FROM usertable WHERE (username=$1 AND namespace_id=$2)"
+	err := db.Get(&n, q, username, namespaceID)
 	if err != nil {
 		return false, err
 	}

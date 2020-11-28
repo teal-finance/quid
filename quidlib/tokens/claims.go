@@ -8,9 +8,9 @@ import (
 
 // StandardAccessClaims : standard claims for a user access token
 type StandardAccessClaims struct {
-	Namespace string   `json:"namespace"`
-	UserName  string   `json:"username"`
-	Groups    []string `json:"groups"`
+	UserName string   `json:"username"`
+	Groups   []string `json:"groups"`
+	Orgs     []string `json:"orgs"`
 	jwt.StandardClaims
 }
 
@@ -22,9 +22,9 @@ type StandardRefreshClaims struct {
 }
 
 // standardAccessClaims : get a standard claim for a user access token
-func standardAccessClaims(namespaceName, username string, groups []string, timeout time.Time) *StandardAccessClaims {
+func standardAccessClaims(username string, groups, orgs []string, timeout time.Time) *StandardAccessClaims {
 	claims := &StandardAccessClaims{
-		namespaceName, username, groups,
+		username, groups, orgs,
 		jwt.StandardClaims{
 			ExpiresAt: timeout.Unix(),
 		},

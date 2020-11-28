@@ -41,7 +41,7 @@ func GroupsInfo(c echo.Context) error {
 
 }
 
-// DeleteGroup : group creation http handler
+// DeleteGroup : group deletion http handler
 func DeleteGroup(c echo.Context) error {
 	m := echo.Map{}
 	if err := c.Bind(&m); err != nil {
@@ -59,7 +59,6 @@ func DeleteGroup(c echo.Context) error {
 	return c.JSON(http.StatusOK, echo.Map{
 		"message": "ok",
 	})
-
 }
 
 // CreateGroup : group creation http handler
@@ -84,7 +83,7 @@ func CreateGroup(c echo.Context) error {
 	}
 
 	return c.JSON(http.StatusOK, echo.Map{
-		"namespace_id": ns.ID,
+		"org_id": ns.ID,
 	})
 }
 

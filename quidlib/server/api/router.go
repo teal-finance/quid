@@ -75,7 +75,8 @@ func RunServer(adminNsKey string) {
 	m := a.Group("/users")
 	m.POST("/add", CreateUserHandler)
 	m.POST("/delete", DeleteUser)
-	m.POST("/info", UserInfo)
+	m.POST("/groups", UserGroupsInfo)
+	m.POST("/orgs", UserOrgsInfo)
 	m.GET("/all", AllUsers)
 
 	ns := a.Group("/namespaces")
@@ -89,6 +90,14 @@ func RunServer(adminNsKey string) {
 	ns.POST("/groups", GroupsForNamespace)
 	ns.POST("/endpoint", SetNamespaceEndpointAvailability)
 	ns.GET("/all", AllNamespaces)
+
+	org := a.Group("/orgs")
+	org.GET("/all", AllOrgs)
+	org.POST("/add", CreateOrg)
+	org.POST("/delete", DeleteOrg)
+	org.POST("/find", FindOrg)
+	org.POST("/add_user", AddUserInOrg)
+	org.POST("/remove_user", RemoveUserFromOrg)
 
 	if conf.IsDevMode {
 		fmt.Println(color.Bold(color.Red("Running in development mode")))

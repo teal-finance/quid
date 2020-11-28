@@ -70,10 +70,17 @@ func RequestAdminAccessToken(c echo.Context) error {
 		})
 	}
 
-	// get the user group names
+	// get the user groups names
 	groupNames, err := db.SelectGroupsNamesForUser(u.ID)
 	if err != nil {
 		emo.Error("Groups error")
+		log.Fatal(err)
+		return err
+	}
+	// get the user orgs names
+	orgsNames, err := db.SelectOrgsNamesForUser(u.ID)
+	if err != nil {
+		emo.Error("Orgs error")
 		log.Fatal(err)
 		return err
 	}
@@ -93,7 +100,7 @@ func RequestAdminAccessToken(c echo.Context) error {
 	}
 
 	// generate the access token
-	_, t, err := tokens.GenAccessToken(ns.Name, ns.Key, ns.MaxTokenTTL, u.UserName, groupNames, "5m")
+	_, t, err := tokens.GenAccessToken(ns.Key, ns.MaxTokenTTL, u.UserName, groupNames, orgsNames, "5m")
 	if err != nil {
 		log.Fatal(err)
 		return c.JSON(http.StatusInternalServerError, echo.Map{
@@ -185,7 +192,7 @@ func RequestAccessToken(c echo.Context) error {
 		})
 	}
 
-	// get the user group names
+	// get the user groups names
 	groupNames, err := db.SelectGroupsNamesForUser(u.ID)
 	if err != nil {
 		emo.Error("Groups error")
@@ -193,8 +200,16 @@ func RequestAccessToken(c echo.Context) error {
 		return err
 	}
 
+	// get the user orgs names
+	orgsNames, err := db.SelectOrgsNamesForUser(u.ID)
+	if err != nil {
+		emo.Error("Groups error")
+		log.Fatal(err)
+		return err
+	}
+
 	// generate the access token
-	isAuth, t, err := tokens.GenAccessToken(ns.Name, ns.Key, ns.MaxTokenTTL, u.UserName, groupNames, timeout)
+	isAuth, t, err := tokens.GenAccessToken(ns.Key, ns.MaxTokenTTL, u.UserName, groupNames, orgsNames, timeout)
 	if !isAuth {
 		emo.Error("Timeout unauthorized")
 		return c.JSON(http.StatusUnauthorized, echo.Map{

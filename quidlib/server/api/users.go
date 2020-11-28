@@ -48,6 +48,48 @@ func GroupsForNamespace(c echo.Context) error {
 
 }
 
+// AddUserInOrg : add a user in an org
+func AddUserInOrg(c echo.Context) error {
+	m := echo.Map{}
+	if err := c.Bind(&m); err != nil {
+		return err
+	}
+	userID := int64(m["user_id"].(float64))
+	orgID := int64(m["org_id"].(float64))
+
+	err := db.AddUserInOrg(userID, orgID)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, echo.Map{
+			"error": "error adding user in org",
+		})
+	}
+	return c.JSON(http.StatusOK, echo.Map{
+		"ok": true,
+	})
+
+}
+
+// RemoveUserFromOrg : add a user in an org
+func RemoveUserFromOrg(c echo.Context) error {
+	m := echo.Map{}
+	if err := c.Bind(&m); err != nil {
+		return err
+	}
+	userID := int64(m["user_id"].(float64))
+	orgID := int64(m["org_id"].(float64))
+
+	err := db.RemoveUserFromOrg(userID, orgID)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, echo.Map{
+			"error": "error removing user from org",
+		})
+	}
+	return c.JSON(http.StatusOK, echo.Map{
+		"ok": true,
+	})
+
+}
+
 // AddUserInGroup : add a user in a group
 func AddUserInGroup(c echo.Context) error {
 	m := echo.Map{}
@@ -90,8 +132,8 @@ func RemoveUserFromGroup(c echo.Context) error {
 
 }
 
-// UserInfo : get info for a user
-func UserInfo(c echo.Context) error {
+// UserGroupsInfo : get info for a user
+func UserGroupsInfo(c echo.Context) error {
 	m := echo.Map{}
 	if err := c.Bind(&m); err != nil {
 		return err

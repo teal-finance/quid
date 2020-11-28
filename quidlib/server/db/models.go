@@ -24,6 +24,10 @@ type userGroupName struct {
 	Name string `db:"name" json:"name"`
 }
 
+type userOrgName struct {
+	Name string `db:"name" json:"name"`
+}
+
 type token struct {
 	ID                  int32  `db:"id" json:"id"`
 	Value               string `db:"value" json:"value"`
@@ -40,4 +44,9 @@ type namespace struct {
 	MaxTokenTTL           string `db:"max_token_ttl" json:"max_token_ttl"`
 	MaxRefreshTokenTTL    string `db:"max_refresh_token_ttl" json:"max_refresh_token_ttl"`
 	PublicEndpointEnabled bool   `db:"public_endpoint_enabled" json:"public_endpoint_enabled"`
+}
+
+type org struct {
+	ID   int64  `db:"id" json:"id"`
+	Name string `db:"name" json:"name"`
 }

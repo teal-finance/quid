@@ -36,7 +36,7 @@ func GenRefreshToken(namespaceName, namespaceRefreshKey, maxRefreshokenTTL, user
 }
 
 // GenAccessToken : generate an access token for a user in a namespace
-func GenAccessToken(namespaceName, namespaceKey, maxTokenTTL, name string, groups []string, timeout string) (bool, string, error) {
+func GenAccessToken(namespaceKey, maxTokenTTL, name string, groups, orgs []string, timeout string) (bool, string, error) {
 	isAuthorized, err := isTimeoutAuthorized(timeout, maxTokenTTL)
 	if err != nil {
 		emo.ParamError(err)
@@ -52,7 +52,7 @@ func GenAccessToken(namespaceName, namespaceKey, maxTokenTTL, name string, group
 		emo.TimeError(err)
 		return false, "", err
 	}
-	claims := standardAccessClaims(namespaceName, name, groups, to)
+	claims := standardAccessClaims(name, groups, orgs, to)
 	t := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 	token, err := t.SignedString([]byte(namespaceKey))
 	if err != nil {

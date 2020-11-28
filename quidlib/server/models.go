@@ -24,6 +24,7 @@ type User struct {
 	PasswordHash string  `json:"-"`
 	Groups       []Group `json:"groups,omitempty"`
 	Namespace    string  `json:"namespace,omitempty"`
+	Org          string  `json:"org,omitempty"`
 }
 
 // GroupNames : get the user group names
@@ -47,4 +48,10 @@ type UserGroup struct {
 	ID      int32 `db:"id" json:"id"`
 	UserID  int64 `db:"user_id" json:"user_id"`
 	GroupID int64 `db:"group_id" json:"group_id"`
+}
+
+// Org : base model
+type Org struct {
+	ID   int64  `json:"id"`
+	Name string `json:"name"`
 }

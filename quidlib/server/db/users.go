@@ -38,7 +38,8 @@ func SelectAllUsers() ([]server.User, error) {
 	usrs := []server.User{}
 	err := db.Select(&data,
 		"SELECT usertable.id,usertable.username,namespace.name as namespace FROM usertable "+
-			"JOIN namespace ON usertable.namespace_id = namespace.id ORDER BY usertable.username")
+			"JOIN namespace ON usertable.namespace_id = namespace.id "+
+			"ORDER BY usertable.username")
 	//err := db.Select(&data, "SELECT id,name,password FROM usertable ORDER BY name")
 	if err != nil {
 		return usrs, err

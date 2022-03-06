@@ -36,6 +36,13 @@ export default class Namespace {
     return data.key
   }
 
+  static async togglePublicEndpoint(id: number, enabled: boolean): Promise<void> {
+    await requests.post("/admin/namespaces/endpoint", {
+      id: id,
+      enable: enabled,
+    });
+  }
+
   static async fetchAll(): Promise<Array<NamespaceTable>> {
     const url = "/admin/namespaces/all";
     const ns = new Array<NamespaceTable>();

@@ -15,6 +15,7 @@
             label="Switch"
             v-model:value="slotProps.data.publicEndpointEnabled"
             class="w-max secondary"
+            @change="togglePublicEndpoint(slotProps.data.id, Boolean($event))"
           ></sw-switch>
         </template>
       </Column>
@@ -99,6 +100,11 @@ async function showKey(id: number, name: string) {
   const key = await Namespace.getKey(id);
   console.log("K", key)
   toast.add({ severity: 'info', summary: name, detail: key });
+}
+
+async function togglePublicEndpoint(id: number, enabled: boolean) {
+  const key = await Namespace.togglePublicEndpoint(id, enabled);
+  toast.add({ severity: 'info', summary: "Ok", detail: key, life: 1000 });
 }
 
 onMounted(() => {

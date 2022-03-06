@@ -16,6 +16,7 @@
             v-model:value="slotProps.data.publicEndpointEnabled"
             class="w-max secondary"
             @change="togglePublicEndpoint(slotProps.data.id, Boolean($event))"
+            v-if="slotProps.data.name != 'quid'"
           ></sw-switch>
         </template>
       </Column>
@@ -65,6 +66,7 @@ import Column from 'primevue/column';
 import Namespace from "@/models/namespace";
 import NamespaceTable from '@/models/namespace/table';
 import ActionButton from '../widgets/ActionButton.vue';
+import { notify } from '@/state';
 
 const namespaces = ref(new Array<NamespaceTable>());
 const expandedRows = ref<any>([]);
@@ -98,13 +100,13 @@ function copyKey(k: string) {
 
 async function showKey(id: number, name: string) {
   const key = await Namespace.getKey(id);
-  console.log("K", key)
+  console.log("K", key);
   toast.add({ severity: 'info', summary: name, detail: key });
 }
 
 async function togglePublicEndpoint(id: number, enabled: boolean) {
-  const key = await Namespace.togglePublicEndpoint(id, enabled);
-  toast.add({ severity: 'info', summary: "Ok", detail: key, life: 1000 });
+  await Namespace.togglePublicEndpoint(id, enabled);
+  notify.done("Endpoint toggled")
 }
 
 onMounted(() => {

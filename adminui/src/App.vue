@@ -1,9 +1,6 @@
 <template>
   <div class="h-screen" :class="{ 'dark': user.isDarkMode.value === true }">
-    <div
-      v-if="user.isLoggedIn.value === true"
-      class="flex flex-col h-full bg-background dark:bg-background-dark text-foreground dark:text-foreground-dark"
-    >
+    <div v-if="user.isLoggedIn.value === true" class="flex flex-col h-full background">
       <the-topbar class="w-full"></the-topbar>
       <div class="flex flex-row h-full">
         <the-sidebar :sidebar="sidebar" @toggle="sidebar = !sidebar"></the-sidebar>
@@ -15,34 +12,25 @@
     <div v-else>
       <the-login></the-login>
     </div>
+    <Toast position="top-right" group="main"></Toast>
   </div>
 </template>
 
-<script lang="ts">
-import { defineComponent, onBeforeMount, ref } from "vue";
+<script setup lang="ts">
+import { onBeforeMount, ref } from "vue";
 import TheSidebar from "@/components/TheSidebar.vue";
 import { initState, user } from "@/state";
 import TheLogin from "./components/TheLogin.vue";
 import TheTopbar from "./components/TheTopbar.vue";
+import Toast from 'primevue/toast';
+import useNotify from "./notify";
+import { useToast } from "primevue/usetoast";
 
-export default defineComponent({
-  components: {
-    TheSidebar,
-    TheLogin,
-    TheTopbar,
-  },
-  setup() {
-    const sidebar = ref(true);
+const sidebar = ref(true);
+const toast = useToast();
 
-    onBeforeMount(() => {
-      initState();
-    });
-
-    return {
-      sidebar,
-      user,
-    };
-  },
+onBeforeMount(() => {
+  initState(toast);
 });
 </script>
 

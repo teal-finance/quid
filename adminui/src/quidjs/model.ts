@@ -35,12 +35,12 @@ export default class QuidRequests {
     }
   }
 
-  async get<T>(url: string): Promise<T> {
-    return this._request<T>(url, "get");
+  async get<T = Record<string, any>>(url: string): Promise<T> {
+    return await this._request<T>(url, "get");
   }
 
-  async post<T>(url: string): Promise<T> {
-    return this._request<T>(url, "post");
+  async post<T = Record<string, any>>(url: string, payload: Record<string, any> | Array<any>): Promise<T> {
+    return await this._request<T>(url, "post", payload);
   }
 
   async login(username: string, password: string) {
@@ -127,8 +127,8 @@ export default class QuidRequests {
         opts.credentials = this.credentials as RequestCredentials;
       }
     }
-    //console.log("FETCH", this.serverUri + url);
-    //console.log(JSON.stringify(opts, null, "  "))
+    console.log("FETCH", this.serverUri + url);
+    console.log(JSON.stringify(opts, null, "  "))
     const response = await fetch(this.serverUri + url, opts);
     if (!response.ok) {
       if (response.status === 401) {
@@ -146,7 +146,9 @@ export default class QuidRequests {
       console.log("RESP NOT OK", response);
       throw new Error(response.statusText)
     }
-    return await response.json() as T;
+    const data = await response.json() as T;
+    console.log("DATa", data);
+    return data
   }
 
   private async _getAccessToken(): Promise<number> {

@@ -8,7 +8,7 @@
 import { defineComponent } from "vue";
 import categories from "@/const/categories";
 
-import CardsGrid from "@/components/cards/CardsGrid.vue";
+import CardsGrid from "@/components/widgets/cards/CardsGrid.vue";
 
 export default defineComponent({
   components: {

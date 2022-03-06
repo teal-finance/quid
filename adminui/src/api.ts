@@ -1,7 +1,6 @@
 import { QuidRequests, QuidError } from '@/quidjs'
 import conf from "@/conf";
 import { EnvType } from './env';
-import { user } from './state';
 
 const requests = new QuidRequests({
   namespace: "quid",
@@ -11,7 +10,6 @@ const requests = new QuidRequests({
   },
   quidUri: conf.quidUrl,
   serverUri: conf.serverUri,
-  //credentials: null,
   accessTokenUri: conf.serverUri + "/admin_token/access/",
   verbose: conf.env === EnvType.local,
   /*onHasToLogin: () => {

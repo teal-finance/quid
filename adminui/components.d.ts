@@ -4,14 +4,16 @@
 
 declare module 'vue' {
   export interface GlobalComponents {
+    ActionButton: typeof import('./src/components/widgets/ActionButton.vue')['default']
     AddNamespace: typeof import('./src/components/namespace/AddNamespace.vue')['default']
-    CardsGrid: typeof import('./src/components/cards/CardsGrid.vue')['default']
+    CardsGrid: typeof import('./src/components/widgets/cards/CardsGrid.vue')['default']
     HelloWorld: typeof import('./src/components/HelloWorld.vue')['default']
     IClaritySettingsLine: typeof import('~icons/clarity/settings-line')['default']
     IdRenderer: typeof import('./src/components/table/IdRenderer.vue')['default']
     IFluentSettings32Regular: typeof import('~icons/fluent/settings32-regular')['default']
     IIonArrowBackOutline: typeof import('~icons/ion/arrow-back-outline')['default']
-    SimpleCard: typeof import('./src/components/cards/SimpleCard.vue')['default']
+    NamespaceDatatable: typeof import('./src/components/namespace/NamespaceDatatable.vue')['default']
+    SimpleCard: typeof import('./src/components/widgets/cards/SimpleCard.vue')['default']
     TheHeader: typeof import('./src/components/TheHeader.vue')['default']
     TheLogin: typeof import('./src/components/TheLogin.vue')['default']
     TheSidebar: typeof import('./src/components/TheSidebar.vue')['default']

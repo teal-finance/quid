@@ -22,7 +22,11 @@
       inline-label="Refresh tokens max time to live"
       required
     ></sw-input>
-    <sw-switch id="ns-switch" label="Enable public endpoint" :checked="enablePublicEndpoint"></sw-switch>
+    <sw-switch
+      id="ns-switch"
+      class="secondary"
+      :checked="enablePublicEndpoint"
+    >&nbsp;Enable public endpoint</sw-switch>
     <div class="flex flex-row">
       <button class="w-20 mr-3 btn success" :disabled="!isFormValid === true">Save</button>
       <button class="w-20 btn warning" @click="onCancel()">Cancel</button>

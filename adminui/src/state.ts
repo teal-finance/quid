@@ -1,5 +1,4 @@
 import { ToastServiceMethods } from "primevue/toastservice";
-import { useToast } from "primevue/usetoast";
 import { requests } from "./api";
 import conf from "./conf";
 import { EnvType } from "./env";

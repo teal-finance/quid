@@ -13,6 +13,8 @@ declare module 'vue' {
     IFluentSettings32Regular: typeof import('~icons/fluent/settings32-regular')['default']
     IIonArrowBackOutline: typeof import('~icons/ion/arrow-back-outline')['default']
     NamespaceDatatable: typeof import('./src/components/namespace/NamespaceDatatable.vue')['default']
+    NamespaceInfo: typeof import('./src/components/namespace/NamespaceInfo.vue')['default']
+    SimpleBadge: typeof import('./src/components/widgets/SimpleBadge.vue')['default']
     SimpleCard: typeof import('./src/components/widgets/cards/SimpleCard.vue')['default']
     TheHeader: typeof import('./src/components/TheHeader.vue')['default']
     TheLogin: typeof import('./src/components/TheLogin.vue')['default']

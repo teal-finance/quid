@@ -11,6 +11,7 @@
     "emosd": "^0.2.1",
     "primeicons": "^5.0.0",
     "primevue": "^3.12.1",
+    "quidjs": "^0.6.0",
     "vue": "^3.2.25",
     "vue-router": "4"
   },

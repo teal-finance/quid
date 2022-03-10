@@ -37,7 +37,9 @@
           <action-button type="delete" class="ml-2" v-if="slotProps.data.name != 'quid'">Delete</action-button>
         </template>
       </Column>
-      <template #expansion="slotProps">INFO</template>
+      <template #expansion>
+        <namespace-info :num-users="nsInfo.numUsers" :groups="nsInfo.groups"></namespace-info>
+      </template>
     </DataTable>
     <Toast position="top-center">
       <template #message="slotProps">
@@ -57,36 +59,47 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, ref } from 'vue';
+import { onMounted, reactive, ref } from "vue";
 import SwSwitch from "@snowind/switch";
 import { useToast } from "primevue/usetoast";
-import Toast from 'primevue/toast';
-import DataTable from 'primevue/datatable';
-import Column from 'primevue/column';
+import Toast from "primevue/toast";
+import DataTable from "primevue/datatable";
+import Column from "primevue/column";
 import Namespace from "@/models/namespace";
-import NamespaceTable from '@/models/namespace/table';
-import ActionButton from '../widgets/ActionButton.vue';
-import { notify } from '@/state';
+import NamespaceTable from "@/models/namespace/table";
+import NamespaceInfo from "./NamespaceInfo.vue";
+//import ActionButton from '../widgets/ActionButton.vue';
+import { notify } from "@/state";
+import Group from "@/models/group";
 
-const namespaces = ref(new Array<NamespaceTable>());
+const props = defineProps({
+  namespaces: {
+    type: Array as () => Array<NamespaceTable>,
+    required: true,
+  }
+})
+
 const expandedRows = ref<any>([]);
 const expandedKey = ref(0);
 const toast = useToast();
+const nsInfo = reactive({
+  numUsers: 0,
+  groups: new Array<Group>(),
+});
 
-async function fetchData() {
-  const ns = await Namespace.fetchAll();
-  namespaces.value = Array.from(ns);
-  //console.log("DATA", namespaces.value)
-}
-
-function expand(id: number) {
-  expandedRows.value = namespaces.value.filter((p) => p.id == id);
+async function expand(id: number) {
+  const info = await Namespace.fetchRowInfo(id);
+  nsInfo.numUsers = info.numUsers;
+  nsInfo.groups = info.groups;
+  expandedRows.value = props.namespaces.filter((p) => p.id == id);
   expandedKey.value = id;
 }
 
 function unexpand() {
   expandedRows.value = [];
   expandedKey.value = 0;
+  nsInfo.numUsers = 0;
+  nsInfo.groups = new Array<Group>()
 }
 
 function closeKey() {
@@ -101,17 +114,13 @@ function copyKey(k: string) {
 async function showKey(id: number, name: string) {
   const key = await Namespace.getKey(id);
   console.log("K", key);
-  toast.add({ severity: 'info', summary: name, detail: key });
+  toast.add({ severity: "info", summary: name, detail: key });
 }
 
 async function togglePublicEndpoint(id: number, enabled: boolean) {
   await Namespace.togglePublicEndpoint(id, enabled);
-  notify.done("Endpoint toggled")
+  notify.done("Endpoint toggled");
 }
-
-onMounted(() => {
-  fetchData();
-});
 </script>
 
 <style lang="sass">

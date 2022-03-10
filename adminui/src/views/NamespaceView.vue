@@ -19,20 +19,36 @@
   >
     <div class="p-5 mt-3 border border-light dark:border-light-dark w-96">
       <div class="text-xl">Add a namespace</div>
-      <add-namespace class="mt-5" @end="collapse = !collapse"></add-namespace>
+      <add-namespace class="mt-5" @end="endAddNamespace()"></add-namespace>
     </div>
   </div>
 
-  <namespace-datatable></namespace-datatable>
+  <namespace-datatable :namespaces="namespaces"></namespace-datatable>
 </template>
  
 <script setup lang="ts">
-import { ref } from "vue";
+import { onMounted, ref } from "vue";
 import { Icon } from '@iconify/vue';
 import AddNamespace from "@/components/namespace/AddNamespace.vue";
 import NamespaceDatatable from "@/components/namespace/NamespaceDatatable.vue";
+import NamespaceTable from "@/models/namespace/table";
+import Namespace from "@/models/namespace";
 
 const collapse = ref(true);
+const namespaces = ref(new Array<NamespaceTable>());
+
+function endAddNamespace() {
+  collapse.value = !collapse.value;
+  fetchNamespaces()
+}
+
+async function fetchNamespaces() {
+  const ns = await Namespace.fetchAll();
+  namespaces.value = Array.from(ns);
+  //console.log("DATA", namespaces.value)
+}
+
+onMounted(() => fetchNamespaces())
 </script>
 
 <style lang="sass">

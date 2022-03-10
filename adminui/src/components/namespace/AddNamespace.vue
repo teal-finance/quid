@@ -24,95 +24,90 @@
     ></sw-input>
     <sw-switch
       id="ns-switch"
-      class="secondary"
+      class="success"
       :checked="enablePublicEndpoint"
     >&nbsp;Enable public endpoint</sw-switch>
     <div class="flex flex-row">
-      <button class="w-20 mr-3 btn success" :disabled="!isFormValid === true">Save</button>
+      <button
+        class="w-20 mr-3 btn success"
+        :disabled="!isFormValid === true"
+        @click="postForm()"
+      >Save</button>
       <button class="w-20 btn warning" @click="onCancel()">Cancel</button>
     </div>
   </div>
 </template>
 
-<script lang="ts">
-import { computed, defineComponent, reactive, ref } from "vue";
+<script setup lang="ts">
+import { computed, reactive, ref } from "vue";
 import SwInput from "@snowind/input";
 import SwSwitch from "@snowind/switch";
 import { requests } from "@/api";
+import { notify } from "@/state";
 
-export default defineComponent({
-  components: {
-    SwInput,
-    SwSwitch
-  },
-  emits: ["end"],
-  setup(props, { emit }) {
-    const enablePublicEndpoint = ref(false);
-    const form = reactive({
-      name: {
-        val: "",
-        isValid: null,
-        // eslint-disable-next-line
-        validator: (v: string) => {
-          if (v.length >= 3) {
-            return true;
-          }
-          return false;
-        },
-      },
-      accessTokenTtl: {
-        val: "20m",
-        isValid: true,
-        validator: (v: string) => {
-          if (v.length >= 2) {
-            return true;
-          }
-          return false;
-        },
-      },
-      refreshTokenTtl: {
-        val: "24h",
-        isValid: true,
-        validator: (v: string) => {
-          if (v.length >= 2) {
-            return true;
-          }
-          return false;
-        },
-      },
-    });
+const emit = defineEmits(["end"]);
 
-    const isFormValid = computed<boolean>(() => {
-      return form.name.isValid === true
-        && form.accessTokenTtl.isValid === true
-        && form.refreshTokenTtl.isValid === true
-    });
-
-    function onCancel(): void {
-      emit("end");
-    }
-
-    /*async function postForm() {
-      let { error } = await requests.post("/admin/namespaces/add", {
-        name: form.name.val,
-        max_ttl: form.accessTokenTtl.val,
-        refresh_max_ttl: form.refreshTokenTtl.val,
-        enable_endpoint: enablePublicEndpoint,
-      });
-      if (error == null) {
-        emit("end");
-        console.log("Form posted")
+const enablePublicEndpoint = ref(false);
+const form = reactive({
+  name: {
+    val: "",
+    isValid: null,
+    // eslint-disable-next-line
+    validator: (v: string) => {
+      if (v.length >= 3) {
+        return true;
       }
-    }*/
-
-    return {
-      form,
-      onCancel,
-      isFormValid,
-      enablePublicEndpoint
-    };
+      return false;
+    },
+  },
+  accessTokenTtl: {
+    val: "20m",
+    isValid: true,
+    validator: (v: string) => {
+      if (v.length >= 2) {
+        return true;
+      }
+      return false;
+    },
+  },
+  refreshTokenTtl: {
+    val: "24h",
+    isValid: true,
+    validator: (v: string) => {
+      if (v.length >= 2) {
+        return true;
+      }
+      return false;
+    },
   },
 });
+
+const isFormValid = computed<boolean>(() => {
+  return form.name.isValid === true
+    && form.accessTokenTtl.isValid === true
+    && form.refreshTokenTtl.isValid === true
+});
+
+function onCancel(): void {
+  emit("end");
+}
+
+async function postForm() {
+  try {
+    await requests.post("/admin/namespaces/add", {
+      name: form.name.val,
+      max_ttl: form.accessTokenTtl.val,
+      refresh_max_ttl: form.refreshTokenTtl.val,
+      enable_endpoint: enablePublicEndpoint,
+    });
+    emit("end");
+    notify.done("Namespace added")
+  } catch (e) {
+    console.log(e)
+    notify.error("Error creating namespace")
+  }
+}
+
 </script>
 
 <!-- style lang="sass">

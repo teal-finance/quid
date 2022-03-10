@@ -1,4 +1,4 @@
-import { QuidRequests, QuidError } from '@/quidjs'
+import { QuidRequests, QuidError } from 'quidjs'
 import conf from "@/conf";
 import { EnvType } from './env';
 

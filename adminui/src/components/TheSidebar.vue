@@ -17,7 +17,7 @@
       </div>
     </div>
     <div
-      class="flex-none w-full h-12 pl-5 mb-3 text-2xl cursor-pointer txt-neutral"
+      class="flex-none w-full h-12 pl-5 mb-3 text-2xl cursor-pointer txt-light"
       @click="toggle()"
     >
       <icon icon="fa-solid:angle-double-left" v-if="sidebar === true"></icon>

@@ -31,6 +31,26 @@ export default class Namespace {
     return row as NamespaceTable;
   }
 
+  static async saveMaxAccessTokenTtl(id: number, ttl: string) {
+    await requests.post("/admin/namespaces/max-ttl", {
+      id: id,
+      max_ttl: ttl,
+    });
+  }
+
+  static async saveMaxRefreshTokenTtl(id: number, ttl: string) {
+    await requests.post("/admin/namespaces/max-refresh-ttl", {
+      id: id,
+      refresh_max_ttl: ttl,
+    });
+  }
+
+  static async delete(id: number) {
+    await requests.post("/admin/namespaces/delete", {
+      id: id,
+    });
+  }
+
   static async getKey(id: number): Promise<string> {
     const data = await requests.post<{ key: string }>("/admin/namespaces/key", {
       id: id,

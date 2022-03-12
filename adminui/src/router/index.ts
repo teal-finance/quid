@@ -11,6 +11,13 @@ const routes: Array<RouteRecordRaw> = [
     name: 'Namespaces',
     component: () => import('../views/NamespaceView.vue')
   },
+  {
+    path: "/settings",
+    component: () => import("../views/SettingsView.vue"),
+    meta: {
+      title: "Settings"
+    }
+  },
 ]
 
 const router = createRouter({

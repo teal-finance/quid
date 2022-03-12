@@ -22,8 +22,7 @@
       <add-namespace class="mt-5" @end="endAddNamespace()"></add-namespace>
     </div>
   </div>
-
-  <namespace-datatable :namespaces="namespaces"></namespace-datatable>
+  <namespace-datatable :namespaces="namespaces" @reload="fetchNamespaces()"></namespace-datatable>
 </template>
  
 <script setup lang="ts">

@@ -20,7 +20,7 @@
     "@iconify/json": "^2.0.33",
     "@iconify/vue": "^3.1.3",
     "@snowind/header": "^0.0.8",
-    "@snowind/input": "^0.0.4",
+    "@snowind/input": "^0.0.5",
     "@snowind/plugin": "^0.0.8",
     "@snowind/sidebar": "^0.0.3",
     "@snowind/state": "^0.0.2",

@@ -98,7 +98,7 @@ async function postForm() {
       name: form.name.val,
       max_ttl: form.accessTokenTtl.val,
       refresh_max_ttl: form.refreshTokenTtl.val,
-      enable_endpoint: enablePublicEndpoint,
+      enable_endpoint: enablePublicEndpoint.value,
     });
     emit("end");
     notify.done("Namespace added")

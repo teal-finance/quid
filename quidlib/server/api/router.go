@@ -25,9 +25,7 @@ var echoServer = echo.New()
 func RunServer(adminNsKey string) {
 
 	echoServer.Use(middleware.Logger())
-	creds := false
 	if !conf.IsDevMode {
-		creds = true
 		echoServer.Use(middleware.Recover())
 	} else {
 		echoServer.Use(middleware.Secure())
@@ -36,7 +34,7 @@ func RunServer(adminNsKey string) {
 		AllowOrigins:     []string{"*"},
 		AllowHeaders:     []string{echo.HeaderOrigin, echo.HeaderContentType, echo.HeaderAuthorization},
 		AllowMethods:     []string{http.MethodGet, http.MethodOptions, http.MethodPost, http.MethodDelete},
-		AllowCredentials: creds,
+		AllowCredentials: true,
 	}))
 
 	echoServer.Use(session.MiddlewareWithConfig(session.Config{Store: SessionsStore}))

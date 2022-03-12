@@ -1,20 +1,16 @@
+
 import { ToastServiceMethods } from "primevue/toastservice";
 import { requests } from "./api";
 import conf from "./conf";
 import { EnvType } from "./env";
+import { ConfirmOptions, NotifyService } from "./interface";
 import User from "./models/user";
 import useNotify from "./notify";
 
-
 const user = new User();
-let notify: {
-  error: (content: string) => void;
-  warning: (title: string, content: string, timeOnScreen?: number) => void;
-  success: (title: string, content: string, timeOnScreen?: number) => void;
-  done(content: string): void;
-};
+let notify: NotifyService;
 
-function initState(toast: ToastServiceMethods): void {
+function initState(toast: ToastServiceMethods, confirm: ConfirmOptions): void {
   console.log("Running in env", conf.env);
   if (conf.env == EnvType.local) {
     let t = import.meta.env.VITE_DEV_TOKEN;
@@ -26,7 +22,7 @@ function initState(toast: ToastServiceMethods): void {
       user.isLoggedIn.value = true;
     }
   }
-  notify = useNotify(toast)
+  notify = useNotify(toast, confirm)
 }
 
 export { user, initState, notify }

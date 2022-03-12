@@ -50,10 +50,3 @@ async function fetchNamespaces() {
 onMounted(() => fetchNamespaces())
 </script>
 
-<style lang="sass">
-table
-  & th
-    @apply text-primary border-b p-3
-  & td
-    @apply px-5 py-1 border-b
-</style>

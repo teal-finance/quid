@@ -1,6 +1,6 @@
 import { requests } from "@/api";
 import NamespaceContract from "./contract";
-import NamespaceTable from "./table";
+import NamespaceTable from "./interface";
 import Group from "@/models/group";
 import { GroupContract } from "../group/contract";
 

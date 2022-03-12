@@ -4,16 +4,21 @@ const routes: Array<RouteRecordRaw> = [
   {
     path: '/',
     name: 'Home',
-    component: () => import('../views/HomeView.vue')
+    component: () => import('./views/HomeView.vue')
   },
   {
     path: '/namespaces',
     name: 'Namespaces',
-    component: () => import('../views/NamespaceView.vue')
+    component: () => import('./views/NamespaceView.vue')
+  },
+  {
+    path: '/org',
+    name: 'Orgs',
+    component: () => import('./views/OrgView.vue')
   },
   {
     path: "/settings",
-    component: () => import("../views/SettingsView.vue"),
+    component: () => import("./views/SettingsView.vue"),
     meta: {
       title: "Settings"
     }

@@ -2,7 +2,7 @@
   <div>
     <DataTable
       :value="namespaces"
-      class="p-datatable-lg"
+      class="p-datatable main-table"
       id="nstable"
       v-model:expandedRows="expandedRows"
       data-key="id"
@@ -82,22 +82,19 @@
         </div>
       </template>
     </Toast>
-    <ConfirmDialog></ConfirmDialog>
   </div>
 </template>
 
 <script setup lang="ts">
 import { reactive, ref } from "vue";
 import SwSwitch from "@snowind/switch";
-import ConfirmDialog from 'primevue/confirmdialog';
 import { useToast } from "primevue/usetoast";
 import Toast from "primevue/toast";
 import DataTable from "primevue/datatable";
 import Column from "primevue/column";
 import Namespace from "@/models/namespace";
-import NamespaceTable from "@/models/namespace/table";
+import NamespaceTable from "@/models/namespace/interface";
 import NamespaceInfo from "./NamespaceInfo.vue";
-import { useConfirm } from "primevue/useconfirm";
 import { notify } from "@/state";
 import Group from "@/models/group";
 import ActionButton from "../widgets/ActionButton.vue";
@@ -118,23 +115,17 @@ const nsInfo = reactive({
   numUsers: 0,
   groups: new Array<Group>(),
 });
-const confirm = useConfirm();
 
 function confirmDelete(ns: NamespaceTable) {
-  confirm.require({
-    message: `Delete the ${ns.name} namespace?`,
-    header: 'Delete Confirmation',
-    icon: 'pi pi-info-circle',
-    acceptClass: 'p-button-danger',
-    accept: () => {
-      console.log("ACCEPT")
+  notify.confirmDelete(
+    `Delete the ${ns.name} namespace?`,
+    () => {
       Namespace.delete(ns.id).then(() => {
         notify.done("Namespace deleted");
         emit("reload");
       })
-    },
-    reject: () => { }
-  });
+    }
+  )
 }
 
 async function expand(id: number) {
@@ -174,9 +165,6 @@ async function togglePublicEndpoint(id: number, enabled: boolean) {
 </script>
 
 <style lang="sass">
-#nstable
-  & td
-    @apply p-3
 .ui-toast-message
   width: 96em
 </style>

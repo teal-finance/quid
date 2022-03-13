@@ -2,8 +2,7 @@
   <div>
     <DataTable
       :value="namespaces"
-      class="p-datatable main-table"
-      id="nstable"
+      class="main-table"
       v-model:expandedRows="expandedRows"
       data-key="id"
     >
@@ -14,7 +13,7 @@
           <sw-switch
             label="Switch"
             v-model:value="slotProps.data.publicEndpointEnabled"
-            class="w-max secondary"
+            class="table-switch w-max secondary"
             @change="togglePublicEndpoint(slotProps.data.id, Boolean($event))"
             v-if="slotProps.data.name != 'quid'"
           ></sw-switch>
@@ -46,6 +45,11 @@
       </Column>
       <Column field="actions">
         <template #body="slotProps">
+          <action-button
+            @click="selectNamespace(slotProps.data)"
+            v-if="slotProps.data.name != 'quid'"
+            :class="slotProps.data.name != 'quid' ? 'mr-2' : ''"
+          >Select</action-button>
           <action-button
             @click="expand(slotProps.data.id)"
             v-if="expandedKey != slotProps.data.id"
@@ -95,7 +99,7 @@ import Column from "primevue/column";
 import Namespace from "@/models/namespace";
 import NamespaceTable from "@/models/namespace/interface";
 import NamespaceInfo from "./NamespaceInfo.vue";
-import { notify } from "@/state";
+import { notify, namespaceMutations } from "@/state";
 import Group from "@/models/group";
 import ActionButton from "../widgets/ActionButton.vue";
 import EditTokenTtl from "./EditTokenTtl.vue";
@@ -152,6 +156,13 @@ function copyKey(k: string) {
   toast.removeAllGroups();
 }
 
+function selectNamespace(nst: NamespaceTable) {
+  const ns = Namespace.fromNamespaceTable(nst);
+  console.log("Select", ns);
+  namespaceMutations.change(ns);
+  notify.done(`Namespace ${ns.name} selected`)
+}
+
 async function showKey(id: number, name: string) {
   const key = await Namespace.getKey(id);
   console.log("K", key);
@@ -164,7 +175,7 @@ async function togglePublicEndpoint(id: number, enabled: boolean) {
 }
 </script>
 
-<style lang="sass">
+<style scoped lang="sass">
 .ui-toast-message
   width: 96em
 </style>

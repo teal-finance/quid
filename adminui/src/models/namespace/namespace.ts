@@ -25,11 +25,37 @@ export default class Namespace {
     this.publicEndpointEnabled = public_endpoint_enabled;
   }
 
+  // *************************
+  //   factory constructors
+  // *************************
+
+  static fromNamespaceTable(nst: NamespaceTable): Namespace {
+    return new Namespace({
+      id: nst.id,
+      name: nst.name,
+      max_token_ttl: nst.maxTokenTtl,
+      max_refresh_token_ttl: nst.maxRefreshTokenTtl,
+      public_endpoint_enabled: nst.publicEndpointEnabled,
+    })
+  }
+
+  static empty(): Namespace {
+    return new Namespace({ id: 0, name: "default", max_token_ttl: "10", max_refresh_token_ttl: "10m", public_endpoint_enabled: false })
+  }
+
+  // *************************
+  //         methods
+  // *************************
+
   toTableRow(): NamespaceTable {
     const row = Object.create(this);
     row.actions = [];
     return row as NamespaceTable;
   }
+
+  // *************************
+  //    static methods
+  // *************************
 
   static async saveMaxAccessTokenTtl(id: number, ttl: string) {
     await requests.post("/admin/namespaces/max-ttl", {

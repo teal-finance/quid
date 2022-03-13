@@ -25,7 +25,7 @@
     <sw-switch
       id="ns-switch"
       class="success"
-      :checked="enablePublicEndpoint"
+      :v-model:value="enablePublicEndpoint"
     >&nbsp;Enable public endpoint</sw-switch>
     <div class="flex flex-row">
       <button
@@ -109,9 +109,3 @@ async function postForm() {
 }
 
 </script>
-
-<!-- style lang="sass">
-#ns-switch
-  & input:checked ~ .bg
-    @apply bg-secondary
-</style -->

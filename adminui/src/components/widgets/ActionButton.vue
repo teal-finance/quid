@@ -19,5 +19,5 @@ defineProps({
   &.delete
     @apply border-danger txt-danger hover:danger
   &.action
-    @apply border-primary txt-primary hover:primary
+    @apply border-primary txt-primary hover:primary dark:txt-neutral dark:border-neutral
 </style>

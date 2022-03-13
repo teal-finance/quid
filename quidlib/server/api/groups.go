@@ -8,9 +8,14 @@ import (
 	db "github.com/synw/quid/quidlib/server/db"
 )
 
-// AllGroups : get all groups for a namespace http handler
-func AllGroups(c echo.Context) error {
-	data, err := db.SelectAllGroups()
+// AllGroupsForNamespace : get all groups for a namespace http handler
+func AllGroupsForNamespace(c echo.Context) error {
+	m := echo.Map{}
+	if err := c.Bind(&m); err != nil {
+		return err
+	}
+	namespaceID := int64(m["namespace_id"].(float64))
+	data, err := db.SelectGroupsForNamespace(namespaceID)
 	if err != nil {
 		return c.JSON(http.StatusConflict, echo.Map{
 			"error": "error selecting groups",

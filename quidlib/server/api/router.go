@@ -68,7 +68,7 @@ func RunServer(adminNsKey string) {
 	g.POST("/info", GroupsInfo)
 	g.POST("/add_user", AddUserInGroup)
 	g.POST("/remove_user", RemoveUserFromGroup)
-	g.GET("/all", AllGroups)
+	g.GET("/all", AllGroupsForNamespace)
 
 	m := a.Group("/users")
 	m.POST("/add", CreateUserHandler)

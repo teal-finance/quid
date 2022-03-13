@@ -22,6 +22,17 @@ func AllGroupsForNamespace(c echo.Context) error {
 		})
 	}
 	return c.JSON(http.StatusOK, &data)
+}
+
+// AllGroups : get all groups for a namespace http handler
+func AllGroups(c echo.Context) error {
+	data, err := db.SelectAllGroups()
+	if err != nil {
+		return c.JSON(http.StatusConflict, echo.Map{
+			"error": "error selecting groups",
+		})
+	}
+	return c.JSON(http.StatusOK, &data)
 
 }
 

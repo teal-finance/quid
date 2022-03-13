@@ -1,6 +1,7 @@
 package api
 
 import (
+	"fmt"
 	"net/http"
 
 	"golang.org/x/crypto/bcrypt"
@@ -14,6 +15,23 @@ import (
 func AllUsers(c echo.Context) error {
 	data, err := db.SelectAllUsers()
 	if err != nil {
+		return c.JSON(http.StatusInternalServerError, echo.Map{
+			"error": "error selecting users",
+		})
+	}
+	return c.JSON(http.StatusOK, &data)
+}
+
+// AllUsersInNamespace : select all users for a namespace
+func AllUsersInNamespace(c echo.Context) error {
+	m := echo.Map{}
+	if err := c.Bind(&m); err != nil {
+		return err
+	}
+	namespaceID := int64(m["namespace_id"].(float64))
+	data, err := db.SelectUsersInNamespace(namespaceID)
+	if err != nil {
+		fmt.Println("ERROR", err)
 		return c.JSON(http.StatusInternalServerError, echo.Map{
 			"error": "error selecting users",
 		})

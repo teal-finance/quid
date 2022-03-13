@@ -75,7 +75,8 @@ func RunServer(adminNsKey string) {
 	m.POST("/delete", DeleteUser)
 	m.POST("/groups", UserGroupsInfo)
 	m.POST("/orgs", UserOrgsInfo)
-	m.GET("/all", AllUsers)
+	m.GET("/all", AllUsers) // TODO: remove when old frontend is disabled
+	m.POST("/nsall", AllUsersInNamespace)
 
 	ns := a.Group("/namespaces")
 	ns.POST("/add", CreateNamespace)

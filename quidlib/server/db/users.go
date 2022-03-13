@@ -59,8 +59,9 @@ func SelectUsersInNamespace(namespaceID int64) ([]server.User, error) {
 	data := []user{}
 	usrs := []server.User{}
 	err := db.Select(&data,
-		"SELECT usertable.id,usertable.username,namespace.name as namespace FROM usertable WHERE usertable.namespace_id=$1"+
-			"JOIN namespace ON usertable.namespace_id = namespace.id ORDER BY usertable.username", namespaceID)
+		"SELECT usertable.id,usertable.username,namespace.name as namespace FROM usertable "+
+			"JOIN namespace ON usertable.namespace_id = namespace.id  "+
+			"WHERE usertable.namespace_id=$1ORDER BY usertable.username", namespaceID)
 	if err != nil {
 		return usrs, err
 	}

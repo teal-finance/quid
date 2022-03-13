@@ -1,15 +1,14 @@
-
 import { ToastServiceMethods } from "primevue/toastservice";
-import { computed, reactive, ref } from "vue";
+import { computed, reactive } from "vue";
 import { requests } from "./api";
 import conf from "./conf";
 import { EnvType } from "./env";
 import { ConfirmOptions, NotifyService } from "./interface";
 import Namespace from "./models/namespace";
-import User from "./models/user";
+import AdminUser from "./models/adminuser";
 import useNotify from "./notify";
 
-const user = new User();
+const user = new AdminUser();
 let notify: NotifyService;
 const state = reactive({
   namespace: Namespace.empty(),

@@ -9,6 +9,7 @@ declare module 'vue' {
     AddGroup: typeof import('./src/components/group/AddGroup.vue')['default']
     AddNamespace: typeof import('./src/components/namespace/AddNamespace.vue')['default']
     AddOrg: typeof import('./src/components/org/AddOrg.vue')['default']
+    AddUser: typeof import('./src/components/user/AddUser.vue')['default']
     CardsGrid: typeof import('./src/components/widgets/cards/CardsGrid.vue')['default']
     EditTokenTtl: typeof import('./src/components/namespace/EditTokenTtl.vue')['default']
     GroupDatatable: typeof import('./src/components/group/GroupDatatable.vue')['default']
@@ -41,6 +42,7 @@ declare module 'vue' {
     TheLogin: typeof import('./src/components/TheLogin.vue')['default']
     TheSidebar: typeof import('./src/components/TheSidebar.vue')['default']
     TheTopbar: typeof import('./src/components/TheTopbar.vue')['default']
+    UserDatatable: typeof import('./src/components/user/UserDatatable.vue')['default']
   }
 }
 

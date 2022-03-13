@@ -21,7 +21,7 @@
   >
     <div class="p-5 mt-3 border border-light dark:border-light-dark w-96">
       <div class="text-xl">Add a group</div>
-      <add-group class="mt-5" @end="endAdd()"></add-group>
+      <add-group class="mt-5" @end="endAdd()" v-if="collapse === false"></add-group>
     </div>
   </div>
   <div class="w-full" v-else>

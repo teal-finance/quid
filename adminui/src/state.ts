@@ -8,7 +8,6 @@ import { ConfirmOptions, NotifyService } from "./interface";
 import Namespace from "./models/namespace";
 import User from "./models/user";
 import useNotify from "./notify";
-import { PopToast } from "./type";
 
 const user = new User();
 let notify: NotifyService;
@@ -30,7 +29,7 @@ const mustSelectNamespace = computed<boolean>(() => {
   //&& user.type == "serverAdmin";
 });
 
-function initState(toast: ToastServiceMethods, confirm: ConfirmOptions, popToast: PopToast): void {
+function initState(toast: ToastServiceMethods, confirm: ConfirmOptions): void {
   console.log("Running in env", conf.env);
   if (conf.env == EnvType.local) {
     let t = import.meta.env.VITE_DEV_TOKEN;
@@ -42,7 +41,7 @@ function initState(toast: ToastServiceMethods, confirm: ConfirmOptions, popToast
       user.isLoggedIn.value = true;
     }
   }
-  notify = useNotify(toast, confirm, popToast)
+  notify = useNotify(toast, confirm)
 }
 
 export { user, initState, notify, state, namespaceMutations, mustSelectNamespace }

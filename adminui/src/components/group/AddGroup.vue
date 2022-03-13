@@ -23,7 +23,7 @@
 import { computed, reactive } from "vue";
 import SwInput from "@snowind/input";
 import { requests } from "@/api";
-import { notify } from "@/state";
+import { notify, state } from "@/state";
 
 const emit = defineEmits(["end"]);
 
@@ -50,14 +50,15 @@ function onCancel(): void {
 
 async function postForm() {
   try {
-    await requests.post("/admin/orgs/add", {
+    await requests.post("/admin/groups/add", {
       name: form.name.val,
+      namespace_id: state.namespace.id,
     });
     emit("end");
-    notify.done("Org added")
+    notify.done("Group added")
   } catch (e) {
     console.log(e)
-    notify.error("Error creating org")
+    notify.error("Error creating group")
   }
 }
 

@@ -6,6 +6,7 @@ declare module 'vue' {
   export interface GlobalComponents {
     ActionButton: typeof import('./src/components/widgets/ActionButton.vue')['default']
     AddAdmin: typeof import('./src/components/admin/AddAdmin.vue')['default']
+    AddGroup: typeof import('./src/components/group/AddGroup.vue')['default']
     AddNamespace: typeof import('./src/components/namespace/AddNamespace.vue')['default']
     AddOrg: typeof import('./src/components/org/AddOrg.vue')['default']
     CardsGrid: typeof import('./src/components/widgets/cards/CardsGrid.vue')['default']

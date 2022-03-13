@@ -25,6 +25,8 @@ import { namespaceMutations, notify } from "@/state";
 const isLoading = ref(false);
 const namespaces = ref(new Array<NamespaceTable>());
 
+const emit = defineEmits(["selectns"]);
+
 async function fetchNamespaces() {
   const ns = await Namespace.fetchAll();
   namespaces.value = Array.from(ns);
@@ -33,7 +35,8 @@ async function fetchNamespaces() {
 
 function selectNamespace(ns: NamespaceTable) {
   namespaceMutations.change(Namespace.fromNamespaceTable(ns));
-  notify.toastInfo("Namespace selected")
+  emit("selectns");
+  notify.done("Namespace selected")
 }
 
 onMounted(() => fetchNamespaces())

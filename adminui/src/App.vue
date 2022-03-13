@@ -19,12 +19,11 @@
     </div>
     <Toast position="top-right" group="main"></Toast>
     <ConfirmDialog></ConfirmDialog>
-    <sw-toast :class="toastType" :show="isToastVisible">{{ toastMsg }}</sw-toast>
   </div>
 </template>
 
 <script setup lang="ts">
-import { onBeforeMount, ref, nextTick } from "vue";
+import { onBeforeMount, ref } from "vue";
 import ConfirmDialog from 'primevue/confirmdialog';
 import TheSidebar from "@/components/TheSidebar.vue";
 import { initState, user } from "@/state";
@@ -33,15 +32,9 @@ import TheTopbar from "./components/TheTopbar.vue";
 import Toast from 'primevue/toast';
 import { useToast } from "primevue/usetoast";
 import { useConfirm } from "primevue/useconfirm";
-import { SwToast, useToast as swToast } from "@snowind/toast";
-import { PopToast, ColorVariant } from "./type";
 
 const toast = useToast();
 const confirm = useConfirm();
-//const { popToast, isToastVisible } = swToast();
-const toastMsg = ref("");
-const toastType = ref<ColorVariant>("secondary");
-const isToastVisible = ref(false);
 
 const isSidebarOpened = ref(false);
 
@@ -49,26 +42,7 @@ function toggleSidebar() {
   isSidebarOpened.value = !isSidebarOpened.value;
 }
 
-function genPopSwToast(): PopToast {
-  return async function (msg: string, type: ColorVariant, delay?: number | undefined) {
-    console.log("Run pop")
-    toastType.value = type;
-    toastMsg.value = msg;
-    console.log("End init pop")
-    try {
-      isToastVisible.value = true;
-      setTimeout(() => { isToastVisible.value = false; }, delay);
-      console.log("wait")
-      console.log("endwait")
-      isToastVisible.value = false;
-      console.log("end")
-    } catch (e) {
-      console.log("Error poping toast", e)
-    }
-  }
-}
-
-onBeforeMount(() => initState(toast, confirm, genPopSwToast()));
+onBeforeMount(() => initState(toast, confirm));
 </script>
 
 <style lang="sass">

@@ -11,8 +11,6 @@ interface NotifyService {
   success: (title: string, content: string, timeOnScreen?: number) => void;
   done: (content: string) => void;
   confirmDelete: (msg: string, onConfirm: CallableFunction, onReject?: CallableFunction, title?: string) => void;
-  toastSuccess: (msg: string, delay?: number | undefined) => void;
-  toastInfo: (msg: string, delay?: number | undefined) => void;
 }
 
 export { ConfirmOptions, NotifyService }

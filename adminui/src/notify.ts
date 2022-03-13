@@ -1,9 +1,8 @@
 import { ToastServiceMethods } from "primevue/toastservice";
 import { ConfirmOptions, NotifyService } from "./interface";
-import { PopToast } from "./type";
 
 
-const useNotify = function (toast: ToastServiceMethods, confirm: ConfirmOptions, popToast: PopToast): NotifyService {
+const useNotify = function (toast: ToastServiceMethods, confirm: ConfirmOptions): NotifyService {
   return {
     error: (content: string) => {
       toast.add({ severity: 'error', summary: 'Error', detail: content, group: "main" });
@@ -26,12 +25,6 @@ const useNotify = function (toast: ToastServiceMethods, confirm: ConfirmOptions,
         accept: () => onConfirm(),
         reject: () => onReject(),
       });
-    },
-    toastSuccess: (msg: string, delay?: number | undefined) => {
-      popToast(msg, "success", delay)
-    },
-    toastInfo: (msg: string, delay?: number | undefined) => {
-      popToast(msg, "secondary", delay)
     },
   }
 }

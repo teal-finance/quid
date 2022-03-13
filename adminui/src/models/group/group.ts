@@ -33,11 +33,12 @@ export default class Group {
   //    static methods
   // *************************
 
-  static async fetchAll(): Promise<Array<GroupTable>> {
+  static async fetchAll(nsid: number): Promise<Array<GroupTable>> {
     const url = "/admin/groups/all";
     const ns = new Array<GroupTable>();
     try {
-      const resp = await requests.get<Array<GroupContract>>(url);
+      const payload = { namespace_id: nsid }
+      const resp = await requests.post<Array<GroupContract>>(url, payload);
       resp.forEach((row) => {
         //console.log(row)
         ns.push(new Group(row).toTableRow())
@@ -49,4 +50,9 @@ export default class Group {
     return ns;
   }
 
+  static async delete(id: number) {
+    await requests.post("/admin/groups/delete", {
+      id: id,
+    });
+  }
 }

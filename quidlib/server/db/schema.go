@@ -74,6 +74,18 @@ CREATE TABLE IF NOT EXISTS userorg (
 CREATE INDEX IF NOT EXISTS userorg_user_idx ON userorg(user_id);
 CREATE INDEX IF NOT EXISTS userorg_org_idx ON userorg(org_id);
 
+CREATE TABLE IF NOT EXISTS namespaceadmin (
+	id SERIAL PRIMARY KEY,
+	user_id INTEGER NOT NULL,
+	namespace_id INTEGER NOT NULL,
+	FOREIGN KEY(user_id) REFERENCES usertable(id) ON DELETE CASCADE,
+	FOREIGN KEY(namespace_id) REFERENCES namespace(id) ON DELETE CASCADE,
+	UNIQUE (user_id, namespace_id)
+);
+
+CREATE INDEX IF NOT EXISTS namespaceadmin_user_idx ON namespaceadmin(user_id);
+CREATE INDEX IF NOT EXISTS namespaceadmin_namespace_idx ON namespaceadmin(namespace_id);
+
 CREATE TABLE IF NOT EXISTS token (
 	id SERIAL PRIMARY KEY,
 	value TEXT NOT NULL,

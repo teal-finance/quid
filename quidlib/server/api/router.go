@@ -12,8 +12,8 @@ import (
 
 	color "github.com/logrusorgru/aurora"
 
-	"github.com/synw/quid/quidlib/conf"
-	"github.com/synw/quid/quidlib/tokens"
+	"github.com/teal-finance/quid/quidlib/conf"
+	"github.com/teal-finance/quid/quidlib/tokens"
 )
 
 // SessionsStore : the session cookies store
@@ -27,7 +27,6 @@ func RunServer(adminNsKey string) {
 	echoServer.Use(middleware.Logger())
 	if !conf.IsDevMode {
 		echoServer.Use(middleware.Recover())
-	} else {
 		echoServer.Use(middleware.Secure())
 	}
 	echoServer.Use(middleware.CORSWithConfig(middleware.CORSConfig{
@@ -78,6 +77,7 @@ func RunServer(adminNsKey string) {
 	m.POST("/orgs", UserOrgsInfo)
 	m.GET("/all", AllUsers) // TODO: remove when old frontend is disabled
 	m.POST("/nsall", AllUsersInNamespace)
+	m.POST("/search", SearchForUsersInNamespace)
 
 	ns := a.Group("/namespaces")
 	ns.POST("/add", CreateNamespace)
@@ -98,6 +98,10 @@ func RunServer(adminNsKey string) {
 	org.POST("/find", FindOrg)
 	org.POST("/add_user", AddUserInOrg)
 	org.POST("/remove_user", RemoveUserFromOrg)
+
+	nsa := a.Group("/nsadmin")
+	nsa.POST("/add", CreateAdministrator)
+	nsa.POST("/nsall", AllAdministratorsInNamespace)
 
 	if conf.IsDevMode {
 		fmt.Println(color.Bold(color.Red("Running in development mode")))

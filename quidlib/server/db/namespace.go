@@ -6,8 +6,8 @@ import (
 	// pg import
 	_ "github.com/lib/pq"
 
-	"github.com/synw/quid/quidlib/crypt"
-	"github.com/synw/quid/quidlib/server"
+	"github.com/teal-finance/quid/quidlib/crypt"
+	"github.com/teal-finance/quid/quidlib/server"
 )
 
 // SelectAllNamespaces : get the namespaces

@@ -7,8 +7,8 @@ import (
 	"golang.org/x/crypto/bcrypt"
 
 	"github.com/labstack/echo/v4"
-	"github.com/synw/quid/quidlib/server"
-	db "github.com/synw/quid/quidlib/server/db"
+	"github.com/teal-finance/quid/quidlib/server"
+	db "github.com/teal-finance/quid/quidlib/server/db"
 )
 
 // AllUsers : add a user in a group
@@ -147,7 +147,29 @@ func RemoveUserFromGroup(c echo.Context) error {
 	return c.JSON(http.StatusOK, echo.Map{
 		"ok": true,
 	})
+}
 
+// SearchForUsersInNamespace : search from a username in namespace
+func SearchForUsersInNamespace(c echo.Context) error {
+	m := echo.Map{}
+	if err := c.Bind(&m); err != nil {
+		return err
+	}
+	fmt.Println("Search")
+	username := m["username"].(string)
+	nsID := int64(m["namespace_id"].(float64))
+	fmt.Println("U", username, "NS", nsID)
+
+	u, err := db.SearchUsersInNamespaceFromUsername(username, nsID)
+	if err != nil {
+		fmt.Println("ERR", err)
+		return c.JSON(http.StatusInternalServerError, echo.Map{
+			"error": "error searching for users",
+		})
+	}
+	return c.JSON(http.StatusOK, echo.Map{
+		"users": u,
+	})
 }
 
 // UserGroupsInfo : get info for a user
@@ -167,7 +189,6 @@ func UserGroupsInfo(c echo.Context) error {
 	return c.JSON(http.StatusOK, echo.Map{
 		"groups": g,
 	})
-
 }
 
 // DeleteUser : delete a user handler
@@ -188,7 +209,6 @@ func DeleteUser(c echo.Context) error {
 	return c.JSON(http.StatusOK, echo.Map{
 		"message": "ok",
 	})
-
 }
 
 // CreateUserHandler : create a user handler

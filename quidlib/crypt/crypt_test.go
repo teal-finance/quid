@@ -3,7 +3,7 @@ package crypt
 import (
 	"testing"
 
-	"github.com/synw/quid/quidlib/conf"
+	"github.com/teal-finance/quid/quidlib/conf"
 )
 
 func TestAesGcm(t *testing.T) {

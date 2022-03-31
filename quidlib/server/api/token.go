@@ -8,8 +8,8 @@ import (
 	"github.com/dgrijalva/jwt-go"
 	"github.com/labstack/echo/v4"
 
-	db "github.com/synw/quid/quidlib/server/db"
-	"github.com/synw/quid/quidlib/tokens"
+	db "github.com/teal-finance/quid/quidlib/server/db"
+	"github.com/teal-finance/quid/quidlib/tokens"
 )
 
 // RequestAdminAccessToken : request an access token from a refresh token

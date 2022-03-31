@@ -1,5 +1,5 @@
 <template>
-  <button class="btn" :class="type">
+  <button class="btn" :class="type" :disabled="disabled">
     <slot></slot>
   </button>
 </template>
@@ -10,6 +10,10 @@ defineProps({
     type: String as () => "delete" | "action",
     default: "action",
   },
+  disabled: {
+    type: Boolean,
+    default: false,
+  }
 })
 </script>
 

@@ -3,7 +3,11 @@
     <div v-if="user.isLoggedIn.value === true" class="h-full overflow-hidden background">
       <the-topbar class="w-full"></the-topbar>
       <div class="absolute flex flex-row w-full h-full">
-        <the-sidebar class="fixed pt-16" :sidebar="isSidebarOpened" @toggle="toggleSidebar()"></the-sidebar>
+        <the-sidebar
+          class="fixed pt-16 sidebar border-b"
+          :sidebar="isSidebarOpened"
+          @toggle="toggleSidebar()"
+        ></the-sidebar>
         <div
           class="w-full px-5 pt-16 pb-8 overflow-auto slide-main"
           :class="isSidebarOpened ? 'main-opened' : 'main-closed'"
@@ -62,11 +66,13 @@ onBeforeMount(() => initState(toast, confirm));
       background: transparent !important
     & thead
       & [role="cell"]
-        @apply border-b
+        border-color: #404040
+        border-bottom-width: 1px
     & tbody
       & tr:not(:last-child)
         & [role="cell"]
-          @apply border-b
+          border-color: #404040
+          border-bottom-width: 1px
     & tbody
       & tr:last-child
         & [role="cell"]

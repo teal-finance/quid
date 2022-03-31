@@ -17,7 +17,7 @@
     }"
     class="mb-8"
   >
-    <div class="p-5 mt-3 border bord-lighter w-96" v-if="collapse === false">
+    <div class="p-5 mt-3 border bord-lighter w-96">
       <div class="text-xl">Add a namespace</div>
       <add-namespace class="mt-5" @end="endAddNamespace()"></add-namespace>
     </div>

@@ -1,9 +1,5 @@
 <template>
-  <sw-sidebar
-    id="sidebar"
-    :opened="sidebar"
-    class="h-full sm:flex-col secondary dark:text-neutral-dark sm:flex"
-  >
+  <sw-sidebar id="sidebar" :opened="sidebar" class="h-full sm:flex-col sm:flex">
     <div class="flex-grow mt-5 ml-6 space-y-6">
       <div
         v-for="(category, i) in categories"
@@ -20,10 +16,7 @@
         </router-link>
       </div>
     </div>
-    <div
-      class="flex-none w-full h-12 pl-5 mb-3 text-2xl cursor-pointer txt-light dark:txt-neutral"
-      @click="toggle()"
-    >
+    <div class="flex-none w-full h-12 pl-5 mb-3 text-2xl cursor-pointer" @click="toggle()">
       <icon icon="fa-solid:angle-double-left" v-if="sidebar === true"></icon>
       <icon icon="fa-solid:angle-double-right" v-else></icon>
     </div>

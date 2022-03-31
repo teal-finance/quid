@@ -35,11 +35,11 @@
       <button class="w-20 btn warning" @click="onCancel()">Cancel</button>
       <div class="inline-block ml-2">
         <button
-          class="btn light"
+          class="btn lighter"
           v-if="showPasswordFields"
           @click="showPasswordFields = false"
         >Hide password</button>
-        <button class="btn light" v-else @click="showPasswordFields = true">Show password</button>
+        <button class="btn lighter" v-else @click="showPasswordFields = true">Show password</button>
       </div>
     </div>
   </div>

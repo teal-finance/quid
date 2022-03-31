@@ -13,7 +13,7 @@
           <sw-switch
             label="Switch"
             v-model:value="slotProps.data.publicEndpointEnabled"
-            class="table-switch switch-secondary"
+            class="table-switch switch-secondary dark:switch-primary"
             @change="togglePublicEndpoint(slotProps.data.id, Boolean($event))"
             v-if="slotProps.data.name != 'quid'"
           ></sw-switch>
@@ -49,6 +49,7 @@
             @click="selectNamespace(slotProps.data)"
             v-if="slotProps.data.name != 'quid'"
             :class="slotProps.data.name != 'quid' ? 'mr-2' : ''"
+            :disabled="slotProps.data.id == user.namespace.value.id"
           >Select</action-button>
           <action-button
             @click="expand(slotProps.data.id)"

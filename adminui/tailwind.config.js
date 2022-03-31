@@ -21,10 +21,30 @@ module.exports = {
             txt: colors.white
           },
           dark: {
-            bg: '#0D3846',
+            bg: '#114B5E',
             txt: colors.neutral[100]
           }
-        }
+        },
+        topbar: {
+          light: {
+            bg: colors.cyan[800],
+            txt: colors.white
+          },
+          dark: {
+            bg: '#080807',
+            txt: colors.neutral[400]
+          }
+        },
+        sidebar: {
+          light: {
+            bg: colors.cyan[500],
+            txt: colors.white
+          },
+          dark: {
+            bg: '#171814',
+            txt: colors.neutral[400]
+          }
+        },
       }
     },
   }

@@ -1,5 +1,5 @@
 <template>
-  <div class="text-3xl txt-primary">
+  <div class="text-3xl txt-primary dark:txt-light">
     Admins
     <button
       class="ml-3 text-2xl border-none btn focus:outline-none txt-light"
@@ -16,10 +16,10 @@
       'slideup': collapse === true,
       'slidedown': collapse === false
     }"
-    class="w-full my-4"
+    class="w-full mb-8"
     v-if="!user.mustSelectNamespace"
   >
-    <div class="w-1/2 p-5 mt-3 border border-light dark:border-light-dark">
+    <div class="w-1/2 p-5 mt-3 border bord-lighter">
       <add-admin class="mt-3" @end="endAdd()"></add-admin>
     </div>
   </div>
@@ -54,7 +54,7 @@ function endAdd() {
 }
 
 onMounted(() => {
-  if (!user.mustSelectNamespace.value == true) {
+  if (!user.mustSelectNamespace == true) {
     fetchData();
   }
 })

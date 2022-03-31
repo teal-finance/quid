@@ -48,9 +48,15 @@ export default class Namespace {
   // *************************
 
   toTableRow(): NamespaceTable {
-    const row = Object.create(this);
-    row.actions = [];
-    return row as NamespaceTable;
+    const row: NamespaceTable = {
+      id: this.id,
+      name: this.name,
+      maxTokenTtl: this.maxTokenTtl,
+      maxRefreshTokenTtl: this.maxRefreshTokenTtl,
+      publicEndpointEnabled: this.publicEndpointEnabled,
+      actions: []
+    };
+    return row
   }
 
   // *************************

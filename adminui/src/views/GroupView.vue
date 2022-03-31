@@ -4,7 +4,7 @@
     <button
       class="ml-3 text-2xl border-none btn focus:outline-none txt-neutral"
       @click="collapse = !collapse"
-      v-if="!mustSelectNamespace"
+      v-if="!user.mustSelectNamespace"
     >
       <icon icon="fa6-solid:plus" v-if="collapse === true"></icon>
       <icon icon="fa6-solid:minus" v-else></icon>
@@ -17,7 +17,7 @@
       'slidedown': collapse === false
     }"
     class="mb-4"
-    v-if="!mustSelectNamespace"
+    v-if="!user.mustSelectNamespace"
   >
     <div class="p-5 mt-3 border border-light dark:border-light-dark w-96">
       <div class="text-xl">Add a group</div>
@@ -28,14 +28,13 @@
     <div class="mt-3 text-2xl">Select a namespace</div>
     <namespace-selector class="mt-5" @selectns="fetchGroups()"></namespace-selector>
   </div>
-  <group-datatable :groups="groups" v-if="!mustSelectNamespace" @reload="fetchGroups()"></group-datatable>
+  <group-datatable :groups="groups" v-if="!user.mustSelectNamespace" @reload="fetchGroups()"></group-datatable>
 </template>
 
 <script setup lang="ts">
 import { onMounted, ref } from "vue";
 import { Icon } from '@iconify/vue';
-
-import { mustSelectNamespace, state } from "@/state";
+import { user } from "@/state";
 import NamespaceSelector from "@/components/namespace/NamespaceSelector.vue";
 import Group from "@/models/group";
 import { GroupTable } from "@/models/group/interface";
@@ -51,12 +50,12 @@ function endAdd() {
 }
 
 async function fetchGroups() {
-  const g = await Group.fetchAll(state.namespace.id);
+  const g = await Group.fetchAll(user.namespace.value.id);
   groups.value = Array.from(g);
 }
 
 onMounted(() => {
-  if (!mustSelectNamespace.value == true) {
+  if (!user.mustSelectNamespace == true) {
     fetchGroups();
   }
 })

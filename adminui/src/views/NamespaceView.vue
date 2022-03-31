@@ -1,5 +1,5 @@
 <template>
-  <div class="text-3xl txt-primary">
+  <div class="text-3xl txt-primary dark:txt-light">
     Namespaces
     <button
       class="ml-3 text-2xl border-none btn focus:outline-none txt-neutral"
@@ -15,9 +15,9 @@
       'slideup': collapse === true,
       'slidedown': collapse === false
     }"
-    class="mb-4"
+    class="mb-8"
   >
-    <div class="p-5 mt-3 border border-light dark:border-light-dark w-96" v-if="collapse === false">
+    <div class="p-5 mt-3 border bord-lighter w-96" v-if="collapse === false">
       <div class="text-xl">Add a namespace</div>
       <add-namespace class="mt-5" @end="endAddNamespace()"></add-namespace>
     </div>

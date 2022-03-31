@@ -2,7 +2,7 @@
   <div>
     <DataTable
       :value="namespaces"
-      class="main-table"
+      class="main-table p-datatable-sm"
       v-model:expandedRows="expandedRows"
       data-key="id"
     >
@@ -13,7 +13,7 @@
           <sw-switch
             label="Switch"
             v-model:value="slotProps.data.publicEndpointEnabled"
-            class="table-switch w-max secondary"
+            class="table-switch switch-secondary"
             @change="togglePublicEndpoint(slotProps.data.id, Boolean($event))"
             v-if="slotProps.data.name != 'quid'"
           ></sw-switch>
@@ -99,7 +99,7 @@ import Column from "primevue/column";
 import Namespace from "@/models/namespace";
 import NamespaceTable from "@/models/namespace/interface";
 import NamespaceInfo from "./NamespaceInfo.vue";
-import { notify, namespaceMutations } from "@/state";
+import { notify, user } from "@/state";
 import Group from "@/models/group";
 import ActionButton from "../widgets/ActionButton.vue";
 import EditTokenTtl from "./EditTokenTtl.vue";
@@ -157,10 +157,9 @@ function copyKey(k: string) {
 }
 
 function selectNamespace(nst: NamespaceTable) {
-  const ns = Namespace.fromNamespaceTable(nst);
-  console.log("Select", ns);
-  namespaceMutations.change(ns);
-  notify.done(`Namespace ${ns.name} selected`)
+  console.log("Select", nst);
+  user.changeNs(nst);
+  notify.done(`Namespace ${nst.name} selected`)
 }
 
 async function showKey(id: number, name: string) {

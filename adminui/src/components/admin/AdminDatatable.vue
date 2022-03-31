@@ -1,11 +1,6 @@
 <template>
   <div>
-    <DataTable
-      :value="users"
-      class="main-table p-datatable-sm"
-      v-model:expandedRows="expandedRows"
-      data-key="id"
-    >
+    <DataTable :value="users" class="main-table" v-model:expandedRows="expandedRows" data-key="id">
       <Column field="id" header="Id"></Column>
       <Column field="name" header="Name"></Column>
       <Column field="actions">
@@ -37,7 +32,7 @@ const emit = defineEmits(["reload"]);
 
 function confirmDelete(row: UserTable) {
   notify.confirmDelete(
-    `Delete the ${row.name} user?`,
+    `Delete the ${row.name} admin user?`,
     () => {
       User.delete(row.id).then(() => {
         notify.done("User deleted");

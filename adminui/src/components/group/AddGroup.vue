@@ -23,7 +23,7 @@
 import { computed, reactive } from "vue";
 import SwInput from "@snowind/input";
 import { requests } from "@/api";
-import { notify, state } from "@/state";
+import { notify, user } from "@/state";
 
 const emit = defineEmits(["end"]);
 
@@ -52,7 +52,7 @@ async function postForm() {
   try {
     await requests.post("/admin/groups/add", {
       name: form.name.val,
-      namespace_id: state.namespace.id,
+      namespace_id: user.namespace.value.id,
     });
     emit("end");
     notify.done("Group added")

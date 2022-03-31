@@ -1,5 +1,5 @@
 <template>
-  <DataTable :value="orgs" class="p-datatable main-table" data-key="id">
+  <DataTable :value="orgs" class="p-datatable-sm main-table" data-key="id">
     <Column field="id" header="Id"></Column>
     <Column field="name" header="Name"></Column>
     <Column field="actions">

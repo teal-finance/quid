@@ -1,7 +1,3 @@
-import { User as SwUser } from "@snowind/state";
-import { UserType } from "./types";
+import AdminUser from "./adminuser";
 
-export default class AdminUser extends SwUser {
-  devRefreshToken: string | null = null;
-  type: UserType = "nsAdmin";
-}
+export default AdminUser

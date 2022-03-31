@@ -24,7 +24,7 @@
     ></sw-input>
     <sw-switch
       id="ns-switch"
-      class="success"
+      class="switch-success"
       :v-model:value="enablePublicEndpoint"
     >&nbsp;Enable public endpoint</sw-switch>
     <div class="flex flex-row">

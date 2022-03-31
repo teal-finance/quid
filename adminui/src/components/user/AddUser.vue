@@ -49,7 +49,7 @@
 import { computed, reactive, ref } from "vue";
 import SwInput from "@snowind/input";
 import { requests } from "@/api";
-import { notify, state } from "@/state";
+import { notify, user } from "@/state";
 
 const emit = defineEmits(["end"]);
 const showPasswordFields = ref(false)
@@ -108,7 +108,7 @@ async function postForm() {
     await requests.post("/admin/users/add", {
       name: form.name.val,
       password: form.pwd.val,
-      namespace_id: state.namespace.id,
+      namespace_id: user.namespace.value.id,
     });
     emit("end");
     notify.done("User added")

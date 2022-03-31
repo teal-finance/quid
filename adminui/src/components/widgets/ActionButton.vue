@@ -17,7 +17,7 @@ defineProps({
 .btn
   @apply text-sm
   &.delete
-    @apply border-danger txt-danger hover:danger
+    @apply bord-danger txt-danger hover:danger
   &.action
-    @apply border-primary txt-primary hover:primary dark:txt-neutral dark:border-neutral
+    @apply bord-primary txt-primary hover:primary dark:txt-lighter dark:bord-light
 </style>

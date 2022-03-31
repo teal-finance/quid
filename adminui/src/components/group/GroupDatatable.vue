@@ -1,6 +1,11 @@
 <template>
   <div>
-    <DataTable :value="groups" class="main-table" v-model:expandedRows="expandedRows" data-key="id">
+    <DataTable
+      :value="groups"
+      class="main-table p-datatable-sm"
+      v-model:expandedRows="expandedRows"
+      data-key="id"
+    >
       <Column field="id" header="Id"></Column>
       <Column field="name" header="Name"></Column>
       <Column field="actions">
@@ -19,6 +24,7 @@ import Column from "primevue/column";
 import { ref } from 'vue';
 import { notify } from '@/state';
 import Group from '@/models/group';
+import ActionButton from '../widgets/ActionButton.vue';
 
 const expandedRows = ref<any>([]);
 

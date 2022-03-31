@@ -1,32 +1,13 @@
 import { ToastServiceMethods } from "primevue/toastservice";
-import { computed, reactive } from "vue";
 import { requests } from "./api";
 import conf from "./conf";
 import { EnvType } from "./env";
 import { ConfirmOptions, NotifyService } from "./interface";
-import Namespace from "./models/namespace";
-import AdminUser from "./models/adminuser";
+import SiteUser from "./models/siteuser";
 import useNotify from "./notify";
 
-const user = new AdminUser();
+const user = new SiteUser();
 let notify: NotifyService;
-const state = reactive({
-  namespace: Namespace.empty(),
-});
-
-const namespaceMutations = {
-  change: (ns: Namespace) => {
-    state.namespace = ns;
-  },
-  reset: () => {
-    state.namespace = Namespace.empty();
-  }
-}
-
-const mustSelectNamespace = computed<boolean>(() => {
-  return state.namespace.id == 0
-  //&& user.type == "serverAdmin";
-});
 
 function initState(toast: ToastServiceMethods, confirm: ConfirmOptions): void {
   console.log("Running in env", conf.env);
@@ -41,6 +22,7 @@ function initState(toast: ToastServiceMethods, confirm: ConfirmOptions): void {
     }
   }
   notify = useNotify(toast, confirm)
+  console.log("NS", user.namespace.value)
 }
 
-export { user, initState, notify, state, namespaceMutations, mustSelectNamespace }
+export { user, initState, notify }

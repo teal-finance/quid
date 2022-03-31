@@ -1,7 +1,7 @@
 {
     "name": "Quid",
     "description": "A json web tokens server",
-    "repository": "https://github.com/synw/quid",
+    "repository": "https://github.com/teal-finance/quid",
     "keywords": [
         "jwt",
         "json web tokens"

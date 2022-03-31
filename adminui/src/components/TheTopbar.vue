@@ -20,10 +20,17 @@
         </div>
       </template>
       <template #menu>
-        <div class="flex flex-row items-center justify-end w-full h-full space-x-1">
-          <the-current-namespace></the-current-namespace>
-          <div class="px-5 text-lg cursor-pointer" @click="$router.push('/settings')">
-            <i-fluent-settings-32-regular class="dark:txt-neutral"></i-fluent-settings-32-regular>
+        <div class="flex flex-row items-center justify-end w-full h-full">
+          <the-current-namespace class="pr-3"></the-current-namespace>
+          <div
+            class="pr-5 text-lg cursor-pointer txt-lighter dark:txt-light"
+            @click="user.toggleDarkMode()"
+          >
+            <i-fa-solid:moon v-if="!user.isDarkMode.value"></i-fa-solid:moon>
+            <i-fa-solid:sun v-else></i-fa-solid:sun>
+          </div>
+          <div class="pr-8 text-lg cursor-pointer">
+            <i-fluent-settings-32-regular class="txt-lighter dark:txt-light"></i-fluent-settings-32-regular>
           </div>
         </div>
       </template>
@@ -44,6 +51,7 @@
 import { ref, computed } from 'vue';
 import { SwHeader, SwMobileMenu } from "@snowind/header";
 import router from '@/router';
+import { user } from "@/state";
 import TheCurrentNamespace from './namespace/TheCurrentNamespace.vue';
 
 const isMenuVisible = ref(false);

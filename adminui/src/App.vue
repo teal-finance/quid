@@ -1,14 +1,14 @@
 <template>
-  <div class="h-screen" :class="{ 'dark': user.isDarkMode.value === true }">
+  <div class="w-screen h-screen" :class="{ 'dark': user.isDarkMode.value === true }">
     <div v-if="user.isLoggedIn.value === true" class="h-full overflow-hidden background">
       <the-topbar class="w-full"></the-topbar>
-      <div class="absolute flex flex-row h-full">
+      <div class="absolute flex flex-row w-full h-full">
         <the-sidebar class="fixed pt-16" :sidebar="isSidebarOpened" @toggle="toggleSidebar()"></the-sidebar>
         <div
           class="w-full px-5 pt-16 pb-8 overflow-auto slide-main"
           :class="isSidebarOpened ? 'main-opened' : 'main-closed'"
         >
-          <div class="p-3">
+          <div class="w-full p-3">
             <router-view />
           </div>
         </div>
@@ -18,6 +18,7 @@
       <the-login></the-login>
     </div>
     <Toast position="top-right" group="main"></Toast>
+    <Toast position="bottom-right" group="bottom-right"></Toast>
     <ConfirmDialog></ConfirmDialog>
   </div>
 </template>
@@ -61,11 +62,11 @@ onBeforeMount(() => initState(toast, confirm));
       background: transparent !important
     & thead
       & [role="cell"]
-        @apply border-b border-neutral
+        @apply border-b
     & tbody
       & tr:not(:last-child)
         & [role="cell"]
-          @apply border-b border-neutral
+          @apply border-b
     & tbody
       & tr:last-child
         & [role="cell"]

@@ -34,7 +34,7 @@ export default class Group {
   // *************************
 
   static async fetchAll(nsid: number): Promise<Array<GroupTable>> {
-    const url = "/admin/groups/all";
+    const url = "/admin/groups/nsall";
     const ns = new Array<GroupTable>();
     try {
       const payload = { namespace_id: nsid }

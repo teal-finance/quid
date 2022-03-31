@@ -4,7 +4,7 @@
     <button
       class="ml-3 text-2xl border-none btn focus:outline-none txt-neutral"
       @click="collapse = !collapse"
-      v-if="!mustSelectNamespace"
+      v-if="!user.mustSelectNamespace"
     >
       <icon icon="fa6-solid:plus" v-if="collapse === true"></icon>
       <icon icon="fa6-solid:minus" v-else></icon>
@@ -17,7 +17,7 @@
       'slidedown': collapse === false
     }"
     class="mb-4"
-    v-if="!mustSelectNamespace"
+    v-if="!user.mustSelectNamespace"
   >
     <div class="p-5 mt-3 border border-light dark:border-light-dark w-96">
       <div class="text-xl">Add a user</div>
@@ -28,7 +28,7 @@
     <div class="mt-3 text-2xl">Select a namespace</div>
     <namespace-selector class="mt-5" @selectns="fetchData()"></namespace-selector>
   </div>
-  <user-datatable :users="users" v-if="!mustSelectNamespace" @reload="fetchData()"></user-datatable>
+  <user-datatable :users="users" v-if="!user.mustSelectNamespace" @reload="fetchData()"></user-datatable>
 </template>
 
 <script setup lang="ts">
@@ -38,13 +38,13 @@ import { UserTable } from "@/models/user/interface";
 import User from "@/models/user/user";
 import UserDatatable from '@/components/user/UserDatatable.vue';
 import AddUser from '@/components/user/AddUser.vue';
-import { state, mustSelectNamespace } from '@/state';
+import { user } from '@/state';
 
 const users = ref<Array<UserTable>>([]);
 const collapse = ref(true);
 
 async function fetchData() {
-  users.value = await User.fetchAll(state.namespace.id);
+  users.value = await User.fetchAll(user.namespace.value.id);
 }
 
 function endAdd() {
@@ -53,7 +53,7 @@ function endAdd() {
 }
 
 onMounted(() => {
-  if (!mustSelectNamespace.value == true) {
+  if (!user.mustSelectNamespace.value == true) {
     fetchData();
   }
 })

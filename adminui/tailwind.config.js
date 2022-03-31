@@ -9,15 +9,22 @@ module.exports = {
   darkMode: 'class',
   plugins: [
     require('@tailwindcss/forms'),
-    require('@snowind/plugin')
+    require('@snowind/plugin'),
+    require('tailwindcss-semantic-colors'),
   ],
   theme: {
     extend: {
-      colors: {
-        'primary': {
-          DEFAULT: colors.cyan[700],
-          dark: colors.cyan[900],
-        },
+      semanticColors: {
+        primary: {
+          light: {
+            bg: colors.cyan[800],
+            txt: colors.white
+          },
+          dark: {
+            bg: '#0D3846',
+            txt: colors.neutral[100]
+          }
+        }
       }
     },
   }

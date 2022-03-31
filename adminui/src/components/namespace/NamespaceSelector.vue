@@ -6,7 +6,7 @@
         <SimpleBadge
           v-if="ns.name != 'quid'"
           :text="ns.name"
-          class="mr-2 cursor-pointer"
+          class="mr-2 cursor-pointer primary"
           @click="selectNamespace(ns)"
         ></SimpleBadge>
       </div>
@@ -20,7 +20,7 @@ import Namespace from "@/models/namespace";
 import NamespaceTable from "@/models/namespace/interface";
 import SimpleBadge from "../widgets/SimpleBadge.vue";
 import LoadingIndicator from "@/components/widgets/LoadingIndicator.vue";
-import { namespaceMutations, notify } from "@/state";
+import { user, notify } from "@/state";
 
 const isLoading = ref(false);
 const namespaces = ref(new Array<NamespaceTable>());
@@ -33,8 +33,8 @@ async function fetchNamespaces() {
   //console.log("DATA", namespaces.value)
 }
 
-function selectNamespace(ns: NamespaceTable) {
-  namespaceMutations.change(Namespace.fromNamespaceTable(ns));
+function selectNamespace(nst: NamespaceTable) {
+  user.changeNs(nst);
   emit("selectns");
   notify.done("Namespace selected")
 }

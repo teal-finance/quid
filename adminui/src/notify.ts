@@ -14,7 +14,7 @@ const useNotify = function (toast: ToastServiceMethods, confirm: ConfirmOptions)
       toast.add({ severity: 'success', summary: title, detail: content, life: timeOnScreen, group: "main" });
     },
     done: (content: string) => {
-      toast.add({ severity: 'success', summary: 'Done', detail: content, life: 1500, group: "main" });
+      toast.add({ severity: 'success', summary: 'Done', detail: content, life: 1500, group: "bottom-right" });
     },
     confirmDelete: (msg: string, onConfirm: CallableFunction, onReject: CallableFunction = () => null, title = "Delete") => {
       confirm.require({

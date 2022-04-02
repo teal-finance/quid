@@ -1,8 +1,13 @@
 <template>
   <div>
-    <DataTable :value="users" class="main-table" v-model:expandedRows="expandedRows" data-key="id">
+    <DataTable
+      :value="users"
+      class="main-table p-datatable-sm"
+      v-model:expandedRows="expandedRows"
+      data-key="id"
+    >
       <Column field="id" header="Id"></Column>
-      <Column field="name" header="Name"></Column>
+      <Column field="userName" header="Name"></Column>
       <Column field="actions">
         <template #body="slotProps">
           <action-button type="delete" class="ml-2" @click="confirmDelete(slotProps.data)">Delete</action-button>
@@ -16,25 +21,26 @@
 import DataTable from "primevue/datatable";
 import Column from "primevue/column";
 import { ref } from 'vue';
-import { notify } from '@/state';
+import { notify, user } from '@/state';
 import { UserTable } from '@/models/user/interface';
-import User from "@/models/user/user";
+import AdminUser from "@/models/adminuser";
+import { AdminUserTable } from "@/models/adminuser/interface";
 
 const expandedRows = ref<any>([]);
 
 defineProps({
   users: {
-    type: Array as () => Array<UserTable>,
+    type: Array as () => Array<AdminUserTable>,
     required: true,
   }
 });
 const emit = defineEmits(["reload"]);
 
-function confirmDelete(row: UserTable) {
+function confirmDelete(row: AdminUserTable) {
   notify.confirmDelete(
-    `Delete the ${row.name} admin user?`,
+    `Delete the ${row.userName} admin user?`,
     () => {
-      User.delete(row.id).then(() => {
+      AdminUser.delete(row.userId, user.namespace.value.id).then(() => {
         notify.done("User deleted");
         emit("reload");
       })

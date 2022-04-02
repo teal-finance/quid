@@ -32,6 +32,8 @@ import { SubViews } from "@snowind/subviews"
 import SearchForUsers from "./subviews/SearchForUsers.vue";
 import SelectUser from "./subviews/SelectUser.vue";
 import SwProgressStepper from "@/packages/stepper/SwProgressStepper.vue";
+import AdminUser from "@/models/adminuser";
+import { user } from "@/state";
 
 const emit = defineEmits(["end"]);
 const users = ref<Array<User>>([]);
@@ -63,11 +65,16 @@ function setHasNoUsersSelected() {
   activeStep.value = 1;
 }
 
-function submitSelection(users: Set<User>) {
+async function submitSelection(users: Set<User>) {
   console.log("SUB", users)
+  const uids = new Array<number>()
   for (const user of users) {
     console.log("USER", user.id, user.name)
+    uids.push(user.id)
   }
+  console.log("POST", user.namespace.value.id, uids)
+  await AdminUser.fetchAdd(user.namespace.value.id, uids)
+  emit("end")
 }
 
 function onCancel() {

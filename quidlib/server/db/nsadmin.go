@@ -10,26 +10,20 @@ import (
 )
 
 // SelectAdministratorsInNamespace : get the admin users in a namespace
-func SelectAdministratorsInNamespace(namespaceID int64) ([]server.User, error) {
-	data := []user{}
-	usrs := []server.User{}
+func SelectAdministratorsInNamespace(namespaceID int64) ([]server.NsAdmin, error) {
+	data := []server.NsAdmin{}
 	err := db.Select(&data,
-		"SELECT namespaceadmin.id,namespaceadmin.user_id,namespace.name as namespace FROM namespaceadmin "+
-			"JOIN namespace ON namespaceadmin.namespace_id = namespace.id "+
-			//"JOIN user ON namespaceadmin.user_id = usertable.id "+
-			"WHERE namespaceadmin.namespace_id=$1 ORDER BY user", namespaceID)
+		"SELECT namespaceadmin.id,namespaceadmin.user_id,namespaceadmin.namespace_id,usertable.username "+
+			"FROM namespaceadmin "+
+			"LEFT OUTER JOIN usertable on usertable.id=namespaceadmin.user_id "+
+			"LEFT OUTER JOIN namespace on namespace.id=namespaceadmin.namespace_id "+
+			"WHERE namespace.id=$1", namespaceID)
 	if err != nil {
-		return usrs, err
+		fmt.Println("ERR", err)
+		return data, err
 	}
-	fmt.Println("RESULT", data)
-	for _, u := range data {
-		usrs = append(usrs, server.User{
-			ID:        u.ID,
-			UserName:  u.UserName,
-			Namespace: u.Namespace,
-		})
-	}
-	return usrs, nil
+	//fmt.Println("DATA", data)
+	return data, nil
 }
 
 // CreateAdministrator : create an admin user
@@ -63,4 +57,17 @@ func AdministratorExists(userID int64, namespaceID int64) (bool, error) {
 		return true, nil
 	}
 	return false, nil
+}
+
+// DeleteAdministrator : delete an admin user for a namespace
+func DeleteAdministrator(userID int64, namespaceID int64) error {
+	q := "DELETE FROM namespaceadmin WHERE (user_id=$1 AND namespace_id=$2)"
+	fmt.Println(q, userID, namespaceID)
+	tx := db.MustBegin()
+	tx.MustExec(q, userID, namespaceID)
+	err := tx.Commit()
+	if err != nil {
+		return err
+	}
+	return nil
 }

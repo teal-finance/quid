@@ -100,8 +100,9 @@ func RunServer(adminNsKey string) {
 	org.POST("/remove_user", RemoveUserFromOrg)
 
 	nsa := a.Group("/nsadmin")
-	nsa.POST("/add", CreateAdministrator)
+	nsa.POST("/add", CreateAdministrators)
 	nsa.POST("/nsall", AllAdministratorsInNamespace)
+	nsa.POST("/delete", DeleteAdministrator)
 
 	if conf.IsDevMode {
 		fmt.Println(color.Bold(color.Red("Running in development mode")))

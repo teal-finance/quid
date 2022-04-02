@@ -17,6 +17,14 @@ type NamespaceInfo struct {
 	Groups   []Group `json:"groups"`
 }
 
+// NsAdmin : base model
+type NsAdmin struct {
+	ID          int64  `db:"id" json:"id"`
+	UserID      int64  `db:"user_id" json:"user_id"`
+	NamespaceID int64  `db:"namespace_id" json:"namespace_id"`
+	UserName    string `db:"username" json:"username"`
+}
+
 // User : base model
 type User struct {
 	ID           int64   `json:"id"`

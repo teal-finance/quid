@@ -1,8 +1,3 @@
-import { User as SwUser } from "@snowind/state";
+import User from "./user";
 
-export default class User extends SwUser {
-  devRefreshToken: string | null = null;
-}
-
-
-
+export default { User }

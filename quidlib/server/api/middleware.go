@@ -5,8 +5,8 @@ import (
 
 	"github.com/dgrijalva/jwt-go"
 	"github.com/labstack/echo-contrib/session"
-	"github.com/synw/quid/quidlib/conf"
-	"github.com/synw/quid/quidlib/tokens"
+	"github.com/teal-finance/quid/quidlib/conf"
+	"github.com/teal-finance/quid/quidlib/tokens"
 
 	"github.com/labstack/echo/v4"
 )

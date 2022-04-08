@@ -1,6 +1,6 @@
 package tokens
 
-import emolib "github.com/synw/quid/quidlib/emo"
+import emolib "github.com/teal-finance/quid/quidlib/emo"
 
 var emo = emolib.Zone{
 	Name:    "tokens",

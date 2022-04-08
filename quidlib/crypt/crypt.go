@@ -8,7 +8,7 @@ import (
 	"fmt"
 	"io"
 
-	"github.com/synw/quid/quidlib/conf"
+	"github.com/teal-finance/quid/quidlib/conf"
 )
 
 const (

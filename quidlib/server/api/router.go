@@ -12,8 +12,8 @@ import (
 
 	color "github.com/logrusorgru/aurora"
 
-	"github.com/synw/quid/quidlib/conf"
-	"github.com/synw/quid/quidlib/tokens"
+	"github.com/teal-finance/quid/quidlib/conf"
+	"github.com/teal-finance/quid/quidlib/tokens"
 )
 
 // SessionsStore : the session cookies store
@@ -27,7 +27,6 @@ func RunServer(adminNsKey string) {
 	echoServer.Use(middleware.Logger())
 	if !conf.IsDevMode {
 		echoServer.Use(middleware.Recover())
-	} else {
 		echoServer.Use(middleware.Secure())
 	}
 	echoServer.Use(middleware.CORSWithConfig(middleware.CORSConfig{
@@ -68,14 +67,17 @@ func RunServer(adminNsKey string) {
 	g.POST("/info", GroupsInfo)
 	g.POST("/add_user", AddUserInGroup)
 	g.POST("/remove_user", RemoveUserFromGroup)
-	g.GET("/all", AllGroups)
+	g.GET("/all", AllGroups) // TODO: remove when old frontend is disabled
+	g.POST("/nsall", AllGroupsForNamespace)
 
 	m := a.Group("/users")
 	m.POST("/add", CreateUserHandler)
 	m.POST("/delete", DeleteUser)
 	m.POST("/groups", UserGroupsInfo)
 	m.POST("/orgs", UserOrgsInfo)
-	m.GET("/all", AllUsers)
+	m.GET("/all", AllUsers) // TODO: remove when old frontend is disabled
+	m.POST("/nsall", AllUsersInNamespace)
+	m.POST("/search", SearchForUsersInNamespace)
 
 	ns := a.Group("/namespaces")
 	ns.POST("/add", CreateNamespace)
@@ -96,6 +98,11 @@ func RunServer(adminNsKey string) {
 	org.POST("/find", FindOrg)
 	org.POST("/add_user", AddUserInOrg)
 	org.POST("/remove_user", RemoveUserFromOrg)
+
+	nsa := a.Group("/nsadmin")
+	nsa.POST("/add", CreateAdministrators)
+	nsa.POST("/nsall", AllAdministratorsInNamespace)
+	nsa.POST("/delete", DeleteAdministrator)
 
 	if conf.IsDevMode {
 		fmt.Println(color.Bold(color.Red("Running in development mode")))

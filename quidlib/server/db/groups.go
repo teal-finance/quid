@@ -4,7 +4,7 @@ import (
 	// pg import
 	_ "github.com/lib/pq"
 
-	"github.com/synw/quid/quidlib/server"
+	"github.com/teal-finance/quid/quidlib/server"
 )
 
 // SelectAllGroups : get all the groups

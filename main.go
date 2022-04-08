@@ -5,10 +5,10 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/synw/quid/quidlib/conf"
-	"github.com/synw/quid/quidlib/server/api"
-	"github.com/synw/quid/quidlib/server/db"
-	"github.com/synw/quid/quidlib/tokens"
+	"github.com/teal-finance/quid/quidlib/conf"
+	"github.com/teal-finance/quid/quidlib/server/api"
+	"github.com/teal-finance/quid/quidlib/server/db"
+	"github.com/teal-finance/quid/quidlib/tokens"
 )
 
 func main() {

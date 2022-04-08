@@ -1,20 +1,20 @@
 <template>
-  <span
-    class="inline-block px-2 py-1 mr-3 text-xs font-bold rounded-full"
-    :class="color"
-    v-html="text"
-  ></span>
+  <span class="inline-block px-2 py-1 mr-3 text-xs font-bold rounded-full" @click="onClick()">
+    <slot>{{ text }}</slot>
+  </span>
 </template>
 
 <script setup lang="ts">
 defineProps({
   text: {
     type: String,
-    required: true,
+    default: ""
   },
-  color: {
-    type: String,
-    default: "primary"
-  }
-})
+});
+
+const emit = defineEmits(["select"]);
+
+function onClick() {
+  emit("select")
+}
 </script>

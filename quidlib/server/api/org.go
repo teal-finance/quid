@@ -5,8 +5,8 @@ import (
 	"net/http"
 
 	"github.com/labstack/echo/v4"
-	"github.com/synw/quid/quidlib/server"
-	db "github.com/synw/quid/quidlib/server/db"
+	"github.com/teal-finance/quid/quidlib/server"
+	db "github.com/teal-finance/quid/quidlib/server/db"
 )
 
 // AllOrgs : get all orgs http handler

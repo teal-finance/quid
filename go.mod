@@ -1,4 +1,4 @@
-module github.com/synw/quid
+module github.com/teal-finance/quid
 
 go 1.14
 

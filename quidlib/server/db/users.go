@@ -8,7 +8,7 @@ import (
 	_ "github.com/lib/pq"
 	"golang.org/x/crypto/bcrypt"
 
-	"github.com/synw/quid/quidlib/server"
+	"github.com/teal-finance/quid/quidlib/server"
 )
 
 // SelectNonDisabledUser : get a user from it's username
@@ -59,8 +59,9 @@ func SelectUsersInNamespace(namespaceID int64) ([]server.User, error) {
 	data := []user{}
 	usrs := []server.User{}
 	err := db.Select(&data,
-		"SELECT usertable.id,usertable.username,namespace.name as namespace FROM usertable WHERE usertable.namespace_id=$1"+
-			"JOIN namespace ON usertable.namespace_id = namespace.id ORDER BY usertable.username", namespaceID)
+		"SELECT usertable.id,usertable.username,namespace.name as namespace FROM usertable "+
+			"JOIN namespace ON usertable.namespace_id = namespace.id  "+
+			"WHERE usertable.namespace_id=$1 ORDER BY usertable.username", namespaceID)
 	if err != nil {
 		return usrs, err
 	}
@@ -72,6 +73,16 @@ func SelectUsersInNamespace(namespaceID int64) ([]server.User, error) {
 		})
 	}
 	return usrs, nil
+}
+
+// SearchUsersInNamespaceFromUsername : get the users in a namespace from a username
+func SearchUsersInNamespaceFromUsername(username string, namespaceID int64) ([]server.User, error) {
+	data := []server.User{}
+	err := db.Select(&data, "SELECT id,username FROM usertable WHERE(username LIKE $1 AND namespace_id=$2)", username+"%", namespaceID)
+	if err != nil {
+		return data, err
+	}
+	return data, nil
 }
 
 // SelectUsersInGroup : get the users in a group

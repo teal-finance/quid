@@ -8,18 +8,10 @@ import (
 	"github.com/labstack/echo-contrib/session"
 
 	"github.com/labstack/echo/v4"
-	"github.com/synw/quid/quidlib/conf"
-	"github.com/synw/quid/quidlib/server/db"
-	"github.com/synw/quid/quidlib/tokens"
+	"github.com/teal-finance/quid/quidlib/conf"
+	"github.com/teal-finance/quid/quidlib/server/db"
+	"github.com/teal-finance/quid/quidlib/tokens"
 )
-
-// AdminLogout : http logout handler for the admin interface
-func AdminLogout(c echo.Context) error {
-	sess, _ := session.Get("session", c)
-	sess.Values["is_admin"] = "false"
-	sess.Save(c.Request(), c.Response())
-	return c.NoContent(http.StatusOK)
-}
 
 // AdminLogin : http login handler for the admin interface
 func AdminLogin(c echo.Context) error {
@@ -107,4 +99,12 @@ func AdminLogin(c echo.Context) error {
 	return c.JSON(http.StatusOK, echo.Map{
 		"token": token,
 	})
+}
+
+// AdminLogout : http logout handler for the admin interface
+func AdminLogout(c echo.Context) error {
+	sess, _ := session.Get("session", c)
+	sess.Values["is_admin"] = "false"
+	sess.Save(c.Request(), c.Response())
+	return c.NoContent(http.StatusOK)
 }

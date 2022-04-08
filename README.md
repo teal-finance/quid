@@ -4,7 +4,7 @@ A Json Web Tokens (JWT) server
 
 ## Install and run
 
-Download the latest [release](https://github.com/synw/quid/releases) to run a binary or clone the repository to compile from source.
+Download the latest [release](https://github.com/teal-finance/quidreleases) to run a binary or clone the repository to compile from source.
 
 ### Create the database
 
@@ -44,7 +44,7 @@ Go to [`localhost:8082`](http://localhost:8082) to login into the admin interfac
 
 [Run in dev mode](doc/dev_mode.md)
 
-[![Deploy](https://www.herokucdn.com/deploy/button.svg)](https://heroku.com/deploy?template=https://github.com/synw/quid)
+[![Deploy](https://www.herokucdn.com/deploy/button.svg)](https://heroku.com/deploy?template=https://github.com/teal-finance/quid)
 
 ## Request tokens
 
@@ -114,7 +114,7 @@ Example payload:
 
 ### Examples
 
-See the [examples](https://github.com/synw/quid_examples) for various backends
+See the [examples](https://github.com/teal-finance/quid_examples) for various backends
 
 ## Client libraries
 
@@ -124,4 +124,4 @@ token, and will retry the request with the new access token
 
 ### Javascript
 
-[Quidjs](https://github.com/synw/quidjs) : the javascript requests library
+[Quidjs](https://github.com/teal-finance/quidjs) : the javascript requests library

@@ -13,5 +13,4 @@ interface NotifyService {
   confirmDelete: (msg: string, onConfirm: CallableFunction, onReject?: CallableFunction, title?: string) => void;
 }
 
-
 export { ConfirmOptions, NotifyService }

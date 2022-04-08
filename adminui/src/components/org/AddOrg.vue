@@ -20,7 +20,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, reactive, ref } from "vue";
+import { computed, reactive } from "vue";
 import SwInput from "@snowind/input";
 import { requests } from "@/api";
 import { notify } from "@/state";

@@ -1,19 +1,37 @@
 package api
 
 import (
+	"fmt"
 	"net/http"
 
 	"golang.org/x/crypto/bcrypt"
 
 	"github.com/labstack/echo/v4"
-	"github.com/synw/quid/quidlib/server"
-	db "github.com/synw/quid/quidlib/server/db"
+	"github.com/teal-finance/quid/quidlib/server"
+	db "github.com/teal-finance/quid/quidlib/server/db"
 )
 
 // AllUsers : add a user in a group
 func AllUsers(c echo.Context) error {
 	data, err := db.SelectAllUsers()
 	if err != nil {
+		return c.JSON(http.StatusInternalServerError, echo.Map{
+			"error": "error selecting users",
+		})
+	}
+	return c.JSON(http.StatusOK, &data)
+}
+
+// AllUsersInNamespace : select all users for a namespace
+func AllUsersInNamespace(c echo.Context) error {
+	m := echo.Map{}
+	if err := c.Bind(&m); err != nil {
+		return err
+	}
+	namespaceID := int64(m["namespace_id"].(float64))
+	data, err := db.SelectUsersInNamespace(namespaceID)
+	if err != nil {
+		fmt.Println("ERROR", err)
 		return c.JSON(http.StatusInternalServerError, echo.Map{
 			"error": "error selecting users",
 		})
@@ -129,7 +147,29 @@ func RemoveUserFromGroup(c echo.Context) error {
 	return c.JSON(http.StatusOK, echo.Map{
 		"ok": true,
 	})
+}
 
+// SearchForUsersInNamespace : search from a username in namespace
+func SearchForUsersInNamespace(c echo.Context) error {
+	m := echo.Map{}
+	if err := c.Bind(&m); err != nil {
+		return err
+	}
+	fmt.Println("Search")
+	username := m["username"].(string)
+	nsID := int64(m["namespace_id"].(float64))
+	fmt.Println("U", username, "NS", nsID)
+
+	u, err := db.SearchUsersInNamespaceFromUsername(username, nsID)
+	if err != nil {
+		fmt.Println("ERR", err)
+		return c.JSON(http.StatusInternalServerError, echo.Map{
+			"error": "error searching for users",
+		})
+	}
+	return c.JSON(http.StatusOK, echo.Map{
+		"users": u,
+	})
 }
 
 // UserGroupsInfo : get info for a user
@@ -149,7 +189,6 @@ func UserGroupsInfo(c echo.Context) error {
 	return c.JSON(http.StatusOK, echo.Map{
 		"groups": g,
 	})
-
 }
 
 // DeleteUser : delete a user handler
@@ -170,7 +209,6 @@ func DeleteUser(c echo.Context) error {
 	return c.JSON(http.StatusOK, echo.Map{
 		"message": "ok",
 	})
-
 }
 
 // CreateUserHandler : create a user handler

@@ -12,6 +12,21 @@ const routes: Array<RouteRecordRaw> = [
     component: () => import('./views/NamespaceView.vue')
   },
   {
+    path: '/admins',
+    name: 'Admins',
+    component: () => import('./views/AdminsView.vue')
+  },
+  {
+    path: '/group',
+    name: 'Groups',
+    component: () => import('./views/GroupView.vue')
+  },
+  {
+    path: '/user',
+    name: 'Users',
+    component: () => import('./views/UserView.vue')
+  },
+  {
     path: '/org',
     name: 'Orgs',
     component: () => import('./views/OrgView.vue')

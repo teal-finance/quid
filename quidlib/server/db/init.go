@@ -6,7 +6,7 @@ import (
 	"log"
 
 	"github.com/manifoldco/promptui"
-	"github.com/synw/quid/quidlib/tokens"
+	"github.com/teal-finance/quid/quidlib/tokens"
 )
 
 // InitDbConf : initialize the database content

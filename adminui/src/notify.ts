@@ -1,7 +1,8 @@
 import { ToastServiceMethods } from "primevue/toastservice";
-import { ConfirmOptions } from "./interface";
+import { ConfirmOptions, NotifyService } from "./interface";
 
-const useNotify = function (toast: ToastServiceMethods, confirm: ConfirmOptions) {
+
+const useNotify = function (toast: ToastServiceMethods, confirm: ConfirmOptions): NotifyService {
   return {
     error: (content: string) => {
       toast.add({ severity: 'error', summary: 'Error', detail: content, group: "main" });
@@ -13,7 +14,7 @@ const useNotify = function (toast: ToastServiceMethods, confirm: ConfirmOptions)
       toast.add({ severity: 'success', summary: title, detail: content, life: timeOnScreen, group: "main" });
     },
     done: (content: string) => {
-      toast.add({ severity: 'success', summary: 'Done', detail: content, life: 1500, group: "main" });
+      toast.add({ severity: 'success', summary: 'Done', detail: content, life: 1500, group: "bottom-right" });
     },
     confirmDelete: (msg: string, onConfirm: CallableFunction, onReject: CallableFunction = () => null, title = "Delete") => {
       confirm.require({
@@ -24,7 +25,7 @@ const useNotify = function (toast: ToastServiceMethods, confirm: ConfirmOptions)
         accept: () => onConfirm(),
         reject: () => onReject(),
       });
-    }
+    },
   }
 }
 

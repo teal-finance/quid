@@ -1,5 +1,5 @@
 <template>
-  <div class="text-3xl txt-primary">
+  <div class="text-3xl txt-primary dark:txt-light">
     Orgs
     <button
       class="ml-3 text-2xl border-none btn focus:outline-none txt-neutral"
@@ -15,9 +15,9 @@
       'slideup': collapse === true,
       'slidedown': collapse === false
     }"
-    class="my-4"
+    class="mb-8"
   >
-    <div class="p-5 mt-3 border border-light dark:border-light-dark w-96">
+    <div class="p-5 mt-3 border bord-lighter w-96">
       <div class="text-xl">Add an org</div>
       <add-org class="mt-5" @end="endAddOrg()"></add-org>
     </div>

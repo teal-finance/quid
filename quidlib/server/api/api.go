@@ -1,7 +1,7 @@
 package api
 
 import (
-	emolib "github.com/synw/quid/quidlib/emo"
+	emolib "github.com/teal-finance/quid/quidlib/emo"
 )
 
 var emo = emolib.Zone{

@@ -1,19 +1,20 @@
 <template>
-  <div class="text-xl text-gray-500 w-max dark:text-gray-300">User {{ user.name }}</div>
+  <div class="text-3xl txt-primary">Settings</div>
   <sw-switch
     @change="user.toggleDarkMode()"
     :checked="user.isDarkMode.value"
-    class="mt-5 secondary w-max"
+    class="mt-8 ml-2 secondary w-max"
   >
     <div class="ml-2">Dark mode</div>
   </sw-switch>
-  <div class="mt-5">
+  <div class="mt-8">
     <div
       v-if="user.isLoggedIn.value === true"
       class="align-middle cursor-pointer"
       @click="logout()"
     >
-      <i-si-glyph:sign-out class="inline-block ml-3"></i-si-glyph:sign-out>&nbsp;&nbsp;Logout
+      <i-si-glyph:sign-out class="inline-block ml-3 text-2xl"></i-si-glyph:sign-out>
+      &nbsp;&nbsp;Logout {{ user.name.value }}
     </div>
   </div>
 </template>

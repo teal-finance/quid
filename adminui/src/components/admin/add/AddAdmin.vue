@@ -31,7 +31,7 @@ import User from "@/models/user/user";
 import { SubViews } from "@snowind/subviews"
 import SearchForUsers from "./subviews/SearchForUsers.vue";
 import SelectUser from "./subviews/SelectUser.vue";
-import SwProgressStepper from "@/packages/stepper/SwProgressStepper.vue";
+import SwProgressStepper from "@snowind/stepper";
 import AdminUser from "@/models/adminuser";
 import { user } from "@/state";
 

@@ -36,7 +36,7 @@
       </template>
     </sw-header>
     <sw-mobile-menu :is-visible="isMenuVisible">
-      <div class="flex flex-col p-3 space-y-5">
+      <div class="flex flex-col p-3 space-y-5 pt-16">
         <router-link to="/namespaces" @click="closeMenu()">Namespaces</router-link>
         <router-link to="/settings" @click="closeMenu()">
           <i-clarity-settings-line class="inline-block"></i-clarity-settings-line>

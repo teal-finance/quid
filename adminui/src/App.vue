@@ -7,10 +7,11 @@
           class="fixed pt-16 sidebar border-b"
           :sidebar="isSidebarOpened"
           @toggle="toggleSidebar()"
+          v-if="!isMobile"
         ></the-sidebar>
         <div
-          class="w-full px-5 pt-16 pb-8 overflow-auto slide-main"
-          :class="isSidebarOpened ? 'main-opened' : 'main-closed'"
+          class="w-full px-5 pt-16 pb-8 overflow-auto slide-main container mx-auto"
+          :class="mainCls"
         >
           <div class="w-full p-3">
             <router-view />
@@ -31,17 +32,30 @@
 import { onBeforeMount, ref } from "vue";
 import ConfirmDialog from 'primevue/confirmdialog';
 import TheSidebar from "@/components/TheSidebar.vue";
-import { initState, user } from "@/state";
+import { initState, user, isMobile } from "@/state";
 import TheLogin from "./components/TheLogin.vue";
 import TheTopbar from "./components/TheTopbar.vue";
 import Toast from 'primevue/toast';
 import { useToast } from "primevue/usetoast";
 import { useConfirm } from "primevue/useconfirm";
+import { computed } from "@vue/reactivity";
 
 const toast = useToast();
 const confirm = useConfirm();
 
 const isSidebarOpened = ref(false);
+
+const mainCls = computed<Array<string>>(() => {
+  const cls = new Array<string>();
+  if (!isMobile.value) {
+    if (isSidebarOpened.value) {
+      cls.push("main-opened")
+    } else {
+      cls.push("main-closed")
+    }
+  }
+  return cls
+})
 
 function toggleSidebar() {
   isSidebarOpened.value = !isSidebarOpened.value;

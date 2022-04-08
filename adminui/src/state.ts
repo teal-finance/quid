@@ -5,9 +5,11 @@ import { EnvType } from "./env";
 import { ConfirmOptions, NotifyService } from "./interface";
 import SiteUser from "./models/siteuser";
 import useNotify from "./notify";
+import { useScreenSize } from "@snowind/state";
 
 const user = new SiteUser();
 let notify: NotifyService;
+const { isMobile, isTablet, isDesktop } = useScreenSize();
 
 function initState(toast: ToastServiceMethods, confirm: ConfirmOptions): void {
   console.log("Running in env", conf.env);
@@ -25,4 +27,4 @@ function initState(toast: ToastServiceMethods, confirm: ConfirmOptions): void {
   console.log("NS", user.namespace.value)
 }
 
-export { user, initState, notify }
+export { user, initState, notify, isMobile, isTablet, isDesktop }

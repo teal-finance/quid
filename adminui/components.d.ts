@@ -10,6 +10,7 @@ declare module 'vue' {
     AddNamespace: typeof import('./src/components/namespace/AddNamespace.vue')['default']
     AddOrg: typeof import('./src/components/org/AddOrg.vue')['default']
     AddUser: typeof import('./src/components/user/AddUser.vue')['default']
+    AddUserIntoGroup: typeof import('./src/components/user/AddUserIntoGroup.vue')['default']
     AdminDatatable: typeof import('./src/components/admin/AdminDatatable.vue')['default']
     CardsGrid: typeof import('./src/components/widgets/cards/CardsGrid.vue')['default']
     EditTokenTtl: typeof import('./src/components/namespace/EditTokenTtl.vue')['default']
@@ -51,8 +52,11 @@ declare module 'vue' {
     TheHeader: typeof import('./src/components/TheHeader.vue')['default']
     TheLogin: typeof import('./src/components/TheLogin.vue')['default']
     TheSidebar: typeof import('./src/components/TheSidebar.vue')['default']
+    TheSpeedDial: typeof import('./src/components/TheSpeedDial.vue')['default']
     TheTopbar: typeof import('./src/components/TheTopbar.vue')['default']
     UserDatatable: typeof import('./src/components/user/UserDatatable.vue')['default']
+    UserGroupsInfo: typeof import('./src/components/user/UserGroupsInfo.vue')['default']
+    UserInfo: typeof import('./src/components/user/UserInfo.vue')['default']
   }
 }
 

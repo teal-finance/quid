@@ -40,9 +40,8 @@ func RunServer(adminNsKey string) {
 
 	// serve static files in production
 	if !conf.IsDevMode {
-		echoServer.File("/", "quidui/dist/index.html")
-		echoServer.Static("/js", "quidui/dist/js")
-		echoServer.Static("/css", "quidui/dist/css")
+		echoServer.File("/", "adminui/dist/index.html")
+		echoServer.Static("/assets", "adminui/dist/assets")
 	}
 
 	// HTTP Routes

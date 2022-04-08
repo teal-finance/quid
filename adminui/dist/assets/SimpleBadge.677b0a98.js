@@ -1,0 +1,1 @@
+import{d as l,o as r,b as a,V as i,q as p,t as c}from"./vendor.ef2cb0e3.js";const u=l({props:{text:{type:String,default:""}},emits:["select"],setup(t,{emit:n}){function o(){n("select")}return(s,e)=>(r(),a("span",{class:"inline-block px-2 py-1 mr-3 text-xs font-bold rounded-full",onClick:e[0]||(e[0]=d=>o())},[i(s.$slots,"default",{},()=>[p(c(t.text),1)])]))}});export{u as _};

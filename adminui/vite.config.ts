@@ -25,8 +25,6 @@ export default defineConfig({
       compiler: 'vue3',
     }),
   ],
-  // for storybook builds to github pages
-  base: process.env.NODE_ENV === 'production' ? '/snowind-stories/' : './',
   resolve: {
     alias: [
       { find: '@/', replacement: '/src/' }

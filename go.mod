@@ -4,8 +4,8 @@ go 1.14
 
 require (
 	github.com/acmacalister/skittles v0.0.0-20160609003031-7423546701e1
-	github.com/dgrijalva/jwt-go v3.2.0+incompatible
 	github.com/etdub/goparsetime v0.0.0-20160315173935-ea17b0ac3318 // indirect
+	github.com/golang-jwt/jwt/v4 v4.4.1
 	github.com/gorilla/sessions v1.2.0
 	github.com/jmoiron/sqlx v1.2.0
 	github.com/karrick/tparse v2.4.2+incompatible

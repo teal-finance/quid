@@ -80,17 +80,17 @@ func AdminLogin(c echo.Context) error {
 	}
 
 	// set the refresh token
-	exists, token, err := tokens.GenRefreshToken(ns.Name, ns.RefreshKey, ns.MaxRefreshTokenTTL, u.UserName, "24h")
-	if !exists {
-		emo.Error("Unauthorized: timeout max (", ns.MaxRefreshTokenTTL, ") for refresh token for namespace", ns.Name)
-		return c.JSON(http.StatusUnauthorized, echo.Map{
-			"error": "unauthorized",
-		})
-	}
+	token, err := tokens.GenRefreshToken("24h", ns.MaxRefreshTokenTTL, ns.Name, u.UserName, []byte(ns.RefreshKey))
 	if err != nil {
 		emo.Error("Error generating refresh token", err)
 		return c.JSON(http.StatusInternalServerError, echo.Map{
 			"error": true,
+		})
+	}
+	if token == "" {
+		emo.Error("Unauthorized: timeout max (", ns.MaxRefreshTokenTTL, ") for refresh token for namespace", ns.Name)
+		return c.JSON(http.StatusUnauthorized, echo.Map{
+			"error": "unauthorized",
 		})
 	}
 

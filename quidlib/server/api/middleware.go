@@ -16,7 +16,7 @@ func AdminMiddleware(next echo.HandlerFunc) echo.HandlerFunc {
 	return func(c echo.Context) error {
 		// check the access token to control that the user is admin
 		u := c.Get("user").(*jwt.Token)
-		claims := u.Claims.(*tokens.StandardAccessClaims)
+		claims := u.Claims.(*tokens.AccessClaims)
 		isAdmin := false
 		for _, g := range claims.Groups {
 			if g == "quid_admin" {

@@ -53,7 +53,7 @@ func RunServer(adminNsKey string) {
 	// admin routes
 	a := echoServer.Group("/admin")
 	config := middleware.JWTConfig{
-		Claims:     &tokens.StandardAccessClaims{},
+		Claims:     &tokens.AccessClaims{},
 		SigningKey: []byte(adminNsKey),
 	}
 	a.Use(middleware.JWTWithConfig(config))

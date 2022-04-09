@@ -39,13 +39,13 @@ func RequestAdminAccessToken(c echo.Context) error {
 
 	// verify the refresh token
 	var username string
-	token, err := jwt.ParseWithClaims(refreshToken, &tokens.StandardRefreshClaims{}, func(token *jwt.Token) (interface{}, error) {
+	token, err := jwt.ParseWithClaims(refreshToken, &tokens.RefreshClaims{}, func(token *jwt.Token) (interface{}, error) {
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
 			return nil, fmt.Errorf("Unexpected signing method: %v", token.Header["alg"])
 		}
 		return []byte(ns.RefreshKey), nil
 	})
-	if claims, ok := token.Claims.(*tokens.StandardRefreshClaims); ok && token.Valid {
+	if claims, ok := token.Claims.(*tokens.RefreshClaims); ok && token.Valid {
 		username = claims.UserName
 		fmt.Printf("%v %v", claims.UserName, claims.StandardClaims.ExpiresAt)
 	} else {
@@ -161,13 +161,13 @@ func RequestAccessToken(c echo.Context) error {
 
 	// verify the refresh token
 	var username string
-	token, err := jwt.ParseWithClaims(refreshToken, &tokens.StandardRefreshClaims{}, func(token *jwt.Token) (interface{}, error) {
+	token, err := jwt.ParseWithClaims(refreshToken, &tokens.RefreshClaims{}, func(token *jwt.Token) (interface{}, error) {
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
 			return nil, fmt.Errorf("Unexpected signing method: %v", token.Header["alg"])
 		}
 		return []byte(ns.RefreshKey), nil
 	})
-	if claims, ok := token.Claims.(*tokens.StandardRefreshClaims); ok && token.Valid {
+	if claims, ok := token.Claims.(*tokens.RefreshClaims); ok && token.Valid {
 		username = claims.UserName
 		fmt.Printf("%v %v", claims.UserName, claims.StandardClaims.ExpiresAt)
 	} else {

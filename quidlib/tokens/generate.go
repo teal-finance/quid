@@ -25,7 +25,7 @@ func GenRefreshToken(namespaceName, namespaceRefreshKey, maxRefreshokenTTL, user
 	}
 	to, err := tparse.ParseNow(time.RFC3339, "now+"+timeout)
 	to = to.UTC()
-	claims := standardRefreshClaims(namespaceName, username, to)
+	claims := newRefreshClaims(namespaceName, username, to)
 	t := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 	token, err := t.SignedString([]byte(namespaceRefreshKey))
 	if err != nil {
@@ -52,7 +52,7 @@ func GenAccessToken(namespaceKey, maxTokenTTL, name string, groups, orgs []strin
 		emo.TimeError(err)
 		return false, "", err
 	}
-	claims := standardAccessClaims(name, groups, orgs, to)
+	claims := newAccessClaims(name, groups, orgs, to)
 	t := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 	token, err := t.SignedString([]byte(namespaceKey))
 	if err != nil {

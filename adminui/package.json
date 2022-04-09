@@ -5,7 +5,8 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-    "serve": "vite preview"
+    "serve": "vite preview",
+    "up-minor": "yarn-upgrade-minor"
   },
   "dependencies": {
     "emosd": "^0.2.1",
@@ -13,7 +14,8 @@
     "primevue": "^3.12.1",
     "quidjs": "^0.6.0",
     "vue": "^3.2.25",
-    "vue-router": "4"
+    "vue-router": "4",
+    "yarn-upgrade-minor": "^1.0.13"
   },
   "devDependencies": {
     "@babel/core": "^7.17.0",

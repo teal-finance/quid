@@ -9,7 +9,7 @@ import (
 	"time"
 
 	"github.com/golang-jwt/jwt/v4"
-	"github.com/karrick/tparse"
+	"github.com/karrick/tparse/v2"
 )
 
 // GenRefreshToken generates a refresh token for a user in a namespace.

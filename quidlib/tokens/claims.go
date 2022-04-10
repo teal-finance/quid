@@ -8,10 +8,10 @@ import (
 
 // AccessClaims is the standard claims for a user access token.
 type AccessClaims struct {
+	jwt.RegisteredClaims
 	UserName string   `json:"username,omitempty"`
 	Groups   []string `json:"groups,omitempty"`
 	Orgs     []string `json:"orgs,omitempty"`
-	jwt.RegisteredClaims
 }
 
 // RefreshClaims is the standard claims for a user refresh token.
@@ -28,9 +28,6 @@ func newAccessClaims(username string, groups, orgs []string, timeout time.Time) 
 	}
 
 	return &AccessClaims{
-		username,
-		groups,
-		orgs,
 		jwt.RegisteredClaims{
 			Issuer:    "",
 			Subject:   "",
@@ -40,6 +37,9 @@ func newAccessClaims(username string, groups, orgs []string, timeout time.Time) 
 			IssuedAt:  nil,
 			ID:        "",
 		},
+		username,
+		groups,
+		orgs,
 	}
 }
 

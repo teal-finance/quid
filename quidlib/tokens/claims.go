@@ -22,12 +22,8 @@ type RefreshClaims struct {
 }
 
 // newAccessClaims creates a standard claim for a user access token.
-func newAccessClaims(username string, groups, orgs []string, timeout time.Time) *AccessClaims {
-	if timeout.IsZero() {
-		timeout = time.Now().Add(time.Hour * 24 * 365).UTC()
-	}
-
-	return &AccessClaims{
+func newAccessClaims(username string, groups, orgs []string, timeout time.Time) AccessClaims {
+	return AccessClaims{
 		jwt.RegisteredClaims{
 			Issuer:    "",
 			Subject:   "",
@@ -44,12 +40,8 @@ func newAccessClaims(username string, groups, orgs []string, timeout time.Time) 
 }
 
 // newRefreshClaims creates a standard claim for a user refresh token.
-func newRefreshClaims(namespace, user string, timeout time.Time) *RefreshClaims {
-	if timeout.IsZero() {
-		timeout = time.Now().Add(time.Hour * 24 * 365).UTC()
-	}
-
-	return &RefreshClaims{
+func newRefreshClaims(namespace, user string, timeout time.Time) RefreshClaims {
+	return RefreshClaims{
 		namespace,
 		user,
 		jwt.RegisteredClaims{

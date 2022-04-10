@@ -87,15 +87,16 @@ func CreateGroup(name string, namespaceID int64) (int64, error) {
 	return id, nil
 }
 
-// DeleteGroup : delete a group
-func DeleteGroup(ID int64) error {
+// DeleteGroup : delete a group.
+func DeleteGroup(id int64) error {
 	q := "DELETE FROM grouptable WHERE id=$1"
 	tx := db.MustBegin()
-	tx.MustExec(q, ID)
-	err := tx.Commit()
-	if err != nil {
+	tx.MustExec(q, id)
+
+	if err := tx.Commit(); err != nil {
 		return err
 	}
+
 	return nil
 }
 
@@ -119,10 +120,11 @@ func AddUserInGroup(userID int64, groupID int64) error {
 	q := "INSERT INTO usergroup(user_id,group_id) VALUES($1,$2)"
 	tx := db.MustBegin()
 	tx.MustExec(q, userID, groupID)
-	err := tx.Commit()
-	if err != nil {
+
+	if err := tx.Commit(); err != nil {
 		return err
 	}
+
 	return nil
 }
 
@@ -131,10 +133,11 @@ func RemoveUserFromGroup(userID int64, groupID int64) error {
 	q := "DELETE FROM usergroup WHERE user_id=$1 AND group_id=$2"
 	tx := db.MustBegin()
 	tx.MustExec(q, userID, groupID)
-	err := tx.Commit()
-	if err != nil {
+
+	if err := tx.Commit(); err != nil {
 		return err
 	}
+
 	return nil
 }
 
@@ -143,12 +146,6 @@ func IsUserInGroup(userID int64, groupID int64, namespaceID int64) (bool, error)
 	q := "SELECT COUNT(id) FROM usergroup WHERE(user_id=$1 AND group_id=$2)"
 	var n int
 	err := db.Get(&n, q, userID, groupID)
-	if err != nil {
-		return false, err
-	}
-	exists := false
-	if n == 1 {
-		exists = true
-	}
-	return exists, nil
+	exists := (n == 1)
+	return exists, err
 }

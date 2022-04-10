@@ -62,9 +62,9 @@ func initDbConf(prompt bool, username, password string) {
 		}
 		gid = group.ID
 	}
+
 	// check superuser
-	n, _ := CountUsersInGroup(gid)
-	if n == 0 {
+	if n, _ := CountUsersInGroup(gid); n == 0 {
 		var uname string
 		if prompt {
 			fmt.Println("Create a superuser")

@@ -2,6 +2,7 @@ package db
 
 import (
 	"database/sql"
+	"errors"
 	"log"
 
 	// pg import
@@ -152,39 +153,26 @@ func SelectGroupsForUser(userID int64) ([]server.Group, error) {
 	return gr, nil
 }*/
 
-// CountUsersInGroup : count the users in a group
-func CountUsersInGroup(groupID int64) (int, error) {
-	var n int
+// CountUsersInGroup : count the users in a group.
+func CountUsersInGroup(groupID int64) (n int, err error) {
 	q := "SELECT COUNT(user_id) FROM usergroup WHERE group_id=$1"
-	err := db.Get(&n, q, groupID)
-	if err != nil {
+	err = db.Get(&n, q, groupID)
 		return n, err
-	}
-	return n, nil
 }
 
-// UserNameExists : check if a username exists
+// UserNameExists : check if a username exists.
 func UserNameExists(username string, namespaceID int64) (bool, error) {
 	var n int
 	q := "SELECT COUNT(id) FROM usertable WHERE (username=$1 AND namespace_id=$2)"
 	err := db.Get(&n, q, username, namespaceID)
-	if err != nil {
-		return false, err
-	}
-	if n > 0 {
-		return true, nil
-	}
-	return false, nil
+	exists := (n > 0)
+	return exists, err
 }
 
-// DeleteUser : delete a user
+// DeleteUser : delete a user.
 func DeleteUser(ID int64) error {
 	q := "DELETE FROM usertable WHERE id=$1"
 	tx := db.MustBegin()
 	tx.MustExec(q, ID)
-	err := tx.Commit()
-	if err != nil {
-		return err
-	}
-	return nil
+	return tx.Commit()
 }

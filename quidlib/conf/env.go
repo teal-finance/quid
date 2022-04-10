@@ -6,13 +6,13 @@ import (
 	"strings"
 )
 
-// DefaultAdminUser :
-var DefaultAdminUser string = ""
+// DefaultAdminUser :.
+var DefaultAdminUser string
 
-// DefaultAdminPassword ;
-var DefaultAdminPassword string = ""
+// DefaultAdminPassword ;.
+var DefaultAdminPassword string
 
-// InitFromEnv : get the config from environment variables
+// InitFromEnv : get the config from environment variables.
 func InitFromEnv(isDevMode bool) bool {
 	if isDevMode {
 		fmt.Println("Dev mode is not authorized when initializing from env variables")

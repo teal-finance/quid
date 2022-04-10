@@ -2,6 +2,7 @@ package db
 
 import (
 	"database/sql"
+	"errors"
 
 	// pg import
 	_ "github.com/lib/pq"
@@ -56,7 +57,7 @@ func SelectNamespaceFromName(name string) (bool, server.Namespace, error) {
 	row := db.QueryRowx(q, name)
 	err := row.StructScan(&data)
 	if err != nil {
-		if err == sql.ErrNoRows {
+		if errors.Is(err, sql.ErrNoRows) {
 			return false, ns, nil
 		}
 		return true, ns, err
@@ -81,24 +82,27 @@ func SelectNamespaceFromName(name string) (bool, server.Namespace, error) {
 	return true, ns, nil
 }
 
-// SelectNamespaceKey : get the key for a namespace
-func SelectNamespaceKey(ID int64) (bool, string, error) {
+// SelectNamespaceKey : get the key for a namespace.
+func SelectNamespaceKey(id int64) (bool, string, error) {
 	data := namespace{}
 	var key string
-	row := db.QueryRowx("SELECT key FROM namespace WHERE id=$1", ID)
-	err := row.StructScan(&data)
-	if err != nil {
-		if err == sql.ErrNoRows {
+	row := db.QueryRowx("SELECT key FROM namespace WHERE id=$1", id)
+
+	if err := row.StructScan(&data); err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
 			return false, key, nil
 		}
+
+		emo.QueryError(err)
 		return false, key, err
 	}
-	//emo.Decrypt("Decrypting key data for the namespace id " + strconv.FormatInt(ID, 10))
+
 	k, err := crypt.AesGcmDecrypt(data.Key, nil)
 	if err != nil {
 		emo.DecryptError(err)
 		return true, "", err
 	}
+
 	return true, k, nil
 }
 
@@ -139,13 +143,13 @@ func SelectNamespaceID(name string) (int64, error) {
 	return data[0].ID, nil
 }
 
-// SetNamespaceEndpointAvailability : enable or disable public endpoint
-func SetNamespaceEndpointAvailability(ID int64, enable bool) error {
+// SetNamespaceEndpointAvailability : enable or disable public endpoint.
+func SetNamespaceEndpointAvailability(id int64, enable bool) error {
 	q := "UPDATE namespace SET public_endpoint_enabled=$2 WHERE id=$1"
-	_, err := db.Query(q, ID, enable)
-	if err != nil {
+	if _, err := db.Query(q, id, enable); err != nil {
 		return err
 	}
+
 	return nil
 }
 
@@ -180,10 +184,10 @@ func CreateNamespace(name, key, refreshKey, ttl, refreshTTL string, endpoint boo
 // UpdateNamespaceTokenMaxTTL : update a max access token ttl for a namespace
 func UpdateNamespaceTokenMaxTTL(ID int64, maxTTL string) error {
 	q := "UPDATE namespace set max_token_ttl=$2 WHERE id=$1"
-	_, err := db.Query(q, ID, maxTTL)
-	if err != nil {
+	if _, err := db.Query(q, ID, maxTTL); err != nil {
 		return err
 	}
+
 	return nil
 }
 
@@ -217,23 +221,13 @@ func NamespaceExists(name string) (bool, error) {
 	q := "SELECT COUNT(id) FROM namespace WHERE(name=$1)"
 	var n int
 	err := db.Get(&n, q, name)
-	if err != nil {
-		return false, err
-	}
-	exists := false
-	if n == 1 {
-		exists = true
-	}
-	return exists, nil
+	exists := (n == 1)
+	return exists, err
 }
 
 // CountUsersForNamespace : count users in a namespace
 func CountUsersForNamespace(ID int64) (int, error) {
 	q := "SELECT COUNT(id) FROM usertable WHERE(namespace_id=$1)"
-	var n int
-	err := db.Get(&n, q, ID)
-	if err != nil {
+	err = db.Get(&n, q, ID)
 		return n, err
-	}
-	return n, nil
 }

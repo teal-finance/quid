@@ -39,7 +39,7 @@ func AdminLogin(c echo.Context) error {
 	if err != nil {
 		return err
 	}
-	if isAuthorized == false {
+	if !isAuthorized {
 		fmt.Println(username, "unauthorized")
 		return c.JSON(http.StatusUnauthorized, echo.Map{
 			"error": "unauthorized",
@@ -50,7 +50,7 @@ func AdminLogin(c echo.Context) error {
 	if err != nil {
 		return err
 	}
-	if isAdmin == false {
+	if !isAdmin {
 		fmt.Println(username, "unauthorized: not in admin group")
 		return c.JSON(http.StatusUnauthorized, echo.Map{
 			"error": "unauthorized",

@@ -64,8 +64,7 @@ func main() {
 
 	// db
 	db.Init(*isVerbose)
-	err := db.Connect()
-	if err != nil {
+	if err := db.Connect(); err != nil {
 		log.Fatalln(err)
 	}
 	db.ExecSchema()

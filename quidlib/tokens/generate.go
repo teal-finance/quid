@@ -81,7 +81,7 @@ func GenKey() string {
 		log.Fatal(err)
 	}
 
-	h := hmac.New(sha256.New, []byte(b))
+	h := hmac.New(sha256.New, b)
 
 	return hex.EncodeToString(h.Sum(nil))
 }
@@ -89,8 +89,7 @@ func GenKey() string {
 func genRandomBytes(n int) ([]byte, error) {
 	b := make([]byte, n)
 
-	_, err := rand.Read(b)
-	if err != nil {
+	if _, err := rand.Read(b); err != nil {
 		return nil, err
 	}
 

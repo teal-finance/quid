@@ -65,9 +65,5 @@ func DeleteAdministrator(userID int64, namespaceID int64) error {
 	fmt.Println(q, userID, namespaceID)
 	tx := db.MustBegin()
 	tx.MustExec(q, userID, namespaceID)
-	err := tx.Commit()
-	if err != nil {
-		return err
-	}
-	return nil
+	return tx.Commit()
 }

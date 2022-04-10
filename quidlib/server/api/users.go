@@ -197,10 +197,9 @@ func DeleteUser(c echo.Context) error {
 	if err := c.Bind(&m); err != nil {
 		return err
 	}
-	ID := int64(m["id"].(float64))
 
-	err := db.DeleteUser(ID)
-	if err != nil {
+	id := int64(m["id"].(float64))
+	if err := db.DeleteUser(id); err != nil {
 		return c.JSON(http.StatusConflict, echo.Map{
 			"error": "error deleting user",
 		})

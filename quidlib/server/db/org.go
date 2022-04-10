@@ -77,14 +77,8 @@ func OrgExists(name string) (bool, error) {
 	q := "SELECT COUNT(id) FROM orgtable WHERE(name=$1)"
 	var n int
 	err := db.Get(&n, q, name)
-	if err != nil {
-		return false, err
-	}
-	exists := false
-	if n == 1 {
-		exists = true
-	}
-	return exists, nil
+	exists := (n == 1)
+	return exists, err
 }
 
 // DeleteOrg : delete an org
@@ -92,11 +86,7 @@ func DeleteOrg(ID int64) error {
 	q := "DELETE FROM orgtable WHERE id=$1"
 	tx := db.MustBegin()
 	tx.MustExec(q, ID)
-	err := tx.Commit()
-	if err != nil {
-		return err
-	}
-	return nil
+	return tx.Commit()
 }
 
 // CreateOrg : create an org
@@ -106,15 +96,17 @@ func CreateOrg(name string) (int64, error) {
 	if err != nil {
 		return 0, err
 	}
+
 	var id int64
 	for rows.Next() {
 		var idi interface{}
-		err := rows.Scan(&idi)
-		if err != nil {
+		if err := rows.Scan(&idi); err != nil {
 			return 0, err
 		}
+
 		id = idi.(int64)
 	}
+
 	return id, nil
 }
 
@@ -123,11 +115,7 @@ func AddUserInOrg(userID int64, orgID int64) error {
 	q := "INSERT INTO userorg(user_id,org_id) VALUES($1,$2)"
 	tx := db.MustBegin()
 	tx.MustExec(q, userID, orgID)
-	err := tx.Commit()
-	if err != nil {
-		return err
-	}
-	return nil
+	return tx.Commit()
 }
 
 // RemoveUserFromOrg : remove a user from an org
@@ -135,9 +123,5 @@ func RemoveUserFromOrg(userID int64, orgID int64) error {
 	q := "DELETE FROM userorg WHERE user_id=$1 AND org_id=$2"
 	tx := db.MustBegin()
 	tx.MustExec(q, userID, orgID)
-	err := tx.Commit()
-	if err != nil {
-		return err
-	}
-	return nil
+	return tx.Commit()
 }

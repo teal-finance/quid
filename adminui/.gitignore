@@ -2,7 +2,7 @@
 .yarnrc
 *.local
 /dev
-/dist/
+# /dist/  # Required for Heroku deployment
 node_modules
 storybook-static
 yarn-error.log

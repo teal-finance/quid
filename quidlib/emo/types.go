@@ -10,13 +10,13 @@ import (
 	"github.com/acmacalister/skittles"
 )
 
-// Zone : base emo zone
+// Zone : base emo zone.
 type Zone struct {
 	Name    string
 	NoPrint bool
 }
 
-// Event : base emo event
+// Event : base emo event.
 type Event struct {
 	Zone    Zone
 	Error   error
@@ -28,19 +28,19 @@ type Event struct {
 	IsError bool
 }
 
-// ObjectInfo : print debug info about something
+// ObjectInfo : print debug info about something.
 func (zone Zone) ObjectInfo(args ...interface{}) {
-	numArgs := len(args)
-	if numArgs < 1 {
+	if len(args) < 1 {
 		return
 	}
+
 	for _, o := range args {
 		msg := "[" + skittles.Yellow("object info") + "] "
 		fmt.Println(msg + fmt.Sprintf("Type: %T Value: %#v", o, o))
 	}
 }
 
-func processEvent(emoji string, zone Zone, IsError bool, errObjs []interface{}) Event {
+func processEvent(emoji string, zone Zone, isError bool, errObjs []interface{}) Event {
 	event := Event{
 		Zone: zone,
 	}
@@ -49,7 +49,7 @@ func processEvent(emoji string, zone Zone, IsError bool, errObjs []interface{}) 
 	if err != nil {
 		panic(err)
 	}
-	e.Msg = e.getMsg(IsError)
+	e.Msg = e.getMsg(isError)
 	if !zone.NoPrint {
 		fmt.Println(e.Msg)
 	}
@@ -88,7 +88,7 @@ func getErr(event Event, errObjs []interface{}) (Event, error) {
 			msgs = append(msgs, err.Error())
 		}*/
 	}
-	msg := strings.Join(msgs[:], " ")
+	msg := strings.Join(msgs, " ")
 	err := errors.New(msg)
 	pc := make([]uintptr, 10)
 	runtime.Callers(3, pc)

@@ -9,7 +9,7 @@ var emo = emolib.Zone{
 	NoPrint: true,
 }
 
-// Init : init the db conf
+// Init : init the db conf.
 func Init(isVerbose bool) {
 	emo.NoPrint = !isVerbose
 }

@@ -10,7 +10,7 @@ import (
 	"github.com/teal-finance/quid/quidlib/tokens"
 )
 
-// AllNamespaces : get all namespaces
+// AllNamespaces : get all namespaces.
 func AllNamespaces(c echo.Context) error {
 	data, err := db.SelectAllNamespaces()
 	if err != nil {
@@ -22,7 +22,7 @@ func AllNamespaces(c echo.Context) error {
 	return c.JSON(http.StatusOK, &data)
 }
 
-// SetNamespaceRefreshTokenMaxTTL : set a max refresh token ttl for a namespace
+// SetNamespaceRefreshTokenMaxTTL : set a max refresh token ttl for a namespace.
 func SetNamespaceRefreshTokenMaxTTL(c echo.Context) error {
 	m := echo.Map{}
 	if err := c.Bind(&m); err != nil {
@@ -43,7 +43,7 @@ func SetNamespaceRefreshTokenMaxTTL(c echo.Context) error {
 	})
 }
 
-// SetNamespaceTokenMaxTTL : set a max access token ttl for a namespace
+// SetNamespaceTokenMaxTTL : set a max access token ttl for a namespace.
 func SetNamespaceTokenMaxTTL(c echo.Context) error {
 	m := echo.Map{}
 	if err := c.Bind(&m); err != nil {
@@ -64,7 +64,7 @@ func SetNamespaceTokenMaxTTL(c echo.Context) error {
 	})
 }
 
-// NamespaceInfo : info about a namespace
+// NamespaceInfo : info about a namespace.
 func NamespaceInfo(c echo.Context) error {
 	m := echo.Map{}
 	if err := c.Bind(&m); err != nil {
@@ -96,7 +96,7 @@ func NamespaceInfo(c echo.Context) error {
 	return c.JSON(http.StatusOK, &data)
 }
 
-// GetNamespaceKey : get the key for a namespace
+// GetNamespaceKey : get the key for a namespace.
 func GetNamespaceKey(c echo.Context) error {
 	m := echo.Map{}
 	if err := c.Bind(&m); err != nil {
@@ -119,10 +119,9 @@ func GetNamespaceKey(c echo.Context) error {
 	return c.JSON(http.StatusOK, echo.Map{
 		"key": data,
 	})
-
 }
 
-// FindNamespace : namespace creation http handler
+// FindNamespace : namespace creation http handler.
 func FindNamespace(c echo.Context) error {
 	m := echo.Map{}
 	if err := c.Bind(&m); err != nil {
@@ -138,10 +137,9 @@ func FindNamespace(c echo.Context) error {
 		})
 	}
 	return c.JSON(http.StatusOK, &data)
-
 }
 
-// DeleteNamespace : namespace creation http handler
+// DeleteNamespace : namespace creation http handler.
 func DeleteNamespace(c echo.Context) error {
 	m := echo.Map{}
 	if err := c.Bind(&m); err != nil {
@@ -163,10 +161,9 @@ func DeleteNamespace(c echo.Context) error {
 	return c.JSON(http.StatusOK, echo.Map{
 		"message": "ok",
 	})
-
 }
 
-// SetNamespaceEndpointAvailability :
+// SetNamespaceEndpointAvailability :.
 func SetNamespaceEndpointAvailability(c echo.Context) error {
 	m := echo.Map{}
 	if err := c.Bind(&m); err != nil {
@@ -187,7 +184,7 @@ func SetNamespaceEndpointAvailability(c echo.Context) error {
 	})
 }
 
-// CreateNamespace : namespace creation http handler
+// CreateNamespace : namespace creation http handler.
 func CreateNamespace(c echo.Context) error {
 	m := echo.Map{}
 	if err := c.Bind(&m); err != nil {
@@ -217,7 +214,7 @@ func CreateNamespace(c echo.Context) error {
 	})
 }
 
-// createNamespace : create a namespace
+// createNamespace : create a namespace.
 func createNamespace(name, key, refreshKey, ttl, refreshMaxTTL string, endpoint bool) (server.Namespace, bool, error) {
 	ns := server.Namespace{}
 

@@ -1,11 +1,11 @@
 package api
 
-// ResponseMsg : a json response with message
+// ResponseMsg : a json response with message.
 type ResponseMsg struct {
 	Msg string `json:"status"`
 }
 
-// ErrorMsg : a json response with message
+// ErrorMsg : a json response with message.
 type ErrorMsg struct {
 	Msg string `json:"error"`
 }

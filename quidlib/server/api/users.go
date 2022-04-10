@@ -11,7 +11,7 @@ import (
 	db "github.com/teal-finance/quid/quidlib/server/db"
 )
 
-// AllUsers : add a user in a group
+// AllUsers : add a user in a group.
 func AllUsers(c echo.Context) error {
 	data, err := db.SelectAllUsers()
 	if err != nil {
@@ -22,7 +22,7 @@ func AllUsers(c echo.Context) error {
 	return c.JSON(http.StatusOK, &data)
 }
 
-// AllUsersInNamespace : select all users for a namespace
+// AllUsersInNamespace : select all users for a namespace.
 func AllUsersInNamespace(c echo.Context) error {
 	m := echo.Map{}
 	if err := c.Bind(&m); err != nil {
@@ -39,7 +39,7 @@ func AllUsersInNamespace(c echo.Context) error {
 	return c.JSON(http.StatusOK, &data)
 }
 
-// GroupsForNamespace : get the groups of a user
+// GroupsForNamespace : get the groups of a user.
 func GroupsForNamespace(c echo.Context) error {
 	m := echo.Map{}
 	if err := c.Bind(&m); err != nil {
@@ -63,10 +63,9 @@ func GroupsForNamespace(c echo.Context) error {
 	return c.JSON(http.StatusOK, echo.Map{
 		"groups": g,
 	})
-
 }
 
-// AddUserInOrg : add a user in an org
+// AddUserInOrg : add a user in an org.
 func AddUserInOrg(c echo.Context) error {
 	m := echo.Map{}
 	if err := c.Bind(&m); err != nil {
@@ -84,10 +83,9 @@ func AddUserInOrg(c echo.Context) error {
 	return c.JSON(http.StatusOK, echo.Map{
 		"ok": true,
 	})
-
 }
 
-// RemoveUserFromOrg : add a user in an org
+// RemoveUserFromOrg : add a user in an org.
 func RemoveUserFromOrg(c echo.Context) error {
 	m := echo.Map{}
 	if err := c.Bind(&m); err != nil {
@@ -105,10 +103,9 @@ func RemoveUserFromOrg(c echo.Context) error {
 	return c.JSON(http.StatusOK, echo.Map{
 		"ok": true,
 	})
-
 }
 
-// AddUserInGroup : add a user in a group
+// AddUserInGroup : add a user in a group.
 func AddUserInGroup(c echo.Context) error {
 	m := echo.Map{}
 	if err := c.Bind(&m); err != nil {
@@ -126,10 +123,9 @@ func AddUserInGroup(c echo.Context) error {
 	return c.JSON(http.StatusOK, echo.Map{
 		"ok": true,
 	})
-
 }
 
-// RemoveUserFromGroup : add a user in a group
+// RemoveUserFromGroup : add a user in a group.
 func RemoveUserFromGroup(c echo.Context) error {
 	m := echo.Map{}
 	if err := c.Bind(&m); err != nil {
@@ -149,7 +145,7 @@ func RemoveUserFromGroup(c echo.Context) error {
 	})
 }
 
-// SearchForUsersInNamespace : search from a username in namespace
+// SearchForUsersInNamespace : search from a username in namespace.
 func SearchForUsersInNamespace(c echo.Context) error {
 	m := echo.Map{}
 	if err := c.Bind(&m); err != nil {
@@ -172,7 +168,7 @@ func SearchForUsersInNamespace(c echo.Context) error {
 	})
 }
 
-// UserGroupsInfo : get info for a user
+// UserGroupsInfo : get info for a user.
 func UserGroupsInfo(c echo.Context) error {
 	m := echo.Map{}
 	if err := c.Bind(&m); err != nil {
@@ -191,7 +187,7 @@ func UserGroupsInfo(c echo.Context) error {
 	})
 }
 
-// DeleteUser : delete a user handler
+// DeleteUser : delete a user handler.
 func DeleteUser(c echo.Context) error {
 	m := echo.Map{}
 	if err := c.Bind(&m); err != nil {
@@ -210,7 +206,7 @@ func DeleteUser(c echo.Context) error {
 	})
 }
 
-// CreateUserHandler : create a user handler
+// CreateUserHandler : create a user handler.
 func CreateUserHandler(c echo.Context) error {
 	m := echo.Map{}
 	if err := c.Bind(&m); err != nil {

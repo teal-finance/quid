@@ -13,7 +13,7 @@ import (
 )
 
 // RequestAdminAccessToken : request an access token from a refresh token
-// for the quid namespace
+// for the quid namespace.
 func RequestAdminAccessToken(c echo.Context) error {
 	m := echo.Map{}
 	if err := c.Bind(&m); err != nil {
@@ -113,7 +113,7 @@ func RequestAdminAccessToken(c echo.Context) error {
 	})
 }
 
-// RequestAccessToken : request an access token from a refresh token
+// RequestAccessToken : request an access token from a refresh token.
 func RequestAccessToken(c echo.Context) error {
 	m := echo.Map{}
 	if err := c.Bind(&m); err != nil {
@@ -228,7 +228,7 @@ func RequestAccessToken(c echo.Context) error {
 	})
 }
 
-// RequestRefreshToken : http login handler
+// RequestRefreshToken : http login handler.
 func RequestRefreshToken(c echo.Context) error {
 	m := echo.Map{}
 	if err := c.Bind(&m); err != nil {
@@ -297,7 +297,7 @@ func RequestRefreshToken(c echo.Context) error {
 		return err
 	}
 	// Respond with unauthorized status
-	if isAuthorized == false {
+	if !isAuthorized {
 		fmt.Println(username, "unauthorized")
 		return c.JSON(http.StatusUnauthorized, echo.Map{
 			"error": "unauthorized",

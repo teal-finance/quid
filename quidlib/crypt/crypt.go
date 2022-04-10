@@ -15,7 +15,7 @@ const (
 	aesGcmNonceSize = 12
 )
 
-// AesGcmEncrypt : encrypt content
+// AesGcmEncrypt : encrypt content.
 func AesGcmEncrypt(plaintext string, additionalData []byte) (string, error) {
 	key, err := hex.DecodeString(conf.EncodingKey)
 	if err != nil {
@@ -37,7 +37,7 @@ func AesGcmEncrypt(plaintext string, additionalData []byte) (string, error) {
 	return hex.EncodeToString(append(iv, ciphertext...)), nil
 }
 
-// AesGcmDecrypt : decrypt content
+// AesGcmDecrypt : decrypt content.
 func AesGcmDecrypt(encryptedString string, additionalData []byte) (string, error) {
 	key, err := hex.DecodeString(conf.EncodingKey)
 	if err != nil {

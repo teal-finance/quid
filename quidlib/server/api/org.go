@@ -9,7 +9,7 @@ import (
 	db "github.com/teal-finance/quid/quidlib/server/db"
 )
 
-// AllOrgs : get all orgs http handler
+// AllOrgs : get all orgs http handler.
 func AllOrgs(c echo.Context) error {
 	data, err := db.SelectAllOrgs()
 	if err != nil {
@@ -20,7 +20,7 @@ func AllOrgs(c echo.Context) error {
 	return c.JSON(http.StatusOK, &data)
 }
 
-// FindOrg : find an org from name
+// FindOrg : find an org from name.
 func FindOrg(c echo.Context) error {
 	m := echo.Map{}
 	if err := c.Bind(&m); err != nil {
@@ -38,7 +38,7 @@ func FindOrg(c echo.Context) error {
 	return c.JSON(http.StatusOK, &data)
 }
 
-// UserOrgsInfo : get orgs info for a user
+// UserOrgsInfo : get orgs info for a user.
 func UserOrgsInfo(c echo.Context) error {
 	m := echo.Map{}
 	if err := c.Bind(&m); err != nil {
@@ -55,10 +55,9 @@ func UserOrgsInfo(c echo.Context) error {
 	return c.JSON(http.StatusOK, echo.Map{
 		"orgs": o,
 	})
-
 }
 
-// DeleteOrg : org deletion http handler
+// DeleteOrg : org deletion http handler.
 func DeleteOrg(c echo.Context) error {
 	m := echo.Map{}
 	if err := c.Bind(&m); err != nil {
@@ -77,7 +76,7 @@ func DeleteOrg(c echo.Context) error {
 	})
 }
 
-// CreateOrg : org creation http handler
+// CreateOrg : org creation http handler.
 func CreateOrg(c echo.Context) error {
 	m := echo.Map{}
 	if err := c.Bind(&m); err != nil {
@@ -102,7 +101,7 @@ func CreateOrg(c echo.Context) error {
 	})
 }
 
-// createOrg : create an org
+// createOrg : create an org.
 func createOrg(name string) (server.Org, bool, error) {
 	org := server.Org{}
 

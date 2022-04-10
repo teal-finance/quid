@@ -16,14 +16,13 @@ import (
 	"github.com/teal-finance/quid/quidlib/tokens"
 )
 
-// SessionsStore : the session cookies store
+// SessionsStore : the session cookies store.
 var SessionsStore = sessions.NewCookieStore([]byte(conf.EncodingKey))
 
 var echoServer = echo.New()
 
-// RunServer : configure and run the server
+// RunServer : configure and run the server.
 func RunServer(adminNsKey string) {
-
 	echoServer.Use(middleware.Logger())
 	if !conf.IsDevMode {
 		echoServer.Use(middleware.Recover())

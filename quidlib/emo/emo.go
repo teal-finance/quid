@@ -1,71 +1,71 @@
 package emo
 
-// Info :
+// Info :.
 func (zone Zone) Info(errObjs ...interface{}) Event {
 	return processEvent("ℹ️", zone, true, errObjs)
 }
 
-// Warning :
+// Warning :.
 func (zone Zone) Warning(errObjs ...interface{}) Event {
 	return processEvent("🔔", zone, true, errObjs)
 }
 
-// Error :
+// Error :.
 func (zone Zone) Error(errObjs ...interface{}) Event {
 	return processEvent("💢", zone, true, errObjs)
 }
 
-// Query :
+// Query :.
 func (zone Zone) Query(errObjs ...interface{}) Event {
 	return processEvent("🗄️", zone, false, errObjs)
 }
 
-// QueryError :
+// QueryError :.
 func (zone Zone) QueryError(errObjs ...interface{}) Event {
 	return processEvent("🗄️", zone, true, errObjs)
 }
 
-// Encrypt :
+// Encrypt :.
 func (zone Zone) Encrypt(errObjs ...interface{}) Event {
 	return processEvent("🎼", zone, false, errObjs)
 }
 
-// EncryptError :
+// EncryptError :.
 func (zone Zone) EncryptError(errObjs ...interface{}) Event {
 	return processEvent("🎼", zone, true, errObjs)
 }
 
-// Decrypt :
+// Decrypt :.
 func (zone Zone) Decrypt(errObjs ...interface{}) Event {
 	return processEvent("🗝️", zone, false, errObjs)
 }
 
-// DecryptError :
+// DecryptError :.
 func (zone Zone) DecryptError(errObjs ...interface{}) Event {
 	return processEvent("🗝️", zone, true, errObjs)
 }
 
-// Time :
+// Time :.
 func (zone Zone) Time(errObjs ...interface{}) Event {
 	return processEvent("⏱️", zone, false, errObjs)
 }
 
-// TimeError :
+// TimeError :.
 func (zone Zone) TimeError(errObjs ...interface{}) Event {
 	return processEvent("⏱️", zone, true, errObjs)
 }
 
-// Param :
+// Param :.
 func (zone Zone) Param(errObjs ...interface{}) Event {
 	return processEvent("📥", zone, false, errObjs)
 }
 
-// ParamError :
+// ParamError :.
 func (zone Zone) ParamError(errObjs ...interface{}) Event {
 	return processEvent("📥", zone, true, errObjs)
 }
 
-// Debug :
+// Debug :.
 func (zone Zone) Debug(errObjs ...interface{}) Event {
 	return processEvent("💊", zone, false, errObjs)
 }

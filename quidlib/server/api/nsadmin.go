@@ -8,7 +8,7 @@ import (
 	"github.com/teal-finance/quid/quidlib/server/db"
 )
 
-// AllAdministratorsInNamespace : select all admin users for a namespace
+// AllAdministratorsInNamespace : select all admin users for a namespace.
 func AllAdministratorsInNamespace(c echo.Context) error {
 	m := echo.Map{}
 	if err := c.Bind(&m); err != nil {
@@ -44,7 +44,7 @@ func SearchForNonAdminUsersInNamespace(c echo.Context) error {
 	})
 }*/
 
-// CreateUserAdministrators : create admin users handler
+// CreateUserAdministrators : create admin users handler.
 func CreateAdministrators(c echo.Context) error {
 	m := echo.Map{}
 	if err := c.Bind(&m); err != nil {
@@ -77,7 +77,7 @@ func CreateAdministrators(c echo.Context) error {
 	return c.JSON(http.StatusOK, okResponse())
 }
 
-// DeleteAdministrator : delete an admin user handler
+// DeleteAdministrator : delete an admin user handler.
 func DeleteAdministrator(c echo.Context) error {
 	m := echo.Map{}
 	if err := c.Bind(&m); err != nil {

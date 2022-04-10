@@ -9,7 +9,7 @@ import (
 	"github.com/teal-finance/quid/quidlib/server"
 )
 
-// SelectAdministratorsInNamespace : get the admin users in a namespace
+// SelectAdministratorsInNamespace : get the admin users in a namespace.
 func SelectAdministratorsInNamespace(namespaceID int64) ([]server.NsAdmin, error) {
 	data := []server.NsAdmin{}
 	err := db.Select(&data,
@@ -22,11 +22,11 @@ func SelectAdministratorsInNamespace(namespaceID int64) ([]server.NsAdmin, error
 		fmt.Println("ERR", err)
 		return data, err
 	}
-	//fmt.Println("DATA", data)
+
 	return data, nil
 }
 
-// CreateAdministrator : create an admin user
+// CreateAdministrator : create an admin user.
 func CreateAdministrator(namespaceID int64, userID int64) (int64, error) {
 	q := "INSERT INTO namespaceadmin(namespace_id, user_id) VALUES($1,$2) RETURNING id"
 	rows, err := db.Query(q, namespaceID, userID)
@@ -45,7 +45,7 @@ func CreateAdministrator(namespaceID int64, userID int64) (int64, error) {
 	return id, nil
 }
 
-// AdministratorExists : check if an admin user exists
+// AdministratorExists : check if an admin user exists.
 func AdministratorExists(userID int64, namespaceID int64) (bool, error) {
 	var n int
 	q := "SELECT COUNT(id) FROM namespaceadmin WHERE (namespace_id=$1 AND user_id=$2)"
@@ -59,7 +59,7 @@ func AdministratorExists(userID int64, namespaceID int64) (bool, error) {
 	return false, nil
 }
 
-// DeleteAdministrator : delete an admin user for a namespace
+// DeleteAdministrator : delete an admin user for a namespace.
 func DeleteAdministrator(userID int64, namespaceID int64) error {
 	q := "DELETE FROM namespaceadmin WHERE (user_id=$1 AND namespace_id=$2)"
 	fmt.Println(q, userID, namespaceID)

@@ -13,7 +13,7 @@ import (
 	"github.com/teal-finance/quid/quidlib/tokens"
 )
 
-// AdminLogin : http login handler for the admin interface
+// AdminLogin : http login handler for the admin interface.
 func AdminLogin(c echo.Context) error {
 	m := echo.Map{}
 	if err := c.Bind(&m); err != nil {
@@ -73,7 +73,7 @@ func AdminLogin(c echo.Context) error {
 	}
 	sess.Values["is_admin"] = "true"
 	sess.Values["user"] = u.UserName
-	//emo.Info("Setting session", u.Name, sess.Values["is_admin"])
+
 	err = sess.Save(c.Request(), c.Response())
 	if err != nil {
 		emo.Error("Error saving session", err)
@@ -101,7 +101,7 @@ func AdminLogin(c echo.Context) error {
 	})
 }
 
-// AdminLogout : http logout handler for the admin interface
+// AdminLogout : http logout handler for the admin interface.
 func AdminLogout(c echo.Context) error {
 	sess, _ := session.Get("session", c)
 	sess.Values["is_admin"] = "false"

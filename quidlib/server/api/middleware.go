@@ -11,7 +11,7 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
-// AdminMiddleware : check the token claim to see if the user is admin
+// AdminMiddleware : check the token claim to see if the user is admin.
 func AdminMiddleware(next echo.HandlerFunc) echo.HandlerFunc {
 	return func(c echo.Context) error {
 		// check the access token to control that the user is admin

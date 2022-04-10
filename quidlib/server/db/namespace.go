@@ -4,14 +4,14 @@ import (
 	"database/sql"
 	"errors"
 
-	// pg import
+	// pg import.
 	_ "github.com/lib/pq"
 
 	"github.com/teal-finance/quid/quidlib/crypt"
 	"github.com/teal-finance/quid/quidlib/server"
 )
 
-// SelectAllNamespaces : get the namespaces
+// SelectAllNamespaces : get the namespaces.
 func SelectAllNamespaces() ([]server.Namespace, error) {
 	data := []namespace{}
 	res := []server.Namespace{}
@@ -31,7 +31,7 @@ func SelectAllNamespaces() ([]server.Namespace, error) {
 	return res, nil
 }
 
-// SelectNamespaceStartsWith : get a namespace
+// SelectNamespaceStartsWith : get a namespace.
 func SelectNamespaceStartsWith(name string) ([]server.Namespace, error) {
 	data := []namespace{}
 	res := []server.Namespace{}
@@ -48,7 +48,7 @@ func SelectNamespaceStartsWith(name string) ([]server.Namespace, error) {
 	return res, nil
 }
 
-// SelectNamespaceFromName : get a namespace
+// SelectNamespaceFromName : get a namespace.
 func SelectNamespaceFromName(name string) (bool, server.Namespace, error) {
 	data := namespace{}
 	ns := server.Namespace{}
@@ -133,7 +133,7 @@ func SelectNamespaceKeys(name string) (bool, string, string, error) {
 	return true, rk, k, nil
 }*/
 
-// SelectNamespaceID : get a namespace
+// SelectNamespaceID : get a namespace.
 func SelectNamespaceID(name string) (int64, error) {
 	data := []namespace{}
 	err := db.Select(&data, "SELECT id,name FROM namespace WHERE name=$1", name)
@@ -153,7 +153,7 @@ func SetNamespaceEndpointAvailability(id int64, enable bool) error {
 	return nil
 }
 
-// CreateNamespace : create a namespace
+// CreateNamespace : create a namespace.
 func CreateNamespace(name, key, refreshKey, ttl, refreshTTL string, endpoint bool) (int64, error) {
 	k, err := crypt.AesGcmEncrypt(key, nil)
 	if err != nil {
@@ -181,7 +181,7 @@ func CreateNamespace(name, key, refreshKey, ttl, refreshTTL string, endpoint boo
 	return id, nil
 }
 
-// UpdateNamespaceTokenMaxTTL : update a max access token ttl for a namespace
+// UpdateNamespaceTokenMaxTTL : update a max access token ttl for a namespace.
 func UpdateNamespaceTokenMaxTTL(ID int64, maxTTL string) error {
 	q := "UPDATE namespace set max_token_ttl=$2 WHERE id=$1"
 	if _, err := db.Query(q, ID, maxTTL); err != nil {
@@ -191,7 +191,7 @@ func UpdateNamespaceTokenMaxTTL(ID int64, maxTTL string) error {
 	return nil
 }
 
-// UpdateNamespaceRefreshTokenMaxTTL : update a max refresh token ttl for a namespace
+// UpdateNamespaceRefreshTokenMaxTTL : update a max refresh token ttl for a namespace.
 func UpdateNamespaceRefreshTokenMaxTTL(ID int64, refreshMaxTTL string) error {
 	q := "UPDATE namespace set max_refresh_token_ttl=$2 WHERE id=$1"
 	_, err := db.Query(q, ID, refreshMaxTTL)
@@ -201,7 +201,7 @@ func UpdateNamespaceRefreshTokenMaxTTL(ID int64, refreshMaxTTL string) error {
 	return nil
 }
 
-// DeleteNamespace : delete a namespace
+// DeleteNamespace : delete a namespace.
 func DeleteNamespace(ID int64) QueryResult {
 	q := "DELETE FROM namespace where id=$1"
 	tx, _ := db.Begin()
@@ -216,7 +216,7 @@ func DeleteNamespace(ID int64) QueryResult {
 	return queryNoError()
 }
 
-// NamespaceExists : check if an namespace exists
+// NamespaceExists : check if an namespace exists.
 func NamespaceExists(name string) (bool, error) {
 	q := "SELECT COUNT(id) FROM namespace WHERE(name=$1)"
 	var n int
@@ -225,9 +225,9 @@ func NamespaceExists(name string) (bool, error) {
 	return exists, err
 }
 
-// CountUsersForNamespace : count users in a namespace
-func CountUsersForNamespace(ID int64) (int, error) {
+// CountUsersForNamespace : count users in a namespace.
+func CountUsersForNamespace(ID int64) (n int, err error) {
 	q := "SELECT COUNT(id) FROM usertable WHERE(namespace_id=$1)"
 	err = db.Get(&n, q, ID)
-		return n, err
+	return n, err
 }

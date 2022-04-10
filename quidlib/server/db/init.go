@@ -9,12 +9,12 @@ import (
 	"github.com/teal-finance/quid/quidlib/tokens"
 )
 
-// InitDbConf : initialize the database content
+// InitDbConf : initialize the database content.
 func InitDbConf() {
 	initDbConf(true, "", "")
 }
 
-// InitDbAutoConf : initialize the database content
+// InitDbAutoConf : initialize the database content.
 func InitDbAutoConf(username, password string) {
 	initDbConf(false, username, password)
 }

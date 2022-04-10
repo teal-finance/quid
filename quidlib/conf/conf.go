@@ -12,19 +12,19 @@ import (
 	"github.com/spf13/viper"
 )
 
-// ConnStr : the postgres connection string
+// ConnStr : the postgres connection string.
 var ConnStr string
 
-// EncodingKey : the encoding key
+// EncodingKey : the encoding key.
 var EncodingKey string
 
-// IsDevMode : enable development mode
+// IsDevMode : enable development mode.
 var IsDevMode = false
 
-// Port : the port to run on
+// Port : the port to run on.
 var Port = "8082"
 
-// Create : create a config file
+// Create : create a config file.
 func Create() {
 	data := map[string]interface{}{
 		"db_name":     "quid",
@@ -37,7 +37,7 @@ func Create() {
 	ioutil.WriteFile("config.json", jsonString, os.ModePerm)
 }
 
-// Init : get the config
+// Init : get the config.
 func Init(isDevMode bool) (bool, error) {
 	viper.SetConfigName("config")
 	viper.AddConfigPath(".")

@@ -1,6 +1,6 @@
 package db
 
-// Schema : the Postgresql schema
+// Schema : the Postgresql schema.
 var schema = `CREATE TABLE IF NOT EXISTS namespace (
 	id SERIAL PRIMARY KEY,
 	name TEXT UNIQUE NOT NULL,

@@ -8,7 +8,7 @@ import (
 	db "github.com/teal-finance/quid/quidlib/server/db"
 )
 
-// AllGroupsForNamespace : get all groups for a namespace http handler
+// AllGroupsForNamespace : get all groups for a namespace http handler.
 func AllGroupsForNamespace(c echo.Context) error {
 	m := echo.Map{}
 	if err := c.Bind(&m); err != nil {
@@ -24,7 +24,7 @@ func AllGroupsForNamespace(c echo.Context) error {
 	return c.JSON(http.StatusOK, &data)
 }
 
-// AllGroups : get all groups for a namespace http handler
+// AllGroups : get all groups for a namespace http handler.
 func AllGroups(c echo.Context) error {
 	data, err := db.SelectAllGroups()
 	if err != nil {
@@ -33,10 +33,9 @@ func AllGroups(c echo.Context) error {
 		})
 	}
 	return c.JSON(http.StatusOK, &data)
-
 }
 
-// GroupsInfo : group creation http handler
+// GroupsInfo : group creation http handler.
 func GroupsInfo(c echo.Context) error {
 	m := echo.Map{}
 	if err := c.Bind(&m); err != nil {
@@ -54,10 +53,9 @@ func GroupsInfo(c echo.Context) error {
 	return c.JSON(http.StatusOK, echo.Map{
 		"num_users": n,
 	})
-
 }
 
-// DeleteGroup : group deletion http handler
+// DeleteGroup : group deletion http handler.
 func DeleteGroup(c echo.Context) error {
 	m := echo.Map{}
 	if err := c.Bind(&m); err != nil {
@@ -76,7 +74,7 @@ func DeleteGroup(c echo.Context) error {
 	})
 }
 
-// CreateGroup : group creation http handler
+// CreateGroup : group creation http handler.
 func CreateGroup(c echo.Context) error {
 	m := echo.Map{}
 	if err := c.Bind(&m); err != nil {
@@ -102,7 +100,7 @@ func CreateGroup(c echo.Context) error {
 	})
 }
 
-// createGroup : create a group
+// createGroup : create a group.
 func createGroup(name string, namespaceID int64) (server.Group, bool, error) {
 	ns := server.Group{}
 

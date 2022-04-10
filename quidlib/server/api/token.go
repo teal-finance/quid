@@ -138,7 +138,7 @@ func RequestAccessToken(c echo.Context) error {
 	// get the namespace
 	exists, ns, err := db.SelectNamespaceFromName(namespace)
 	if !exists {
-		emo.Error("The namepsace does not exist")
+		emo.Error("The namespace does not exist")
 		return c.JSON(http.StatusBadRequest, echo.Map{
 			"error": true,
 		})
@@ -285,7 +285,7 @@ func RequestRefreshToken(c echo.Context) error {
 
 	// check if the endpoint is available
 	if !ns.PublicEndpointEnabled {
-		emo.Error("Public endpoint unanuthorized")
+		emo.Error("Public endpoint unauthorized")
 		return c.JSON(http.StatusUnauthorized, echo.Map{
 			"error": "unauthorized",
 		})

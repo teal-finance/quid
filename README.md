@@ -52,7 +52,7 @@ Request a refresh token and use it to request access tokens
 
 ### Refresh token
 
-A public endpoint is available to request refresh tokens for namespaces. A time to live must be provided. 
+A public endpoint is available to request refresh tokens for namespaces. A time to live must be provided.
 Ex: request a refresh token with a 24h lifetime `/token/refresh/24h`:
 
 ```php
@@ -69,7 +69,7 @@ Response:
 
 ### Access token
 
-A public endpoint is available to request access tokens for namespaces. A time to live must be provided. 
+A public endpoint is available to request access tokens for namespaces. A time to live must be provided.
 Ex: request an access token with a 10 minutes lifetime `/token/access/10m`:
 
 ```php
@@ -88,7 +88,7 @@ Note: if the requested duration exceeds the max authorized tokens time to live f
 
 ## Decode tokens
 
-### Python:
+### Python
 
 ```python
 import jwt

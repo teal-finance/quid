@@ -63,7 +63,7 @@ func initDbConf(prompt bool, username, password string) {
 		gid = group.ID
 	}
 	// check superuser
-	n, err := CountUsersInGroup(gid)
+	n, _ := CountUsersInGroup(gid)
 	if n == 0 {
 		var uname string
 		if prompt {

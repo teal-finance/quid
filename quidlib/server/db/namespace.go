@@ -200,8 +200,8 @@ func UpdateNamespaceRefreshTokenMaxTTL(ID int64, refreshMaxTTL string) error {
 // DeleteNamespace : delete a namespace
 func DeleteNamespace(ID int64) QueryResult {
 	q := "DELETE FROM namespace where id=$1"
-	tx, err := db.Begin()
-	_, err = tx.Exec(q, ID)
+	tx, _ := db.Begin()
+	_, err := tx.Exec(q, ID)
 	if err != nil {
 		return queryError(err)
 	}

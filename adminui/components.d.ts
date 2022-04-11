@@ -2,7 +2,7 @@
 // We suggest you to commit this file into source control
 // Read more: https://github.com/vuejs/vue-next/pull/3399
 
-declare module 'vue' {
+declare module '@vue/runtime-core' {
   export interface GlobalComponents {
     ActionButton: typeof import('./src/components/widgets/ActionButton.vue')['default']
     AddAdmin: typeof import('./src/components/admin/add/AddAdmin.vue')['default']
@@ -35,6 +35,8 @@ declare module 'vue' {
     NamespaceInfo: typeof import('./src/components/namespace/NamespaceInfo.vue')['default']
     NamespaceSelector: typeof import('./src/components/namespace/NamespaceSelector.vue')['default']
     OrgDatatable: typeof import('./src/components/org/OrgDatatable.vue')['default']
+    RouterLink: typeof import('vue-router')['RouterLink']
+    RouterView: typeof import('vue-router')['RouterView']
     SearchForUsers: typeof import('./src/components/admin/add/subviews/SearchForUsers.vue')['default']
     SearchUser: typeof import('./src/components/user/SearchUser.vue')['default']
     SelectUser: typeof import('./src/components/admin/add/subviews/SelectUser.vue')['default']

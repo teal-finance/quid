@@ -1,19 +1,17 @@
-### Run in dev mode
+# Run in dev mode
 
-Set an `enable_dev_mode` parameter to `true` in config.json
+Add the `enable_dev_mode` parameter set to `true` in `config.json`.
 
-Run the backend:
+Use two consoles.
 
-   ```bash
-   go run main.go -dev
-   ```
+## Run the backend
 
-Run the frontend:
+    make rundev
 
-   ```bash
-   cd quidui
-   npm install
-   npm run serve
-   ```
+## Run the frontend
 
-Go to `localhost:8080` to login into the admin interface
+    make runfront
+
+Open <http://localhost:3000> to login into the admin interface:
+
+    xdg-open http://localhost:3000

@@ -6,10 +6,6 @@ Quid is a JSON Web Tokens (JWT) server.
 
 Download the latest [release](https://github.com/teal-finance/quid/releases) to run a binary or clone the repository to compile from source.
 
-## Create the database
-
-Create a `quid` database in PostgreSQL: [instructions](doc/setup_db.md)
-
 ## Build from source
 
     make all -j
@@ -20,21 +16,25 @@ Create a `quid` database in PostgreSQL: [instructions](doc/setup_db.md)
 
        ./quid -conf
 
-2. Edit the configuration file to set your database credentials:
+2. Create the Quid database in PostgreSQL: [instructions](doc/setup_db.md)
+
+3. Edit the configuration file to set your database credentials:
 
         vim config.json
 
-3. Initialize the database and create an admin user:
+4. Initialize the database and create an administrator user:
 
        ./quid -init
 
-## Run
+    These registered administrator username and password will be required to login on the Quid Administration UI.
+
+## Run the backend
 
     ./quid
 
 See also: [run in dev mode](doc/dev_mode.md)
 
-Go to [`localhost:8082`](http://localhost:8082) to login into the admin interface.
+Quid serves the static web site. Open <http://localhost:8082> to login into the admin interface:
 
     xdg-open http://localhost:8082
 

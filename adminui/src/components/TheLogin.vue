@@ -75,10 +75,7 @@ export default defineComponent({
         isValid: false,
         // eslint-disable-next-line
         validator: (v: string) => {
-          if (v.length >= 3) {
-            return true;
-          }
-          return false;
+          return (v.length >= 1);
         },
       },
       password: {
@@ -86,10 +83,7 @@ export default defineComponent({
         isValid: false,
         // eslint-disable-next-line
         validator: (v: string) => {
-          if (v.length >= 5) {
-            return true;
-          }
-          return false;
+          return (v.length >= 6);
         },
       },
     });

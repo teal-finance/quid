@@ -1,7 +1,6 @@
 package api
 
 import (
-	"fmt"
 	"net/http"
 
 	"github.com/gorilla/sessions"
@@ -19,6 +18,7 @@ func AdminLogin(c echo.Context) error {
 	if err := c.Bind(&m); err != nil {
 		return err
 	}
+
 	username := m["username"].(string)
 	password := m["password"].(string)
 	namespace := m["namespace"].(string)
@@ -40,18 +40,19 @@ func AdminLogin(c echo.Context) error {
 		return err
 	}
 	if !isAuthorized {
-		fmt.Println(username, "unauthorized")
+		emo.Warning(username, "unauthorized")
 		return c.JSON(http.StatusUnauthorized, echo.Map{
 			"error": "unauthorized",
 		})
 	}
+
 	// check the user admin group
 	isAdmin, err := isUserInAdminGroup(u.ID, ns.ID)
 	if err != nil {
 		return err
 	}
 	if !isAdmin {
-		fmt.Println(username, "unauthorized: not in admin group")
+		emo.Warning(username, "unauthorized: not in admin group")
 		return c.JSON(http.StatusUnauthorized, echo.Map{
 			"error": "unauthorized",
 		})
@@ -88,13 +89,13 @@ func AdminLogin(c echo.Context) error {
 		})
 	}
 	if token == "" {
-		emo.Error("Unauthorized: timeout max (", ns.MaxRefreshTokenTTL, ") for refresh token for namespace", ns.Name)
+		emo.Warning("Unauthorized: timeout max (", ns.MaxRefreshTokenTTL, ") for refresh token for namespace", ns.Name)
 		return c.JSON(http.StatusUnauthorized, echo.Map{
 			"error": "unauthorized",
 		})
 	}
 
-	fmt.Println("Admin user", u.UserName, "is connected")
+	emo.Info("Admin user ", u.UserName, " is connected")
 
 	return c.JSON(http.StatusOK, echo.Map{
 		"token": token,

@@ -56,7 +56,7 @@ func AdminMiddleware(next echo.HandlerFunc) echo.HandlerFunc {
 			return next(c)
 		}
 
-		emo.Error("Unauthorized session from admin middleware")
+		emo.Warning("Unauthorized session from admin middleware")
 		return c.NoContent(http.StatusUnauthorized)
 	}
 }

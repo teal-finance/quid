@@ -19,6 +19,7 @@ func RequestAdminAccessToken(c echo.Context) error {
 	if err := c.Bind(&m); err != nil {
 		return err
 	}
+
 	refreshToken, ok := m["refresh_token"].(string)
 	if !ok {
 		emo.ParamError("provide a refresh_token parameter")
@@ -45,11 +46,12 @@ func RequestAdminAccessToken(c echo.Context) error {
 		}
 		return []byte(ns.RefreshKey), nil
 	})
+
 	if claims, ok := token.Claims.(*tokens.RefreshClaims); ok && token.Valid {
 		username = claims.UserName
 		fmt.Printf("%v %v", claims.UserName, claims.ExpiresAt)
 	} else {
-		emo.Error(err.Error())
+		emo.Warning(err.Error())
 		return c.JSON(http.StatusUnauthorized, echo.Map{
 			"error": "unauthorized",
 		})
@@ -58,7 +60,7 @@ func RequestAdminAccessToken(c echo.Context) error {
 	// get the user
 	found, u, err := db.SelectNonDisabledUser(username, ns.ID)
 	if !found {
-		emo.Error("User not found: " + username)
+		emo.Warning("User not found: " + username)
 		return c.JSON(http.StatusUnauthorized, echo.Map{
 			"error": "unauthorized",
 		})
@@ -77,6 +79,7 @@ func RequestAdminAccessToken(c echo.Context) error {
 		log.Fatal(err)
 		return err
 	}
+
 	// get the user orgs names
 	orgsNames, err := db.SelectOrgsNamesForUser(u.ID)
 	if err != nil {
@@ -84,6 +87,7 @@ func RequestAdminAccessToken(c echo.Context) error {
 		log.Fatal(err)
 		return err
 	}
+
 	// check if the user is in the admin group
 	isAdmin := false
 	for _, gn := range groupNames {
@@ -119,6 +123,7 @@ func RequestAccessToken(c echo.Context) error {
 	if err := c.Bind(&m); err != nil {
 		return err
 	}
+
 	refreshToken, ok := m["refresh_token"].(string)
 	if !ok {
 		emo.ParamError("provide a refresh_token parameter")
@@ -126,6 +131,7 @@ func RequestAccessToken(c echo.Context) error {
 			"error": "provide a refresh_token parameter",
 		})
 	}
+
 	namespace, ok := m["namespace"].(string)
 	if !ok {
 		emo.ParamError("provide a namespace parameter")
@@ -133,12 +139,13 @@ func RequestAccessToken(c echo.Context) error {
 			"error": "provide a namespace parameter",
 		})
 	}
+
 	timeout := c.Param("timeout")
 
 	// get the namespace
 	exists, ns, err := db.SelectNamespaceFromName(namespace)
 	if !exists {
-		emo.Error("The namespace does not exist")
+		emo.Warning("The namespace does not exist")
 		return c.JSON(http.StatusBadRequest, echo.Map{
 			"error": true,
 		})
@@ -153,7 +160,7 @@ func RequestAccessToken(c echo.Context) error {
 
 	// check if the endpoint is available
 	if !ns.PublicEndpointEnabled {
-		emo.Error("Public endpoint unauthorized")
+		emo.Warning("Public endpoint unauthorized")
 		return c.JSON(http.StatusUnauthorized, echo.Map{
 			"error": "unauthorized",
 		})
@@ -167,11 +174,12 @@ func RequestAccessToken(c echo.Context) error {
 		}
 		return []byte(ns.RefreshKey), nil
 	})
+
 	if claims, ok := token.Claims.(*tokens.RefreshClaims); ok && token.Valid {
 		username = claims.UserName
 		fmt.Printf("%v %v", claims.UserName, claims.ExpiresAt)
 	} else {
-		emo.Error(err.Error())
+		emo.Warning(err.Error())
 		return c.JSON(http.StatusUnauthorized, echo.Map{
 			"error": "unauthorized",
 		})
@@ -180,7 +188,7 @@ func RequestAccessToken(c echo.Context) error {
 	// get the user
 	found, u, err := db.SelectNonDisabledUser(username, ns.ID)
 	if !found {
-		emo.Error("User not found: " + username)
+		emo.Warning("User not found: " + username)
 		return c.JSON(http.StatusUnauthorized, echo.Map{
 			"error": "unauthorized",
 		})
@@ -217,7 +225,7 @@ func RequestAccessToken(c echo.Context) error {
 		})
 	}
 	if t == "" {
-		emo.Error("Timeout unauthorized")
+		emo.Warning("Timeout unauthorized")
 		return c.JSON(http.StatusUnauthorized, echo.Map{
 			"error": "unauthorized",
 		})
@@ -234,6 +242,7 @@ func RequestRefreshToken(c echo.Context) error {
 	if err := c.Bind(&m); err != nil {
 		return err
 	}
+
 	// username
 	usernameParam, ok := m["username"]
 	var username string
@@ -244,6 +253,7 @@ func RequestRefreshToken(c echo.Context) error {
 			"error": "provide a username",
 		})
 	}
+
 	// password
 	passwordParam, ok := m["password"]
 	var password string
@@ -254,6 +264,7 @@ func RequestRefreshToken(c echo.Context) error {
 			"error": "provide a password",
 		})
 	}
+
 	// namespace
 	nsParam, ok := m["namespace"]
 	var namespace string
@@ -264,6 +275,7 @@ func RequestRefreshToken(c echo.Context) error {
 			"error": "provide a namespace",
 		})
 	}
+
 	// timeout
 	timeout := c.Param("timeout")
 
@@ -285,7 +297,7 @@ func RequestRefreshToken(c echo.Context) error {
 
 	// check if the endpoint is available
 	if !ns.PublicEndpointEnabled {
-		emo.Error("Public endpoint unauthorized")
+		emo.Warning("Public endpoint unauthorized")
 		return c.JSON(http.StatusUnauthorized, echo.Map{
 			"error": "unauthorized",
 		})
@@ -296,6 +308,7 @@ func RequestRefreshToken(c echo.Context) error {
 	if err != nil {
 		return err
 	}
+
 	// Respond with unauthorized status
 	if !isAuthorized {
 		fmt.Println(username, "unauthorized")

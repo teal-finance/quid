@@ -28,10 +28,12 @@ func AdminMiddleware(next echo.HandlerFunc) echo.HandlerFunc {
 			emo.ParamError("The user " + claims.UserName + " is not in the quid_admin group")
 			return c.NoContent(http.StatusUnauthorized)
 		}
-		// check session data in prouction
+
+		// check session data in production
 		if conf.IsDevMode {
 			return next(c)
 		}
+
 		sess, _ := session.Get("session", c)
 		if sess.Values["is_admin"] == "true" {
 			return next(c)

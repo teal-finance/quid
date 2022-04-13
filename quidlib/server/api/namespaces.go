@@ -145,9 +145,9 @@ func DeleteNamespace(c echo.Context) error {
 	if err := c.Bind(&m); err != nil {
 		return err
 	}
-	ID := int64(m["id"].(float64))
 
-	qRes := db.DeleteNamespace(ID)
+	id := int64(m["id"].(float64))
+	qRes := db.DeleteNamespace(id)
 	if qRes.HasError {
 		emo.QueryError(qRes.Error.Message)
 		if qRes.Error.HasUserMessage {
@@ -190,6 +190,7 @@ func CreateNamespace(c echo.Context) error {
 	if err := c.Bind(&m); err != nil {
 		return err
 	}
+
 	name := m["name"].(string)
 	maxTTL := m["max_ttl"].(string)
 	refreshMaxTTL := m["refresh_max_ttl"].(string)
@@ -197,7 +198,8 @@ func CreateNamespace(c echo.Context) error {
 
 	key := tokens.GenKey()
 	refreshKey := tokens.GenKey()
-	ns, exists, err := createNamespace(name, key, refreshKey, maxTTL, refreshMaxTTL, enableEndpoint)
+
+	id, exists, err := createNamespace(name, key, refreshKey, maxTTL, refreshMaxTTL, enableEndpoint)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, echo.Map{
 			"error": "error creating namespace",
@@ -210,27 +212,24 @@ func CreateNamespace(c echo.Context) error {
 	}
 
 	return c.JSON(http.StatusOK, echo.Map{
-		"namespace_id": ns.ID,
+		"namespace_id": id,
 	})
 }
 
 // createNamespace : create a namespace.
-func createNamespace(name, key, refreshKey, ttl, refreshMaxTTL string, endpoint bool) (server.Namespace, bool, error) {
-	ns := server.Namespace{}
-
+func createNamespace(name, key, refreshKey, ttl, refreshMaxTTL string, endpoint bool) (int64, bool, error) {
 	exists, err := db.NamespaceExists(name)
 	if err != nil {
-		return ns, false, err
+		return 0, false, err
 	}
 	if exists {
-		return ns, true, nil
+		return 0, true, nil
 	}
 
-	uid, err := db.CreateNamespace(name, key, refreshKey, ttl, refreshMaxTTL, endpoint)
+	id, err := db.CreateNamespace(name, key, refreshKey, ttl, refreshMaxTTL, endpoint)
 	if err != nil {
-		return ns, false, err
+		return 0, false, err
 	}
-	ns.ID = uid
-	ns.Name = name
-	return ns, false, nil
+
+	return id, false, nil
 }

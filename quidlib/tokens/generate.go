@@ -76,24 +76,20 @@ func GenAccessToken(timeout, maxTTL, user string, groups, orgs []string, secretK
 
 // GenKey generates a random hmac key.
 func GenKey() string {
-	b, err := genRandomBytes(32)
-	if err != nil {
-		log.Fatal(err)
-	}
-
+	b := genRandomBytes(32)
 	h := hmac.New(sha256.New, b)
 
 	return hex.EncodeToString(h.Sum(nil))
 }
 
-func genRandomBytes(n int) ([]byte, error) {
+func genRandomBytes(n int) []byte {
 	b := make([]byte, n)
 
 	if _, err := rand.Read(b); err != nil {
-		return nil, err
+		log.Fatal(err)
 	}
 
-	return b, nil
+	return b
 }
 
 func isTimeoutAuthorized(timeout, maxTTL string) (bool, error) {

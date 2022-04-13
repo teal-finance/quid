@@ -3,6 +3,7 @@ package db
 import (
 	"database/sql"
 	"errors"
+	"fmt"
 
 	// pg import.
 	_ "github.com/lib/pq"
@@ -159,16 +160,19 @@ func CreateNamespace(name, key, refreshKey, ttl, refreshTTL string, endpoint boo
 	if err != nil {
 		return 0, err
 	}
+
 	rk, err := crypt.AesGcmEncrypt(refreshKey, nil)
 	if err != nil {
 		return 0, err
 	}
+
 	q := "INSERT INTO namespace(name,key,refresh_key,max_token_ttl,max_refresh_token_ttl,public_endpoint_enabled) VALUES($1,$2,$3,$4,$5,$6) RETURNING id"
 	rows, err := db.Query(q, name, k, rk, ttl, refreshTTL, endpoint)
 	if err != nil {
+		emo.QueryError(err)
 		return 0, err
 	}
-	var id int64
+
 	for rows.Next() {
 		var idi interface{}
 		err := rows.Scan(&idi)
@@ -176,9 +180,12 @@ func CreateNamespace(name, key, refreshKey, ttl, refreshTTL string, endpoint boo
 			emo.QueryError(err)
 			return 0, err
 		}
-		id = idi.(int64)
+
+		return idi.(int64), nil
 	}
-	return id, nil
+
+	emo.QueryError("no namespace ", name)
+	return 0, fmt.Errorf("no namespace %q", name)
 }
 
 // UpdateNamespaceTokenMaxTTL : update a max access token ttl for a namespace.

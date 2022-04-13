@@ -2,6 +2,8 @@ package db
 
 import (
 	// pg import.
+	"fmt"
+
 	_ "github.com/lib/pq"
 
 	"github.com/teal-finance/quid/quidlib/server"
@@ -94,20 +96,23 @@ func CreateOrg(name string) (int64, error) {
 	q := "INSERT INTO orgtable(name) VALUES($1) RETURNING id"
 	rows, err := db.Query(q, name)
 	if err != nil {
+		emo.QueryError(err)
 		return 0, err
 	}
 
-	var id int64
 	for rows.Next() {
 		var idi interface{}
-		if err := rows.Scan(&idi); err != nil {
+		err := rows.Scan(&idi)
+		if err != nil {
+			emo.QueryError(err)
 			return 0, err
 		}
 
-		id = idi.(int64)
+		return idi.(int64), nil
 	}
 
-	return id, nil
+	emo.QueryError("no org ", name)
+	return 0, fmt.Errorf("no org %q", name)
 }
 
 // AddUserInOrg : add a user into an org.

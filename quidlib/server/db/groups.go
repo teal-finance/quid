@@ -2,6 +2,8 @@ package db
 
 import (
 	// pg import.
+	"fmt"
+
 	_ "github.com/lib/pq"
 
 	"github.com/teal-finance/quid/quidlib/server"
@@ -73,18 +75,23 @@ func CreateGroup(name string, namespaceID int64) (int64, error) {
 	q := "INSERT INTO grouptable(name,namespace_id) VALUES($1,$2) RETURNING id"
 	rows, err := db.Query(q, name, namespaceID)
 	if err != nil {
+		emo.QueryError(err)
 		return 0, err
 	}
-	var id int64
+
 	for rows.Next() {
 		var idi interface{}
 		err := rows.Scan(&idi)
 		if err != nil {
+			emo.QueryError(err)
 			return 0, err
 		}
-		id = idi.(int64)
+
+		return idi.(int64), nil
 	}
-	return id, nil
+
+	emo.QueryError("no group ", name)
+	return 0, fmt.Errorf("no group %q", name)
 }
 
 // DeleteGroup : delete a group.

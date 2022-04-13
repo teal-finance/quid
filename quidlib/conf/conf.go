@@ -74,6 +74,6 @@ func generateRandomKey() string {
 	if _, err := rand.Read(bytes); err != nil {
 		panic(err.Error())
 	}
-	key := hex.EncodeToString(bytes)
-	return key
+
+	return hex.EncodeToString(bytes)
 }

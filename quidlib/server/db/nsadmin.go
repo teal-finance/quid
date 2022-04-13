@@ -2,7 +2,6 @@ package db
 
 import (
 	"fmt"
-	"log"
 
 	_ "github.com/lib/pq"
 
@@ -31,18 +30,24 @@ func CreateAdministrator(namespaceID int64, userID int64) (int64, error) {
 	q := "INSERT INTO namespaceadmin(namespace_id, user_id) VALUES($1,$2) RETURNING id"
 	rows, err := db.Query(q, namespaceID, userID)
 	if err != nil {
-		log.Fatal(err)
+		emo.QueryError(err)
+		return 0, err
 	}
-	var id int64
+
 	for rows.Next() {
 		var idi interface{}
 		err := rows.Scan(&idi)
 		if err != nil {
-			log.Fatalln(err)
+			emo.QueryError(err)
+			return 0, err
 		}
-		id = idi.(int64)
+
+		return idi.(int64), nil
 	}
-	return id, nil
+
+	emo.QueryError("no namespaceadmin for namespaceID=", namespaceID, " userID=", userID)
+	return 0, fmt.Errorf("no namespaceadmin")
+
 }
 
 // AdministratorExists : check if an admin user exists.

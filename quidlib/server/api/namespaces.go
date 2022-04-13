@@ -1,7 +1,6 @@
 package api
 
 import (
-	"log"
 	"net/http"
 
 	"github.com/labstack/echo/v4"
@@ -14,11 +13,12 @@ import (
 func AllNamespaces(c echo.Context) error {
 	data, err := db.SelectAllNamespaces()
 	if err != nil {
-		log.Fatal(err)
+		emo.QueryError(err)
 		return c.JSON(http.StatusInternalServerError, echo.Map{
 			"error": "error selecting namespaces",
 		})
 	}
+
 	return c.JSON(http.StatusOK, &data)
 }
 
@@ -33,7 +33,7 @@ func SetNamespaceRefreshTokenMaxTTL(c echo.Context) error {
 
 	err := db.UpdateNamespaceRefreshTokenMaxTTL(ID, refreshMxTTL)
 	if err != nil {
-		log.Fatal(err)
+		emo.QueryError(err)
 		return c.JSON(http.StatusInternalServerError, echo.Map{
 			"error": "error updating tokens max ttl in namespace",
 		})
@@ -54,7 +54,7 @@ func SetNamespaceTokenMaxTTL(c echo.Context) error {
 
 	err := db.UpdateNamespaceTokenMaxTTL(ID, maxTTL)
 	if err != nil {
-		log.Fatal(err)
+		emo.QueryError(err)
 		return c.JSON(http.StatusInternalServerError, echo.Map{
 			"error": "error updating tokens max ttl in namespace",
 		})
@@ -74,7 +74,7 @@ func NamespaceInfo(c echo.Context) error {
 
 	nu, err := db.CountUsersForNamespace(ID)
 	if err != nil {
-		log.Fatal(err)
+		emo.QueryError(err)
 		return c.JSON(http.StatusInternalServerError, echo.Map{
 			"error": "error counting users in namespace",
 		})
@@ -82,7 +82,7 @@ func NamespaceInfo(c echo.Context) error {
 
 	g, err := db.SelectGroupsForNamespace(ID)
 	if err != nil {
-		log.Fatal(err)
+		emo.QueryError(err)
 		return c.JSON(http.StatusInternalServerError, echo.Map{
 			"error": "error counting users in namespace",
 		})
@@ -106,7 +106,7 @@ func GetNamespaceKey(c echo.Context) error {
 
 	found, data, err := db.SelectNamespaceKey(ID)
 	if err != nil {
-		log.Fatal(err)
+		emo.QueryError(err)
 		return c.JSON(http.StatusInternalServerError, echo.Map{
 			"error": "error finding namespace key",
 		})
@@ -131,7 +131,7 @@ func FindNamespace(c echo.Context) error {
 
 	data, err := db.SelectNamespaceStartsWith(name)
 	if err != nil {
-		log.Fatal(err)
+		emo.QueryError(err)
 		return c.JSON(http.StatusInternalServerError, echo.Map{
 			"error": "error finding namespace",
 		})

@@ -1,7 +1,6 @@
 package api
 
 import (
-	"log"
 	"net/http"
 
 	"github.com/labstack/echo/v4"
@@ -30,7 +29,7 @@ func FindOrg(c echo.Context) error {
 
 	data, err := db.SelectOrgStartsWith(name)
 	if err != nil {
-		log.Fatal(err)
+		emo.QueryError(err)
 		return c.JSON(http.StatusInternalServerError, echo.Map{
 			"error": "error finding org",
 		})

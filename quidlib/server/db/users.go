@@ -3,7 +3,7 @@ package db
 import (
 	"database/sql"
 	"errors"
-	"log"
+	"fmt"
 
 	// pg import.
 	_ "github.com/lib/pq"
@@ -117,18 +117,23 @@ func CreateUserFromNameAndPassword(username string, passwordHash string, namespa
 	q := "INSERT INTO usertable(username,password,namespace_id) VALUES($1,$2,$3) RETURNING id"
 	rows, err := db.Query(q, username, passwordHash, namespaceID)
 	if err != nil {
-		log.Fatal(err)
+		emo.QueryError(err)
+		return 0, err
 	}
-	var id int64
+
 	for rows.Next() {
 		var idi interface{}
 		err := rows.Scan(&idi)
 		if err != nil {
-			log.Fatalln(err)
+			emo.QueryError(err)
+			return 0, err
 		}
-		id = idi.(int64)
+
+		return idi.(int64), nil
 	}
-	return id, nil
+
+	emo.QueryError("no user ", username)
+	return 0, fmt.Errorf("no user %q", username)
 }
 
 /*

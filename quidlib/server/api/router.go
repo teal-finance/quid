@@ -38,11 +38,10 @@ func RunServer(adminNsKey string) {
 
 	echoServer.Use(session.MiddlewareWithConfig(session.Config{Store: SessionsStore}))
 
-	// serve static files in production
-	if !conf.IsDevMode {
-		echoServer.File("/", "adminui/dist/index.html")
-		echoServer.Static("/assets", "adminui/dist/assets")
-	}
+	// serve static files
+	echoServer.File("/", "adminui/dist/index.html")
+	echoServer.File("/favicon.ico", "adminui/dist/favicon.ico")
+	echoServer.Static("/assets", "adminui/dist/assets")
 
 	// HTTP Routes
 	// public routes

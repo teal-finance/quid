@@ -18,34 +18,45 @@ LISTEN 0      244            [::1]:5432         [::]:*
 
 If you do not have already created a privileged user, create it:
 
-```sh
+```sql
 $ sudo -u postgres psql
 postgres=# create user pguser with password 'my_password';
 CREATE ROLE
+postgres=# exit
 ```
-
-(enter [CTRL]+[D] to exist)
 
 Update the `config.json` file:
 
 ```json
-"db_password": "my_password",
 "db_user": "pguser",
+"db_password": "my_password",
 ```
 
-## Create the Quid database
+## Create the `quid` database
 
-```sh
+```sql
 $ sudo -u postgres psql
 postgres=# create database quid;
 CREATE DATABASE
-postgres=# GRANT ALL PRIVILEGES ON DATABASE quid to pguser;
-GRANT
+postgres=# exit
 ```
 
-You may replace the above last statement by:
+## Set the database permissions
 
-```sh
+```sql
+$ sudo -u postgres psql
+postgres=# GRANT ALL PRIVILEGES ON DATABASE quid to pguser;
+GRANT
+postgres=# exit
+```
+
+The previous statement may be replaced by:
+
+```sql
+$ sudo -u postgres psql
 postgres=# \c quid
-postgres=# GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA public to pguser;
+You are now connected to database "quid" as user "postgres".
+quid-# GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA public to pguser;
+GRANT
+quid=# exit
 ```

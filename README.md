@@ -16,17 +16,17 @@ Download the latest [release](https://github.com/teal-finance/quid/releases) to 
 
        ./quid -conf
 
-2. Create the Quid database in PostgreSQL: [instructions](doc/setup_db.md)
+2. Create the `quid` database: [instructions](doc/setup_db.md)
 
-3. Edit the configuration file to set your database credentials:
+3. Edit the configuration file to set your PostgreSQL credentials:
 
         vim config.json
 
-4. Initialize the database and create an administrator user:
+4. Initialize the `quid` database and create the administrator user:
 
        ./quid -init
 
-    These registered administrator username and password will be required to login on the Quid Administration UI.
+    These registered administrator username and password will be required to login the Administration UI.
 
 ## Run the backend
 

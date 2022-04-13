@@ -32,10 +32,7 @@ const form = reactive({
     val: "",
     isValid: null,
     validator: (v: string) => {
-      if (v.length >= 3) {
-        return true;
-      }
-      return false;
+      return (v.length >= 3);
     },
   },
 });

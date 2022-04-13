@@ -54,30 +54,21 @@ const form = reactive({
     isValid: null,
     // eslint-disable-next-line
     validator: (v: string) => {
-      if (v.length >= 3) {
-        return true;
-      }
-      return false;
+      return (v.length >= 3);
     },
   },
   accessTokenTtl: {
     val: "20m",
     isValid: true,
     validator: (v: string) => {
-      if (v.length >= 2) {
-        return true;
-      }
-      return false;
+      return (v.length >= 2);
     },
   },
   refreshTokenTtl: {
     val: "24h",
     isValid: true,
     validator: (v: string) => {
-      if (v.length >= 2) {
-        return true;
-      }
-      return false;
+      return (v.length >= 2);
     },
   },
 });

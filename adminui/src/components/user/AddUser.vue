@@ -59,30 +59,21 @@ const form = reactive({
     val: "",
     isValid: null,
     validator: (v: string) => {
-      if (v.length >= 3) {
-        return true;
-      }
-      return false;
+      return (v.length >= 3);
     },
   },
   pwd: {
     val: "",
     isValid: null,
     validator: (v: string) => {
-      if (v.length >= 5) {
-        return true;
-      }
-      return false;
+      return (v.length >= 5);
     },
   },
   pwdVerif: {
     val: "",
     isValid: null,
     validator: (v: string) => {
-      if (v.length >= 5) {
-        return true;
-      }
-      return false;
+      return (v.length >= 5);
     },
   },
 });

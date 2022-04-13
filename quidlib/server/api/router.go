@@ -38,9 +38,9 @@ func RunServer(adminNsKey string) {
 	echoServer.Use(session.MiddlewareWithConfig(session.Config{Store: SessionsStore}))
 
 	// serve static files
-	echoServer.File("/", "adminui/dist/index.html")
-	echoServer.File("/favicon.ico", "adminui/dist/favicon.ico")
-	echoServer.Static("/assets", "adminui/dist/assets")
+	echoServer.File("/", "ui/dist/index.html")
+	echoServer.File("/favicon.ico", "ui/dist/favicon.ico")
+	echoServer.Static("/assets", "ui/dist/assets")
 
 	// HTTP Routes
 	// public routes

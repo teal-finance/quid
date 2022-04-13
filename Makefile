@@ -28,27 +28,27 @@ go.sum: go.mod
 .PHONY: up-patch
 up-patch:
 	GOPROXY=direct go get -t -u=patch
-	yarn upgrade-interactive --cwd adminui --link-duplicates
+	yarn upgrade-interactive --cwd ui --link-duplicates
 
 .PHONY: up-minor
 up-minor:
 	go get -t -u
-	yarn --cwd adminui up-minor
+	yarn --cwd ui up-minor
 
 .PHONY: up-more
 up-more:
-	yarn upgrade-interactive --cwd adminui --link-duplicates --latest
+	yarn upgrade-interactive --cwd ui --link-duplicates --latest
 
 .PHONY: front
-front: adminui/dist
+front: ui/dist
 
-adminui/dist: adminui/node_modules/*/* $(shell find adminui/src -type f)
-	yarn --cwd adminui build
+ui/dist: ui/node_modules/*/* $(shell find ui/src -type f)
+	yarn --cwd ui build
 
-adminui/node_modules/*/*: adminui/yarn.lock
+ui/node_modules/*/*: ui/yarn.lock
 
-adminui/yarn.lock: adminui/package.json
-	yarn --cwd adminui --link-duplicates
+ui/yarn.lock: ui/package.json
+	yarn --cwd ui --link-duplicates
 
 config.json:
 	# Create an empty config.json file and customize it:
@@ -71,4 +71,4 @@ rundev:
 
 .PHONY: runfront
 runfront:
-	yarn --cwd adminui dev
+	yarn --cwd ui dev

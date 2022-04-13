@@ -29,7 +29,7 @@ func Create() {
 	data := map[string]interface{}{
 		"db_name":     "quid",
 		"db_user":     "pguser",
-		"db_password": "",
+		"db_password": "my_password",
 		"key":         generateRandomKey(),
 		"domain":      "localhost",
 	}

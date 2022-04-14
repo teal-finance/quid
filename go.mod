@@ -3,13 +3,13 @@ module github.com/teal-finance/quid
 go 1.18
 
 require (
+	github.com/acmacalister/skittles v0.0.0-20160609003031-7423546701e1
 	github.com/golang-jwt/jwt v3.2.2+incompatible
 	github.com/gorilla/sessions v1.2.1
 	github.com/jmoiron/sqlx v1.3.4
 	github.com/labstack/echo-contrib v0.12.0
 	github.com/labstack/echo/v4 v4.7.2
 	github.com/lib/pq v1.10.5
-	github.com/logrusorgru/aurora/v3 v3.0.0
 	github.com/manifoldco/promptui v0.9.0
 	github.com/spf13/viper v1.11.0
 	golang.org/x/crypto v0.0.0-20220411220226-7b82a4e95df4

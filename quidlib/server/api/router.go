@@ -10,7 +10,7 @@ import (
 	"github.com/gorilla/sessions"
 	"github.com/labstack/echo-contrib/session"
 
-	color "github.com/logrusorgru/aurora/v3"
+	color "github.com/acmacalister/skittles"
 
 	"github.com/teal-finance/quid/quidlib/conf"
 	"github.com/teal-finance/quid/quidlib/tokens"
@@ -102,7 +102,7 @@ func RunServer(adminNsKey, address string) {
 	nsa.POST("/delete", DeleteAdministrator)
 
 	if conf.IsDevMode {
-		fmt.Println(color.Bold(color.Red("Running in development mode")))
+		fmt.Println(color.BoldRed("Running in development mode"))
 	}
 
 	echoServer.Logger.Fatal(echoServer.Start(address))

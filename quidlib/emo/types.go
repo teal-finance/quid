@@ -7,7 +7,7 @@ import (
 	"strconv"
 	"strings"
 
-	color "github.com/logrusorgru/aurora/v3"
+	color "github.com/acmacalister/skittles"
 )
 
 // Zone : base emo zone.
@@ -41,7 +41,7 @@ func NewZone(name string, print ...bool) Zone {
 
 // ObjectInfo : print debug info about something.
 func ObjectInfo(args ...interface{}) {
-	msg := "[" + color.Yellow("object info").String() + "] "
+	msg := "[" + color.Yellow("object info") + "] "
 	for _, a := range args {
 		fmt.Println(msg+"Type: %T Value: %#v", a, a)
 	}
@@ -100,18 +100,18 @@ func concatenateErrors(args []interface{}) error {
 }
 
 func (event Event) message() string {
-	msg := "[" + color.Yellow(event.Zone.Name).String() + "] "
+	msg := "[" + color.Yellow(event.Zone.Name) + "] "
 
 	if event.IsError {
-		msg += color.Red("Error").String() + " "
+		msg += color.Red("Error") + " "
 	}
 
 	msg += event.Emoji + "  " + event.Error.Error()
 
 	if event.IsError && event.Zone.Print {
-		msg += " from " + color.Bold(color.White(event.From)).String() +
+		msg += " from " + color.BoldWhite(event.From) +
 			" in " + event.File + ":" +
-			color.White(strconv.Itoa(event.Line)).String()
+			color.White(strconv.Itoa(event.Line))
 	}
 
 	return msg

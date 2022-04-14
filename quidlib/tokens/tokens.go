@@ -2,12 +2,11 @@ package tokens
 
 import emolib "github.com/teal-finance/quid/quidlib/emo"
 
-var emo = emolib.Zone{
-	Name:    "tokens",
-	NoPrint: true,
-}
+var emo = emolib.NewZone("tokens")
 
 // Init : init the db conf.
-func Init(isVerbose bool) {
-	emo.NoPrint = !isVerbose
+func Init(isVerbose bool, isDev bool) {
+	if !isDev {
+		emo.Print = isVerbose
+	}
 }

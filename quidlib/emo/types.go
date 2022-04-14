@@ -12,8 +12,8 @@ import (
 
 // Zone : base emo zone.
 type Zone struct {
-	Name    string
-	NoPrint bool
+	Name  string
+	Print bool
 }
 
 // Event : base emo event.
@@ -26,6 +26,18 @@ type Event struct {
 	Emoji   string
 	Msg     string
 	IsError bool
+}
+
+// NewZone : create a zone constructor
+func NewZone(name string, print ...bool) Zone {
+	p := true
+	if len(print) > 0 {
+		p = print[0]
+	}
+	return Zone{
+		Name:  name,
+		Print: p,
+	}
 }
 
 // ObjectInfo : print debug info about something.
@@ -50,7 +62,7 @@ func processEvent(emoji string, zone Zone, isError bool, errObjs []interface{}) 
 		panic(err)
 	}
 	e.Msg = e.getMsg(isError)
-	if !zone.NoPrint {
+	if zone.Print {
 		fmt.Println(e.Msg)
 	}
 	return e

@@ -66,7 +66,7 @@ func main() {
 	}
 
 	// Database
-	db.Init(*isVerbose)
+	db.Init(*isVerbose, *isDevMode)
 
 	if err := db.Connect(conn); err != nil {
 		log.Fatalln(err)
@@ -93,8 +93,8 @@ func main() {
 		db.InitDbAutoConf(conf.AdminUser, conf.AdminPassword)
 	}
 
-	api.Init(*isVerbose)
-	tokens.Init(*isVerbose)
+	api.Init(*isVerbose, *isDevMode)
+	tokens.Init(*isVerbose, *isDevMode)
 
 	// get the admin namespace
 	_, adminNS, err := db.SelectNamespaceFromName("quid")

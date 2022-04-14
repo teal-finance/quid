@@ -11,14 +11,13 @@ import (
 
 var db *sqlx.DB
 
-var emo = emolib.Zone{
-	Name:    "db",
-	NoPrint: true,
-}
+var emo = emolib.NewZone("db")
 
 // Init : init the db conf.
-func Init(isVerbose bool) {
-	emo.NoPrint = !isVerbose
+func Init(isVerbose bool, isDev bool) {
+	if !isDev {
+		emo.Print = isVerbose
+	}
 }
 
 // Connect : connect to the db.

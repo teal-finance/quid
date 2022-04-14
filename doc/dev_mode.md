@@ -6,11 +6,11 @@ Use two consoles.
 
 ## Run the backend
 
-    make rundev
+    make run-dev
 
 ## Run the frontend
 
-    make runfront
+    make run-front
 
 Open <http://localhost:3000> to login into the admin interface:
 

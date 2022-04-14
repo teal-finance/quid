@@ -106,6 +106,10 @@ func AdminLogin(c echo.Context) error {
 func AdminLogout(c echo.Context) error {
 	sess, _ := session.Get("session", c)
 	sess.Values["is_admin"] = "false"
-	sess.Save(c.Request(), c.Response())
+
+	if err := sess.Save(c.Request(), c.Response()); err != nil {
+		return err
+	}
+
 	return c.NoContent(http.StatusOK)
 }

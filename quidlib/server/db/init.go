@@ -23,58 +23,65 @@ func initDbConf(prompt bool, username, password string) {
 	if prompt {
 		fmt.Println("Initializing Quid database")
 	}
+
 	// check namespace
-	nsexists, err := NamespaceExists("quid")
+	var nsID int64
+
+	nsExists, err := NamespaceExists("quid")
 	if err != nil {
 		log.Fatal(err)
 	}
-	var nsid int64
-	if !nsexists {
+	if nsExists {
+		nsID, err = SelectNamespaceID("quid")
+		if err != nil {
+			log.Fatal(err)
+		}
+	} else {
+		fmt.Println("Creating the quid namespace")
+
 		key := tokens.GenKey()
 		refreshKey := tokens.GenKey()
-		fmt.Println("Creating the quid namespace")
-		nsid, err = CreateNamespace("quid", key, refreshKey, "6m", "24h", false)
-		if err != nil {
-			log.Fatal(err)
-		}
-	} else {
-		nsid, err = SelectNamespaceID("quid")
+
+		nsID, err = CreateNamespace("quid", key, refreshKey, "6m", "24h", false)
 		if err != nil {
 			log.Fatal(err)
 		}
 	}
+
 	// check base admin group
-	exists, err := GroupExists("quid_admin", nsid)
+	var gid int64
+
+	exists, err := GroupExists("quid_admin", nsID)
 	if err != nil {
 		log.Fatal(err)
 	}
-	var gid int64
-	if !exists {
-		fmt.Println("Creating the quid admin group")
-		gid, err = CreateGroup("quid_admin", nsid)
-		if err != nil {
-			log.Fatal(err)
-		}
-	} else {
-		group, err := SelectGroup("quid_admin", nsid)
-		if err != nil {
-			log.Fatal(err)
+	if exists {
+		group, er := SelectGroup("quid_admin", nsID)
+		if er != nil {
+			log.Fatal(er)
 		}
 		gid = group.ID
+	} else {
+		fmt.Println("Creating the quid admin group")
+		gid, err = CreateGroup("quid_admin", nsID)
+		if err != nil {
+			log.Fatal(err)
+		}
 	}
 
 	// check superuser
 	if n, _ := CountUsersInGroup(gid); n == 0 {
-		var uname string
+		var name string
 		if prompt {
 			fmt.Println("Create a superuser")
-			uname, err = promptForUsername()
+			name, err = promptForUsername()
 			if err != nil {
 				log.Fatal(err)
 			}
 		} else {
-			uname = username
+			name = username
 		}
+
 		var pwd string
 		if prompt {
 			pwd, err = promptForPassword()
@@ -84,18 +91,22 @@ func initDbConf(prompt bool, username, password string) {
 		} else {
 			pwd = password
 		}
-		u, err := CreateUser(uname, pwd, nsid)
+
+		u, err := CreateUser(name, pwd, nsID)
 		if err != nil {
 			log.Fatal(err)
 		}
+
 		err = AddUserInGroup(u.ID, gid)
 		if err != nil {
 			log.Fatal(err)
 		}
+
 		if prompt {
 			fmt.Println("Superuser", username, "created")
 		}
 	}
+
 	if prompt {
 		fmt.Println("Initialization complete")
 	}
@@ -108,16 +119,13 @@ func promptForUsername() (string, error) {
 		}
 		return nil
 	}
+
 	prompt := promptui.Prompt{
 		Label:    "Username",
 		Validate: validate,
 	}
-	result, err := prompt.Run()
-	if err != nil {
-		fmt.Printf("Prompt failed %v\n", err)
-		return "", err
-	}
-	return result, nil
+
+	return prompt.Run()
 }
 
 func promptForPassword() (string, error) {
@@ -127,14 +135,12 @@ func promptForPassword() (string, error) {
 		}
 		return nil
 	}
+
 	prompt := promptui.Prompt{
 		Label:    "Password",
 		Validate: validate,
 		Mask:     '*',
 	}
-	result, err := prompt.Run()
-	if err != nil {
-		return "", err
-	}
-	return result, nil
+
+	return prompt.Run()
 }

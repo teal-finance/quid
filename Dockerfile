@@ -1,14 +1,19 @@
-# Build a 18 MB image:
+# Build (the image weights only onl a 18 MB including the static website)
 #
 #    export DOCKER_BUILDKIT=1 
 #    docker  build -t quid .
 #    podman  build -t quid .
 #    buildah build -t quid .
 #
-# Run:
+# Run in prod as a deamon (-d)
 #
-#    docker run -d --rm -p 0.0.0.0:8082:8082 --name quid quid
-#    podman run -d --rm -p 0.0.0.0:8082:8082 --name quid quid
+#    docker run --rm -d -p 0.0.0.0:8082:8082 -e DB_PWD=my_password --name quid quid -env
+#    podman run --rm -d -p 0.0.0.0:8082:8082 -e DB_PWD=my_password --name quid quid -env
+#
+# Run in dev. mode with local PostegeSQL
+#
+#    docker run --rm --network=host --name quid quid -env
+#    podman run --rm --network=host --name quid quid -env
 
 # --------------------------------------------------------------------
 FROM docker.io/node:17-alpine AS ui_builder
@@ -88,9 +93,35 @@ COPY --chown=6606:6606 --from=integrator /target /
 # Run as unprivileged
 USER quid:quid
 
-# Use UTC time zone by default
+# Arguments that can be set.
+# - at build time using flag "--build-arg" (default env. var. value)
+# - at run time using flag "--env" (or -e)
+ARG DB_USR="pguser"
+ARG DB_PWD="my_password"
+ARG DB_HOST=""
+ARG QUID_KEY="4f10515b3488a2485a32cf68092b66f195c14b86ac89362e8246661bd2c05c3b"
+ARG QUID_ADMIN_USER="admin"
+ARG QUID_ADMIN_PWD="my_API_administrator_password_with_6_characters_min"
+
+# URL format is postgresql://[user[:password]@][netloc][:port][/dbname][?param1=value1&...]
+# see https://stackoverflow.com/a/20722229
+#NV DATABASE_URL "postgresql://${DB_USR}:${DB_PWD}@${DB_HOST}:5432/quid?sslmode=disable"
+ENV DATABASE_URL "dbname=quid user=${DB_USR} password=${DB_PWD} sslmode=disable"
+
+# Configuration used to initialize the Database
+ENV QUID_KEY             "${QUID_KEY}"
+ENV QUID_ADMIN_USER      "${QUID_ADMIN_USER}"
+ENV QUID_QUID_ADMIN_PWD  "${QUID_ADMIN_PWD}"
+
+# Exposed port
+ENV PORT 8082
+EXPOSE   8082
+
+# Time zone by default = UTC
 ENV TZ UTC0
 
-EXPOSE 8082
-
+# Executable name
 ENTRYPOINT ["/quid"]
+
+# Default argument(s) appended to ENTRYPOINT
+CMD ["-env"]

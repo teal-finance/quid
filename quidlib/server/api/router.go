@@ -10,7 +10,7 @@ import (
 	"github.com/gorilla/sessions"
 	"github.com/labstack/echo-contrib/session"
 
-	color "github.com/logrusorgru/aurora"
+	color "github.com/logrusorgru/aurora/v3"
 
 	"github.com/teal-finance/quid/quidlib/conf"
 	"github.com/teal-finance/quid/quidlib/tokens"

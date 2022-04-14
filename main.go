@@ -4,6 +4,7 @@ import (
 	"flag"
 	"fmt"
 	"log"
+	"os"
 
 	"github.com/teal-finance/quid/quidlib/conf"
 	"github.com/teal-finance/quid/quidlib/server/api"
@@ -24,10 +25,12 @@ func main() {
 	if *key {
 		if *env {
 			fmt.Println("The key command is not allowed when initializing from environment variables")
-			log.Fatal()
+			os.Exit(1)
 		}
+
 		k := tokens.GenKey()
 		fmt.Println(k)
+
 		return
 	}
 
@@ -35,11 +38,17 @@ func main() {
 	if *genConf {
 		if *env {
 			fmt.Println("The conf command is not allowed when initializing from environment variables")
-			log.Fatal()
+			os.Exit(2)
 		}
+
 		fmt.Println("Generating config file")
-		conf.Create()
+		if err := conf.Create(); err != nil {
+			fmt.Println("Cannot create config file ", err)
+			os.Exit(3)
+		}
+
 		fmt.Println("Config file created: edit config.json to provide your database settings")
+
 		return
 	}
 
@@ -52,36 +61,42 @@ func main() {
 		autoConfDb = conf.InitFromEnv(*isDevMode)
 	} else {
 		// init conf flag
-		found, err := conf.Init(*isDevMode)
+		found, err := conf.InitFromFile(*isDevMode)
 		if err != nil {
 			log.Fatal(err)
 		}
+
 		if !found {
 			fmt.Println("No config file found. Use the -conf option to generate one")
-			return
+			os.Exit(4)
 		}
 	}
 
-	// db
+	// Database
 	db.Init(*isVerbose)
+
 	if err := db.Connect(); err != nil {
 		log.Fatalln(err)
 	}
-	db.ExecSchema()
+
+	if err := db.ExecSchema(); err != nil {
+		log.Fatalln(err)
+	}
 
 	// initialization flag
 	if *init {
 		if *env {
 			fmt.Println("The init command is not allowed when initializing from environment variables")
-			log.Fatal()
+			os.Exit(5)
 		}
+
 		db.InitDbConf()
+
 		return
 	}
+
 	if autoConfDb {
-		if *isVerbose {
-			fmt.Println("Running autoconf")
-		}
+		fmt.Println("Configure automatically the DB")
 		db.InitDbAutoConf(conf.DefaultAdminUser, conf.DefaultAdminPassword)
 	}
 

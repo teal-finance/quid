@@ -149,7 +149,7 @@ func RemoveUserFromGroup(userID int64, groupID int64) error {
 }
 
 // IsUserInGroup : check if a user is in a group.
-func IsUserInGroup(userID int64, groupID int64, namespaceID int64) (bool, error) {
+func IsUserInGroup(userID int64, groupID int64) (bool, error) {
 	q := "SELECT COUNT(id) FROM usergroup WHERE(user_id=$1 AND group_id=$2)"
 	var n int
 	err := db.Get(&n, q, userID, groupID)

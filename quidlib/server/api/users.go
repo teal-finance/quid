@@ -246,7 +246,8 @@ func IsUserInAdminGroup(uid int64, nsid int64) (bool, error) {
 	if err != nil {
 		return false, err
 	}
-	isAdmin, err := db.IsUserInGroup(uid, gid.ID, nsid)
+
+	isAdmin, err := db.IsUserInGroup(uid, gid.ID)
 	if err != nil {
 		return false, err
 	}

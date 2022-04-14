@@ -2,37 +2,21 @@
   <div class="absolute top-0 left-0 w-screen h-screen overflow-hidden bg-cover bg-steel login">
     <div class="container inset-0 flex items-center justify-center flex-1 h-full mx-auto">
       <div class="w-full max-w-lg">
-        <form
-          class="max-w-sm p-10 m-4 space-y-5 bg-white bg-opacity-25 rounded shadow-xl"
-          id="login-form"
-        >
+        <form class="max-w-sm p-10 m-4 space-y-5 bg-white bg-opacity-25 rounded shadow-xl" id="login-form">
           <p class="text-lg font-bold text-center text-white">
             <i class="fas fa-user-shield"></i>&nbsp;&nbsp;LOGIN
           </p>
           <div>
             <label class="block text-sm text-white">Username</label>
-            <sw-input
-              id="username"
-              v-model:value="form.name.val"
-              v-model:isvalid="form.name.isValid"
-              :validator="form.name.validator"
-              @update:value="mChange($event)"
-              placeholder="username"
-              required
-            ></sw-input>
+            <sw-input id="username" v-model:value="form.name.val" v-model:isvalid="form.name.isValid"
+              :validator="form.name.validator" @update:value="mChange($event)" placeholder="username" required>
+            </sw-input>
           </div>
           <div class="mt-2">
             <label class="block text-sm text-white">Password</label>
-            <sw-input
-              id="password"
-              v-model:value="form.password.val"
-              v-model:isvalid="form.password.isValid"
-              :validator="form.password.validator"
-              @update:value="mChange($event)"
-              type="password"
-              placeholder="password"
-              required
-            ></sw-input>
+            <sw-input id="password" v-model:value="form.password.val" v-model:isvalid="form.password.isValid"
+              :validator="form.password.validator" @update:value="mChange($event)" type="password"
+              placeholder="password" required></sw-input>
           </div>
 
           <div class="flex items-center justify-end mt-4">
@@ -74,17 +58,13 @@ export default defineComponent({
         val: "",
         isValid: false,
         // eslint-disable-next-line
-        validator: (v: string) => {
-          return (v.length >= 1);
-        },
+        validator: (v: string) => v.length >= 1,
       },
       password: {
         val: "",
         isValid: false,
         // eslint-disable-next-line
-        validator: (v: string) => {
-          return (v.length >= 6);
-        },
+        validator: (v: string) => v.length >= 3,
       },
     });
 

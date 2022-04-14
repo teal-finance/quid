@@ -3,7 +3,7 @@ package tokens
 import (
 	"time"
 
-	"github.com/golang-jwt/jwt/v4"
+	"github.com/golang-jwt/jwt"
 )
 
 // AccessClaims is the standard claims for a user access token.

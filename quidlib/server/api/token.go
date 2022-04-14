@@ -5,7 +5,7 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/golang-jwt/jwt/v4"
+	"github.com/golang-jwt/jwt"
 	"github.com/labstack/echo/v4"
 
 	db "github.com/teal-finance/quid/quidlib/server/db"

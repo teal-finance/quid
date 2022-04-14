@@ -4,7 +4,7 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/golang-jwt/jwt/v4"
+	"github.com/golang-jwt/jwt"
 	"github.com/labstack/echo-contrib/session"
 	"github.com/teal-finance/quid/quidlib/conf"
 	"github.com/teal-finance/quid/quidlib/tokens"

@@ -1,7 +1,6 @@
 package api
 
 import (
-	"log"
 	"net/http"
 
 	"github.com/labstack/echo/v4"
@@ -9,7 +8,7 @@ import (
 	db "github.com/teal-finance/quid/quidlib/server/db"
 )
 
-// AllOrgs : get all orgs http handler
+// AllOrgs : get all orgs http handler.
 func AllOrgs(c echo.Context) error {
 	data, err := db.SelectAllOrgs()
 	if err != nil {
@@ -17,57 +16,61 @@ func AllOrgs(c echo.Context) error {
 			"error": "error selecting orgs",
 		})
 	}
+
 	return c.JSON(http.StatusOK, &data)
 }
 
-// FindOrg : find an org from name
+// FindOrg : find an org from name.
 func FindOrg(c echo.Context) error {
 	m := echo.Map{}
 	if err := c.Bind(&m); err != nil {
 		return err
 	}
+
 	name := m["name"].(string)
 
 	data, err := db.SelectOrgStartsWith(name)
 	if err != nil {
-		log.Fatal(err)
+		emo.QueryError(err)
 		return c.JSON(http.StatusInternalServerError, echo.Map{
 			"error": "error finding org",
 		})
 	}
+
 	return c.JSON(http.StatusOK, &data)
 }
 
-// UserOrgsInfo : get orgs info for a user
+// UserOrgsInfo : get orgs info for a user.
 func UserOrgsInfo(c echo.Context) error {
 	m := echo.Map{}
 	if err := c.Bind(&m); err != nil {
 		return err
 	}
-	ID := int64(m["id"].(float64))
 
-	o, err := db.SelectOrgsForUser(ID)
+	id := int64(m["id"].(float64))
+
+	o, err := db.SelectOrgsForUser(id)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, echo.Map{
 			"error": "error selecting orgs",
 		})
 	}
+
 	return c.JSON(http.StatusOK, echo.Map{
 		"orgs": o,
 	})
-
 }
 
-// DeleteOrg : org deletion http handler
+// DeleteOrg : org deletion http handler.
 func DeleteOrg(c echo.Context) error {
 	m := echo.Map{}
 	if err := c.Bind(&m); err != nil {
 		return err
 	}
-	ID := int64(m["id"].(float64))
 
-	err := db.DeleteOrg(ID)
-	if err != nil {
+	id := int64(m["id"].(float64))
+
+	if err := db.DeleteOrg(id); err != nil {
 		return c.JSON(http.StatusConflict, echo.Map{
 			"error": "error deleting org",
 		})
@@ -78,12 +81,13 @@ func DeleteOrg(c echo.Context) error {
 	})
 }
 
-// CreateOrg : org creation http handler
+// CreateOrg : org creation http handler.
 func CreateOrg(c echo.Context) error {
 	m := echo.Map{}
 	if err := c.Bind(&m); err != nil {
 		return err
 	}
+
 	name := m["name"].(string)
 
 	org, exists, err := createOrg(name)
@@ -103,7 +107,7 @@ func CreateOrg(c echo.Context) error {
 	})
 }
 
-// createOrg : create an org
+// createOrg : create an org.
 func createOrg(name string) (server.Org, bool, error) {
 	org := server.Org{}
 
@@ -115,11 +119,13 @@ func createOrg(name string) (server.Org, bool, error) {
 		return org, true, nil
 	}
 
-	uid, err := db.CreateOrg(name)
+	id, err := db.CreateOrg(name)
 	if err != nil {
 		return org, false, err
 	}
-	org.ID = uid
+
+	org.ID = id
 	org.Name = name
+
 	return org, false, nil
 }

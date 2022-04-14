@@ -2,14 +2,13 @@ package db
 
 import (
 	"fmt"
-	"log"
 
 	_ "github.com/lib/pq"
 
 	"github.com/teal-finance/quid/quidlib/server"
 )
 
-// SelectAdministratorsInNamespace : get the admin users in a namespace
+// SelectAdministratorsInNamespace : get the admin users in a namespace.
 func SelectAdministratorsInNamespace(namespaceID int64) ([]server.NsAdmin, error) {
 	data := []server.NsAdmin{}
 	err := db.Select(&data,
@@ -22,30 +21,36 @@ func SelectAdministratorsInNamespace(namespaceID int64) ([]server.NsAdmin, error
 		fmt.Println("ERR", err)
 		return data, err
 	}
-	//fmt.Println("DATA", data)
+
 	return data, nil
 }
 
-// CreateAdministrator : create an admin user
+// CreateAdministrator : create an admin user.
 func CreateAdministrator(namespaceID int64, userID int64) (int64, error) {
 	q := "INSERT INTO namespaceadmin(namespace_id, user_id) VALUES($1,$2) RETURNING id"
 	rows, err := db.Query(q, namespaceID, userID)
 	if err != nil {
-		log.Fatal(err)
+		emo.QueryError(err)
+		return 0, err
 	}
-	var id int64
+
 	for rows.Next() {
 		var idi interface{}
 		err := rows.Scan(&idi)
 		if err != nil {
-			log.Fatalln(err)
+			emo.QueryError(err)
+			return 0, err
 		}
-		id = idi.(int64)
+
+		return idi.(int64), nil
 	}
-	return id, nil
+
+	emo.QueryError("no namespaceadmin for namespaceID=", namespaceID, " userID=", userID)
+	return 0, fmt.Errorf("no namespaceadmin")
+
 }
 
-// AdministratorExists : check if an admin user exists
+// AdministratorExists : check if an admin user exists.
 func AdministratorExists(userID int64, namespaceID int64) (bool, error) {
 	var n int
 	q := "SELECT COUNT(id) FROM namespaceadmin WHERE (namespace_id=$1 AND user_id=$2)"
@@ -59,15 +64,11 @@ func AdministratorExists(userID int64, namespaceID int64) (bool, error) {
 	return false, nil
 }
 
-// DeleteAdministrator : delete an admin user for a namespace
+// DeleteAdministrator : delete an admin user for a namespace.
 func DeleteAdministrator(userID int64, namespaceID int64) error {
 	q := "DELETE FROM namespaceadmin WHERE (user_id=$1 AND namespace_id=$2)"
 	fmt.Println(q, userID, namespaceID)
 	tx := db.MustBegin()
 	tx.MustExec(q, userID, namespaceID)
-	err := tx.Commit()
-	if err != nil {
-		return err
-	}
-	return nil
+	return tx.Commit()
 }

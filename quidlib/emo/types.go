@@ -7,74 +7,79 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/acmacalister/skittles"
+	color "github.com/logrusorgru/aurora/v3"
 )
 
-// Zone : base emo zone
+// Zone : base emo zone.
 type Zone struct {
-	Name    string
-	NoPrint bool
+	Name  string
+	Print bool
 }
 
-// Event : base emo event
+// Event : base emo event.
 type Event struct {
-	Zone    Zone
 	Error   error
-	File    string
-	Line    int
-	From    string
 	Emoji   string
-	Msg     string
+	From    string
+	File    string
+	Zone    Zone
+	Line    int
 	IsError bool
 }
 
-// ObjectInfo : print debug info about something
-func (zone Zone) ObjectInfo(args ...interface{}) {
-	numArgs := len(args)
-	if numArgs < 1 {
-		return
+// NewZone : create a zone constructor
+func NewZone(name string, print ...bool) Zone {
+	p := true
+	if len(print) > 0 {
+		p = print[0]
 	}
-	for _, o := range args {
-		msg := "[" + skittles.Yellow("object info") + "] "
-		fmt.Println(msg + fmt.Sprintf("Type: %T Value: %#v", o, o))
+	return Zone{
+		Name:  name,
+		Print: p,
 	}
 }
 
-func processEvent(emoji string, zone Zone, IsError bool, errObjs []interface{}) Event {
-	event := Event{
-		Zone: zone,
+// ObjectInfo : print debug info about something.
+func ObjectInfo(args ...interface{}) {
+	msg := "[" + color.Yellow("object info").String() + "] "
+	for _, a := range args {
+		fmt.Println(msg+"Type: %T Value: %#v", a, a)
 	}
-	event.Emoji = emoji
-	e, err := getErr(event, errObjs)
-	if err != nil {
-		panic(err)
-	}
-	e.Msg = e.getMsg(IsError)
-	if !zone.NoPrint {
-		fmt.Println(e.Msg)
-	}
-	return e
 }
 
-func (event Event) getMsg(withError bool) string {
-	msg := "[" + event.Zone.Name + "] "
-	if withError {
-		msg = msg + skittles.Red("Error") + " "
-	}
-	msg = msg + event.Emoji + "  " + event.Error.Error()
-	if withError {
-		msg = msg + " from " + skittles.BoldWhite(event.From)
-		msg = msg + " line " + skittles.White(strconv.Itoa(event.Line)) + " in " + event.File
+func processEvent(emoji string, zone Zone, isError bool, args []interface{}) Event {
+	event := new(emoji, zone, isError, args)
+
+	if isError || zone.Print {
+		fmt.Println(event.message())
 	}
 
-	return msg
+	return event
 }
 
-func getErr(event Event, errObjs []interface{}) (Event, error) {
-	msgs := []string{}
-	for _, e := range errObjs {
-		msg := fmt.Sprintf("%v", e)
-		msgs = append(msgs, msg)
+func new(emoji string, zone Zone, isError bool, args []interface{}) Event {
+	pc := make([]uintptr, 10)
+	runtime.Callers(4, pc)
+	f := runtime.FuncForPC(pc[0])
+	file, line := f.FileLine(pc[0])
+
+	return Event{
+		Zone:    zone,
+		Emoji:   emoji,
+		IsError: isError,
+		Error:   concatenateErrors(args),
+		From:    f.Name(),
+		File:    file,
+		Line:    line,
+	}
+}
+
+func concatenateErrors(args []interface{}) error {
+	texts := []string{}
+
+	for _, a := range args {
+		str := fmt.Sprintf("%v", a)
+		texts = append(texts, str)
 
 		/*err, isErr := e.(error)
 		if !isErr {
@@ -83,21 +88,31 @@ func getErr(event Event, errObjs []interface{}) (Event, error) {
 				t := reflect.TypeOf(e).String()
 				return ev, errors.New("The parameters must be string or an error. It is of type " + t)
 			}
-			msgs = append(msgs, msg)
+			texts = append(texts, msg)
 		} else {
-			msgs = append(msgs, err.Error())
+			texts = append(texts, err.Error())
 		}*/
 	}
-	msg := strings.Join(msgs[:], " ")
-	err := errors.New(msg)
-	pc := make([]uintptr, 10)
-	runtime.Callers(3, pc)
-	f := runtime.FuncForPC(pc[0])
-	file, line := f.FileLine(pc[0])
-	from := f.Name()
-	event.Error = err
-	event.File = file
-	event.Line = line
-	event.From = from
-	return event, nil
+
+	all := strings.Join(texts, " ")
+
+	return errors.New(all)
+}
+
+func (event Event) message() string {
+	msg := "[" + color.Yellow(event.Zone.Name).String() + "] "
+
+	if event.IsError {
+		msg += color.Red("Error").String() + " "
+	}
+
+	msg += event.Emoji + "  " + event.Error.Error()
+
+	if event.IsError && event.Zone.Print {
+		msg += " from " + color.Bold(color.White(event.From)).String() +
+			" in " + event.File + ":" +
+			color.White(strconv.Itoa(event.Line)).String()
+	}
+
+	return msg
 }

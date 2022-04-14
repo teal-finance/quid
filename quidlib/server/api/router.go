@@ -10,20 +10,19 @@ import (
 	"github.com/gorilla/sessions"
 	"github.com/labstack/echo-contrib/session"
 
-	color "github.com/logrusorgru/aurora"
+	color "github.com/logrusorgru/aurora/v3"
 
 	"github.com/teal-finance/quid/quidlib/conf"
 	"github.com/teal-finance/quid/quidlib/tokens"
 )
 
-// SessionsStore : the session cookies store
+// SessionsStore : the session cookies store.
 var SessionsStore = sessions.NewCookieStore([]byte(conf.EncodingKey))
 
 var echoServer = echo.New()
 
-// RunServer : configure and run the server
-func RunServer(adminNsKey string) {
-
+// RunServer : configure and run the server.
+func RunServer(adminNsKey, address string) {
 	echoServer.Use(middleware.Logger())
 	if !conf.IsDevMode {
 		echoServer.Use(middleware.Recover())
@@ -38,11 +37,10 @@ func RunServer(adminNsKey string) {
 
 	echoServer.Use(session.MiddlewareWithConfig(session.Config{Store: SessionsStore}))
 
-	// serve static files in production
-	if !conf.IsDevMode {
-		echoServer.File("/", "adminui/dist/index.html")
-		echoServer.Static("/assets", "adminui/dist/assets")
-	}
+	// serve static files
+	echoServer.File("/", "ui/dist/index.html")
+	echoServer.File("/favicon.ico", "ui/dist/favicon.ico")
+	echoServer.Static("/assets", "ui/dist/assets")
 
 	// HTTP Routes
 	// public routes
@@ -54,7 +52,7 @@ func RunServer(adminNsKey string) {
 	// admin routes
 	a := echoServer.Group("/admin")
 	config := middleware.JWTConfig{
-		Claims:     &tokens.StandardAccessClaims{},
+		Claims:     &tokens.AccessClaims{},
 		SigningKey: []byte(adminNsKey),
 	}
 	a.Use(middleware.JWTWithConfig(config))
@@ -107,5 +105,5 @@ func RunServer(adminNsKey string) {
 		fmt.Println(color.Bold(color.Red("Running in development mode")))
 	}
 
-	echoServer.Logger.Fatal(echoServer.Start(":" + conf.Port))
+	echoServer.Logger.Fatal(echoServer.Start(address))
 }

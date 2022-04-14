@@ -1,7 +1,6 @@
 package api
 
 import (
-	"fmt"
 	"net/http"
 
 	"github.com/gorilla/sessions"
@@ -13,12 +12,13 @@ import (
 	"github.com/teal-finance/quid/quidlib/tokens"
 )
 
-// AdminLogin : http login handler for the admin interface
+// AdminLogin : http login handler for the admin interface.
 func AdminLogin(c echo.Context) error {
 	m := echo.Map{}
 	if err := c.Bind(&m); err != nil {
 		return err
 	}
+
 	username := m["username"].(string)
 	password := m["password"].(string)
 	namespace := m["namespace"].(string)
@@ -39,19 +39,20 @@ func AdminLogin(c echo.Context) error {
 	if err != nil {
 		return err
 	}
-	if isAuthorized == false {
-		fmt.Println(username, "unauthorized")
+	if !isAuthorized {
+		emo.Warning(username, "unauthorized")
 		return c.JSON(http.StatusUnauthorized, echo.Map{
 			"error": "unauthorized",
 		})
 	}
+
 	// check the user admin group
-	isAdmin, err := isUserInAdminGroup(u.ID, ns.ID)
+	isAdmin, err := IsUserInAdminGroup(u.ID, ns.ID)
 	if err != nil {
 		return err
 	}
-	if isAdmin == false {
-		fmt.Println(username, "unauthorized: not in admin group")
+	if !isAdmin {
+		emo.Warning(username, "unauthorized: not in admin group")
 		return c.JSON(http.StatusUnauthorized, echo.Map{
 			"error": "unauthorized",
 		})
@@ -73,38 +74,42 @@ func AdminLogin(c echo.Context) error {
 	}
 	sess.Values["is_admin"] = "true"
 	sess.Values["user"] = u.UserName
-	//emo.Info("Setting session", u.Name, sess.Values["is_admin"])
+
 	err = sess.Save(c.Request(), c.Response())
 	if err != nil {
 		emo.Error("Error saving session", err)
 	}
 
 	// set the refresh token
-	exists, token, err := tokens.GenRefreshToken(ns.Name, ns.RefreshKey, ns.MaxRefreshTokenTTL, u.UserName, "24h")
-	if !exists {
-		emo.Error("Unauthorized: timeout max (", ns.MaxRefreshTokenTTL, ") for refresh token for namespace", ns.Name)
-		return c.JSON(http.StatusUnauthorized, echo.Map{
-			"error": "unauthorized",
-		})
-	}
+	token, err := tokens.GenRefreshToken("24h", ns.MaxRefreshTokenTTL, ns.Name, u.UserName, []byte(ns.RefreshKey))
 	if err != nil {
 		emo.Error("Error generating refresh token", err)
 		return c.JSON(http.StatusInternalServerError, echo.Map{
 			"error": true,
 		})
 	}
+	if token == "" {
+		emo.Warning("Unauthorized: timeout max (", ns.MaxRefreshTokenTTL, ") for refresh token for namespace", ns.Name)
+		return c.JSON(http.StatusUnauthorized, echo.Map{
+			"error": "unauthorized",
+		})
+	}
 
-	fmt.Println("Admin user", u.UserName, "is connected")
+	emo.Info("Admin user ", u.UserName, " is connected")
 
 	return c.JSON(http.StatusOK, echo.Map{
 		"token": token,
 	})
 }
 
-// AdminLogout : http logout handler for the admin interface
+// AdminLogout : http logout handler for the admin interface.
 func AdminLogout(c echo.Context) error {
 	sess, _ := session.Get("session", c)
 	sess.Values["is_admin"] = "false"
-	sess.Save(c.Request(), c.Response())
+
+	if err := sess.Save(c.Request(), c.Response()); err != nil {
+		return err
+	}
+
 	return c.NoContent(http.StatusOK)
 }

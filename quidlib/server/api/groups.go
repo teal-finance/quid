@@ -8,23 +8,26 @@ import (
 	db "github.com/teal-finance/quid/quidlib/server/db"
 )
 
-// AllGroupsForNamespace : get all groups for a namespace http handler
+// AllGroupsForNamespace : get all groups for a namespace http handler.
 func AllGroupsForNamespace(c echo.Context) error {
 	m := echo.Map{}
 	if err := c.Bind(&m); err != nil {
 		return err
 	}
-	namespaceID := int64(m["namespace_id"].(float64))
-	data, err := db.SelectGroupsForNamespace(namespaceID)
+
+	nsID := int64(m["namespace_id"].(float64))
+
+	data, err := db.SelectGroupsForNamespace(nsID)
 	if err != nil {
 		return c.JSON(http.StatusConflict, echo.Map{
 			"error": "error selecting groups",
 		})
 	}
+
 	return c.JSON(http.StatusOK, &data)
 }
 
-// AllGroups : get all groups for a namespace http handler
+// AllGroups : get all groups for a namespace http handler.
 func AllGroups(c echo.Context) error {
 	data, err := db.SelectAllGroups()
 	if err != nil {
@@ -32,19 +35,20 @@ func AllGroups(c echo.Context) error {
 			"error": "error selecting groups",
 		})
 	}
-	return c.JSON(http.StatusOK, &data)
 
+	return c.JSON(http.StatusOK, &data)
 }
 
-// GroupsInfo : group creation http handler
+// GroupsInfo : group creation http handler.
 func GroupsInfo(c echo.Context) error {
 	m := echo.Map{}
 	if err := c.Bind(&m); err != nil {
 		return err
 	}
-	ID := int64(m["id"].(float64))
 
-	n, err := db.CountUsersInGroup(ID)
+	id := int64(m["id"].(float64))
+
+	n, err := db.CountUsersInGroup(id)
 	if err != nil {
 		return c.JSON(http.StatusConflict, echo.Map{
 			"error": "error counting in group",
@@ -54,19 +58,18 @@ func GroupsInfo(c echo.Context) error {
 	return c.JSON(http.StatusOK, echo.Map{
 		"num_users": n,
 	})
-
 }
 
-// DeleteGroup : group deletion http handler
+// DeleteGroup : group deletion http handler.
 func DeleteGroup(c echo.Context) error {
 	m := echo.Map{}
 	if err := c.Bind(&m); err != nil {
 		return err
 	}
-	ID := int64(m["id"].(float64))
 
-	err := db.DeleteGroup(ID)
-	if err != nil {
+	id := int64(m["id"].(float64))
+
+	if err := db.DeleteGroup(id); err != nil {
 		return c.JSON(http.StatusConflict, echo.Map{
 			"error": "error deleting group",
 		})
@@ -77,16 +80,17 @@ func DeleteGroup(c echo.Context) error {
 	})
 }
 
-// CreateGroup : group creation http handler
+// CreateGroup : group creation http handler.
 func CreateGroup(c echo.Context) error {
 	m := echo.Map{}
 	if err := c.Bind(&m); err != nil {
 		return err
 	}
-	name := m["name"].(string)
-	namespaceID := int64(m["namespace_id"].(float64))
 
-	ns, exists, err := createGroup(name, namespaceID)
+	name := m["name"].(string)
+	nsID := int64(m["namespace_id"].(float64))
+
+	ns, exists, err := createGroup(name, nsID)
 	if err != nil {
 		return c.JSON(http.StatusConflict, echo.Map{
 			"error": "error creating group",
@@ -103,7 +107,7 @@ func CreateGroup(c echo.Context) error {
 	})
 }
 
-// createGroup : create a group
+// createGroup : create a group.
 func createGroup(name string, namespaceID int64) (server.Group, bool, error) {
 	ns := server.Group{}
 
@@ -119,7 +123,9 @@ func createGroup(name string, namespaceID int64) (server.Group, bool, error) {
 	if err != nil {
 		return ns, false, err
 	}
+
 	ns.ID = uid
 	ns.Name = name
+
 	return ns, false, nil
 }

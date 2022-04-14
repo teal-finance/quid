@@ -4,12 +4,11 @@ import (
 	emolib "github.com/teal-finance/quid/quidlib/emo"
 )
 
-var emo = emolib.Zone{
-	Name:    "api",
-	NoPrint: true,
-}
+var emo = emolib.NewZone("api")
 
-// Init : init the db conf
-func Init(isVerbose bool) {
-	emo.NoPrint = !isVerbose
+// Init : init the db conf.
+func Init(isVerbose bool, isDev bool) {
+	if !isDev {
+		emo.Print = isVerbose
+	}
 }

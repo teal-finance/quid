@@ -1,16 +1,16 @@
 package api
 
-// ResponseMsg : a json response with message
+// ResponseMsg : a json response with message.
 type ResponseMsg struct {
 	Msg string `json:"status"`
 }
 
-// ErrorMsg : a json response with message
+// ErrorMsg : a json response with message.
 type ErrorMsg struct {
 	Msg string `json:"error"`
 }
 
-// OkResponse : a json ok reponse
+// OkResponse is a json ok response.
 func okResponse(msg ...string) ResponseMsg {
 	m := "ok"
 	if len(msg) > 0 {
@@ -18,14 +18,6 @@ func okResponse(msg ...string) ResponseMsg {
 	}
 	resp := ResponseMsg{
 		Msg: m,
-	}
-	return resp
-}
-
-// ErrorResponse : a json error reponse
-func errorResponse(msg string) ErrorMsg {
-	resp := ErrorMsg{
-		Msg: msg,
 	}
 	return resp
 }

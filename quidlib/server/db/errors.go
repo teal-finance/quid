@@ -6,13 +6,13 @@ import (
 	"github.com/lib/pq"
 )
 
-// QueryResult :
+// QueryResult :.
 type QueryResult struct {
 	Error    QueryError
 	HasError bool
 }
 
-// QueryError :
+// QueryError :.
 type QueryError struct {
 	Message        string
 	HasUserMessage bool
@@ -34,12 +34,14 @@ func queryError(err error) QueryResult {
 			Error: QueryError{
 				Message:        e.Message,
 				HasUserMessage: true,
-			}}
+			},
+		}
 	}
 	return QueryResult{
 		HasError: true,
 		Error: QueryError{
 			Message:        e.Error(),
 			HasUserMessage: false,
-		}}
+		},
+	}
 }

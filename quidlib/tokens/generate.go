@@ -8,91 +8,100 @@ import (
 	"log"
 	"time"
 
-	"github.com/dgrijalva/jwt-go"
-	"github.com/karrick/tparse"
+	"github.com/golang-jwt/jwt"
+	"github.com/karrick/tparse/v2"
 )
 
-// GenRefreshToken : generate a refresh token for a user in a namespace
-func GenRefreshToken(namespaceName, namespaceRefreshKey, maxRefreshokenTTL, username string, timeout string) (bool, string, error) {
-	isAuthorized, err := isTimeoutAuthorized(timeout, maxRefreshokenTTL)
+// GenRefreshToken generates a refresh token for a user in a namespace.
+func GenRefreshToken(timeout, maxTTL, namespace, user string, secretKey []byte) (string, error) {
+	isAuthorized, err := isTimeoutAuthorized(timeout, maxTTL)
 	if err != nil {
 		emo.ParamError(err)
-		return false, "", err
+		return "", err
 	}
+
 	if !isAuthorized {
 		emo.ParamError("Unauthorized timeout", timeout)
-		return false, "", nil
+		return "", nil
 	}
-	to, err := tparse.ParseNow(time.RFC3339, "now+"+timeout)
-	to = to.UTC()
-	claims := standardRefreshClaims(namespaceName, username, to)
-	t := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-	token, err := t.SignedString([]byte(namespaceRefreshKey))
-	if err != nil {
-		emo.EncryptError(err)
-		return false, "", err
-	}
-	return true, token, nil
-}
 
-// GenAccessToken : generate an access token for a user in a namespace
-func GenAccessToken(namespaceKey, maxTokenTTL, name string, groups, orgs []string, timeout string) (bool, string, error) {
-	isAuthorized, err := isTimeoutAuthorized(timeout, maxTokenTTL)
+	to, err := tparse.ParseNow(time.RFC3339, "now+"+timeout)
 	if err != nil {
 		emo.ParamError(err)
-		return false, "", err
+		return "", err
 	}
-	if !isAuthorized {
-		emo.ParamError("Unauthorized timeout", timeout)
-		return false, "", nil
-	}
-	to, err := tparse.ParseNow(time.RFC3339, "now+"+timeout)
-	to = to.UTC()
-	if err != nil {
-		emo.TimeError(err)
-		return false, "", err
-	}
-	claims := standardAccessClaims(name, groups, orgs, to)
+
+	claims := newRefreshClaims(namespace, user, to.UTC())
 	t := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-	token, err := t.SignedString([]byte(namespaceKey))
+
+	token, err := t.SignedString(secretKey)
 	if err != nil {
 		emo.EncryptError(err)
-		return false, "", err
+		return "", err
 	}
-	return true, token, nil
+
+	return token, nil
 }
 
-// GenKey : generate a random hmac key
+// GenAccessToken generates an access token for a user.
+func GenAccessToken(timeout, maxTTL, user string, groups, orgs []string, secretKey []byte) (string, error) {
+	isAuthorized, err := isTimeoutAuthorized(timeout, maxTTL)
+	if err != nil {
+		emo.ParamError(err)
+		return "", err
+	}
+
+	if !isAuthorized {
+		emo.ParamError("Unauthorized timeout", timeout)
+		return "", nil
+	}
+
+	to, err := tparse.ParseNow(time.RFC3339, "now+"+timeout)
+	if err != nil {
+		emo.ParamError(err)
+		return "", err
+	}
+
+	claims := newAccessClaims(user, groups, orgs, to.UTC())
+	t := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+
+	token, err := t.SignedString(secretKey)
+	if err != nil {
+		emo.EncryptError(err)
+		return "", err
+	}
+
+	return token, nil
+}
+
+// GenKey generates a random hmac key.
 func GenKey() string {
-	b, err := generateRandomBytes(32)
-	if err != nil {
+	b := genRandomBytes(32)
+	h := hmac.New(sha256.New, b)
+
+	return hex.EncodeToString(h.Sum(nil))
+}
+
+func genRandomBytes(n int) []byte {
+	b := make([]byte, n)
+
+	if _, err := rand.Read(b); err != nil {
 		log.Fatal(err)
 	}
-	h := hmac.New(sha256.New, []byte(b))
-	token := hex.EncodeToString(h.Sum(nil))
-	return token
 
+	return b
 }
 
-func generateRandomBytes(n int) ([]byte, error) {
-	b := make([]byte, n)
-	_, err := rand.Read(b)
-	if err != nil {
-		return nil, err
-	}
-	return b, nil
-}
-
-func isTimeoutAuthorized(timeout, maxTimeout string) (bool, error) {
-	requested, err := tparse.ParseNow(time.RFC3339, "now+"+timeout)
+func isTimeoutAuthorized(timeout, maxTTL string) (bool, error) {
+	t, err := tparse.AddDuration(time.Now(), timeout)
 	if err != nil {
 		return false, err
 	}
-	requested = requested.UTC()
-	max, err := tparse.ParseNow(time.RFC3339, "now+1s+"+maxTimeout)
+
+	max, err := tparse.AddDuration(time.Now().Add(time.Second), maxTTL)
 	if err != nil {
 		return false, err
 	}
-	max = max.UTC()
-	return requested.Before(max), err
+
+	return t.Before(max), nil
 }

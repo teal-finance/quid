@@ -1,40 +1,62 @@
-# Setup the Postgresql database
+# Setup the PostreSQL database
 
-### Check PostreSQL
+## Check PostreSQL
 
 Quid expects PostreSQL listens to the port 5432.
 
 You can check your PostreSQL status and the port:
 
-```bash
+```sh
+$ sudo apt install postgresqls
 $ sudo service postgresql status
 $ ss -nlt | grep 5432
-LISTEN  0        244            127.0.0.1:5432           0.0.0.0:*
+LISTEN 0      244        127.0.0.1:5432      0.0.0.0:*
+LISTEN 0      244            [::1]:5432         [::]:*
 ```
 
-### Create user and database
+## Create user and database
 
-If you do not have already created a priviledged user, create it:
+If you do not have already created a privileged user, create it:
 
-```bash
+```sql
 $ sudo -u postgres psql
 postgres=# create user pguser with password 'my_password';
 CREATE ROLE
+postgres=# exit
 ```
 
-Create the Quid database:
+Update the `config.json` file:
 
-```bash
+```json
+"db_user": "pguser",
+"db_password": "my_password",
+```
+
+## Create the `quid` database
+
+```sql
 $ sudo -u postgres psql
 postgres=# create database quid;
 CREATE DATABASE
-postgres=# GRANT ALL PRIVILEGES ON DATABASE quid to pguser;
-GRANT
+postgres=# exit
 ```
 
-You may replace the above last statement by:
+## Set the database permissions
 
-```bash
+```sql
+$ sudo -u postgres psql
+postgres=# GRANT ALL PRIVILEGES ON DATABASE quid to pguser;
+GRANT
+postgres=# exit
+```
+
+The previous statement may be replaced by:
+
+```sql
+$ sudo -u postgres psql
 postgres=# \c quid
-postgres=# GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA public to pguser;
+You are now connected to database "quid" as user "postgres".
+quid-# GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA public to pguser;
+GRANT
+quid=# exit
 ```

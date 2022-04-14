@@ -5,7 +5,7 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/dgrijalva/jwt-go"
+	"github.com/golang-jwt/jwt"
 	"github.com/labstack/echo/v4"
 
 	db "github.com/teal-finance/quid/quidlib/server/db"
@@ -13,12 +13,13 @@ import (
 )
 
 // RequestAdminAccessToken : request an access token from a refresh token
-// for the quid namespace
+// for the quid namespace.
 func RequestAdminAccessToken(c echo.Context) error {
 	m := echo.Map{}
 	if err := c.Bind(&m); err != nil {
 		return err
 	}
+
 	refreshToken, ok := m["refresh_token"].(string)
 	if !ok {
 		emo.ParamError("provide a refresh_token parameter")
@@ -39,17 +40,18 @@ func RequestAdminAccessToken(c echo.Context) error {
 
 	// verify the refresh token
 	var username string
-	token, err := jwt.ParseWithClaims(refreshToken, &tokens.StandardRefreshClaims{}, func(token *jwt.Token) (interface{}, error) {
+	token, err := jwt.ParseWithClaims(refreshToken, &tokens.RefreshClaims{}, func(token *jwt.Token) (interface{}, error) {
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
 			return nil, fmt.Errorf("Unexpected signing method: %v", token.Header["alg"])
 		}
 		return []byte(ns.RefreshKey), nil
 	})
-	if claims, ok := token.Claims.(*tokens.StandardRefreshClaims); ok && token.Valid {
+
+	if claims, ok := token.Claims.(*tokens.RefreshClaims); ok && token.Valid {
 		username = claims.UserName
-		fmt.Printf("%v %v", claims.UserName, claims.StandardClaims.ExpiresAt)
+		fmt.Printf("%v %v", claims.UserName, claims.ExpiresAt)
 	} else {
-		emo.Error(err.Error())
+		emo.Warning(err.Error())
 		return c.JSON(http.StatusUnauthorized, echo.Map{
 			"error": "unauthorized",
 		})
@@ -58,7 +60,7 @@ func RequestAdminAccessToken(c echo.Context) error {
 	// get the user
 	found, u, err := db.SelectNonDisabledUser(username, ns.ID)
 	if !found {
-		emo.Error("User not found: " + username)
+		emo.Warning("User not found: " + username)
 		return c.JSON(http.StatusUnauthorized, echo.Map{
 			"error": "unauthorized",
 		})
@@ -77,6 +79,7 @@ func RequestAdminAccessToken(c echo.Context) error {
 		log.Fatal(err)
 		return err
 	}
+
 	// get the user orgs names
 	orgsNames, err := db.SelectOrgsNamesForUser(u.ID)
 	if err != nil {
@@ -84,6 +87,7 @@ func RequestAdminAccessToken(c echo.Context) error {
 		log.Fatal(err)
 		return err
 	}
+
 	// check if the user is in the admin group
 	isAdmin := false
 	for _, gn := range groupNames {
@@ -100,7 +104,7 @@ func RequestAdminAccessToken(c echo.Context) error {
 	}
 
 	// generate the access token
-	_, t, err := tokens.GenAccessToken(ns.Key, ns.MaxTokenTTL, u.UserName, groupNames, orgsNames, "5m")
+	t, err := tokens.GenAccessToken("5m", ns.MaxTokenTTL, u.UserName, groupNames, orgsNames, []byte(ns.Key))
 	if err != nil {
 		log.Fatal(err)
 		return c.JSON(http.StatusInternalServerError, echo.Map{
@@ -113,12 +117,13 @@ func RequestAdminAccessToken(c echo.Context) error {
 	})
 }
 
-// RequestAccessToken : request an access token from a refresh token
+// RequestAccessToken : request an access token from a refresh token.
 func RequestAccessToken(c echo.Context) error {
 	m := echo.Map{}
 	if err := c.Bind(&m); err != nil {
 		return err
 	}
+
 	refreshToken, ok := m["refresh_token"].(string)
 	if !ok {
 		emo.ParamError("provide a refresh_token parameter")
@@ -126,6 +131,7 @@ func RequestAccessToken(c echo.Context) error {
 			"error": "provide a refresh_token parameter",
 		})
 	}
+
 	namespace, ok := m["namespace"].(string)
 	if !ok {
 		emo.ParamError("provide a namespace parameter")
@@ -133,12 +139,13 @@ func RequestAccessToken(c echo.Context) error {
 			"error": "provide a namespace parameter",
 		})
 	}
+
 	timeout := c.Param("timeout")
 
 	// get the namespace
 	exists, ns, err := db.SelectNamespaceFromName(namespace)
 	if !exists {
-		emo.Error("The namepsace does not exist")
+		emo.Warning("The namespace does not exist")
 		return c.JSON(http.StatusBadRequest, echo.Map{
 			"error": true,
 		})
@@ -153,7 +160,7 @@ func RequestAccessToken(c echo.Context) error {
 
 	// check if the endpoint is available
 	if !ns.PublicEndpointEnabled {
-		emo.Error("Public endpoint unanuthorized")
+		emo.Warning("Public endpoint unauthorized")
 		return c.JSON(http.StatusUnauthorized, echo.Map{
 			"error": "unauthorized",
 		})
@@ -161,17 +168,18 @@ func RequestAccessToken(c echo.Context) error {
 
 	// verify the refresh token
 	var username string
-	token, err := jwt.ParseWithClaims(refreshToken, &tokens.StandardRefreshClaims{}, func(token *jwt.Token) (interface{}, error) {
+	token, err := jwt.ParseWithClaims(refreshToken, &tokens.RefreshClaims{}, func(token *jwt.Token) (interface{}, error) {
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
 			return nil, fmt.Errorf("Unexpected signing method: %v", token.Header["alg"])
 		}
 		return []byte(ns.RefreshKey), nil
 	})
-	if claims, ok := token.Claims.(*tokens.StandardRefreshClaims); ok && token.Valid {
+
+	if claims, ok := token.Claims.(*tokens.RefreshClaims); ok && token.Valid {
 		username = claims.UserName
-		fmt.Printf("%v %v", claims.UserName, claims.StandardClaims.ExpiresAt)
+		fmt.Printf("%v %v", claims.UserName, claims.ExpiresAt)
 	} else {
-		emo.Error(err.Error())
+		emo.Warning(err.Error())
 		return c.JSON(http.StatusUnauthorized, echo.Map{
 			"error": "unauthorized",
 		})
@@ -180,7 +188,7 @@ func RequestAccessToken(c echo.Context) error {
 	// get the user
 	found, u, err := db.SelectNonDisabledUser(username, ns.ID)
 	if !found {
-		emo.Error("User not found: " + username)
+		emo.Warning("User not found: " + username)
 		return c.JSON(http.StatusUnauthorized, echo.Map{
 			"error": "unauthorized",
 		})
@@ -209,17 +217,17 @@ func RequestAccessToken(c echo.Context) error {
 	}
 
 	// generate the access token
-	isAuth, t, err := tokens.GenAccessToken(ns.Key, ns.MaxTokenTTL, u.UserName, groupNames, orgsNames, timeout)
-	if !isAuth {
-		emo.Error("Timeout unauthorized")
-		return c.JSON(http.StatusUnauthorized, echo.Map{
-			"error": "unauthorized",
-		})
-	}
+	t, err := tokens.GenAccessToken(timeout, ns.MaxTokenTTL, u.UserName, groupNames, orgsNames, []byte(ns.Key))
 	if err != nil {
 		log.Fatal(err)
 		return c.JSON(http.StatusInternalServerError, echo.Map{
 			"error": true,
+		})
+	}
+	if t == "" {
+		emo.Warning("Timeout unauthorized")
+		return c.JSON(http.StatusUnauthorized, echo.Map{
+			"error": "unauthorized",
 		})
 	}
 
@@ -228,12 +236,13 @@ func RequestAccessToken(c echo.Context) error {
 	})
 }
 
-// RequestRefreshToken : http login handler
+// RequestRefreshToken : http login handler.
 func RequestRefreshToken(c echo.Context) error {
 	m := echo.Map{}
 	if err := c.Bind(&m); err != nil {
 		return err
 	}
+
 	// username
 	usernameParam, ok := m["username"]
 	var username string
@@ -244,6 +253,7 @@ func RequestRefreshToken(c echo.Context) error {
 			"error": "provide a username",
 		})
 	}
+
 	// password
 	passwordParam, ok := m["password"]
 	var password string
@@ -254,6 +264,7 @@ func RequestRefreshToken(c echo.Context) error {
 			"error": "provide a password",
 		})
 	}
+
 	// namespace
 	nsParam, ok := m["namespace"]
 	var namespace string
@@ -264,6 +275,7 @@ func RequestRefreshToken(c echo.Context) error {
 			"error": "provide a namespace",
 		})
 	}
+
 	// timeout
 	timeout := c.Param("timeout")
 
@@ -285,7 +297,7 @@ func RequestRefreshToken(c echo.Context) error {
 
 	// check if the endpoint is available
 	if !ns.PublicEndpointEnabled {
-		emo.Error("Public endpoint unanuthorized")
+		emo.Warning("Public endpoint unauthorized")
 		return c.JSON(http.StatusUnauthorized, echo.Map{
 			"error": "unauthorized",
 		})
@@ -296,8 +308,9 @@ func RequestRefreshToken(c echo.Context) error {
 	if err != nil {
 		return err
 	}
+
 	// Respond with unauthorized status
-	if isAuthorized == false {
+	if !isAuthorized {
 		fmt.Println(username, "unauthorized")
 		return c.JSON(http.StatusUnauthorized, echo.Map{
 			"error": "unauthorized",
@@ -305,11 +318,11 @@ func RequestRefreshToken(c echo.Context) error {
 	}
 
 	// generate the token
-	isAuth, t, err := tokens.GenRefreshToken(ns.Name, ns.RefreshKey, ns.MaxRefreshTokenTTL, u.UserName, timeout)
+	t, err := tokens.GenRefreshToken(timeout, ns.MaxRefreshTokenTTL, ns.Name, u.UserName, []byte(ns.RefreshKey))
 	if err != nil {
 		log.Fatal(err)
 	}
-	if !isAuth {
+	if t == "" {
 		return c.JSON(http.StatusUnauthorized, echo.Map{
 			"error": "max timeout exceeded",
 		})

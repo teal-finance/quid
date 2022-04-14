@@ -1,71 +1,71 @@
 package emo
 
-// Info :
-func (zone Zone) Info(errObjs ...interface{}) Event {
-	return processEvent("ℹ️", zone, true, errObjs)
+// Info :.
+func (zone Zone) Info(args ...interface{}) Event {
+	return processEvent("ℹ️", zone, false, args)
 }
 
-// Warning :
-func (zone Zone) Warning(errObjs ...interface{}) Event {
-	return processEvent("🔔", zone, true, errObjs)
+// Warning :.
+func (zone Zone) Warning(args ...interface{}) Event {
+	return processEvent("🔔", zone, true, args)
 }
 
-// Error :
-func (zone Zone) Error(errObjs ...interface{}) Event {
-	return processEvent("💢", zone, true, errObjs)
+// Error :.
+func (zone Zone) Error(args ...interface{}) Event {
+	return processEvent("💢", zone, true, args)
 }
 
-// Query :
-func (zone Zone) Query(errObjs ...interface{}) Event {
-	return processEvent("🗄️", zone, false, errObjs)
+// Query :.
+func (zone Zone) Query(args ...interface{}) Event {
+	return processEvent("🗄️", zone, false, args)
 }
 
-// QueryError :
-func (zone Zone) QueryError(errObjs ...interface{}) Event {
-	return processEvent("🗄️", zone, true, errObjs)
+// QueryError :.
+func (zone Zone) QueryError(args ...interface{}) Event {
+	return processEvent("🗄️", zone, true, args)
 }
 
-// Encrypt :
-func (zone Zone) Encrypt(errObjs ...interface{}) Event {
-	return processEvent("🎼", zone, false, errObjs)
+// Encrypt :.
+func (zone Zone) Encrypt(args ...interface{}) Event {
+	return processEvent("🎼", zone, false, args)
 }
 
-// EncryptError :
-func (zone Zone) EncryptError(errObjs ...interface{}) Event {
-	return processEvent("🎼", zone, true, errObjs)
+// EncryptError :.
+func (zone Zone) EncryptError(args ...interface{}) Event {
+	return processEvent("🎼", zone, true, args)
 }
 
-// Decrypt :
-func (zone Zone) Decrypt(errObjs ...interface{}) Event {
-	return processEvent("🗝️", zone, false, errObjs)
+// Decrypt :.
+func (zone Zone) Decrypt(args ...interface{}) Event {
+	return processEvent("🗝️", zone, false, args)
 }
 
-// DecryptError :
-func (zone Zone) DecryptError(errObjs ...interface{}) Event {
-	return processEvent("🗝️", zone, true, errObjs)
+// DecryptError :.
+func (zone Zone) DecryptError(args ...interface{}) Event {
+	return processEvent("🗝️", zone, true, args)
 }
 
-// Time :
-func (zone Zone) Time(errObjs ...interface{}) Event {
-	return processEvent("⏱️", zone, false, errObjs)
+// Time :.
+func (zone Zone) Time(args ...interface{}) Event {
+	return processEvent("⏱️", zone, false, args)
 }
 
-// TimeError :
-func (zone Zone) TimeError(errObjs ...interface{}) Event {
-	return processEvent("⏱️", zone, true, errObjs)
+// TimeError :.
+func (zone Zone) TimeError(args ...interface{}) Event {
+	return processEvent("⏱️", zone, true, args)
 }
 
-// Param :
-func (zone Zone) Param(errObjs ...interface{}) Event {
-	return processEvent("📥", zone, false, errObjs)
+// Param :.
+func (zone Zone) Param(args ...interface{}) Event {
+	return processEvent("📥", zone, false, args)
 }
 
-// ParamError :
-func (zone Zone) ParamError(errObjs ...interface{}) Event {
-	return processEvent("📥", zone, true, errObjs)
+// ParamError :.
+func (zone Zone) ParamError(args ...interface{}) Event {
+	return processEvent("📥", zone, true, args)
 }
 
-// Debug :
-func (zone Zone) Debug(errObjs ...interface{}) Event {
-	return processEvent("💊", zone, false, errObjs)
+// Debug :.
+func (zone Zone) Debug(args ...interface{}) Event {
+	return processEvent("💊", zone, false, args)
 }

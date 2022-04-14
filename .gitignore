@@ -1,22 +1,14 @@
 config.json
-quid
+/quid
 *_ORI
 *_ORI.go
 *.go.old
-# Compiled Object files, Static and Dynamic libs (Shared Objects)
-*.o
-*.a
-*.so
 
 # Folders
 _obj
 _test
 .project
 .metadata
-
-# Architecture specific extensions/prefixes
-*.[568vq]
-[568vq].out
 
 *.cgo1.go
 *.cgo2.c
@@ -31,18 +23,6 @@ _testmain.go
 *.prof
 
 .DS_Store
-node_modules
-bin
-
-# local env files
-.env.local
-.env.*.local
-
-# Log files
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-pnpm-debug.log*
 
 # Editor directories and files
 .idea

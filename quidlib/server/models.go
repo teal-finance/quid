@@ -1,6 +1,6 @@
 package server
 
-// Namespace : base model
+// Namespace : base model.
 type Namespace struct {
 	ID                    int64  `json:"id"`
 	Name                  string `json:"name"`
@@ -11,13 +11,13 @@ type Namespace struct {
 	PublicEndpointEnabled bool   `db:"public_endpoint_enabled" json:"public_endpoint_enabled"`
 }
 
-// NamespaceInfo : base model
+// NamespaceInfo : base model.
 type NamespaceInfo struct {
 	NumUsers int     `json:"num_users"`
 	Groups   []Group `json:"groups"`
 }
 
-// NsAdmin : base model
+// NsAdmin : base model.
 type NsAdmin struct {
 	ID          int64  `db:"id" json:"id"`
 	UserID      int64  `db:"user_id" json:"user_id"`
@@ -25,7 +25,7 @@ type NsAdmin struct {
 	UserName    string `db:"username" json:"username"`
 }
 
-// User : base model
+// User : base model.
 type User struct {
 	ID           int64   `json:"id"`
 	UserName     string  `json:"username"`
@@ -35,7 +35,7 @@ type User struct {
 	Org          string  `json:"org,omitempty"`
 }
 
-// GroupNames : get the user group names
+// GroupNames : get the user group names.
 func (user User) GroupNames() []string {
 	u := []string{}
 	for _, g := range user.Groups {
@@ -44,21 +44,21 @@ func (user User) GroupNames() []string {
 	return u
 }
 
-// Group : base model
+// Group : base model.
 type Group struct {
 	ID        int64  `json:"id"`
 	Name      string `json:"name"`
 	Namespace string `json:"namespace"`
 }
 
-// UserGroup : base model
+// UserGroup : base model.
 type UserGroup struct {
 	ID      int32 `db:"id" json:"id"`
 	UserID  int64 `db:"user_id" json:"user_id"`
 	GroupID int64 `db:"group_id" json:"group_id"`
 }
 
-// Org : base model
+// Org : base model.
 type Org struct {
 	ID   int64  `json:"id"`
 	Name string `json:"name"`

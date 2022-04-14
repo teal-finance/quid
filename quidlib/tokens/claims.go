@@ -3,42 +3,55 @@ package tokens
 import (
 	"time"
 
-	"github.com/dgrijalva/jwt-go"
+	"github.com/golang-jwt/jwt"
 )
 
-// StandardAccessClaims : standard claims for a user access token
-type StandardAccessClaims struct {
-	UserName string   `json:"username"`
-	Groups   []string `json:"groups"`
-	Orgs     []string `json:"orgs"`
+// AccessClaims is the standard claims for a user access token.
+type AccessClaims struct {
+	jwt.StandardClaims
+	UserName string   `json:"username,omitempty"`
+	Groups   []string `json:"groups,omitempty"`
+	Orgs     []string `json:"orgs,omitempty"`
+}
+
+// RefreshClaims is the standard claims for a user refresh token.
+type RefreshClaims struct {
+	Namespace string `json:"namespace,omitempty"`
+	UserName  string `json:"username,omitempty"`
 	jwt.StandardClaims
 }
 
-// StandardRefreshClaims : standard claims for a user refresh token
-type StandardRefreshClaims struct {
-	Namespace string `json:"namespace"`
-	UserName  string `json:"username"`
-	jwt.StandardClaims
+// newAccessClaims creates a standard claim for a user access token.
+func newAccessClaims(username string, groups, orgs []string, timeout time.Time) AccessClaims {
+	return AccessClaims{
+		jwt.StandardClaims{
+			Audience:  "",
+			ExpiresAt: timeout.Unix(),
+			Id:        "",
+			IssuedAt:  0,
+			Issuer:    "",
+			NotBefore: 0,
+			Subject:   "",
+		},
+		username,
+		groups,
+		orgs,
+	}
 }
 
-// standardAccessClaims : get a standard claim for a user access token
-func standardAccessClaims(username string, groups, orgs []string, timeout time.Time) *StandardAccessClaims {
-	claims := &StandardAccessClaims{
-		username, groups, orgs,
+// newRefreshClaims creates a standard claim for a user refresh token.
+func newRefreshClaims(namespace, user string, timeout time.Time) RefreshClaims {
+	return RefreshClaims{
+		namespace,
+		user,
 		jwt.StandardClaims{
+			Audience:  "",
 			ExpiresAt: timeout.Unix(),
+			Id:        "",
+			IssuedAt:  0,
+			Issuer:    "",
+			NotBefore: 0,
+			Subject:   "",
 		},
 	}
-	return claims
-}
-
-// standardRefreshClaims : get a standard claim for a user refresh token
-func standardRefreshClaims(namespaceName, username string, timeout time.Time) *StandardRefreshClaims {
-	claims := &StandardRefreshClaims{
-		namespaceName, username,
-		jwt.StandardClaims{
-			ExpiresAt: timeout.Unix(),
-		},
-	}
-	return claims
 }

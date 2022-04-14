@@ -1,13 +1,15 @@
 package db
 
 import (
-	// pg import
+	// pg import.
+	"fmt"
+
 	_ "github.com/lib/pq"
 
 	"github.com/teal-finance/quid/quidlib/server"
 )
 
-// SelectAllOrgs : get all the orgs
+// SelectAllOrgs : get all the orgs.
 func SelectAllOrgs() ([]server.Org, error) {
 	data := []server.Org{}
 	err := db.Select(&data, "SELECT id,name FROM orgtable")
@@ -17,7 +19,7 @@ func SelectAllOrgs() ([]server.Org, error) {
 	return data, nil
 }
 
-// SelectOrg : get a org
+// SelectOrg : get a org.
 func SelectOrg(name string) (server.Org, error) {
 	data := []server.Org{}
 	err := db.Select(&data, "SELECT id,name FROM orgtable WHERE(name=$1)", name)
@@ -27,7 +29,7 @@ func SelectOrg(name string) (server.Org, error) {
 	return data[0], nil
 }
 
-// SelectOrgsForUser : get the orgs for a user
+// SelectOrgsForUser : get the orgs for a user.
 func SelectOrgsForUser(userID int64) ([]server.Org, error) {
 	data := []server.Org{}
 	err := db.Select(&data, "SELECT orgtable.id as id, orgtable.name as name FROM userorg "+
@@ -39,7 +41,7 @@ func SelectOrgsForUser(userID int64) ([]server.Org, error) {
 	return data, nil
 }
 
-// SelectOrgStartsWith : get a namespace
+// SelectOrgStartsWith : get a namespace.
 func SelectOrgStartsWith(name string) ([]server.Org, error) {
 	data := []org{}
 	res := []server.Org{}
@@ -56,7 +58,7 @@ func SelectOrgStartsWith(name string) ([]server.Org, error) {
 	return res, nil
 }
 
-// SelectOrgsNamesForUser : get the orgs for a user
+// SelectOrgsNamesForUser : get the orgs for a user.
 func SelectOrgsNamesForUser(userID int64) ([]string, error) {
 	data := []userOrgName{}
 	err := db.Select(&data, "SELECT orgtable.name as name FROM userorg "+
@@ -72,72 +74,59 @@ func SelectOrgsNamesForUser(userID int64) ([]string, error) {
 	return g, nil
 }
 
-// OrgExists : check if an org exists
+// OrgExists : check if an org exists.
 func OrgExists(name string) (bool, error) {
 	q := "SELECT COUNT(id) FROM orgtable WHERE(name=$1)"
 	var n int
 	err := db.Get(&n, q, name)
-	if err != nil {
-		return false, err
-	}
-	exists := false
-	if n == 1 {
-		exists = true
-	}
-	return exists, nil
+	exists := (n == 1)
+	return exists, err
 }
 
-// DeleteOrg : delete an org
+// DeleteOrg : delete an org.
 func DeleteOrg(ID int64) error {
 	q := "DELETE FROM orgtable WHERE id=$1"
 	tx := db.MustBegin()
 	tx.MustExec(q, ID)
-	err := tx.Commit()
-	if err != nil {
-		return err
-	}
-	return nil
+	return tx.Commit()
 }
 
-// CreateOrg : create an org
+// CreateOrg : create an org.
 func CreateOrg(name string) (int64, error) {
 	q := "INSERT INTO orgtable(name) VALUES($1) RETURNING id"
 	rows, err := db.Query(q, name)
 	if err != nil {
+		emo.QueryError(err)
 		return 0, err
 	}
-	var id int64
+
 	for rows.Next() {
 		var idi interface{}
 		err := rows.Scan(&idi)
 		if err != nil {
+			emo.QueryError(err)
 			return 0, err
 		}
-		id = idi.(int64)
+
+		return idi.(int64), nil
 	}
-	return id, nil
+
+	emo.QueryError("no org ", name)
+	return 0, fmt.Errorf("no org %q", name)
 }
 
-// AddUserInOrg : add a user into an org
+// AddUserInOrg : add a user into an org.
 func AddUserInOrg(userID int64, orgID int64) error {
 	q := "INSERT INTO userorg(user_id,org_id) VALUES($1,$2)"
 	tx := db.MustBegin()
 	tx.MustExec(q, userID, orgID)
-	err := tx.Commit()
-	if err != nil {
-		return err
-	}
-	return nil
+	return tx.Commit()
 }
 
-// RemoveUserFromOrg : remove a user from an org
+// RemoveUserFromOrg : remove a user from an org.
 func RemoveUserFromOrg(userID int64, orgID int64) error {
 	q := "DELETE FROM userorg WHERE user_id=$1 AND org_id=$2"
 	tx := db.MustBegin()
 	tx.MustExec(q, userID, orgID)
-	err := tx.Commit()
-	if err != nil {
-		return err
-	}
-	return nil
+	return tx.Commit()
 }

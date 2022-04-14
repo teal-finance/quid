@@ -47,7 +47,7 @@ func AdminLogin(c echo.Context) error {
 	}
 
 	// check the user admin group
-	isAdmin, err := isUserInAdminGroup(u.ID, ns.ID)
+	isAdmin, err := IsUserInAdminGroup(u.ID, ns.ID)
 	if err != nil {
 		return err
 	}

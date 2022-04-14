@@ -56,8 +56,10 @@ func SelectNamespaceFromName(name string) (bool, server.Namespace, error) {
 	q := "SELECT id,name,key,refresh_key,max_token_ttl,max_refresh_token_ttl,public_endpoint_enabled FROM namespace WHERE name=$1"
 	emo.Query(q, name)
 	row := db.QueryRowx(q, name)
+	emo.Debug("ok")
 	err := row.StructScan(&data)
 	if err != nil {
+		emo.Error(err)
 		if errors.Is(err, sql.ErrNoRows) {
 			return false, ns, nil
 		}

@@ -6,6 +6,7 @@ import (
 	"log"
 	"os"
 
+	"github.com/teal-finance/quid/quidlib/cmds"
 	"github.com/teal-finance/quid/quidlib/conf"
 	"github.com/teal-finance/quid/quidlib/server/api"
 	"github.com/teal-finance/quid/quidlib/server/db"
@@ -19,6 +20,7 @@ func main() {
 	isDevMode := flag.Bool("dev", false, "development mode")
 	isVerbose := flag.Bool("v", false, "verbose mode")
 	genConf := flag.Bool("conf", false, "generate a config file")
+	genDevToken := flag.Bool("devtoken", false, "generate a dev token for frontend")
 	flag.Parse()
 
 	// key flag
@@ -36,17 +38,11 @@ func main() {
 	// gen conf flag
 	if *genConf {
 		if *env {
-			fmt.Println("The conf command is not allowed when initializing from environment variables")
+			fmt.Println("This command is not allowed when initializing from environment variables")
 			os.Exit(2)
 		}
 
-		fmt.Println("Generating config file")
-		if err := conf.Create(); err != nil {
-			fmt.Println("Cannot create config file ", err)
-			os.Exit(3)
-		}
-
-		fmt.Println("Config file created: edit config.json to provide your database settings")
+		cmds.GeNConf()
 
 		return
 	}
@@ -74,6 +70,23 @@ func main() {
 
 	if err := db.ExecSchema(); err != nil {
 		log.Fatalln(err)
+	}
+
+	// gen dev token flag
+	if *genDevToken {
+		if *env {
+			fmt.Println("This command is not allowed when initializing from environment variables")
+			os.Exit(2)
+		}
+
+		username := os.Args[2]
+		err := cmds.GenDevAdminToken(username)
+		if err != nil {
+			log.Fatal(err)
+		}
+		fmt.Println("Dev token generated in env file")
+
+		return
 	}
 
 	// flag -init => initialize database

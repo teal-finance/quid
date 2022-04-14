@@ -44,7 +44,7 @@ run: go.sum config.json
 
 .PHONY: run-dev
 run-dev: go.sum config.json
-	go run main.go --dev
+	go run main.go -dev -v
 
 config.json:
 	# Create an empty config.json file and customize it:

@@ -28,8 +28,7 @@ func main() {
 			os.Exit(1)
 		}
 
-		k := tokens.GenKey()
-		fmt.Println(k)
+		fmt.Println(tokens.GenKey())
 
 		return
 	}
@@ -52,30 +51,24 @@ func main() {
 		return
 	}
 
-	autoConfDb := false
-	// env flag
+	// Read configuration
+	var (
+		conn, port string
+		autoConfDb bool
+	)
 	if *env {
-		if *isVerbose {
-			fmt.Println("Initializing from env")
-		}
-		autoConfDb = conf.InitFromEnv(*isDevMode)
+		// env flag
+		conn, port = conf.InitFromEnv(*isDevMode)
+		autoConfDb = (conf.AdminUser != "") && (conf.AdminPassword != "")
 	} else {
 		// init conf flag
-		found, err := conf.InitFromFile(*isDevMode)
-		if err != nil {
-			log.Fatal(err)
-		}
-
-		if !found {
-			fmt.Println("No config file found. Use the -conf option to generate one")
-			os.Exit(4)
-		}
+		conn, port = conf.InitFromFile(*isDevMode)
 	}
 
 	// Database
 	db.Init(*isVerbose)
 
-	if err := db.Connect(); err != nil {
+	if err := db.Connect(conn); err != nil {
 		log.Fatalln(err)
 	}
 
@@ -83,7 +76,7 @@ func main() {
 		log.Fatalln(err)
 	}
 
-	// initialization flag
+	// flag -init => initialize database
 	if *init {
 		if *env {
 			fmt.Println("The init command is not allowed when initializing from environment variables")
@@ -97,7 +90,7 @@ func main() {
 
 	if autoConfDb {
 		fmt.Println("Configure automatically the DB")
-		db.InitDbAutoConf(conf.DefaultAdminUser, conf.DefaultAdminPassword)
+		db.InitDbAutoConf(conf.AdminUser, conf.AdminPassword)
 	}
 
 	api.Init(*isVerbose)
@@ -110,5 +103,5 @@ func main() {
 	}
 
 	// http server
-	api.RunServer(adminNS.Key)
+	api.RunServer(adminNS.Key, ":"+port)
 }

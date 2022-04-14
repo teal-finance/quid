@@ -22,7 +22,7 @@ var SessionsStore = sessions.NewCookieStore([]byte(conf.EncodingKey))
 var echoServer = echo.New()
 
 // RunServer : configure and run the server.
-func RunServer(adminNsKey string) {
+func RunServer(adminNsKey, address string) {
 	echoServer.Use(middleware.Logger())
 	if !conf.IsDevMode {
 		echoServer.Use(middleware.Recover())
@@ -105,5 +105,5 @@ func RunServer(adminNsKey string) {
 		fmt.Println(color.Bold(color.Red("Running in development mode")))
 	}
 
-	echoServer.Logger.Fatal(echoServer.Start(":" + conf.Port))
+	echoServer.Logger.Fatal(echoServer.Start(address))
 }

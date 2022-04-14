@@ -12,17 +12,11 @@ import (
 	"github.com/spf13/viper"
 )
 
-// ConnStr : the postgres connection string.
-var ConnStr string
-
 // EncodingKey : the encoding key.
 var EncodingKey string
 
 // IsDevMode : enable development mode.
 var IsDevMode = false
-
-// Port : the port to run on.
-var Port = "8082"
 
 // Create : create a config file.
 func Create() error {
@@ -39,8 +33,9 @@ func Create() error {
 	return ioutil.WriteFile("config.json", jsonString, os.ModePerm)
 }
 
-// InitFromFile : get the config.
-func InitFromFile(isDevMode bool) (bool, error) {
+// InitFromFile : get the config
+// returns the postgres connection string.
+func InitFromFile(isDevMode bool) (conn, port string) {
 	viper.SetConfigName("config")
 	viper.AddConfigPath(".")
 	viper.SetDefault("db_name", "quid")
@@ -51,8 +46,8 @@ func InitFromFile(isDevMode bool) (bool, error) {
 
 	if err := viper.ReadInConfig(); err != nil {
 		if _, ok := err.(viper.ConfigFileNotFoundError); ok {
-			// Config file not found
-			return false, nil
+			fmt.Println("No config file found. Use the -conf option to generate one")
+			os.Exit(4)
 		}
 		log.Fatal(err)
 	}
@@ -64,14 +59,15 @@ func InitFromFile(isDevMode bool) (bool, error) {
 		}
 	}
 
+	EncodingKey = viper.Get("key").(string)
+
 	dbname := viper.Get("db_name").(string)
 	user := viper.Get("db_user").(string)
 	password := viper.Get("db_password").(string)
-	ConnStr = "dbname=" + dbname + " user=" + user + " password=" + password + " sslmode=disable"
+	conn = "dbname=" + dbname + " user=" + user + " password=" + password + " sslmode=disable"
+	port = "8082"
 
-	EncodingKey = viper.Get("key").(string)
-
-	return true, nil
+	return conn, port
 }
 
 func generateRandomKey() string {

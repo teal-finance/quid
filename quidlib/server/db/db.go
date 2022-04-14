@@ -6,7 +6,6 @@ import (
 	// pg import.
 	_ "github.com/lib/pq"
 
-	"github.com/teal-finance/quid/quidlib/conf"
 	emolib "github.com/teal-finance/quid/quidlib/emo"
 )
 
@@ -23,8 +22,8 @@ func Init(isVerbose bool) {
 }
 
 // Connect : connect to the db.
-func Connect() error {
-	_db, err := sqlx.Connect("postgres", conf.ConnStr)
+func Connect(dataSourceName string) error {
+	_db, err := sqlx.Connect("postgres", dataSourceName)
 	if err != nil {
 		return err
 	}

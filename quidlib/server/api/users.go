@@ -19,6 +19,7 @@ func AllUsers(c echo.Context) error {
 			"error": "error selecting users",
 		})
 	}
+
 	return c.JSON(http.StatusOK, &data)
 }
 
@@ -28,14 +29,17 @@ func AllUsersInNamespace(c echo.Context) error {
 	if err := c.Bind(&m); err != nil {
 		return err
 	}
-	namespaceID := int64(m["namespace_id"].(float64))
-	data, err := db.SelectUsersInNamespace(namespaceID)
+
+	nsID := int64(m["namespace_id"].(float64))
+
+	data, err := db.SelectUsersInNamespace(nsID)
 	if err != nil {
 		fmt.Println("ERROR", err)
 		return c.JSON(http.StatusInternalServerError, echo.Map{
 			"error": "error selecting users",
 		})
 	}
+
 	return c.JSON(http.StatusOK, &data)
 }
 
@@ -45,6 +49,7 @@ func GroupsForNamespace(c echo.Context) error {
 	if err := c.Bind(&m); err != nil {
 		return err
 	}
+
 	namespace := m["namespace"].(string)
 
 	hasResult, ns, err := db.SelectNamespaceFromName(namespace)
@@ -60,6 +65,7 @@ func GroupsForNamespace(c echo.Context) error {
 			"error": "error selecting groups",
 		})
 	}
+
 	return c.JSON(http.StatusOK, echo.Map{
 		"groups": g,
 	})
@@ -71,15 +77,17 @@ func AddUserInOrg(c echo.Context) error {
 	if err := c.Bind(&m); err != nil {
 		return err
 	}
-	userID := int64(m["user_id"].(float64))
-	orgID := int64(m["org_id"].(float64))
 
-	err := db.AddUserInOrg(userID, orgID)
+	uID := int64(m["user_id"].(float64))
+	oID := int64(m["org_id"].(float64))
+
+	err := db.AddUserInOrg(uID, oID)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, echo.Map{
 			"error": "error adding user in org",
 		})
 	}
+
 	return c.JSON(http.StatusOK, echo.Map{
 		"ok": true,
 	})
@@ -91,15 +99,17 @@ func RemoveUserFromOrg(c echo.Context) error {
 	if err := c.Bind(&m); err != nil {
 		return err
 	}
-	userID := int64(m["user_id"].(float64))
-	orgID := int64(m["org_id"].(float64))
 
-	err := db.RemoveUserFromOrg(userID, orgID)
+	uID := int64(m["user_id"].(float64))
+	oID := int64(m["org_id"].(float64))
+
+	err := db.RemoveUserFromOrg(uID, oID)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, echo.Map{
 			"error": "error removing user from org",
 		})
 	}
+
 	return c.JSON(http.StatusOK, echo.Map{
 		"ok": true,
 	})
@@ -111,15 +121,17 @@ func AddUserInGroup(c echo.Context) error {
 	if err := c.Bind(&m); err != nil {
 		return err
 	}
-	userID := int64(m["user_id"].(float64))
-	groupID := int64(m["group_id"].(float64))
 
-	err := db.AddUserInGroup(userID, groupID)
+	uID := int64(m["user_id"].(float64))
+	gID := int64(m["group_id"].(float64))
+
+	err := db.AddUserInGroup(uID, gID)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, echo.Map{
 			"error": "error adding user in group",
 		})
 	}
+
 	return c.JSON(http.StatusOK, echo.Map{
 		"ok": true,
 	})
@@ -131,15 +143,17 @@ func RemoveUserFromGroup(c echo.Context) error {
 	if err := c.Bind(&m); err != nil {
 		return err
 	}
-	userID := int64(m["user_id"].(float64))
-	groupID := int64(m["group_id"].(float64))
 
-	err := db.RemoveUserFromGroup(userID, groupID)
+	uID := int64(m["user_id"].(float64))
+	gID := int64(m["group_id"].(float64))
+
+	err := db.RemoveUserFromGroup(uID, gID)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, echo.Map{
 			"error": "error removing user from group",
 		})
 	}
+
 	return c.JSON(http.StatusOK, echo.Map{
 		"ok": true,
 	})
@@ -151,6 +165,7 @@ func SearchForUsersInNamespace(c echo.Context) error {
 	if err := c.Bind(&m); err != nil {
 		return err
 	}
+
 	fmt.Println("Search")
 	username := m["username"].(string)
 	nsID := int64(m["namespace_id"].(float64))
@@ -163,6 +178,7 @@ func SearchForUsersInNamespace(c echo.Context) error {
 			"error": "error searching for users",
 		})
 	}
+
 	return c.JSON(http.StatusOK, echo.Map{
 		"users": u,
 	})
@@ -174,14 +190,16 @@ func UserGroupsInfo(c echo.Context) error {
 	if err := c.Bind(&m); err != nil {
 		return err
 	}
-	ID := int64(m["id"].(float64))
 
-	g, err := db.SelectGroupsForUser(ID)
+	id := int64(m["id"].(float64))
+
+	g, err := db.SelectGroupsForUser(id)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, echo.Map{
 			"error": "error selecting groups",
 		})
 	}
+
 	return c.JSON(http.StatusOK, echo.Map{
 		"groups": g,
 	})
@@ -212,12 +230,13 @@ func CreateUserHandler(c echo.Context) error {
 	if err := c.Bind(&m); err != nil {
 		return err
 	}
+
 	name := m["name"].(string)
 	password := m["password"].(string)
-	namespaceID := int64(m["namespace_id"].(float64))
+	nsID := int64(m["namespace_id"].(float64))
 
 	// check if user exists
-	exists, err := db.UserNameExists(name, namespaceID)
+	exists, err := db.UserNameExists(name, nsID)
 	if err != nil {
 		return c.JSON(http.StatusConflict, echo.Map{
 			"error": "error checking user",
@@ -225,46 +244,39 @@ func CreateUserHandler(c echo.Context) error {
 	}
 	if exists {
 		return c.JSON(http.StatusConflict, echo.Map{
-			"error": "error creating user",
+			"error": "error user already exist",
 		})
 	}
 
 	// create user
-	u, err := db.CreateUser(name, password, namespaceID)
+	u, err := db.CreateUser(name, password, nsID)
 	if err != nil {
 		return c.JSON(http.StatusConflict, echo.Map{
 			"error": "error creating user",
 		})
 	}
+
 	return c.JSON(http.StatusOK, echo.Map{
 		"user_id": u.ID,
 	})
 }
 
-func IsUserInAdminGroup(uid int64, nsid int64) (bool, error) {
-	gid, err := db.SelectGroup("quid_admin", nsid)
+func IsUserInAdminGroup(uID int64, nsID int64) (bool, error) {
+	g, err := db.SelectGroup("quid_admin", nsID)
 	if err != nil {
 		return false, err
 	}
 
-	isAdmin, err := db.IsUserInGroup(uid, gid.ID)
-	if err != nil {
-		return false, err
-	}
-	return isAdmin, nil
+	return db.IsUserInGroup(uID, g.ID)
 }
 
 func checkUserPassword(username string, password string, namespaceID int64) (bool, server.User, error) {
 	found, u, err := db.SelectNonDisabledUser(username, namespaceID)
-	if err != nil {
+	if !found || err != nil {
 		return false, u, err
 	}
-	if !found {
-		return false, u, nil
-	}
+
 	err = bcrypt.CompareHashAndPassword([]byte(u.PasswordHash), []byte(password))
-	if err != nil {
-		return false, u, nil
-	}
-	return true, u, nil
+
+	return true, u, err
 }

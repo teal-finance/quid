@@ -14,13 +14,16 @@ func AllGroupsForNamespace(c echo.Context) error {
 	if err := c.Bind(&m); err != nil {
 		return err
 	}
-	namespaceID := int64(m["namespace_id"].(float64))
-	data, err := db.SelectGroupsForNamespace(namespaceID)
+
+	nsID := int64(m["namespace_id"].(float64))
+
+	data, err := db.SelectGroupsForNamespace(nsID)
 	if err != nil {
 		return c.JSON(http.StatusConflict, echo.Map{
 			"error": "error selecting groups",
 		})
 	}
+
 	return c.JSON(http.StatusOK, &data)
 }
 
@@ -32,6 +35,7 @@ func AllGroups(c echo.Context) error {
 			"error": "error selecting groups",
 		})
 	}
+
 	return c.JSON(http.StatusOK, &data)
 }
 
@@ -41,9 +45,10 @@ func GroupsInfo(c echo.Context) error {
 	if err := c.Bind(&m); err != nil {
 		return err
 	}
-	ID := int64(m["id"].(float64))
 
-	n, err := db.CountUsersInGroup(ID)
+	id := int64(m["id"].(float64))
+
+	n, err := db.CountUsersInGroup(id)
 	if err != nil {
 		return c.JSON(http.StatusConflict, echo.Map{
 			"error": "error counting in group",
@@ -63,6 +68,7 @@ func DeleteGroup(c echo.Context) error {
 	}
 
 	id := int64(m["id"].(float64))
+
 	if err := db.DeleteGroup(id); err != nil {
 		return c.JSON(http.StatusConflict, echo.Map{
 			"error": "error deleting group",
@@ -80,10 +86,11 @@ func CreateGroup(c echo.Context) error {
 	if err := c.Bind(&m); err != nil {
 		return err
 	}
-	name := m["name"].(string)
-	namespaceID := int64(m["namespace_id"].(float64))
 
-	ns, exists, err := createGroup(name, namespaceID)
+	name := m["name"].(string)
+	nsID := int64(m["namespace_id"].(float64))
+
+	ns, exists, err := createGroup(name, nsID)
 	if err != nil {
 		return c.JSON(http.StatusConflict, echo.Map{
 			"error": "error creating group",
@@ -116,7 +123,9 @@ func createGroup(name string, namespaceID int64) (server.Group, bool, error) {
 	if err != nil {
 		return ns, false, err
 	}
+
 	ns.ID = uid
 	ns.Name = name
+
 	return ns, false, nil
 }

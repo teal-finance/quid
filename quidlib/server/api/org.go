@@ -16,6 +16,7 @@ func AllOrgs(c echo.Context) error {
 			"error": "error selecting orgs",
 		})
 	}
+
 	return c.JSON(http.StatusOK, &data)
 }
 
@@ -25,6 +26,7 @@ func FindOrg(c echo.Context) error {
 	if err := c.Bind(&m); err != nil {
 		return err
 	}
+
 	name := m["name"].(string)
 
 	data, err := db.SelectOrgStartsWith(name)
@@ -34,6 +36,7 @@ func FindOrg(c echo.Context) error {
 			"error": "error finding org",
 		})
 	}
+
 	return c.JSON(http.StatusOK, &data)
 }
 
@@ -43,14 +46,16 @@ func UserOrgsInfo(c echo.Context) error {
 	if err := c.Bind(&m); err != nil {
 		return err
 	}
-	ID := int64(m["id"].(float64))
 
-	o, err := db.SelectOrgsForUser(ID)
+	id := int64(m["id"].(float64))
+
+	o, err := db.SelectOrgsForUser(id)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, echo.Map{
 			"error": "error selecting orgs",
 		})
 	}
+
 	return c.JSON(http.StatusOK, echo.Map{
 		"orgs": o,
 	})
@@ -64,6 +69,7 @@ func DeleteOrg(c echo.Context) error {
 	}
 
 	id := int64(m["id"].(float64))
+
 	if err := db.DeleteOrg(id); err != nil {
 		return c.JSON(http.StatusConflict, echo.Map{
 			"error": "error deleting org",
@@ -81,6 +87,7 @@ func CreateOrg(c echo.Context) error {
 	if err := c.Bind(&m); err != nil {
 		return err
 	}
+
 	name := m["name"].(string)
 
 	org, exists, err := createOrg(name)
@@ -112,11 +119,13 @@ func createOrg(name string) (server.Org, bool, error) {
 		return org, true, nil
 	}
 
-	uid, err := db.CreateOrg(name)
+	id, err := db.CreateOrg(name)
 	if err != nil {
 		return org, false, err
 	}
-	org.ID = uid
+
+	org.ID = id
 	org.Name = name
+
 	return org, false, nil
 }

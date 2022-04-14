@@ -28,16 +28,18 @@ func SetNamespaceRefreshTokenMaxTTL(c echo.Context) error {
 	if err := c.Bind(&m); err != nil {
 		return err
 	}
-	ID := int64(m["id"].(float64))
+
+	id := int64(m["id"].(float64))
 	refreshMxTTL := m["refresh_max_ttl"].(string)
 
-	err := db.UpdateNamespaceRefreshTokenMaxTTL(ID, refreshMxTTL)
+	err := db.UpdateNamespaceRefreshTokenMaxTTL(id, refreshMxTTL)
 	if err != nil {
 		emo.QueryError(err)
 		return c.JSON(http.StatusInternalServerError, echo.Map{
 			"error": "error updating tokens max ttl in namespace",
 		})
 	}
+
 	return c.JSON(http.StatusOK, echo.Map{
 		"ok": true,
 	})
@@ -49,16 +51,18 @@ func SetNamespaceTokenMaxTTL(c echo.Context) error {
 	if err := c.Bind(&m); err != nil {
 		return err
 	}
-	ID := int64(m["id"].(float64))
-	maxTTL := m["max_ttl"].(string)
 
-	err := db.UpdateNamespaceTokenMaxTTL(ID, maxTTL)
+	id := int64(m["id"].(float64))
+	ttl := m["max_ttl"].(string)
+
+	err := db.UpdateNamespaceTokenMaxTTL(id, ttl)
 	if err != nil {
 		emo.QueryError(err)
 		return c.JSON(http.StatusInternalServerError, echo.Map{
 			"error": "error updating tokens max ttl in namespace",
 		})
 	}
+
 	return c.JSON(http.StatusOK, echo.Map{
 		"ok": true,
 	})
@@ -70,9 +74,10 @@ func NamespaceInfo(c echo.Context) error {
 	if err := c.Bind(&m); err != nil {
 		return err
 	}
-	ID := int64(m["id"].(float64))
 
-	nu, err := db.CountUsersForNamespace(ID)
+	id := int64(m["id"].(float64))
+
+	nu, err := db.CountUsersForNamespace(id)
 	if err != nil {
 		emo.QueryError(err)
 		return c.JSON(http.StatusInternalServerError, echo.Map{
@@ -80,7 +85,7 @@ func NamespaceInfo(c echo.Context) error {
 		})
 	}
 
-	g, err := db.SelectGroupsForNamespace(ID)
+	g, err := db.SelectGroupsForNamespace(id)
 	if err != nil {
 		emo.QueryError(err)
 		return c.JSON(http.StatusInternalServerError, echo.Map{
@@ -102,9 +107,10 @@ func GetNamespaceKey(c echo.Context) error {
 	if err := c.Bind(&m); err != nil {
 		return err
 	}
-	ID := int64(m["id"].(float64))
 
-	found, data, err := db.SelectNamespaceKey(ID)
+	id := int64(m["id"].(float64))
+
+	found, data, err := db.SelectNamespaceKey(id)
 	if err != nil {
 		emo.QueryError(err)
 		return c.JSON(http.StatusInternalServerError, echo.Map{
@@ -116,6 +122,7 @@ func GetNamespaceKey(c echo.Context) error {
 			"error": "namespace not found",
 		})
 	}
+
 	return c.JSON(http.StatusOK, echo.Map{
 		"key": data,
 	})
@@ -127,6 +134,7 @@ func FindNamespace(c echo.Context) error {
 	if err := c.Bind(&m); err != nil {
 		return err
 	}
+
 	name := m["name"].(string)
 
 	data, err := db.SelectNamespaceStartsWith(name)
@@ -136,6 +144,7 @@ func FindNamespace(c echo.Context) error {
 			"error": "error finding namespace",
 		})
 	}
+
 	return c.JSON(http.StatusOK, &data)
 }
 
@@ -147,6 +156,7 @@ func DeleteNamespace(c echo.Context) error {
 	}
 
 	id := int64(m["id"].(float64))
+
 	qRes := db.DeleteNamespace(id)
 	if qRes.HasError {
 		emo.QueryError(qRes.Error.Message)
@@ -169,10 +179,11 @@ func SetNamespaceEndpointAvailability(c echo.Context) error {
 	if err := c.Bind(&m); err != nil {
 		return err
 	}
-	ID := int64(m["id"].(float64))
+
+	id := int64(m["id"].(float64))
 	enable := m["enable"].(bool)
 
-	err := db.SetNamespaceEndpointAvailability(ID, enable)
+	err := db.SetNamespaceEndpointAvailability(id, enable)
 	if err != nil {
 		return c.JSON(http.StatusConflict, echo.Map{
 			"error": "error updating namespace",
@@ -195,11 +206,10 @@ func CreateNamespace(c echo.Context) error {
 	maxTTL := m["max_ttl"].(string)
 	refreshMaxTTL := m["refresh_max_ttl"].(string)
 	enableEndpoint := m["enable_endpoint"].(bool)
-
 	key := tokens.GenKey()
 	refreshKey := tokens.GenKey()
 
-	id, exists, err := createNamespace(name, key, refreshKey, maxTTL, refreshMaxTTL, enableEndpoint)
+	nsID, exists, err := createNamespace(name, key, refreshKey, maxTTL, refreshMaxTTL, enableEndpoint)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, echo.Map{
 			"error": "error creating namespace",
@@ -212,7 +222,7 @@ func CreateNamespace(c echo.Context) error {
 	}
 
 	return c.JSON(http.StatusOK, echo.Map{
-		"namespace_id": id,
+		"namespace_id": nsID,
 	})
 }
 
@@ -226,10 +236,10 @@ func createNamespace(name, key, refreshKey, ttl, refreshMaxTTL string, endpoint 
 		return 0, true, nil
 	}
 
-	id, err := db.CreateNamespace(name, key, refreshKey, ttl, refreshMaxTTL, endpoint)
+	nsID, err := db.CreateNamespace(name, key, refreshKey, ttl, refreshMaxTTL, endpoint)
 	if err != nil {
 		return 0, false, err
 	}
 
-	return id, false, nil
+	return nsID, false, nil
 }

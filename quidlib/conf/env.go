@@ -13,13 +13,8 @@ var AdminUser string
 var AdminPassword string
 
 // InitFromEnv : get the config from environment variables.
-func InitFromEnv(isDevMode bool) (conn, port string) {
+func InitFromEnv() (conn, port string) {
 	fmt.Println("Initializing from env")
-
-	if isDevMode {
-		fmt.Println("Dev mode is not authorized when initializing from env variables")
-		os.Exit(1)
-	}
 
 	EncodingKey = os.Getenv("QUID_KEY")
 

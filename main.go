@@ -16,7 +16,6 @@ func main() {
 	init := flag.Bool("init", false, "initialize and create a superuser")
 	key := flag.Bool("key", false, "create a random key")
 	env := flag.Bool("env", false, "init from environment variables not config file")
-	isDevMode := flag.Bool("dev", false, "development mode")
 	isVerbose := flag.Bool("v", false, "verbose mode")
 	genConf := flag.Bool("conf", false, "generate a config file")
 	flag.Parse()
@@ -58,11 +57,11 @@ func main() {
 	)
 	if *env {
 		// env flag
-		conn, port = conf.InitFromEnv(*isDevMode)
+		conn, port = conf.InitFromEnv()
 		autoConfDb = (conf.AdminUser != "") && (conf.AdminPassword != "")
 	} else {
 		// init conf flag
-		conn, port = conf.InitFromFile(*isDevMode)
+		conn, port = conf.InitFromFile()
 	}
 
 	// Database

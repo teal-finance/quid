@@ -21,10 +21,11 @@ var IsDevMode = false
 // Create : create a config file.
 func Create() error {
 	data := map[string]interface{}{
-		"db_name":     "quid",
-		"db_user":     "pguser",
-		"db_password": "my_password",
-		"key":         generateRandomKey(),
+		"db_name":         "quid",
+		"db_user":         "pguser",
+		"db_password":     "my_password",
+		"key":             generateRandomKey(),
+		"enable_dev_mode": false,
 	}
 
 	jsonString, _ := json.MarshalIndent(data, "", "    ")
@@ -34,13 +35,14 @@ func Create() error {
 
 // InitFromFile : get the config
 // returns the postgres connection string.
-func InitFromFile() (conn, port string) {
+func InitFromFile(isDevMode bool) (conn, port string) {
 	viper.SetConfigName("config")
 	viper.AddConfigPath(".")
 	viper.SetDefault("db_name", "quid")
 	viper.SetDefault("db_user", "pguser")
 	viper.SetDefault("db_password", nil)
 	viper.SetDefault("key", nil)
+	viper.SetDefault("enable_dev_mode", false)
 
 	if err := viper.ReadInConfig(); err != nil {
 		if _, ok := err.(viper.ConfigFileNotFoundError); ok {
@@ -48,6 +50,13 @@ func InitFromFile() (conn, port string) {
 			os.Exit(4)
 		}
 		log.Fatal(err)
+	}
+
+	if isDevMode {
+		if viper.Get("enable_dev_mode") == false {
+			fmt.Println("Please set enable_dev_mode to true in config in order to run in dev mode")
+			os.Exit(1)
+		}
 	}
 
 	EncodingKey = viper.Get("key").(string)

@@ -6,6 +6,7 @@ help:
 	# quid         Build the backend
 	#
 	# run          Run the backend (serves the frontend static files)
+	# run-dev       Run the backend in dev mode (also serves the frontend)
 	# run-front     Run the frontend in dev mode
 	#
 	# up-patch     Upgrade dependencies patch version (Go/Node)
@@ -40,6 +41,10 @@ go.mod:
 .PHONY: run
 run: go.sum config.json
 	go run main.go
+
+.PHONY: run-dev
+run-dev: go.sum config.json
+	go run main.go --dev
 
 config.json:
 	# Create an empty config.json file and customize it:

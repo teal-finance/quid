@@ -1,1 +1,0 @@
-import{d as l,o as r,c as a,G as c,l as i,t as p}from"./index.4dcf8b78.js";const u=l({props:{text:{type:String,default:""}},emits:["select"],setup(t,{emit:n}){function o(){n("select")}return(s,e)=>(r(),a("span",{class:"inline-block px-2 py-1 mr-3 text-xs font-bold rounded-full",onClick:e[0]||(e[0]=d=>o())},[c(s.$slots,"default",{},()=>[i(p(t.text),1)])]))}});export{u as _};

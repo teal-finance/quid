@@ -103,7 +103,7 @@ func getErr(event Event, errObjs []interface{}) (Event, error) {
 	msg := strings.Join(msgs, " ")
 	err := errors.New(msg)
 	pc := make([]uintptr, 10)
-	runtime.Callers(3, pc)
+	runtime.Callers(4, pc)
 	f := runtime.FuncForPC(pc[0])
 	file, line := f.FileLine(pc[0])
 	from := f.Name()

@@ -18,7 +18,7 @@ func main() {
 	key := flag.Bool("key", false, "create a random key")
 	env := flag.Bool("env", false, "init from environment variables not config file")
 	isDevMode := flag.Bool("dev", false, "development mode")
-	isVerbose := flag.Bool("v", false, "verbose, log warning, info and debug (Emo)")
+	isVerbose := flag.Bool("v", false, "verbose (info and debug logs)")
 	genConf := flag.Bool("conf", false, "generate a config file")
 	genDevToken := flag.Bool("devtoken", false, "generate a dev token for frontend")
 	flag.Parse()

@@ -3,7 +3,6 @@ module github.com/teal-finance/quid
 go 1.18
 
 require (
-	github.com/acmacalister/skittles v0.0.0-20160609003031-7423546701e1
 	github.com/golang-jwt/jwt v3.2.2+incompatible
 	github.com/gorilla/sessions v1.2.1
 	github.com/jmoiron/sqlx v1.3.4

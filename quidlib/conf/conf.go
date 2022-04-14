@@ -53,6 +53,7 @@ func InitFromFile(isDevMode bool) (conn, port string) {
 	}
 
 	if isDevMode {
+		IsDevMode = true
 		if viper.Get("enable_dev_mode") == false {
 			fmt.Println("Please set enable_dev_mode to true in config in order to run in dev mode")
 			os.Exit(1)

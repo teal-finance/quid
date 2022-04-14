@@ -2,7 +2,7 @@ package emo
 
 // Info :.
 func (zone Zone) Info(errObjs ...interface{}) Event {
-	return processEvent("ℹ️", zone, true, errObjs)
+	return processEvent("ℹ️", zone, false, errObjs)
 }
 
 // Warning :.

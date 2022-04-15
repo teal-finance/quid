@@ -1,45 +1,28 @@
 package cmds
 
 import (
-	"errors"
+	"fmt"
 	"log"
 	"os"
 
-	emolib "github.com/teal-finance/quid/quidlib/emo"
 	"github.com/teal-finance/quid/quidlib/server/db"
-	"github.com/teal-finance/quid/quidlib/tokens"
 )
 
-var out = emolib.NewZone("gentoken")
+func WriteDevAdminToken(username string) error {
+	return writeDevAdminToken(username, "quid")
+}
 
-func GenDevAdminToken(username string) error {
-	// get the namespace
-	_, ns, err := db.SelectNamespaceFromName("quid")
-	if err != nil {
-		return err
-	}
-	_, u, err := db.SelectNonDisabledUser(username, ns.ID)
-	if err != nil {
-		return err
-	}
-	// check the user admin group
-	isAdmin, err := db.IsUserInAdminGroup(u.ID, ns.ID)
-	if err != nil {
-		return err
-	}
-	if !isAdmin {
-		log.Fatal("User is not admin")
-	}
-	// get the refresh token
-	token, err := tokens.GenRefreshToken("24h", ns.MaxRefreshTokenTTL, ns.Name, u.Name, []byte(ns.RefreshKey))
+func WriteNsAdminToken(username string, namespace string) error {
+	return writeDevAdminToken(username, namespace)
+}
+
+func writeDevAdminToken(username string, namespace string) error {
+	// generate a refresh token
+	token, err := db.GenNsAdminTokenForUser(username, namespace)
 	if err != nil {
 		msg := "Error generating refresh token"
 		emo.Error(msg, err)
 		return err
-	}
-	if token == "" {
-		out.Info("Unauthorized: timeout max (", ns.MaxRefreshTokenTTL, ") for refresh token for namespace", ns.Name)
-		return errors.New("")
 	}
 
 	// write the ui env file
@@ -49,7 +32,8 @@ func GenDevAdminToken(username string) error {
 		emo.Error(err)
 		return err
 	}
-	filepath := dir + "/ui/.env.dev.local"
+	relpath := "/ui/.env.dev.local"
+	filepath := dir + relpath
 	f, err := os.OpenFile(filepath, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0o644)
 	if err != nil {
 		log.Fatal(err)
@@ -61,6 +45,8 @@ func GenDevAdminToken(username string) error {
 	}
 
 	f.Close()
+
+	fmt.Println("Dev token written in", relpath)
 
 	return nil
 }

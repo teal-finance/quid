@@ -20,7 +20,8 @@ func main() {
 	isDevMode := flag.Bool("dev", false, "development mode")
 	isVerbose := flag.Bool("v", false, "verbose (info and debug logs)")
 	genConf := flag.Bool("conf", false, "generate a config file")
-	genDevToken := flag.Bool("devtoken", false, "generate a dev token for frontend")
+	genDevToken := flag.Bool("devtoken", false, "generate a quid admin dev token for frontend")
+	genDevNsToken := flag.Bool("devnstoken", false, "generate a namespace admin dev token for frontend")
 	flag.Parse()
 
 	// key flag
@@ -80,7 +81,25 @@ func main() {
 		}
 
 		username := os.Args[2]
-		err := cmds.GenDevAdminToken(username)
+		err := cmds.WriteDevAdminToken(username)
+		if err != nil {
+			log.Fatal(err)
+		}
+		fmt.Println("Dev token generated in env file")
+
+		return
+	}
+
+	// gen namespace dev token flag
+	if *genDevNsToken {
+		if *env {
+			fmt.Println("This command is not allowed when initializing from environment variables")
+			os.Exit(2)
+		}
+
+		username := os.Args[2]
+		namespace := os.Args[3]
+		err := cmds.WriteNsAdminToken(username, namespace)
 		if err != nil {
 			log.Fatal(err)
 		}

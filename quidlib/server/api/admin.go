@@ -59,24 +59,21 @@ func AdminLogin(c echo.Context) error {
 	}
 
 	// set the session
-	sameSite := http.SameSiteStrictMode
-	if conf.IsDevMode {
-		sameSite = http.SameSiteLaxMode
-	}
-	secure := !conf.IsDevMode
 	sess, _ := session.Get("session", c)
 	sess.Options = &sessions.Options{
 		Path:     "/",
 		MaxAge:   3600 * 24,
 		HttpOnly: true,
-		SameSite: sameSite,
-		Secure:   secure,
+		Secure:   !conf.IsDevMode,
+		SameSite: http.SameSiteStrictMode,
+	}
+	if conf.IsDevMode {
+		sess.Options.SameSite = http.SameSiteLaxMode
 	}
 	sess.Values["is_admin"] = "true"
 	sess.Values["user"] = u.UserName
 
-	err = sess.Save(c.Request(), c.Response())
-	if err != nil {
+	if err = sess.Save(c.Request(), c.Response()); err != nil {
 		emo.Error("Error saving session", err)
 	}
 

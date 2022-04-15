@@ -261,15 +261,6 @@ func CreateUserHandler(c echo.Context) error {
 	})
 }
 
-func IsUserInAdminGroup(uID int64, nsID int64) (bool, error) {
-	g, err := db.SelectGroup("quid_admin", nsID)
-	if err != nil {
-		return false, err
-	}
-
-	return db.IsUserInGroup(uID, g.ID)
-}
-
 func checkUserPassword(username string, password string, namespaceID int64) (bool, server.User, error) {
 	found, u, err := db.SelectNonDisabledUser(username, namespaceID)
 	if !found || err != nil {

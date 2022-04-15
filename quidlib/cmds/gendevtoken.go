@@ -6,7 +6,6 @@ import (
 	"os"
 
 	emolib "github.com/teal-finance/quid/quidlib/emo"
-	"github.com/teal-finance/quid/quidlib/server/api"
 	"github.com/teal-finance/quid/quidlib/server/db"
 	"github.com/teal-finance/quid/quidlib/tokens"
 )
@@ -24,7 +23,7 @@ func GenDevAdminToken(username string) error {
 		return err
 	}
 	// check the user admin group
-	isAdmin, err := api.IsUserInAdminGroup(u.ID, ns.ID)
+	isAdmin, err := db.IsUserInAdminGroup(u.ID, ns.ID)
 	if err != nil {
 		return err
 	}

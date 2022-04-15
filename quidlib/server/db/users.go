@@ -204,3 +204,13 @@ func DeleteUser(id int64) error {
 
 	return tx.Commit()
 }
+
+// IsUserInAdminGroup : check if a user is in quid admin group
+func IsUserInAdminGroup(uID int64, nsID int64) (bool, error) {
+	g, err := SelectGroup("quid_admin", nsID)
+	if err != nil {
+		return false, err
+	}
+
+	return IsUserInGroup(uID, g.ID)
+}

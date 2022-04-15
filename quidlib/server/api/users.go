@@ -160,7 +160,7 @@ func RemoveUserFromGroup(c echo.Context) error {
 }
 
 // SearchForUsersInNamespace : search from a username in namespace.
-func SearchForUsersInNamespace(c echo.Context) error {
+/*func SearchForUsersInNamespace(c echo.Context) error {
 	m := echo.Map{}
 	if err := c.Bind(&m); err != nil {
 		return err
@@ -182,7 +182,7 @@ func SearchForUsersInNamespace(c echo.Context) error {
 	return c.JSON(http.StatusOK, echo.Map{
 		"users": u,
 	})
-}
+}*/
 
 // UserGroupsInfo : get info for a user.
 func UserGroupsInfo(c echo.Context) error {

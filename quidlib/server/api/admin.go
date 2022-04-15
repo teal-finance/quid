@@ -60,6 +60,8 @@ func AdminLogin(c echo.Context) error {
 
 	// set the session
 	sess, _ := session.Get("session", c)
+	sess.Values["user"] = u.Name
+	sess.Values["is_admin"] = "true"
 	sess.Options = &sessions.Options{
 		Path:     "/",
 		MaxAge:   3600 * 24,
@@ -70,15 +72,13 @@ func AdminLogin(c echo.Context) error {
 	if conf.IsDevMode {
 		sess.Options.SameSite = http.SameSiteLaxMode
 	}
-	sess.Values["is_admin"] = "true"
-	sess.Values["user"] = u.UserName
 
 	if err = sess.Save(c.Request(), c.Response()); err != nil {
 		emo.Error("Error saving session", err)
 	}
 
 	// set the refresh token
-	token, err := tokens.GenRefreshToken("24h", ns.MaxRefreshTokenTTL, ns.Name, u.UserName, []byte(ns.RefreshKey))
+	token, err := tokens.GenRefreshToken("24h", ns.MaxRefreshTokenTTL, ns.Name, u.Name, []byte(ns.RefreshKey))
 	if err != nil {
 		emo.Error("Error generating refresh token", err)
 		return c.JSON(http.StatusInternalServerError, echo.Map{
@@ -92,7 +92,7 @@ func AdminLogin(c echo.Context) error {
 		})
 	}
 
-	emo.Info("Admin user ", u.UserName, " is connected")
+	emo.Info("Admin user ", u.Name, " is connected")
 
 	return c.JSON(http.StatusOK, echo.Map{
 		"token": token,

@@ -65,10 +65,10 @@ func InitFromFile(isDevMode bool) (conn, port string) {
 
 	EncodingKey = viper.Get("key").(string)
 
-	dbname := viper.Get("db_name").(string)
-	user := viper.Get("db_user").(string)
-	password := viper.Get("db_password").(string)
-	conn = "dbname=" + dbname + " user=" + user + " password=" + password + " sslmode=disable"
+	db := viper.Get("db_name").(string)
+	usr := viper.Get("db_user").(string)
+	pwd := viper.Get("db_password").(string)
+	conn = "dbname=" + db + " user=" + usr + " password=" + pwd + " sslmode=disable"
 	port = "8082"
 
 	return conn, port

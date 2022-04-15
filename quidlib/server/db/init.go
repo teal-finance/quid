@@ -31,6 +31,7 @@ func initDbConf(prompt bool, username, password string) {
 	if err != nil {
 		log.Fatal(err)
 	}
+
 	if nsExists {
 		nsID, err = SelectNamespaceID("quid")
 		if err != nil {
@@ -55,6 +56,7 @@ func initDbConf(prompt bool, username, password string) {
 	if err != nil {
 		log.Fatal(err)
 	}
+
 	if exists {
 		group, er := SelectGroup("quid_admin", nsID)
 		if er != nil {

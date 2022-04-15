@@ -37,6 +37,7 @@ func queryError(err error) QueryResult {
 			},
 		}
 	}
+
 	return QueryResult{
 		HasError: true,
 		Error: QueryError{

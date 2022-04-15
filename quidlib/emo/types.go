@@ -27,15 +27,11 @@ type Event struct {
 	IsError bool
 }
 
-// NewZone : create a zone constructor
+// NewZone : create a zone constructor.
 func NewZone(name string, print ...bool) Zone {
-	p := true
-	if len(print) > 0 {
-		p = print[0]
-	}
 	return Zone{
 		Name:  name,
-		Print: p,
+		Print: (len(print) > 0) && (print[0] == true),
 	}
 }
 

@@ -97,14 +97,14 @@ func RequestAdminAccessToken(c echo.Context) error {
 		}
 	}
 	if !isAdmin {
-		emo.Warning("Admin access token request from user", u.UserName, "that is not in the quid_admin group")
+		emo.Warning("Admin access token request from user", u.Name, "that is not in the quid_admin group")
 		return c.JSON(http.StatusUnauthorized, echo.Map{
 			"error": "unauthorized",
 		})
 	}
 
 	// generate the access token
-	t, err := tokens.GenAccessToken("5m", ns.MaxTokenTTL, u.UserName, groupNames, orgsNames, []byte(ns.Key))
+	t, err := tokens.GenAccessToken("5m", ns.MaxTokenTTL, u.Name, groupNames, orgsNames, []byte(ns.Key))
 	if err != nil {
 		log.Fatal(err)
 		return c.JSON(http.StatusInternalServerError, echo.Map{
@@ -217,7 +217,7 @@ func RequestAccessToken(c echo.Context) error {
 	}
 
 	// generate the access token
-	t, err := tokens.GenAccessToken(timeout, ns.MaxTokenTTL, u.UserName, groupNames, orgsNames, []byte(ns.Key))
+	t, err := tokens.GenAccessToken(timeout, ns.MaxTokenTTL, u.Name, groupNames, orgsNames, []byte(ns.Key))
 	if err != nil {
 		log.Fatal(err)
 		return c.JSON(http.StatusInternalServerError, echo.Map{
@@ -318,7 +318,7 @@ func RequestRefreshToken(c echo.Context) error {
 	}
 
 	// generate the token
-	t, err := tokens.GenRefreshToken(timeout, ns.MaxRefreshTokenTTL, ns.Name, u.UserName, []byte(ns.RefreshKey))
+	t, err := tokens.GenRefreshToken(timeout, ns.MaxRefreshTokenTTL, ns.Name, u.Name, []byte(ns.RefreshKey))
 	if err != nil {
 		log.Fatal(err)
 	}

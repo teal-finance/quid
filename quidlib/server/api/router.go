@@ -24,10 +24,12 @@ var echoServer = echo.New()
 // RunServer : configure and run the server.
 func RunServer(adminNsKey, address string) {
 	echoServer.Use(middleware.Logger())
+
 	if !conf.IsDevMode {
 		echoServer.Use(middleware.Recover())
 		echoServer.Use(middleware.Secure())
 	}
+
 	echoServer.Use(middleware.CORSWithConfig(middleware.CORSConfig{
 		AllowOrigins:     []string{"*"},
 		AllowHeaders:     []string{echo.HeaderOrigin, echo.HeaderContentType, echo.HeaderAuthorization},
@@ -51,11 +53,13 @@ func RunServer(adminNsKey, address string) {
 
 	// admin routes
 	a := echoServer.Group("/admin")
+
 	config := middleware.JWTConfig{
 		Claims:     &tokens.AccessClaims{},
 		SigningKey: []byte(adminNsKey),
 	}
 	a.Use(middleware.JWTWithConfig(config))
+
 	a.Use(AdminMiddleware)
 	a.GET("/logout", AdminLogout)
 	g := a.Group("/groups")

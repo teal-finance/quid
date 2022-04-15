@@ -32,7 +32,7 @@ func GenDevAdminToken(username string) error {
 		log.Fatal("User is not admin")
 	}
 	// get the refresh token
-	token, err := tokens.GenRefreshToken("24h", ns.MaxRefreshTokenTTL, ns.Name, u.UserName, []byte(ns.RefreshKey))
+	token, err := tokens.GenRefreshToken("24h", ns.MaxRefreshTokenTTL, ns.Name, u.Name, []byte(ns.RefreshKey))
 	if err != nil {
 		msg := "Error generating refresh token"
 		emo.Error(msg, err)
@@ -51,7 +51,7 @@ func GenDevAdminToken(username string) error {
 		return err
 	}
 	filepath := dir + "/ui/.env.dev.local"
-	f, err := os.OpenFile(filepath, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+	f, err := os.OpenFile(filepath, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0o644)
 	if err != nil {
 		log.Fatal(err)
 	}

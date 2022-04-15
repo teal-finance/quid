@@ -44,7 +44,7 @@ func ObjectInfo(args ...interface{}) {
 }
 
 func processEvent(emoji string, zone Zone, isError bool, args []interface{}) Event {
-	event := new(emoji, zone, isError, args)
+	event := newEvent(emoji, zone, isError, args)
 
 	if isError || zone.Print {
 		fmt.Println(event.message())
@@ -53,8 +53,8 @@ func processEvent(emoji string, zone Zone, isError bool, args []interface{}) Eve
 	return event
 }
 
-func new(emoji string, zone Zone, isError bool, args []interface{}) Event {
-	pc := make([]uintptr, 10)
+func newEvent(emoji string, zone Zone, isError bool, args []interface{}) Event {
+	pc := make([]uintptr, 1)
 	runtime.Callers(4, pc)
 	f := runtime.FuncForPC(pc[0])
 	file, line := f.FileLine(pc[0])

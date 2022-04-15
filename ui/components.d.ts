@@ -30,6 +30,7 @@ declare module '@vue/runtime-core' {
     'ILineMd:cancel': typeof import('~icons/line-md/cancel')['default']
     'IMdi:clockEditOutline': typeof import('~icons/mdi/clock-edit-outline')['default']
     'IMdi:clockOutline': typeof import('~icons/mdi/clock-outline')['default']
+    'IMdi:logout': typeof import('~icons/mdi/logout')['default']
     'ISiGlyph:signOut': typeof import('~icons/si-glyph/sign-out')['default']
     LoadingIndicator: typeof import('./src/components/widgets/LoadingIndicator.vue')['default']
     NamespaceDatatable: typeof import('./src/components/namespace/NamespaceDatatable.vue')['default']

@@ -31,13 +31,6 @@ const routes: Array<RouteRecordRaw> = [
     name: 'Orgs',
     component: () => import('./views/OrgView.vue')
   },
-  {
-    path: "/settings",
-    component: () => import("./views/SettingsView.vue"),
-    meta: {
-      title: "Settings"
-    }
-  },
 ]
 
 const router = createRouter({

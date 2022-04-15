@@ -28,7 +28,10 @@ func Create() error {
 		"enable_dev_mode": false,
 	}
 
-	jsonString, _ := json.MarshalIndent(data, "", "    ")
+	jsonString, err := json.MarshalIndent(data, "", "    ")
+	if err != nil {
+		return err
+	}
 
 	return ioutil.WriteFile("config.json", jsonString, os.ModePerm)
 }

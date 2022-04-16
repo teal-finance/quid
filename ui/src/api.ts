@@ -17,9 +17,9 @@ const requests = new QuidRequests({
   }*/
 });
 
-async function adminLogin(username: string, password: string): Promise<void> {
+async function adminLogin(namespace: string, username: string, password: string): Promise<void> {
   const payload = {
-    namespace: "quid",
+    namespace: namespace,
     username: username,
     password: password,
   }
@@ -31,6 +31,7 @@ async function adminLogin(username: string, password: string): Promise<void> {
     body: JSON.stringify(payload)
   };
   const uri = conf.quidUrl + "/admin_login";
+  console.log("Login", uri, JSON.stringify(payload))
   const response = await fetch(uri, opts);
   if (!response.ok) {
     console.log("RESP NOT OK", response);

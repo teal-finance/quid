@@ -40,28 +40,47 @@ func AdminLogin(c echo.Context) error {
 		return err
 	}
 	if !isAuthorized {
-		emo.Warning(username, "unauthorized")
+		emo.Warning(username, "unauthorized: password check failed", password, ns.ID)
 		return c.JSON(http.StatusUnauthorized, echo.Map{
 			"error": "unauthorized",
 		})
 	}
 
-	// check the user admin group
-	isAdmin, err := db.IsUserInAdminGroup(u.ID, ns.ID)
-	if err != nil {
-		return err
-	}
-	if !isAdmin {
-		emo.Warning(username, "unauthorized: not in admin group")
-		return c.JSON(http.StatusUnauthorized, echo.Map{
-			"error": "unauthorized",
-		})
+	isUserAdmin := false
+	if ns.Name == "quid" {
+		// check the user quid admin group
+		isAdmin, err := db.IsUserInAdminGroup(u.ID, ns.ID)
+		if err != nil {
+			return err
+		}
+		if isAdmin {
+			isUserAdmin = true
+			emo.Info("Admin login successfull for user", u.Name, "on namespace", ns.Name)
+		} else {
+			emo.Warning(username, "unauthorized: user not in quid admin group")
+			return c.JSON(http.StatusUnauthorized, echo.Map{
+				"error": "unauthorized",
+			})
+		}
+
+	} else {
+		// check if the user is namespace administrator
+		exists, err := db.AdministratorExists(u.ID, ns.ID)
+		if err != nil {
+			return err
+		}
+		if !exists {
+			return c.JSON(http.StatusUnauthorized, echo.Map{
+				"error": "unauthorized",
+			})
+		}
+		emo.Info("Namespace administrator login successfull for user", u.Name, "on namespace", ns.Name)
 	}
 
 	// set the session
 	sess, _ := session.Get("session", c)
 	sess.Values["user"] = u.Name
-	sess.Values["is_admin"] = "true"
+	sess.Values["is_admin"] = isUserAdmin
 	sess.Options = &sessions.Options{
 		Path:     "/",
 		MaxAge:   3600 * 24,

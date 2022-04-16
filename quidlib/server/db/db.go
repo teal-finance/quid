@@ -6,7 +6,7 @@ import (
 	// pg import.
 	_ "github.com/lib/pq"
 
-	emolib "github.com/teal-finance/quid/quidlib/emo"
+	emolib "github.com/teal-finance/emo"
 )
 
 var db *sqlx.DB

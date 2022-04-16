@@ -17,20 +17,6 @@ export default class User {
     return row as UserTable;
   }
 
-  static async search(nsid: number, username: string): Promise<Array<User>> {
-    const url = "/admin/users/search";
-    const data = new Array<User>();
-    try {
-      const payload = { namespace_id: nsid, username: username }
-      const resp = await requests.post<{ users: Array<UserContract> }>(url, payload);
-      resp.users.forEach((row) => data.push(new User(row)));
-    } catch (e) {
-      console.log("Err", e);
-      throw e;
-    }
-    return data;
-  }
-
   static async fetchAll(nsid: number): Promise<Array<UserTable>> {
     const url = "/admin/users/nsall";
     const data = new Array<UserTable>();

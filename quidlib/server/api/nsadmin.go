@@ -27,7 +27,7 @@ func AllAdministratorsInNamespace(c echo.Context) error {
 	return c.JSON(http.StatusOK, &data)
 }
 
-/* SearchForNonAdminUsersInNamespace : search from a username in namespace
+//SearchForNonAdminUsersInNamespace : search from a username in namespace
 func SearchForNonAdminUsersInNamespace(c echo.Context) error {
 	m := echo.Map{}
 	if err := c.Bind(&m); err != nil {
@@ -37,17 +37,17 @@ func SearchForNonAdminUsersInNamespace(c echo.Context) error {
 	username := m["username"].(string)
 	nsID := int64(m["namespace_id"].(float64))
 
-	u, err := db.SearchUsersInNamespaceFromUsername(username, nsID)
+	u, err := db.SearchForNonAdminUsersInNamespace(nsID, username)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, echo.Map{
-			"error": "error searching for users",
+			"error": "error searching for non admin users",
 		})
 	}
 
 	return c.JSON(http.StatusOK, echo.Map{
 		"users": u,
 	})
-}*/
+}
 
 // CreateUserAdministrators : create admin users handler.
 func CreateAdministrators(c echo.Context) error {

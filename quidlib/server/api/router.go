@@ -104,6 +104,7 @@ func RunServer(adminNsKey, address string) {
 	nsa.POST("/add", CreateAdministrators)
 	nsa.POST("/nsall", AllAdministratorsInNamespace)
 	nsa.POST("/delete", DeleteAdministrator)
+	nsa.POST("/search/nonadmins", SearchForNonAdminUsersInNamespace)
 
 	if conf.IsDevMode {
 		fmt.Println(color.BoldRed("Running in development mode"))

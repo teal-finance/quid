@@ -25,8 +25,21 @@ export default class AdminUser {
     try {
       const payload = { namespace_id: nsid }
       const resp = await requests.post<Array<AdminUserContract>>(url, payload);
-      console.log("RESP", JSON.stringify(resp, null, "  "))
       resp.forEach((row) => data.push(new AdminUser(row).toTableRow()));
+    } catch (e) {
+      console.log("Err", e);
+      throw e;
+    }
+    return data;
+  }
+
+  static async searchNonAdmins(nsid: number, username: string): Promise<Array<AdminUser>> {
+    const url = "/admin/nsadmin/search/nonadmins";
+    const data = new Array<AdminUser>();
+    try {
+      const payload = { namespace_id: nsid, username: username }
+      const resp = await requests.post<{ users: Array<AdminUserContract> }>(url, payload);
+      resp.users.forEach((row) => data.push(new AdminUser(row)));
     } catch (e) {
       console.log("Err", e);
       throw e;

@@ -8,6 +8,7 @@ import (
 
 // GenNsAdminTokenForUser : generate a refresh token for an admin user and namespace
 func GenNsAdminTokenForUser(userName string, nsName string) (string, error) {
+	emo.Debug("GEN adm")
 	// get the namespace
 	_, ns, err := SelectNamespaceFromName(nsName)
 	if err != nil {
@@ -39,7 +40,8 @@ func GenNsAdminTokenForUser(userName string, nsName string) (string, error) {
 	}
 
 	// get the refresh token
-	token, err := tokens.GenRefreshToken(ns.MaxTokenTTL, ns.MaxRefreshTokenTTL, ns.Name, u.Name, []byte(ns.RefreshKey))
+	emo.Encrypt("Gen token", ns.MaxRefreshTokenTTL, ns.MaxRefreshTokenTTL, ns.Name, u.Name, []byte(ns.RefreshKey))
+	token, err := tokens.GenRefreshToken(ns.MaxRefreshTokenTTL, ns.MaxRefreshTokenTTL, ns.Name, u.Name, []byte(ns.RefreshKey))
 	if err != nil {
 		msg := "Error generating refresh token"
 		emo.Error(msg, err)

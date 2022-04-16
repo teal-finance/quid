@@ -32,7 +32,7 @@ func writeDevAdminToken(username string, namespace string) error {
 		emo.Error(err)
 		return err
 	}
-	relpath := "/ui/.env.dev.local"
+	relpath := "/ui/.env.development.local"
 	filepath := dir + relpath
 	f, err := os.OpenFile(filepath, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0o644)
 	if err != nil {

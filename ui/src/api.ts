@@ -1,6 +1,7 @@
-import { QuidRequests, QuidError } from 'quidjs'
+import { QuidRequests, QuidRequestError } from '@/packages/quidjs'
 import conf from "@/conf";
 import { EnvType } from './env';
+import { notify, user } from './state';
 
 const requests = new QuidRequests({
   namespace: "quid",
@@ -12,9 +13,10 @@ const requests = new QuidRequests({
   serverUri: conf.serverUri,
   accessTokenUri: conf.serverUri + "/admin_token/access/",
   verbose: conf.env === EnvType.local,
-  /*onHasToLogin: () => {
+  onHasToLogin: async () => {
+    notify.warning("Connection expired", "Please login again")
     user.isLoggedIn.value = false;
-  }*/
+  }
 });
 
 async function adminLogin(namespace: string, username: string, password: string): Promise<void> {
@@ -36,7 +38,7 @@ async function adminLogin(namespace: string, username: string, password: string)
   if (!response.ok) {
     console.log("RESP NOT OK", response);
     if (response.status === 401) {
-      throw new QuidError("Admin login refused");
+      notify.warning("Login refused", "The server refused the login, please try again")
     }
     throw new Error(response.statusText)
   }

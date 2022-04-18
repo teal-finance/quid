@@ -24,10 +24,15 @@ export default class AdminUser {
     const data = new Array<AdminUserTable>();
     try {
       const payload = { namespace_id: nsid }
-      const resp = await requests.post<Array<AdminUserContract>>(url, payload);
-      resp.forEach((row) => data.push(new AdminUser(row).toTableRow()));
+      try {
+        const resp = await requests.post<Array<AdminUserContract>>(url, payload);
+        resp.forEach((row) => data.push(new AdminUser(row).toTableRow()));
+      } catch (e) {
+        console.log("QERR", JSON.stringify(e, null, "  "))
+      }
     } catch (e) {
       console.log("Err", e);
+
       throw e;
     }
     return data;

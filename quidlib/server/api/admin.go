@@ -36,14 +36,14 @@ func AdminLogin(c echo.Context) error {
 
 	// check the user password
 	isAuthorized, u, err := checkUserPassword(username, password, ns.ID)
-	if err != nil {
-		return err
-	}
 	if !isAuthorized {
 		emo.Warning(username, "unauthorized: password check failed", password, ns.ID)
 		return c.JSON(http.StatusUnauthorized, echo.Map{
 			"error": "unauthorized",
 		})
+	}
+	if err != nil {
+		return err
 	}
 
 	isUserAdmin := false

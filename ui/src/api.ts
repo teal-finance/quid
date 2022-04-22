@@ -45,6 +45,7 @@ async function adminLogin(namespace: string, username: string, password: string)
   const t = await response.json();
   console.log("T", t)
   requests.refreshToken = t.token;
+  requests.namespace = namespace;
 }
 
 export { requests, adminLogin }

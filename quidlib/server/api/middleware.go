@@ -7,6 +7,7 @@ import (
 	"github.com/golang-jwt/jwt"
 	"github.com/labstack/echo-contrib/session"
 	"github.com/teal-finance/quid/quidlib/conf"
+	"github.com/teal-finance/quid/quidlib/server/db"
 	"github.com/teal-finance/quid/quidlib/tokens"
 
 	"github.com/labstack/echo/v4"
@@ -25,7 +26,7 @@ func AdminMiddleware(next echo.HandlerFunc) echo.HandlerFunc {
 			})
 		}
 
-		claims, ok := u.Claims.(*tokens.AccessClaims)
+		claims, ok := u.Claims.(*tokens.AdminAccessClaim)
 		if !ok {
 			emo.Error("Wrong AccessClaims type for claims: ", u.Claims)
 			log.Panic("Wrong AccessClaims type for claims: ", u.Claims)
@@ -34,15 +35,12 @@ func AdminMiddleware(next echo.HandlerFunc) echo.HandlerFunc {
 			})
 		}
 
-		isAdmin := false
-		for _, g := range claims.Groups {
-			if g == "quid_admin" {
-				isAdmin = true
-				break
-			}
+		isAdmin, err := db.IsUserAdmin(claims.Namespace, claims.NsID, claims.UserID)
+		if err != nil {
+			return err
 		}
 		if !isAdmin {
-			emo.ParamError("The user " + claims.UserName + " is not in the quid_admin group")
+			emo.ParamError("The user "+claims.UserName+" is not admin for namespace", claims.Namespace)
 			return c.NoContent(http.StatusUnauthorized)
 		}
 

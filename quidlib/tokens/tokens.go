@@ -1,6 +1,8 @@
 package tokens
 
-import emolib "github.com/teal-finance/emo"
+import (
+	emolib "github.com/teal-finance/emo"
+)
 
 var emo = emolib.NewZone("tokens")
 

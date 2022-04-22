@@ -59,8 +59,8 @@ func RunServer(adminNsKey, address string) {
 		SigningKey: []byte(adminNsKey),
 	}
 	a.Use(middleware.JWTWithConfig(config))
-
 	a.Use(AdminMiddleware)
+
 	a.GET("/logout", AdminLogout)
 	g := a.Group("/groups")
 	g.POST("/add", CreateGroup)

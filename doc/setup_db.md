@@ -20,7 +20,7 @@ If you do not have already created a privileged user, create it:
 
 ```sql
 $ sudo -u postgres psql
-postgres=# create user pguser with password 'my_password';
+postgres=# CREATE USER pguser WITH PASSWORD 'my_password';
 CREATE ROLE
 postgres=# exit
 ```
@@ -36,7 +36,7 @@ Update the `config.json` file:
 
 ```sql
 $ sudo -u postgres psql
-postgres=# create database quid;
+postgres=# CREATE DATABASE quid;
 CREATE DATABASE
 postgres=# exit
 ```
@@ -45,7 +45,7 @@ postgres=# exit
 
 ```sql
 $ sudo -u postgres psql
-postgres=# GRANT ALL PRIVILEGES ON DATABASE quid to pguser;
+postgres=# GRANT ALL PRIVILEGES ON DATABASE quid TO pguser;
 GRANT
 postgres=# exit
 ```
@@ -56,7 +56,7 @@ The previous statement may be replaced by:
 $ sudo -u postgres psql
 postgres=# \c quid
 You are now connected to database "quid" as user "postgres".
-quid-# GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA public to pguser;
+quid-# GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA public TO pguser;
 GRANT
 quid=# exit
 ```

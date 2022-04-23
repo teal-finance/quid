@@ -1,4 +1,6 @@
 #!/bin/bash
+
+# Script to create user, database, permission on first run only.
 # doc: https://github.com/docker-library/docs/blob/master/postgres/README.md#initialization-scripts
 
 # user pguser alrady exist => skip errors

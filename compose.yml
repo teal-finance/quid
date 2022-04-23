@@ -1,0 +1,60 @@
+# a Compose file always starts with the version number.
+# '3' is the last version in 2022.
+version: '3'
+
+networks:
+  internal-network:
+    internal: true
+  outside-network:
+    internal: false
+
+# Compose works with services: 1 service = 1 container.
+# a service can be a server, a client, a database...
+services:
+
+  # The name of this service is "quid" (but it can be anything else).
+  quid:
+    container_name: quid # Good practice: same service and container names
+    image:          quid
+    build:
+      context: .
+      args:
+        DB_USR: pguser
+        DB_PWD: my_password
+        DB_HOST: db
+    depends_on: [db]
+    user: "6606:6606" # group_id:user_id to run quid in non-root mode
+    environment:
+      QUID_KEY:        4f10515b3488a2485a32cf68092b66f195c14b86ac89362e8246661bd2c05c3b
+      QUID_ADMIN_USER: admin
+      QUID_ADMIN_PWD:  my_API_administrator_password
+    command: -env
+    # Quid listens on port 8082 by default.
+    # To connect from the machine (outside the compose),
+    # we bind 8082 to an available host port (here the same port number).
+    # The syntax is [host port]:[port in the container]
+    ports:
+      - 8082:8082
+    networks:
+      - internal-network # to access the database
+      - outside-network  # to be accessed from outside the compose
+
+  # This service name is "db" but it can be anything else.
+  db:
+    container_name: db
+    # Official Postgres image v14, based on Alpine (to reduce bandwith).
+    # see: https://index.docker.io/_/postgres
+    # doc: https://github.com/docker-library/docs/blob/master/postgres/README.md
+    image: docker.io/postgres:14-alpine
+    # Postgres listens on port 5432 by default.
+    # This port must be exposed to allow connection from another service (inside the same network).
+    expose:
+      - 5432
+    environment:
+      POSTGRES_USER: pguser
+      POSTGRES_PASSWORD: my_password
+      POSTGRES_DB: default_database # Default database automatically created at first launch
+    volumes:
+      - ./docker-entrypoint-initdb.d:/docker-entrypoint-initdb.d
+    networks:
+      - internal-network

@@ -27,7 +27,7 @@ func InitFromEnv(isDevMode bool) (conn, port string) {
 	AdminPassword = os.Getenv("QUID_ADMIN_PWD")
 
 	conn = os.Getenv("DATABASE_URL")
-	conn = strings.Replace(conn, "postgresql://", "", 1)
+	conn = strings.Replace(conn, "postgresql://", "postgres://", 1)
 
 	port = os.Getenv("PORT")
 

@@ -101,17 +101,17 @@ ARG DB_PWD="my_password"
 ARG DB_HOST=""
 ARG QUID_KEY="4f10515b3488a2485a32cf68092b66f195c14b86ac89362e8246661bd2c05c3b"
 ARG QUID_ADMIN_USER="admin"
-ARG QUID_ADMIN_PWD="my_API_administrator_password_with_6_characters_min"
+ARG QUID_ADMIN_PWD="my_API_administrator_password"
 
 # URL format is postgresql://[user[:password]@][netloc][:port][/dbname][?param1=value1&...]
 # see https://stackoverflow.com/a/20722229
-#NV DATABASE_URL "postgresql://${DB_USR}:${DB_PWD}@${DB_HOST}:5432/quid?sslmode=disable"
-ENV DATABASE_URL "dbname=quid user=${DB_USR} password=${DB_PWD} sslmode=disable"
+ENV DATABASE_URL "postgres://${DB_USR}:${DB_PWD}@${DB_HOST}:5432/quid?sslmode=disable"
+#-- DATABASE_URL "dbname=quid user=${DB_USR} password=${DB_PWD} sslmode=disable"
 
 # Configuration used to initialize the Database
-ENV QUID_KEY             "${QUID_KEY}"
-ENV QUID_ADMIN_USER      "${QUID_ADMIN_USER}"
-ENV QUID_QUID_ADMIN_PWD  "${QUID_ADMIN_PWD}"
+ENV QUID_KEY        "${QUID_KEY}"
+ENV QUID_ADMIN_USER "${QUID_ADMIN_USER}"
+ENV QUID_ADMIN_PWD  "${QUID_ADMIN_PWD}"
 
 # Exposed port
 ENV PORT 8082

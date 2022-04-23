@@ -59,8 +59,8 @@ func SelectNamespaceStartsWith(name string) ([]server.Namespace, error) {
 
 // SelectNamespaceFromName : get a namespace.
 func SelectNamespaceFromName(name string) (bool, server.Namespace, error) {
-	q := "SELECT id,name,key,refresh_key,max_token_ttl,max_refresh_token_ttl,public_endpoint_enabled " +
-		"FROM namespace WHERE name=$1"
+	q := "SELECT id,name,key,refresh_key,max_token_ttl,max_refresh_token_ttl,public_endpoint_enabled" +
+		" FROM namespace WHERE name=$1"
 	emo.Query(q, name)
 
 	ns := server.Namespace{}
@@ -181,7 +181,8 @@ func CreateNamespace(name, key, refreshKey, ttl, refreshTTL string, endpoint boo
 		return 0, err
 	}
 
-	q := "INSERT INTO namespace(name,key,refresh_key,max_token_ttl,max_refresh_token_ttl,public_endpoint_enabled) VALUES($1,$2,$3,$4,$5,$6) RETURNING id"
+	q := "INSERT INTO namespace(name,key,refresh_key,max_token_ttl,max_refresh_token_ttl,public_endpoint_enabled)" +
+		" VALUES($1,$2,$3,$4,$5,$6) RETURNING id"
 	rows, err := db.Query(q, name, k, rk, ttl, refreshTTL, endpoint)
 	if err != nil {
 		emo.QueryError(err)

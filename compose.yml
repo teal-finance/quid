@@ -53,8 +53,13 @@ services:
     environment:
       POSTGRES_USER: pguser
       POSTGRES_PASSWORD: my_password
-      POSTGRES_DB: default_database # Default database automatically created at first launch
+      POSTGRES_DB: quid # Database created at first launch.
     volumes:
+      # Script to create user, database, permission at first launch.
+      # doc: https://github.com/docker-library/docs/blob/master/postgres/README.md#initialization-scripts
       - ./docker-entrypoint-initdb.d:/docker-entrypoint-initdb.d
     networks:
+      # The database is not accessible from Internet
+      # and the database cannot access the web.
+      # (no analytics/telemetry, no exposed backdoor...)
       - internal-network

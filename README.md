@@ -105,8 +105,8 @@ Example payload:
 
 ```yaml
 {
-    'username': 'my_username', 
-    'groups': ['my_group1', 'my_group2'], 
+    'username': 'my_username',
+    'groups': ['my_group1', 'my_group2'],
     'orgs': ['org1', 'org2']
     'exp': 1595950745
 }

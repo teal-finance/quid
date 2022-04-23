@@ -1,6 +1,6 @@
 # Build (the image weights only onl a 18 MB including the static website)
 #
-#    export DOCKER_BUILDKIT=1 
+#    export DOCKER_BUILDKIT=1
 #    docker  build -t quid .
 #    podman  build -t quid .
 #    buildah build -t quid .

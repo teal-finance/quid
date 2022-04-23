@@ -6,7 +6,7 @@
     "dev": "vite",
     "build": "vite build",
     "serve": "vite preview",
-    "up-minor": "yarn-upgrade-minor"
+    "upg-minor": "yarn-upgrade-minor"
   },
   "dependencies": {
     "emosd": "~0.2.1",

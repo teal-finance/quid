@@ -1,17 +1,20 @@
 help:
 	# Use 'make <target>' where <target> is one of:
 	#
-	# all          Build both frontend and backend
-	# front        Build the frontend UI
-	# quid         Build the backend
+	# all          Build both frontend and backend.
+	# front        Build the frontend UI.
+	# quid         Build the backend.
 	#
-	# run          Run the backend (serves the frontend static files)
-	# run-dev       Run the backend in dev mode (also serves the frontend)
-	# run-front     Run the frontend in dev mode
+	# run          Run the backend (serves the frontend static files).
+	# run-dev      Run the backend in dev mode (also serves the frontend).
+	# run-front    Run the frontend in dev mode.
 	#
-	# up-patch     Upgrade dependencies patch version (Go/Node)
-	# up-minor     Upgrade dependencies minor version (Go/Node)
-	# up-more      Upgrade dependencies major version (Node only)
+	# compose-up   Run Quid and Database from docker-compose or podman-compose.
+	# compose-rm   Stop and remove containers
+	#
+	# upg-patch    Upgrade dependencies patch version (Go/Node).
+	# upg-minor    Upgrade dependencies minor version (Go/Node).
+	# upg-more     Upgrade dependencies major version (Node only).
 
 .PHONY: all
 all: front quid
@@ -62,31 +65,62 @@ run-front:
 	yarn --cwd ui --link-duplicates
 	yarn --cwd ui dev
 
-.PHONY: up-patch
-.PHONY: up-minor
-up-patch: up-patch-ui up-patch-go
-up-minor: up-minor-ui up-minor-go
+define help
+The compose.yml file supports both docker and podman.
 
-.PHONY: up-patch-ui
-up-patch-ui:
+To install docker and docker-compose:
+
+sudo apt install docker.io python3-pip
+python3 -m pip install --user --upgrade pip
+python3 -m pip install --user --upgrade docker-compose
+
+The same to install podman and podman-compose:
+
+sudo apt install podman python3-pip
+python3 -m pip install --user --upgrade pip
+python3 -m pip install --user --upgrade podman-compose
+endef
+
+export help
+.PHONY: compose-up
+compose-up:
+	@COMPOSE_DOCKER_CLI_BUILD=1 DOCKER_BUILDKIT=1 \
+	docker-compose -f compose.yml up --build -d || \
+	podman-compose -f compose.yml up --build -d || \
+	{ echo "$$help"; false; }
+	docker-compose -f compose.yml logs --follow || \
+	podman-compose -f compose.yml logs --follow
+
+.PHONY: compose-rm
+compose-rm:
+	docker-compose -f compose.yml down || \
+	{ podman-compose -f compose.yml ps -q  | xargs podman stop && \
+	  podman-compose -f compose.yml ps -aq | xargs podman rm ; }
+
+.PHONY: upg-patch upg-minor
+upg-patch: upg-patch-ui upg-patch-go
+upg-minor: upg-minor-ui upg-minor-go
+
+.PHONY: upg-patch-ui
+upg-patch-ui:
 	yarn --cwd ui --link-duplicates
 	yarn upgrade-interactive --cwd ui --link-duplicates
 
-.PHONY: up-patch-go
-up-patch-go:
+.PHONY: upg-patch-go
+upg-patch-go:
 	GOPROXY=direct go get -t -u=patch
 
-.PHONY: up-minor-ui
-up-minor-ui:
+.PHONY: upg-minor-ui
+upg-minor-ui:
 	yarn --cwd ui --link-duplicates
-	yarn --cwd ui up-minor
+	yarn --cwd ui upg-minor
 
-.PHONY: up-minor-go
-up-minor-go:
+.PHONY: upg-minor-go
+upg-minor-go:
 	go get -t -u
 
-.PHONY: up-more
-up-more:
+.PHONY: upg-more
+upg-more:
 	yarn --cwd ui --link-duplicates
     # flag --tilde prepends the new version with "~" that limits vanilla upgrade to patch only
     # flag --caret prepends the new version with "^" allowing upgrading the minor number

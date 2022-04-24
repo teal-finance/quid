@@ -1,7 +1,6 @@
 {
   "name": "quid-admin-ui",
-  "version": "0.0.1",
-  "private": true,
+  "version": "0.0.2",
   "scripts": {
     "dev": "vite",
     "build": "vite build",
@@ -48,5 +47,24 @@
     "vite": "~2.9.4",
     "vue-loader": "~17.0.0",
     "vue-tsc": "~0.34.5"
+  },
+  "engines": {
+    "node": "^12.22.0 || ^14.17.0 || >=16.0.0"
+  },
+  "packageManager": "yarn@1.22.17+",
+  "private": false,
+  "license": "AGPL-3.0-or-later",
+  "homepage": "https://Teal.Finance",
+  "author": {
+    "name": "Teal.Finance contributors",
+    "email": "Teal.Finance@pm.me",
+    "url": "https://github.com/teal-finance/quid/graphs/contributors"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/teal-finance/quid.git"
+  },
+  "bugs": {
+    "url": "https://github.com/teal-finance/quid/issues"
   }
 }

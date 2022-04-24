@@ -4,11 +4,11 @@ import (
 	emolib "github.com/teal-finance/emo"
 )
 
-var Emo = emolib.NewZone("tokens")
+var emo = emolib.NewZone("tokens")
 
 // Init : init the db conf.
 func Init(isVerbose bool, isDev bool) {
 	if !isDev {
-		Emo.Print = isVerbose
+		emo.Print = isVerbose
 	}
 }

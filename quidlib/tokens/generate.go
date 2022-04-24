@@ -16,18 +16,18 @@ import (
 func GenRefreshToken(timeout, maxTTL, namespace, user string, secretKey []byte) (string, error) {
 	isAuthorized, err := isTimeoutAuthorized(timeout, maxTTL)
 	if err != nil {
-		Emo.ParamError(err)
+		emo.ParamError(err)
 		return "", err
 	}
 
 	if !isAuthorized {
-		Emo.ParamError("Unauthorized timeout", timeout)
+		emo.ParamError("Unauthorized timeout", timeout)
 		return "", nil
 	}
 
 	to, err := tparse.ParseNow(time.RFC3339, "now+"+timeout)
 	if err != nil {
-		Emo.ParamError(err)
+		emo.ParamError(err)
 		return "", err
 	}
 
@@ -36,11 +36,11 @@ func GenRefreshToken(timeout, maxTTL, namespace, user string, secretKey []byte) 
 
 	token, err := t.SignedString(secretKey)
 	if err != nil {
-		Emo.EncryptError(err)
+		emo.EncryptError(err)
 		return "", err
 	}
 
-	Emo.RefreshToken("Issued a refresh token for user", user, "and namespace", namespace)
+	emo.RefreshToken("Issued a refresh token for user", user, "and namespace", namespace)
 
 	return token, nil
 }
@@ -49,18 +49,18 @@ func GenRefreshToken(timeout, maxTTL, namespace, user string, secretKey []byte) 
 func GenAdminAccessToken(namespaceName string, timeout, maxTTL, userName string, userId int64, nsId int64, secretKey []byte, isAdmin bool, isNsAdmin bool) (string, error) {
 	isAuthorized, err := isTimeoutAuthorized(timeout, maxTTL)
 	if err != nil {
-		Emo.ParamError(err)
+		emo.ParamError(err)
 		return "", err
 	}
 
 	if !isAuthorized {
-		Emo.ParamError("Unauthorized timeout", timeout)
+		emo.ParamError("Unauthorized timeout", timeout)
 		return "", nil
 	}
 
 	to, err := tparse.ParseNow(time.RFC3339, "now+"+timeout)
 	if err != nil {
-		Emo.ParamError(err)
+		emo.ParamError(err)
 		return "", err
 	}
 
@@ -69,11 +69,11 @@ func GenAdminAccessToken(namespaceName string, timeout, maxTTL, userName string,
 
 	token, err := t.SignedString(secretKey)
 	if err != nil {
-		Emo.EncryptError(err)
+		emo.EncryptError(err)
 		return "", err
 	}
 
-	Emo.RefreshToken("Issued an admin refresh token for user", userName, "and namespace", namespaceName)
+	emo.RefreshToken("Issued an admin refresh token for user", userName, "and namespace", namespaceName)
 
 	return token, nil
 }
@@ -82,18 +82,18 @@ func GenAdminAccessToken(namespaceName string, timeout, maxTTL, userName string,
 func GenAccessToken(timeout, maxTTL, user string, groups, orgs []string, secretKey []byte) (string, error) {
 	isAuthorized, err := isTimeoutAuthorized(timeout, maxTTL)
 	if err != nil {
-		Emo.ParamError(err)
+		emo.ParamError(err)
 		return "", err
 	}
 
 	if !isAuthorized {
-		Emo.ParamError("Unauthorized timeout", timeout)
+		emo.ParamError("Unauthorized timeout", timeout)
 		return "", nil
 	}
 
 	to, err := tparse.ParseNow(time.RFC3339, "now+"+timeout)
 	if err != nil {
-		Emo.ParamError(err)
+		emo.ParamError(err)
 		return "", err
 	}
 
@@ -102,7 +102,7 @@ func GenAccessToken(timeout, maxTTL, user string, groups, orgs []string, secretK
 
 	token, err := t.SignedString(secretKey)
 	if err != nil {
-		Emo.EncryptError(err)
+		emo.EncryptError(err)
 		return "", err
 	}
 

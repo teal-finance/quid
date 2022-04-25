@@ -1,8 +1,11 @@
 package api
 
 import (
+	"fmt"
+	"log"
 	"net/http"
 
+	"github.com/golang-jwt/jwt"
 	"github.com/gorilla/sessions"
 	"github.com/labstack/echo-contrib/session"
 
@@ -36,32 +39,31 @@ func AdminLogin(c echo.Context) error {
 
 	// check the user password
 	isAuthorized, u, err := checkUserPassword(username, password, ns.ID)
-	if err != nil {
-		return err
-	}
 	if !isAuthorized {
-		emo.Warning(username, "unauthorized")
+		emo.Warning(username, "unauthorized: password check failed", password, ns.ID)
 		return c.JSON(http.StatusUnauthorized, echo.Map{
 			"error": "unauthorized",
 		})
 	}
-
-	// check the user admin group
-	isAdmin, err := IsUserInAdminGroup(u.ID, ns.ID)
 	if err != nil {
 		return err
 	}
-	if !isAdmin {
-		emo.Warning(username, "unauthorized: not in admin group")
+
+	isUserAdmin, err := db.IsUserAdmin(ns.Name, ns.ID, u.ID)
+	if err != nil {
+		return err
+	}
+	if !isUserAdmin {
+		emo.Warning(username, "unauthorized: user is not admin")
 		return c.JSON(http.StatusUnauthorized, echo.Map{
 			"error": "unauthorized",
 		})
 	}
-
+	emo.Info("Admin login successfull for user", u.Name, "on namespace", ns.Name)
 	// set the session
 	sess, _ := session.Get("session", c)
 	sess.Values["user"] = u.Name
-	sess.Values["is_admin"] = "true"
+	sess.Values["is_admin"] = isUserAdmin
 	sess.Options = &sessions.Options{
 		Path:     "/",
 		MaxAge:   3600 * 24,
@@ -95,7 +97,8 @@ func AdminLogin(c echo.Context) error {
 	emo.Info("Admin user ", u.Name, " is connected")
 
 	return c.JSON(http.StatusOK, echo.Map{
-		"token": token,
+		"token":     token,
+		"namespace": ns,
 	})
 }
 
@@ -109,4 +112,100 @@ func AdminLogout(c echo.Context) error {
 	}
 
 	return c.NoContent(http.StatusOK)
+}
+
+// RequestAdminAccessToken : request an access token from a refresh token
+// for the quid namespace.
+func RequestAdminAccessToken(c echo.Context) error {
+	m := echo.Map{}
+	if err := c.Bind(&m); err != nil {
+		return err
+	}
+
+	refreshToken, ok := m["refresh_token"].(string)
+	nsName := m["namespace"].(string)
+	if !ok {
+		emo.ParamError("provide a refresh_token parameter")
+		return c.JSON(http.StatusBadRequest, echo.Map{
+			"error": "provide a refresh_token parameter",
+		})
+	}
+
+	// get the namespace
+	_, ns, err := db.SelectNamespaceFromName(nsName)
+	if err != nil {
+		emo.Error(err)
+		log.Fatal(err)
+		return c.JSON(http.StatusInternalServerError, echo.Map{
+			"error": true,
+		})
+	}
+
+	// verify the refresh token
+	var username string
+	token, err := jwt.ParseWithClaims(refreshToken, &tokens.RefreshClaims{}, func(token *jwt.Token) (interface{}, error) {
+		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
+			return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
+		}
+		return []byte(ns.RefreshKey), nil
+	})
+
+	if claims, ok := token.Claims.(*tokens.RefreshClaims); ok && token.Valid {
+		username = claims.UserName
+		fmt.Printf("%v %v", claims.UserName, claims.ExpiresAt)
+	} else {
+		emo.Warning(err.Error())
+		return c.JSON(http.StatusUnauthorized, echo.Map{
+			"error": "unauthorized",
+		})
+	}
+
+	// get the user
+	found, u, err := db.SelectNonDisabledUser(username, ns.ID)
+	if !found {
+		emo.Warning("User not found: " + username)
+		return c.JSON(http.StatusUnauthorized, echo.Map{
+			"error": "unauthorized",
+		})
+	}
+	if err != nil {
+		log.Fatal(err)
+		return c.JSON(http.StatusInternalServerError, echo.Map{
+			"error": true,
+		})
+	}
+
+	// check if the user is in the admin group
+	isUserAdmin, err := db.IsUserAdmin(ns.Name, ns.ID, u.ID)
+	if err != nil {
+		return err
+	}
+	if !isUserAdmin {
+		emo.Warning("Admin access token request from user", u.Name, "that is not admin for namespace", ns.Name)
+		return c.JSON(http.StatusUnauthorized, echo.Map{
+			"error": "unauthorized",
+		})
+	}
+
+	_isAdmin := false
+	_isNsAdmin := false
+	if ns.Name != "quid" {
+		_isAdmin = true
+	} else {
+		_isNsAdmin = true
+	}
+	// generate the access token
+	t, err := tokens.GenAdminAccessToken(ns.Name, "5m", ns.MaxTokenTTL, u.Name, u.ID, ns.ID, []byte(ns.Key), _isAdmin, _isNsAdmin)
+	if err != nil {
+		log.Fatal(err)
+		return c.JSON(http.StatusInternalServerError, echo.Map{
+			"error": true,
+		})
+	}
+
+	emo.AccessToken("Issued an admin access token for user", u.Name, "and namespace", ns.Name)
+
+	return c.JSON(http.StatusOK, echo.Map{
+		"token": t,
+	})
 }

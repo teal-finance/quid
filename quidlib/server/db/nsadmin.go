@@ -26,6 +26,29 @@ func SelectAdministratorsInNamespace(namespaceID int64) ([]server.NsAdmin, error
 	return data, nil
 }
 
+// SearchForNonAdminUsersInNamespace : find non admin users in a namespace
+func SearchForNonAdminUsersInNamespace(namespaceID int64, qs string) ([]server.NonNsAdmin, error) {
+	q := "SELECT usertable.id as user_id, usertable.username, namespace.id as namespace_id FROM usertable  " +
+		"JOIN namespace ON usertable.namespace_id = namespace.id " +
+		"WHERE (namespace.id = $1 AND usertable.username LIKE E'" + qs + "%') " +
+		"AND usertable.id NOT IN ( " +
+		"SELECT namespaceadmin.user_id as id " +
+		"FROM namespaceadmin " +
+		"LEFT OUTER JOIN usertable on usertable.id = namespaceadmin.user_id " +
+		"LEFT OUTER JOIN namespace on namespace.id =  namespaceadmin.namespace_id" +
+		" )"
+	emo.Query(q, namespaceID)
+	data := []server.NonNsAdmin{}
+	err := db.Select(&data, q, namespaceID)
+	if err != nil {
+		fmt.Println("ERR", err)
+		return data, err
+	}
+	emo.Debug("Data", data)
+
+	return data, nil
+}
+
 // CreateAdministrator : create an admin user.
 func CreateAdministrator(namespaceID int64, userID int64) (int64, error) {
 	q := "INSERT INTO namespaceadmin(namespace_id, user_id) VALUES($1,$2) RETURNING id"
@@ -72,4 +95,28 @@ func DeleteAdministrator(userID int64, namespaceID int64) error {
 	tx.MustExec(q, userID, namespaceID)
 
 	return tx.Commit()
+}
+
+// IsUserAdmin : check if a user is admin in a namespace
+func IsUserAdmin(nsName string, nsID int64, userID int64) (bool, error) {
+	if nsName == "quid" {
+		// check the user quid admin group
+		exists, err := IsUserInAdminGroup(userID, nsID)
+		if err != nil {
+			return false, err
+		}
+		if exists {
+			return true, nil
+		}
+	} else {
+		// check if the user is namespace administrator
+		exists, err := AdministratorExists(userID, nsID)
+		if err != nil {
+			return false, err
+		}
+		if exists {
+			return true, nil
+		}
+	}
+	return false, nil
 }

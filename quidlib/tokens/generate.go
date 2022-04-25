@@ -40,6 +40,41 @@ func GenRefreshToken(timeout, maxTTL, namespace, user string, secretKey []byte) 
 		return "", err
 	}
 
+	emo.RefreshToken("Issued a refresh token for user", user, "and namespace", namespace)
+
+	return token, nil
+}
+
+// GenAdminAccessToken generates an admin access token for a user.
+func GenAdminAccessToken(namespaceName string, timeout, maxTTL, userName string, userId int64, nsId int64, secretKey []byte, isAdmin bool, isNsAdmin bool) (string, error) {
+	isAuthorized, err := isTimeoutAuthorized(timeout, maxTTL)
+	if err != nil {
+		emo.ParamError(err)
+		return "", err
+	}
+
+	if !isAuthorized {
+		emo.ParamError("Unauthorized timeout", timeout)
+		return "", nil
+	}
+
+	to, err := tparse.ParseNow(time.RFC3339, "now+"+timeout)
+	if err != nil {
+		emo.ParamError(err)
+		return "", err
+	}
+
+	claims := newAdminAccessClaims(namespaceName, userName, userId, nsId, to.UTC(), isAdmin, isNsAdmin)
+	t := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+
+	token, err := t.SignedString(secretKey)
+	if err != nil {
+		emo.EncryptError(err)
+		return "", err
+	}
+
+	emo.RefreshToken("Issued an admin refresh token for user", userName, "and namespace", namespaceName)
+
 	return token, nil
 }
 

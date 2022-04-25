@@ -2,26 +2,15 @@
   <div>
     <div class="text-xl">Add administrators</div>
     <div class="px-8 mt-5 mb-16">
-      <sw-progress-stepper
-        class="stepper-secondary dark:stepper-success"
-        :steps="steps"
-        :active-index="activeStep"
-      >
+      <sw-progress-stepper class="stepper-secondary dark:stepper-success" :steps="steps" :active-index="activeStep">
         <template #content="slotProps">
           <i-ant-design:save-outlined class="text-xl" v-if="slotProps.index == 2"></i-ant-design:save-outlined>
         </template>
       </sw-progress-stepper>
     </div>
-    <component
-      :is="subviews.component"
-      :users="users"
-      @users-found="step2($event)"
-      @users-selected="setHasUsersSelected()"
-      @users-unselected="setHasNoUsersSelected()"
-      @submit-selection="submitSelection($event)"
-      @cancel="onCancel()"
-      @back="onBack()"
-    ></component>
+    <component :is="subviews.component" :users="users" @users-found="step2($event)"
+      @users-selected="setHasUsersSelected()" @users-unselected="setHasNoUsersSelected()"
+      @submit-selection="submitSelection($event)" @cancel="onCancel()" @back="onBack()"></component>
   </div>
 </template>
 
@@ -65,14 +54,11 @@ function setHasNoUsersSelected() {
   activeStep.value = 1;
 }
 
-async function submitSelection(users: Set<User>) {
-  console.log("SUB", users)
+async function submitSelection(users: Set<AdminUser>) {
   const uids = new Array<number>()
   for (const user of users) {
-    console.log("USER", user.id, user.name)
-    uids.push(user.id)
+    uids.push(user.userId)
   }
-  console.log("POST", user.namespace.value.id, uids)
   await AdminUser.fetchAdd(user.namespace.value.id, uids)
   emit("end")
 }

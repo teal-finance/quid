@@ -55,12 +55,12 @@ func RunServer(adminNsKey, address string) {
 	a := echoServer.Group("/admin")
 
 	config := middleware.JWTConfig{
-		Claims:     &tokens.AccessClaims{},
+		Claims:     &tokens.AdminAccessClaim{},
 		SigningKey: []byte(adminNsKey),
 	}
 	a.Use(middleware.JWTWithConfig(config))
-
 	a.Use(AdminMiddleware)
+
 	a.GET("/logout", AdminLogout)
 	g := a.Group("/groups")
 	g.POST("/add", CreateGroup)
@@ -78,7 +78,7 @@ func RunServer(adminNsKey, address string) {
 	m.POST("/orgs", UserOrgsInfo)
 	m.GET("/all", AllUsers) // TODO: remove when old frontend is disabled
 	m.POST("/nsall", AllUsersInNamespace)
-	m.POST("/search", SearchForUsersInNamespace)
+	//m.POST("/search", SearchForUsersInNamespace)
 
 	ns := a.Group("/namespaces")
 	ns.POST("/add", CreateNamespace)
@@ -104,6 +104,7 @@ func RunServer(adminNsKey, address string) {
 	nsa.POST("/add", CreateAdministrators)
 	nsa.POST("/nsall", AllAdministratorsInNamespace)
 	nsa.POST("/delete", DeleteAdministrator)
+	nsa.POST("/search/nonadmins", SearchForNonAdminUsersInNamespace)
 
 	if conf.IsDevMode {
 		fmt.Println(color.BoldRed("Running in development mode"))

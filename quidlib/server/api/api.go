@@ -1,7 +1,7 @@
 package api
 
 import (
-	emolib "github.com/teal-finance/quid/quidlib/emo"
+	emolib "github.com/teal-finance/emo"
 )
 
 var emo = emolib.NewZone("api")

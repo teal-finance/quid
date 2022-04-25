@@ -1,12 +1,18 @@
 <template>
   <div class="absolute top-0 left-0 w-screen h-screen overflow-hidden bg-cover bg-steel login">
-    <div class="container inset-0 flex items-center justify-center flex-1 h-full mx-auto">
+    <div class="container inset-0 flex justify-center flex-1 h-full mx-auto mt-8">
       <div class="w-full max-w-lg">
-        <form class="max-w-sm p-10 m-4 space-y-5 bg-white bg-opacity-25 rounded shadow-xl" id="login-form">
+        <form class="max-w-sm p-10 space-y-5 bg-white bg-opacity-25 rounded shadow-xl" id="login-form">
           <p class="text-lg font-bold text-center text-white">
             <i class="fas fa-user-shield"></i>&nbsp;&nbsp;LOGIN
           </p>
           <div>
+            <label class="block text-sm text-white">Namespace</label>
+            <sw-input id="namespace" v-model:value="form.namespace.val" v-model:isvalid="form.namespace.isValid"
+              :validator="form.namespace.validator" @update:value="mChange($event)" placeholder="namespace" required>
+            </sw-input>
+          </div>
+          <div class="mt-2">
             <label class="block text-sm text-white">Username</label>
             <sw-input id="username" v-model:value="form.name.val" v-model:isvalid="form.name.isValid"
               :validator="form.name.validator" @update:value="mChange($event)" placeholder="username" required>
@@ -19,7 +25,7 @@
               placeholder="password" required></sw-input>
           </div>
 
-          <div class="flex items-center justify-end mt-4">
+          <div class="flex items-center justify-end mt-8">
             <button class="btn primary" :disabled="!isFormValid" @click.prevent="login()">Submit</button>
           </div>
           <!-- div class="text-center">
@@ -54,6 +60,12 @@ export default defineComponent({
     const emo = new Emo({ zone: "TheLogin" });
 
     const form = reactive({
+      namespace: {
+        val: "",
+        isValid: false,
+        // eslint-disable-next-line
+        validator: (v: string) => v.length >= 1,
+      },
       name: {
         val: "",
         isValid: false,
@@ -69,7 +81,7 @@ export default defineComponent({
     });
 
     const isFormValid = computed<boolean>(() => {
-      return form.name.isValid && form.password.isValid;
+      return form.namespace.isValid && form.name.isValid && form.password.isValid;
     });
 
     // eslint-disable-next-line
@@ -84,7 +96,7 @@ export default defineComponent({
       } catch (e) {
         emo.error(`Error getting refresh token ${e}`);
       }
-      await adminLogin(form.name.val, form.password.val);
+      await adminLogin(form.namespace.val, form.name.val, form.password.val);
       emo.ok("Logging in");
       //user.login(form.name.val);
       user.isLoggedIn.value = true;

@@ -90,12 +90,13 @@ func SelectUsersInNamespace(namespaceID int64) ([]server.User, error) {
 }
 
 // SearchUsersInNamespaceFromUsername : get the users in a namespace from a username.
-func SearchUsersInNamespaceFromUsername(username string, namespaceID int64) ([]server.User, error) {
+// TOFIX
+/*func SearchUsersInNamespaceFromUsername(username string, namespaceID int64) ([]server.User, error) {
 	data := []server.User{}
 	err := db.Select(&data, "SELECT id,username FROM usertable WHERE(username LIKE $1 AND namespace_id=$2)", username+"%", namespaceID)
 
 	return data, err
-}
+}*/
 
 // SelectUsersInGroup : get the users in a group.
 func SelectUsersInGroup(username string, namespaceID int64) (server.Group, error) {
@@ -203,4 +204,14 @@ func DeleteUser(id int64) error {
 	tx.MustExec(q, id)
 
 	return tx.Commit()
+}
+
+// IsUserInAdminGroup : check if a user is in quid admin group
+func IsUserInAdminGroup(uID int64, nsID int64) (bool, error) {
+	g, err := SelectGroup("quid_admin", nsID)
+	if err != nil {
+		return false, err
+	}
+
+	return IsUserInGroup(uID, g.ID)
 }

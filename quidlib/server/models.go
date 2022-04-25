@@ -25,6 +25,13 @@ type NsAdmin struct {
 	NamespaceID int64  `db:"namespace_id" json:"namespace_id"`
 }
 
+// NonNsAdmin : base model.
+type NonNsAdmin struct {
+	UserName    string `db:"username" json:"username"`
+	UserID      int64  `db:"user_id" json:"user_id"`
+	NamespaceID int64  `db:"namespace_id" json:"namespace_id"`
+}
+
 // User : base model.
 type User struct {
 	Name         string  `json:"username"`

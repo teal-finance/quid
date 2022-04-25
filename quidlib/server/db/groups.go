@@ -11,28 +11,35 @@ import (
 
 // SelectAllGroups : get all the groups.
 func SelectAllGroups() ([]server.Group, error) {
+	q := "SELECT grouptable.id,grouptable.name,namespace.name as namespace" +
+		" FROM grouptable" +
+		" JOIN namespace ON grouptable.namespace_id = namespace.id" +
+		" ORDER BY grouptable.name"
+
 	data := []server.Group{}
-	err := db.Select(&data, "SELECT grouptable.id,grouptable.name,namespace.name as namespace FROM grouptable "+
-		"JOIN namespace ON grouptable.namespace_id = namespace.id ORDER BY grouptable.name")
+	err := db.Select(&data, q)
 
 	return data, err
 }
 
 // SelectGroupsForUser : get the groups for a user.
 func SelectGroupsForUser(userID int64) ([]server.Group, error) {
+	q := "SELECT grouptable.id as id, grouptable.name as name" +
+		" FROM usergroup" +
+		" JOIN grouptable ON usergroup.group_id = grouptable.id" +
+		" WHERE usergroup.user_id=$1 ORDER BY grouptable.name"
+
 	data := []server.Group{}
-	err := db.Select(&data, "SELECT grouptable.id as id, grouptable.name as name FROM usergroup "+
-		"JOIN grouptable ON usergroup.group_id = grouptable.id WHERE usergroup.user_id=$1 ORDER BY grouptable.name",
-		userID)
+	err := db.Select(&data, q, userID)
 
 	return data, err
 }
 
 // SelectGroupsNamesForUser : get the groups for a user.
 func SelectGroupsNamesForUser(userID int64) ([]string, error) {
-	q := "SELECT grouptable.name as name FROM usergroup " +
-		"JOIN grouptable ON usergroup.group_id = grouptable.id " +
-		"WHERE usergroup.user_id=$1 ORDER BY grouptable.name"
+	q := "SELECT grouptable.name as name FROM usergroup" +
+		" JOIN grouptable ON usergroup.group_id = grouptable.id" +
+		" WHERE usergroup.user_id=$1 ORDER BY grouptable.name"
 
 	data := []userGroupName{}
 	err := db.Select(&data, q, userID)
@@ -50,10 +57,13 @@ func SelectGroupsNamesForUser(userID int64) ([]string, error) {
 
 // SelectGroupsForNamespace : get the groups for a namespace.
 func SelectGroupsForNamespace(namespaceID int64) ([]server.Group, error) {
+	q := "SELECT grouptable.id,grouptable.name,namespace.name as namespace" +
+		" FROM grouptable" +
+		" JOIN namespace ON grouptable.namespace_id = namespace.id" +
+		" WHERE grouptable.namespace_id=$1 ORDER BY grouptable.name"
+
 	data := []server.Group{}
-	err := db.Select(&data, "SELECT grouptable.id,grouptable.name,namespace.name as namespace FROM grouptable "+
-		"JOIN namespace ON grouptable.namespace_id = namespace.id WHERE grouptable.namespace_id=$1 ORDER BY grouptable.name",
-		namespaceID)
+	err := db.Select(&data, q, namespaceID)
 
 	return data, err
 }
@@ -62,6 +72,10 @@ func SelectGroupsForNamespace(namespaceID int64) ([]server.Group, error) {
 func SelectGroup(name string, namespaceID int64) (server.Group, error) {
 	data := []server.Group{}
 	err := db.Select(&data, "SELECT id,name FROM grouptable WHERE(name=$1 AND namespace_id=$2)", name, namespaceID)
+
+	if len(data) == 0 {
+		return server.Group{}, err
+	}
 
 	return data[0], err
 }
@@ -87,8 +101,8 @@ func CreateGroup(name string, namespaceID int64) (int64, error) {
 		return idi.(int64), nil
 	}
 
-	emo.QueryError("no group ", name)
 	err = fmt.Errorf("no group %q", name)
+	emo.QueryError(err)
 
 	return 0, err
 }

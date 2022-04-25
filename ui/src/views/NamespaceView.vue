@@ -24,7 +24,7 @@
   </div>
   <namespace-datatable :namespaces="namespaces" @reload="fetchNamespaces()"></namespace-datatable>
 </template>
- 
+
 <script setup lang="ts">
 import { onMounted, ref } from "vue";
 import { Icon } from '@iconify/vue';
@@ -49,4 +49,3 @@ async function fetchNamespaces() {
 
 onMounted(() => fetchNamespaces())
 </script>
-

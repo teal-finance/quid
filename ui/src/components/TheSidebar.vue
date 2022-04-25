@@ -41,4 +41,3 @@ function toggle() {
   emit("toggle")
 }
 </script>
-    

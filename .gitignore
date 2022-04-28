@@ -1,4 +1,6 @@
-config.json
+/config.json
+/go.work
+/go.work.sum
 /quid
 *_ORI
 *_ORI.go

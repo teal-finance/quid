@@ -48,7 +48,6 @@ func (user User) GroupNames() []string {
 	for _, g := range user.Groups {
 		u = append(u, g.Name)
 	}
-
 	return u
 }
 

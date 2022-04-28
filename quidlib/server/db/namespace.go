@@ -157,7 +157,6 @@ func SelectNamespaceID(name string) (int64, error) {
 	if err != nil {
 		return 0, err
 	}
-
 	return data[0].ID, nil
 }
 
@@ -165,7 +164,6 @@ func SelectNamespaceID(name string) (int64, error) {
 func SetNamespaceEndpointAvailability(id int64, enable bool) error {
 	q := "UPDATE namespace SET public_endpoint_enabled=$2 WHERE id=$1"
 	_, err := db.Query(q, id, enable)
-
 	return err
 }
 
@@ -196,7 +194,6 @@ func CreateNamespace(name, key, refreshKey, ttl, refreshTTL string, endpoint boo
 			emo.QueryError(err)
 			return 0, err
 		}
-
 		return idi.(int64), nil
 	}
 
@@ -208,7 +205,6 @@ func CreateNamespace(name, key, refreshKey, ttl, refreshTTL string, endpoint boo
 func UpdateNamespaceTokenMaxTTL(id int64, maxTTL string) error {
 	q := "UPDATE namespace set max_token_ttl=$2 WHERE id=$1"
 	_, err := db.Query(q, id, maxTTL)
-
 	return err
 }
 
@@ -216,7 +212,6 @@ func UpdateNamespaceTokenMaxTTL(id int64, maxTTL string) error {
 func UpdateNamespaceRefreshTokenMaxTTL(id int64, refreshMaxTTL string) error {
 	q := "UPDATE namespace set max_refresh_token_ttl=$2 WHERE id=$1"
 	_, err := db.Query(q, id, refreshMaxTTL)
-
 	return err
 }
 

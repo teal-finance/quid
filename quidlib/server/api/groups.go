@@ -126,6 +126,5 @@ func createGroup(name string, namespaceID int64) (server.Group, bool, error) {
 
 	ns.ID = uid
 	ns.Name = name
-
 	return ns, false, nil
 }

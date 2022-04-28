@@ -44,8 +44,8 @@ func SearchForNonAdminUsersInNamespace(namespaceID int64, qs string) ([]server.N
 		fmt.Println("ERR", err)
 		return data, err
 	}
-	emo.Debug("Data", data)
 
+	emo.Debug("Data", data)
 	return data, nil
 }
 

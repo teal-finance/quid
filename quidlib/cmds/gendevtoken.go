@@ -47,6 +47,5 @@ func writeDevAdminToken(username string, namespace string) error {
 	f.Close()
 
 	fmt.Println("Dev token written in", relpath)
-
 	return nil
 }

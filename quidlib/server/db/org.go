@@ -11,16 +11,20 @@ import (
 
 // SelectAllOrgs : get all the orgs.
 func SelectAllOrgs() ([]server.Org, error) {
+	q := "SELECT id,name FROM orgtable"
+
 	data := []server.Org{}
-	err := db.Select(&data, "SELECT id,name FROM orgtable")
+	err := db.Select(&data, q)
 
 	return data, err
 }
 
 // SelectOrg : get a org.
 func SelectOrg(name string) (server.Org, error) {
+	q := "SELECT id,name FROM orgtable WHERE(name=$1)"
+
 	data := []server.Org{}
-	err := db.Select(&data, "SELECT id,name FROM orgtable WHERE(name=$1)", name)
+	err := db.Select(&data, q, name)
 	if err != nil {
 		return server.Org{}, err
 	}
@@ -119,7 +123,6 @@ func CreateOrg(name string) (int64, error) {
 			emo.QueryError(err)
 			return 0, err
 		}
-
 		return idi.(int64), nil
 	}
 
@@ -143,6 +146,6 @@ func RemoveUserFromOrg(userID int64, orgID int64) error {
 
 	tx := db.MustBegin()
 	tx.MustExec(q, userID, orgID)
-	
+
 	return tx.Commit()
 }

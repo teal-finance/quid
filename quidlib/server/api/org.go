@@ -126,6 +126,5 @@ func createOrg(name string) (server.Org, bool, error) {
 
 	org.ID = id
 	org.Name = name
-
 	return org, false, nil
 }

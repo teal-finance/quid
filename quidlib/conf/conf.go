@@ -68,9 +68,9 @@ func InitFromFile(isDevMode bool) (conn, port string) {
 	db := viper.Get("db_name").(string)
 	usr := viper.Get("db_user").(string)
 	pwd := viper.Get("db_password").(string)
+
 	conn = "dbname=" + db + " user=" + usr + " password=" + pwd + " sslmode=disable"
 	port = "8082"
-
 	return conn, port
 }
 
@@ -79,6 +79,5 @@ func generateRandomKey() string {
 	if _, err := rand.Read(bytes); err != nil {
 		panic(err.Error())
 	}
-
 	return hex.EncodeToString(bytes)
 }

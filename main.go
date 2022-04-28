@@ -32,7 +32,6 @@ func main() {
 		}
 
 		fmt.Println(tokens.GenKey())
-
 		return
 	}
 
@@ -44,7 +43,6 @@ func main() {
 		}
 
 		cmds.GeNConf()
-
 		return
 	}
 
@@ -86,7 +84,6 @@ func main() {
 			log.Fatal(err)
 		}
 		fmt.Println("Dev token generated in env file")
-
 		return
 	}
 
@@ -104,7 +101,6 @@ func main() {
 			log.Fatal(err)
 		}
 		fmt.Println("Dev token generated in env file")
-
 		return
 	}
 
@@ -116,7 +112,6 @@ func main() {
 		}
 
 		db.InitDbConf()
-
 		return
 	}
 

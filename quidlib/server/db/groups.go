@@ -18,7 +18,6 @@ func SelectAllGroups() ([]server.Group, error) {
 
 	data := []server.Group{}
 	err := db.Select(&data, q)
-
 	return data, err
 }
 
@@ -31,7 +30,6 @@ func SelectGroupsForUser(userID int64) ([]server.Group, error) {
 
 	data := []server.Group{}
 	err := db.Select(&data, q, userID)
-
 	return data, err
 }
 
@@ -64,7 +62,6 @@ func SelectGroupsForNamespace(namespaceID int64) ([]server.Group, error) {
 
 	data := []server.Group{}
 	err := db.Select(&data, q, namespaceID)
-
 	return data, err
 }
 
@@ -97,12 +94,13 @@ func CreateGroup(name string, namespaceID int64) (int64, error) {
 			emo.QueryError(err)
 			return 0, err
 		}
-
 		return idi.(int64), nil
 	}
 
 	err = fmt.Errorf("no group %q", name)
-	emo.QueryError(err)
+	if err != nil {
+		emo.QueryError(err)
+	}
 
 	return 0, err
 }

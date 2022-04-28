@@ -24,7 +24,6 @@ func SelectNonDisabledUser(username string, namespaceID int64) (bool, server.Use
 		if errors.Is(err, sql.ErrNoRows) {
 			return false, ux, nil
 		}
-
 		return false, ux, err
 	}
 
@@ -35,7 +34,6 @@ func SelectNonDisabledUser(username string, namespaceID int64) (bool, server.Use
 	ux.Name = u.UserName
 	ux.PasswordHash = u.Password
 	ux.ID = u.ID
-
 	return true, ux, nil
 }
 
@@ -90,7 +88,7 @@ func SelectUsersInNamespace(namespaceID int64) ([]server.User, error) {
 }
 
 // SearchUsersInNamespaceFromUsername : get the users in a namespace from a username.
-// TOFIX
+// TODO FIXME TOFIX
 /*func SearchUsersInNamespaceFromUsername(username string, namespaceID int64) ([]server.User, error) {
 	data := []server.User{}
 	err := db.Select(&data, "SELECT id,username FROM usertable WHERE(username LIKE $1 AND namespace_id=$2)", username+"%", namespaceID)
@@ -100,9 +98,11 @@ func SelectUsersInNamespace(namespaceID int64) ([]server.User, error) {
 
 // SelectUsersInGroup : get the users in a group.
 func SelectUsersInGroup(username string, namespaceID int64) (server.Group, error) {
+	q := "SELECT id,username FROM grouptable" +
+		" WHERE(username=$1 AND namespace_id=$2)"
+
 	data := []server.Group{}
-	err := db.Select(&data, "SELECT id,username "+
-		"FROM grouptable WHERE(username=$1 AND namespace_id=$2)", username, namespaceID)
+	err := db.Select(&data, q, username, namespaceID)
 	if err != nil {
 		return server.Group{}, err
 	}
@@ -146,7 +146,6 @@ func CreateUserFromNameAndPassword(username string, passwordHash string, namespa
 			emo.QueryError(err)
 			return 0, err
 		}
-
 		return idi.(int64), nil
 	}
 
@@ -212,6 +211,5 @@ func IsUserInAdminGroup(uID int64, nsID int64) (bool, error) {
 	if err != nil {
 		return false, err
 	}
-
 	return IsUserInGroup(uID, g.ID)
 }

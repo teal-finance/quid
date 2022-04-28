@@ -26,15 +26,12 @@ func Connect(dataSourceName string) error {
 	if err != nil {
 		return err
 	}
-
 	db = _db
-
 	return nil
 }
 
 // ExecSchema : execute the schema.
 func ExecSchema() error {
 	db.MustExec(schema)
-
 	return nil
 }

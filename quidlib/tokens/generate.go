@@ -41,7 +41,6 @@ func GenRefreshToken(timeout, maxTTL, namespace, user string, secretKey []byte) 
 	}
 
 	emo.RefreshToken("Issued a refresh token for user", user, "and namespace", namespace)
-
 	return token, nil
 }
 
@@ -74,7 +73,6 @@ func GenAdminAccessToken(namespaceName string, timeout, maxTTL, userName string,
 	}
 
 	emo.RefreshToken("Issued an admin refresh token for user", userName, "and namespace", namespaceName)
-
 	return token, nil
 }
 
@@ -113,7 +111,6 @@ func GenAccessToken(timeout, maxTTL, user string, groups, orgs []string, secretK
 func GenKey() string {
 	b := genRandomBytes(32)
 	h := hmac.New(sha256.New, b)
-
 	return hex.EncodeToString(h.Sum(nil))
 }
 

@@ -18,7 +18,6 @@ func AllNamespaces(c echo.Context) error {
 			"error": "error selecting namespaces",
 		})
 	}
-
 	return c.JSON(http.StatusOK, &data)
 }
 

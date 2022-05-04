@@ -27,7 +27,7 @@ func AllAdministratorsInNamespace(c echo.Context) error {
 	return c.JSON(http.StatusOK, &data)
 }
 
-//SearchForNonAdminUsersInNamespace : search from a username in namespace
+// SearchForNonAdminUsersInNamespace : search from a username in namespace
 func SearchForNonAdminUsersInNamespace(c echo.Context) error {
 	m := echo.Map{}
 	if err := c.Bind(&m); err != nil {

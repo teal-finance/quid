@@ -261,7 +261,7 @@ func CreateUserHandler(c echo.Context) error {
 	})
 }
 
-func checkUserPassword(username string, password string, namespaceID int64) (bool, server.User, error) {
+func checkUserPassword(username, password string, namespaceID int64) (bool, server.User, error) {
 	found, u, err := db.SelectNonDisabledUser(username, namespaceID)
 	if !found || err != nil {
 		return false, u, err

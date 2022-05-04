@@ -12,11 +12,11 @@ func WriteDevAdminToken(username string) error {
 	return writeDevAdminToken(username, "quid")
 }
 
-func WriteNsAdminToken(username string, namespace string) error {
+func WriteNsAdminToken(username, namespace string) error {
 	return writeDevAdminToken(username, namespace)
 }
 
-func writeDevAdminToken(username string, namespace string) error {
+func writeDevAdminToken(username, namespace string) error {
 	// generate a refresh token
 	token, err := db.GenNsAdminTokenForUser(username, namespace)
 	if err != nil {

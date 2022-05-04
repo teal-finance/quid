@@ -7,7 +7,7 @@ import (
 )
 
 // GenNsAdminTokenForUser : generate a refresh token for an admin user and namespace
-func GenNsAdminTokenForUser(userName string, nsName string) (string, error) {
+func GenNsAdminTokenForUser(userName, nsName string) (string, error) {
 	// get the namespace
 	_, ns, err := SelectNamespaceFromName(nsName)
 	if err != nil {

@@ -131,7 +131,7 @@ func CreateOrg(name string) (int64, error) {
 }
 
 // AddUserInOrg : add a user into an org.
-func AddUserInOrg(userID int64, orgID int64) error {
+func AddUserInOrg(userID, orgID int64) error {
 	q := "INSERT INTO userorg(user_id,org_id) VALUES($1,$2)"
 
 	tx := db.MustBegin()
@@ -141,7 +141,7 @@ func AddUserInOrg(userID int64, orgID int64) error {
 }
 
 // RemoveUserFromOrg : remove a user from an org.
-func RemoveUserFromOrg(userID int64, orgID int64) error {
+func RemoveUserFromOrg(userID, orgID int64) error {
 	q := "DELETE FROM userorg WHERE user_id=$1 AND org_id=$2"
 
 	tx := db.MustBegin()

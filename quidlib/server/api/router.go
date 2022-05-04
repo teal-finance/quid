@@ -78,7 +78,7 @@ func RunServer(adminNsKey, address string) {
 	m.POST("/orgs", UserOrgsInfo)
 	m.GET("/all", AllUsers) // TODO: remove when old frontend is disabled
 	m.POST("/nsall", AllUsersInNamespace)
-	//m.POST("/search", SearchForUsersInNamespace)
+	// m.POST("/search", SearchForUsersInNamespace)
 
 	ns := a.Group("/namespaces")
 	ns.POST("/add", CreateNamespace)

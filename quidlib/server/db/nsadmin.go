@@ -50,7 +50,7 @@ func SearchForNonAdminUsersInNamespace(namespaceID int64, qs string) ([]server.N
 }
 
 // CreateAdministrator : create an admin user.
-func CreateAdministrator(namespaceID int64, userID int64) (int64, error) {
+func CreateAdministrator(namespaceID, userID int64) (int64, error) {
 	q := "INSERT INTO namespaceadmin(namespace_id, user_id) VALUES($1,$2) RETURNING id"
 
 	rows, err := db.Query(q, namespaceID, userID)
@@ -75,7 +75,7 @@ func CreateAdministrator(namespaceID int64, userID int64) (int64, error) {
 }
 
 // AdministratorExists : check if an admin user exists.
-func AdministratorExists(userID int64, namespaceID int64) (bool, error) {
+func AdministratorExists(userID, namespaceID int64) (bool, error) {
 	q := "SELECT COUNT(id) FROM namespaceadmin WHERE (namespace_id=$1 AND user_id=$2)"
 
 	var n int
@@ -86,7 +86,7 @@ func AdministratorExists(userID int64, namespaceID int64) (bool, error) {
 }
 
 // DeleteAdministrator : delete an admin user for a namespace.
-func DeleteAdministrator(userID int64, namespaceID int64) error {
+func DeleteAdministrator(userID, namespaceID int64) error {
 	q := "DELETE FROM namespaceadmin WHERE (user_id=$1 AND namespace_id=$2)"
 
 	fmt.Println(q, userID, namespaceID)
@@ -98,7 +98,7 @@ func DeleteAdministrator(userID int64, namespaceID int64) error {
 }
 
 // IsUserAdmin : check if a user is admin in a namespace
-func IsUserAdmin(nsName string, nsID int64, userID int64) (bool, error) {
+func IsUserAdmin(nsName string, nsID, userID int64) (bool, error) {
 	if nsName == "quid" {
 		// check the user quid admin group
 		exists, err := IsUserInAdminGroup(userID, nsID)

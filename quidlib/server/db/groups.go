@@ -127,7 +127,7 @@ func GroupExists(name string, namespaceID int64) (bool, error) {
 }
 
 // AddUserInGroup : add a user into a group.
-func AddUserInGroup(userID int64, groupID int64) error {
+func AddUserInGroup(userID, groupID int64) error {
 	q := "INSERT INTO usergroup(user_id,group_id) VALUES($1,$2)"
 
 	tx := db.MustBegin()
@@ -137,7 +137,7 @@ func AddUserInGroup(userID int64, groupID int64) error {
 }
 
 // RemoveUserFromGroup : remove a user from a group.
-func RemoveUserFromGroup(userID int64, groupID int64) error {
+func RemoveUserFromGroup(userID, groupID int64) error {
 	q := "DELETE FROM usergroup WHERE user_id=$1 AND group_id=$2"
 
 	tx := db.MustBegin()
@@ -147,7 +147,7 @@ func RemoveUserFromGroup(userID int64, groupID int64) error {
 }
 
 // IsUserInGroup : check if a user is in a group.
-func IsUserInGroup(userID int64, groupID int64) (bool, error) {
+func IsUserInGroup(userID, groupID int64) (bool, error) {
 	q := "SELECT COUNT(id) FROM usergroup WHERE(user_id=$1 AND group_id=$2)"
 
 	var n int

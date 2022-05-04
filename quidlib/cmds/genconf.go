@@ -9,6 +9,7 @@ import (
 
 func GeNConf() {
 	fmt.Println("Generating config file")
+
 	if err := conf.Create(); err != nil {
 		fmt.Println("Cannot create config file ", err)
 		os.Exit(3)

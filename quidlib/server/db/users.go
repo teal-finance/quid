@@ -111,7 +111,7 @@ func SelectUsersInGroup(username string, namespaceID int64) (server.Group, error
 }
 
 // CreateUser : create a user.
-func CreateUser(username string, password string, namespaceID int64) (server.User, error) {
+func CreateUser(username, password string, namespaceID int64) (server.User, error) {
 	user := server.User{}
 
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
@@ -131,7 +131,7 @@ func CreateUser(username string, password string, namespaceID int64) (server.Use
 }
 
 // CreateUserFromNameAndPassword : create a user.
-func CreateUserFromNameAndPassword(username string, passwordHash string, namespaceID int64) (int64, error) {
+func CreateUserFromNameAndPassword(username, passwordHash string, namespaceID int64) (int64, error) {
 	q := "INSERT INTO usertable(username,password,namespace_id) VALUES($1,$2,$3) RETURNING id"
 	rows, err := db.Query(q, username, passwordHash, namespaceID)
 	if err != nil {
@@ -206,7 +206,7 @@ func DeleteUser(id int64) error {
 }
 
 // IsUserInAdminGroup : check if a user is in quid admin group
-func IsUserInAdminGroup(uID int64, nsID int64) (bool, error) {
+func IsUserInAdminGroup(uID, nsID int64) (bool, error) {
 	g, err := SelectGroup("quid_admin", nsID)
 	if err != nil {
 		return false, err

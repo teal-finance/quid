@@ -32,7 +32,7 @@ type RefreshClaims struct {
 }
 
 // newAdminAccessClaims creates a standard claim for an admin user access token.
-func newAdminAccessClaims(namespaceName string, username string, userID int64, nsID int64, timeout time.Time, isAdmin bool, isNsAdmin bool) AdminAccessClaim {
+func newAdminAccessClaims(namespaceName, username string, userID, nsID int64, timeout time.Time, isAdmin, isNsAdmin bool) AdminAccessClaim {
 	return AdminAccessClaim{
 		jwt.StandardClaims{
 			Audience:  "",

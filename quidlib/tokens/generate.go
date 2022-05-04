@@ -45,7 +45,7 @@ func GenRefreshToken(timeout, maxTTL, namespace, user string, secretKey []byte) 
 }
 
 // GenAdminAccessToken generates an admin access token for a user.
-func GenAdminAccessToken(namespaceName string, timeout, maxTTL, userName string, userId int64, nsId int64, secretKey []byte, isAdmin bool, isNsAdmin bool) (string, error) {
+func GenAdminAccessToken(namespaceName, timeout, maxTTL, userName string, userId, nsId int64, secretKey []byte, isAdmin, isNsAdmin bool) (string, error) {
 	isAuthorized, err := isTimeoutAuthorized(timeout, maxTTL)
 	if err != nil {
 		emo.ParamError(err)

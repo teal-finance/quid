@@ -22,7 +22,9 @@ services:
         DB_USR: pguser
         DB_PWD: my_password
         DB_HOST: db
-    depends_on: [db]
+    depends_on:
+      db:
+        condition: service_healthy
     user: "6606:6606" # group_id:user_id to run quid in non-root mode
     environment:
       QUID_KEY:        4f10515b3488a2485a32cf68092b66f195c14b86ac89362e8246661bd2c05c3b
@@ -46,6 +48,13 @@ services:
     # see: https://index.docker.io/_/postgres
     # doc: https://github.com/docker-library/docs/blob/master/postgres/README.md
     image: docker.io/postgres:14-alpine
+    # Quid waits for DB being ready using the following healthcheck
+    # see: https://github.com/peter-evans/docker-compose-healthcheck
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready"]
+      interval: 1s
+      timeout: 1s
+      retries: 5
     # Postgres listens on port 5432 by default.
     # This port must be exposed to allow connection from another service (inside the same network).
     expose:

@@ -3,12 +3,13 @@ package crypt
 import (
 	"crypto/aes"
 	"crypto/cipher"
-	"crypto/rand"
 	"encoding/hex"
 	"fmt"
 	"io"
 
 	"github.com/teal-finance/quid/quidlib/conf"
+
+	rand "github.com/zhangyunhao116/fastrand"
 )
 
 const (

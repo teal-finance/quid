@@ -1,7 +1,6 @@
 package conf
 
 import (
-	"crypto/rand"
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
@@ -10,6 +9,7 @@ import (
 	"os"
 
 	"github.com/spf13/viper"
+	rand "github.com/zhangyunhao116/fastrand"
 )
 
 // EncodingKey : the encoding key.

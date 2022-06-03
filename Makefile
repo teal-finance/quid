@@ -140,7 +140,7 @@ upg-patch-ui:
 
 .PHONY: upg-patch-go
 upg-patch-go:
-	GOPROXY=direct go get -t -u=patch
+	GOPROXY=direct go get -t -u=patch ./...
 
 .PHONY: upg-minor-ui
 upg-minor-ui:
@@ -149,7 +149,7 @@ upg-minor-ui:
 
 .PHONY: upg-minor-go
 upg-minor-go:
-	go get -t -u
+	go get -t -u ./...
 
 .PHONY: upg-more
 upg-more:

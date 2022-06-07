@@ -16,7 +16,7 @@
 #    podman run --rm --network=host --name quid quid -env
 
 # --------------------------------------------------------------------
-FROM docker.io/node:17-alpine AS ui_builder
+FROM docker.io/node:18-alpine AS ui_builder
 
 WORKDIR /code
 

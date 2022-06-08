@@ -3,7 +3,7 @@
 version: '3'
 
 networks:
-  internal-network:
+  quid-db_network:
     internal: true
   outside-network:
     internal: false
@@ -14,22 +14,24 @@ services:
 
   # The name of this service is "quid" (but it can be anything else).
   quid:
-    container_name: quid # Good practice: same service and container names
-    image:          quid
+    container_name: quid # Good practice: container_name = service name.
+    image: quid
     build:
-      context: .
+      context: . # Use local directory to find the Dockerfile.
       args:
-        DB_USR: pguser
-        DB_PWD: my_password
-        DB_HOST: db
+        - UID=6606
+        - GID=6606
+        - DB_USR=pguser
+        - DB_PWD=my_password
+        - DB_HOST=db
     depends_on:
       db:
         condition: service_healthy
-    user: "6606:6606" # group_id:user_id to run quid in non-root mode
+    user: "6606:6606" # group_id:user_id to run quid in non-root mode.
     environment:
-      QUID_KEY:        4f10515b3488a2485a32cf68092b66f195c14b86ac89362e8246661bd2c05c3b
-      QUID_ADMIN_USER: admin
-      QUID_ADMIN_PWD:  my_API_administrator_password
+      - QUID_KEY=4f10515b3488a2485a32cf68092b66f195c14b86ac89362e8246661bd2c05c3b
+      - QUID_ADMIN_USER=admin
+      - QUID_ADMIN_PWD=my_API_administrator_password
     command: -env
     # Quid listens on port 8082 by default.
     # To connect from the machine (outside the compose),
@@ -38,20 +40,20 @@ services:
     ports:
       - 8082:8082
     networks:
-      - internal-network # to access the database
-      - outside-network  # to be accessed from outside the compose
+      - quid-db_network # to access the database
+      - outside-network # to be accessed from outside the compose
 
-  # This service name is "db" but it can be anything else.
+  # This service name is "db".
   db:
     container_name: db
-    # Official Postgres image v14, based on Alpine (to reduce bandwith).
+    # Official Postgres image v14, based on Alpine (Alpine images are smaller).
     # see: https://index.docker.io/_/postgres
     # doc: https://github.com/docker-library/docs/blob/master/postgres/README.md
     image: docker.io/postgres:14-alpine
     # Quid waits for DB being ready using the following healthcheck
     # see: https://github.com/peter-evans/docker-compose-healthcheck
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready"]
+      test: [ "CMD-SHELL", "pg_isready" ]
       interval: 1s
       timeout: 1s
       retries: 5
@@ -60,9 +62,9 @@ services:
     expose:
       - 5432
     environment:
-      POSTGRES_USER: pguser
-      POSTGRES_PASSWORD: my_password
-      POSTGRES_DB: quid # Database created at first launch.
+      - POSTGRES_USER=pguser
+      - POSTGRES_PASSWORD=my_password
+      - POSTGRES_DB=quid # Database created at first launch.
     volumes:
       # Script to create user, database, permission at first launch.
       # doc: https://github.com/docker-library/docs/blob/master/postgres/README.md#initialization-scripts
@@ -71,4 +73,4 @@ services:
       # The database is not accessible from Internet
       # and the database cannot access the web.
       # (no analytics/telemetry, no exposed backdoor...)
-      - internal-network
+      - quid-db_network

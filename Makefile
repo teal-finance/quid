@@ -94,7 +94,7 @@ Four options to setup your container engine:
 3. Install command docker (Go) and its "docker compose" (Go) using docker.com only
 
   sudo apt purge --purge --autoremove docker docker-engine docker.io containerd runc
-  
+
   Apply https://docs.docker.com/engine/install/ and finally:
 
   sudo apt install docker-compose-plugin

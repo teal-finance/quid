@@ -1,4 +1,4 @@
-# Build. the image weights only 20 MB including the static website.
+# Build a tiny image of 20 MB including the static website:
 #
 #    export DOCKER_BUILDKIT=1
 #    docker  build -t quid .
@@ -15,13 +15,20 @@
 #    docker run --rm --network=host --name quid quid -env
 #    podman run --rm --network=host --name quid quid -env
 
+# Arguments with default values to run Quid as unprivileged.
+# Set arguments at build time:
+# docker build --build-arg UID=1122 --build-arg GID=1122
+ARG UID=6606 \
+    GID=6606
+
 # --------------------------------------------------------------------
-FROM docker.io/node:18-alpine AS ui_builder
+FROM docker.io/node:18-alpine AS ui-builder
 
 WORKDIR /code
 
 COPY ui/package.json \
     ui/yarn.lock    ./
+
 RUN set -ex                         ;\
     node --version                  ;\
     yarn --version                  ;\
@@ -42,7 +49,7 @@ RUN set -ex     ;\
     yarn build
 
 # --------------------------------------------------------------------
-FROM docker.io/golang:1.18-alpine AS go_builder
+FROM docker.io/golang:1.18-alpine AS go-builder
 
 WORKDIR /code
 
@@ -65,65 +72,64 @@ RUN set -ex                                                ;\
     GOLDFLAGS="-d -s -w -extldflags=-static"                \
     go build -a -tags osusergo,netgo -installsuffix netgo  ;\
     ls -sh quid                                            ;\
-    ./quid -help     # smoke test
+    ./quid -help  # smoke test
 
 # --------------------------------------------------------------------
 FROM docker.io/golang:1.18-alpine AS integrator
 
 WORKDIR /target
 
-ARG UID="6606"
-ARG GID="6606"
+ARG UID \
+    GID
 
 # HTTPS root certificates (adds about 200 KB).
 # Create user & group files.
-RUN set -ex                                              ;\
-    mkdir -p                              etc/ssl/certs  ;\
-    cp /etc/ssl/certs/ca-certificates.crt etc/ssl/certs  ;\
-    echo 'quid:x:${UID}:${GID}::/:' > etc/passwd         ;\
+RUN set -ex                                             ;\
+    mkdir -p                              etc/ssl/certs ;\
+    cp /etc/ssl/certs/ca-certificates.crt etc/ssl/certs ;\
+    echo 'quid:x:${UID}:${GID}::/:' > etc/passwd        ;\
     echo 'quid:x:${GID}:'           > etc/group
 
-# Static website and backend
-COPY --from=ui_builder /code/dist ui/dist
-COPY --from=go_builder /code/quid .
+# Copy the static website and backend executable.
+COPY --from=ui-builder /code/dist ui/dist
+COPY --from=go-builder /code/quid .
 
 # --------------------------------------------------------------------
 FROM scratch AS final
 
-
-# Arguments that can be set.
-# - at build time using flag "--build-arg" (default env. var. value)
-# - at run time using flag "--env" (or -e)
-ARG DB_USR="pguser"
-ARG DB_PWD="my_password"
-ARG DB_HOST=""
-ARG QUID_KEY="4f10515b3488a2485a32cf68092b66f195c14b86ac89362e8246661bd2c05c3b"
-ARG QUID_ADMIN_USER="admin"
-ARG QUID_ADMIN_PWD="my_API_administrator_password"
-ARG UID="6606"
-ARG GID="6606"
-
-COPY --chown="${UID}:${GID}" --from=integrator /target /
-
 # Run as unprivileged.
+ARG UID \
+    GID
 USER "${UID}:${GID}"
 
-# URL format is postgresql://[user[:password]@][netloc][:port][/dbname][?param1=value1&...]
-# see https://stackoverflow.com/a/20722229
-ENV DATABASE_URL "postgres://${DB_USR}:${DB_PWD}@${DB_HOST}:5432/quid?sslmode=disable"
-#-- DATABASE_URL "dbname=quid user=${DB_USR} password=${DB_PWD} sslmode=disable"
+# In this tiny image, put only the the static website,
+# the executable "quid", the SSL certificates,
+# the "passwd" and "group" files. No shell commands.
+COPY --chown="${UID}:${GID}" --from=integrator /target /
 
-# Configuration used to initialize the Database.
-ENV QUID_KEY        "${QUID_KEY}"
-ENV QUID_ADMIN_USER "${QUID_ADMIN_USER}"
-ENV QUID_ADMIN_PWD  "${QUID_ADMIN_PWD}"
+ARG DB_USR=pguser       \
+    DB_PWD=my_password  \
+    DB_HOST=""
 
-# Default port exposed outside of the container.
-ENV PORT 8082
-EXPOSE "${PORT}"
+# DATABASE_URL format: postgresql://[user[:password]@][netloc][:port][/dbname][?param1=value1&...]
+# See https://stackoverflow.com/a/20722229
+ENV DATABASE_URL="postgres://${DB_USR}:${DB_PWD}@${DB_HOST}:5432/quid?sslmode=disable"
 
-# Time zone by default = UTC
-ENV TZ UTC0
+# QUID_ADMIN_* and QUID_KEY are used to initialize the Database.
+ARG QUID_ADMIN_USER=admin                         \
+    QUID_ADMIN_PWD=my_API_administrator_password  \
+    QUID_KEY=4f10515b3488a2485a32cf68092b66f195c14b86ac89362e8246661bd2c05c3b
+
+ENV QUID_ADMIN_USER=$QUID_ADMIN_USER  \
+    QUID_ADMIN_PWD=$QUID_ADMIN_PWD    \
+    QUID_KEY=$QUID_KEY
+
+# PORT is the web+API port exposed outside of the container.
+ENV PORT=8082
+EXPOSE ${PORT}
+
+# Default timezone is UTC.
+ENV TZ=UTC0
 
 # The default command to run the container.
 ENTRYPOINT ["/quid"]

@@ -33,7 +33,8 @@ ui/yarn.lock: ui/package.json
 	yarn --cwd ui --link-duplicates
 
 quid: go.sum main.go quidlib/*.go quidlib/*/*.go quidlib/*/*/*.go
-	go build -o $@
+	# go build -o $@
+	CGO_ENABLED=0 GOFLAGS="-trimpath -modcacherw" GOLDFLAGS="-d -s -w -extldflags=-static" go build -a -tags osusergo,netgo -installsuffix netgo -o $@
 
 go.sum: go.mod
 

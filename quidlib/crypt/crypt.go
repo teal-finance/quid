@@ -5,7 +5,6 @@ import (
 	"crypto/cipher"
 	"encoding/hex"
 	"fmt"
-	"io"
 
 	"github.com/teal-finance/quid/quidlib/conf"
 
@@ -34,7 +33,7 @@ func AesGcmEncrypt(plaintext string, additionalData []byte) (string, error) {
 	}
 
 	iv := make([]byte, aesGcmNonceSize)
-	if _, err := io.ReadFull(rand.Reader, iv); err != nil {
+	if _, err := rand.Read(iv); err != nil {
 		return "", fmt.Errorf("random iv generation : %w", err)
 	}
 

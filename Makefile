@@ -142,6 +142,7 @@ upg-patch-ui:
 .PHONY: upg-patch-go
 upg-patch-go:
 	GOPROXY=direct go get -t -u=patch ./...
+	go mod tidy
 
 .PHONY: upg-minor-ui
 upg-minor-ui:
@@ -151,9 +152,10 @@ upg-minor-ui:
 .PHONY: upg-minor-go
 upg-minor-go:
 	go get -t -u ./...
+	go mod tidy
 
 .PHONY: upg-more
-upg-more:
+upg-more: upg-minor-go
 	yarn --cwd ui --link-duplicates
     # flag --tilde prepends the new version with "~" that limits vanilla upgrade to patch only
     # flag --caret prepends the new version with "^" allowing upgrading the minor number

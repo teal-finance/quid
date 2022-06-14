@@ -25,12 +25,13 @@ front: ui/dist
 ui/dist: ui/node_modules ui/node_modules/* ui/node_modules/*/* $(shell find ui/src -type f)
 	yarn --cwd ui build
 
-ui/node_modules:     ui/yarn.lock
-ui/node_modules/*:   ui/yarn.lock
 ui/node_modules/*/*: ui/yarn.lock
+ui/node_modules/*:   ui/yarn.lock
+ui/node_modules:     ui/yarn.lock
+	yarn install --cwd ui --link-duplicates
 
 ui/yarn.lock: ui/package.json
-	yarn --cwd ui --link-duplicates
+	yarn install --cwd ui --link-duplicates
 
 quid: go.sum main.go quidlib/*.go quidlib/*/*.go quidlib/*/*/*.go
 	# go build -o $@

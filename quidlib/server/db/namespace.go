@@ -188,7 +188,7 @@ func CreateNamespace(name, key, refreshKey, ttl, refreshTTL string, endpoint boo
 	}
 
 	for rows.Next() {
-		var idi interface{}
+		var idi any
 		err := rows.Scan(&idi)
 		if err != nil {
 			emo.QueryError(err)

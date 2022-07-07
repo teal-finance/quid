@@ -140,7 +140,7 @@ func CreateUserFromNameAndPassword(username, passwordHash string, namespaceID in
 	}
 
 	for rows.Next() {
-		var idi interface{}
+		var idi any
 		err := rows.Scan(&idi)
 		if err != nil {
 			emo.QueryError(err)

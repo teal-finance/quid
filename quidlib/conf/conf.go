@@ -20,7 +20,7 @@ var IsDevMode = false
 
 // Create : create a config file.
 func Create() error {
-	data := map[string]interface{}{
+	data := map[string]any{
 		"db_name":         "quid",
 		"db_user":         "pguser",
 		"db_password":     "my_password",
@@ -77,7 +77,7 @@ func InitFromFile(isDevMode bool) (conn, port string) {
 func generateRandomKey() string {
 	bytes := make([]byte, 32)
 	if _, err := rand.Read(bytes); err != nil {
-		panic(err.Error())
+		panic(err)
 	}
 	return hex.EncodeToString(bytes)
 }

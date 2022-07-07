@@ -57,7 +57,7 @@ func CreateAdministrators(c echo.Context) error {
 		return err
 	}
 
-	uIDs := m["user_ids"].([]interface{})
+	uIDs := m["user_ids"].([]any)
 	nsID := int64(m["namespace_id"].(float64))
 
 	for _, fuserID := range uIDs {

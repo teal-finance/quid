@@ -60,7 +60,7 @@ func CreateAdministrator(namespaceID, userID int64) (int64, error) {
 	}
 
 	for rows.Next() {
-		var idi interface{}
+		var idi any
 		err := rows.Scan(&idi)
 		if err != nil {
 			emo.QueryError(err)

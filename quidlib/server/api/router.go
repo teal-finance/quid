@@ -4,13 +4,11 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/labstack/echo/v4"
-	"github.com/labstack/echo/v4/middleware"
-
+	color "github.com/acmacalister/skittles"
 	"github.com/gorilla/sessions"
 	"github.com/labstack/echo-contrib/session"
-
-	color "github.com/acmacalister/skittles"
+	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v4/middleware"
 
 	"github.com/teal-finance/quid/quidlib/conf"
 	"github.com/teal-finance/quid/quidlib/tokens"

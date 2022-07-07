@@ -6,9 +6,9 @@ import (
 	"encoding/hex"
 	"fmt"
 
-	"github.com/teal-finance/quid/quidlib/conf"
-
 	rand "github.com/zhangyunhao116/fastrand"
+
+	"github.com/teal-finance/quid/quidlib/conf"
 )
 
 const (

@@ -6,6 +6,7 @@ import (
 	"log"
 
 	"github.com/manifoldco/promptui"
+
 	"github.com/teal-finance/quid/quidlib/tokens"
 )
 

@@ -4,13 +4,13 @@ import (
 	"log"
 	"net/http"
 
+	"github.com/labstack/echo/v4"
+
 	"github.com/golang-jwt/jwt"
 	"github.com/labstack/echo-contrib/session"
 	"github.com/teal-finance/quid/quidlib/conf"
 	"github.com/teal-finance/quid/quidlib/server/db"
 	"github.com/teal-finance/quid/quidlib/tokens"
-
-	"github.com/labstack/echo/v4"
 )
 
 // AdminMiddleware : check the token claim to see if the user is admin.

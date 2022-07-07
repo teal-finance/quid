@@ -17,10 +17,14 @@ import (
 // SessionsStore : the session cookies store.
 var SessionsStore = sessions.NewCookieStore([]byte(conf.EncodingKey))
 
+// AdminNsKey : store the Quid namespace key for admin
+var AdminNsKey = []byte("")
+
 var echoServer = echo.New()
 
 // RunServer : configure and run the server.
 func RunServer(adminNsKey, address string) {
+	AdminNsKey = []byte(adminNsKey)
 	echoServer.Use(middleware.Logger())
 
 	if !conf.IsDevMode {
@@ -66,7 +70,7 @@ func RunServer(adminNsKey, address string) {
 	g.POST("/info", GroupsInfo)
 	g.POST("/add_user", AddUserInGroup)
 	g.POST("/remove_user", RemoveUserFromGroup)
-	g.GET("/all", AllGroups) // TODO: remove when old frontend is disabled
+	// g.GET("/all", AllGroups) // TODO: remove when old frontend is disabled
 	g.POST("/nsall", AllGroupsForNamespace)
 
 	m := a.Group("/users")
@@ -74,7 +78,7 @@ func RunServer(adminNsKey, address string) {
 	m.POST("/delete", DeleteUser)
 	m.POST("/groups", UserGroupsInfo)
 	m.POST("/orgs", UserOrgsInfo)
-	m.GET("/all", AllUsers) // TODO: remove when old frontend is disabled
+	// m.GET("/all", AllUsers) // TODO: remove when old frontend is disabled
 	m.POST("/nsall", AllUsersInNamespace)
 	// m.POST("/search", SearchForUsersInNamespace)
 

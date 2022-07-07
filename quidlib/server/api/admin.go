@@ -202,7 +202,7 @@ func RequestAdminAccessToken(c echo.Context) error {
 		_isNsAdmin = true
 	}
 	// generate the access token
-	t, err := tokens.GenAdminAccessToken(ns.Name, "5m", ns.MaxTokenTTL, u.Name, u.ID, ns.ID, []byte(ns.Key), _isAdmin, _isNsAdmin)
+	t, err := tokens.GenAdminAccessToken(ns.Name, "5m", ns.MaxTokenTTL, u.Name, u.ID, ns.ID, []byte(AdminNsKey), _isAdmin, _isNsAdmin)
 	if err != nil {
 		log.Fatal(err)
 		return c.JSON(http.StatusInternalServerError, echo.Map{

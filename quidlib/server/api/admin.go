@@ -59,11 +59,16 @@ func AdminLogin(c echo.Context) error {
 			"error": "unauthorized",
 		})
 	}
+	_isAdmin := isUserAdmin && namespace == "quid"
+	_isNsAdmin := isUserAdmin && namespace != "quid"
 	emo.Info("Admin login successfull for user", u.Name, "on namespace", ns.Name)
 	// set the session
 	sess, _ := session.Get("session", c)
 	sess.Values["user"] = u.Name
-	sess.Values["is_admin"] = isUserAdmin
+	sess.Values["ns_name"] = ns.Name
+	sess.Values["ns_id"] = ns.ID
+	sess.Values["is_admin"] = _isAdmin
+	sess.Values["is_ns_admin"] = _isNsAdmin
 	sess.Options = &sessions.Options{
 		Path:     "/",
 		MaxAge:   3600 * 24,
@@ -115,7 +120,7 @@ func AdminLogout(c echo.Context) error {
 }
 
 // RequestAdminAccessToken : request an access token from a refresh token
-// for the quid namespace.
+// for a namespace.
 func RequestAdminAccessToken(c echo.Context) error {
 	m := echo.Map{}
 	if err := c.Bind(&m); err != nil {
@@ -124,6 +129,7 @@ func RequestAdminAccessToken(c echo.Context) error {
 
 	refreshToken, ok := m["refresh_token"].(string)
 	nsName := m["namespace"].(string)
+	emo.RefreshToken(nsName, refreshToken)
 	if !ok {
 		emo.ParamError("provide a refresh_token parameter")
 		return c.JSON(http.StatusBadRequest, echo.Map{
@@ -141,6 +147,7 @@ func RequestAdminAccessToken(c echo.Context) error {
 		})
 	}
 
+	emo.State("Verifying refresh token")
 	// verify the refresh token
 	var username string
 	token, err := jwt.ParseWithClaims(refreshToken, &tokens.RefreshClaims{}, func(token *jwt.Token) (any, error) {
@@ -206,6 +213,7 @@ func RequestAdminAccessToken(c echo.Context) error {
 	emo.AccessToken("Issued an admin access token for user", u.Name, "and namespace", ns.Name)
 
 	return c.JSON(http.StatusOK, echo.Map{
-		"token": t,
+		"token":     t,
+		"namespace": ns,
 	})
 }

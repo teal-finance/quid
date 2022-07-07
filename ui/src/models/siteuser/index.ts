@@ -1,5 +1,5 @@
 import { User as SwUser } from "@snowind/state";
-import { computed } from "@vue/reactivity";
+import { ref } from "@vue/reactivity";
 import { useStorage } from "@vueuse/core";
 import Namespace from "../namespace";
 import NamespaceTable from "../namespace/interface";
@@ -7,7 +7,7 @@ import { UserType } from "./types";
 
 export default class SiteUser extends SwUser {
   devRefreshToken: string | null = null;
-  type: UserType = "nsAdmin";
+  type = ref<UserType>("nsAdmin");
   namespace = useStorage("namespace", Namespace.empty().toTableRow());
 
   get mustSelectNamespace(): boolean {

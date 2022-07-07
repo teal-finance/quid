@@ -35,6 +35,8 @@ func AdminMiddleware(next echo.HandlerFunc) echo.HandlerFunc {
 			})
 		}
 
+		emo.Data("Admin claims for", claims.Namespace, claims)
+
 		isAdmin, err := db.IsUserAdmin(claims.Namespace, claims.NsID, claims.UserID)
 		if err != nil {
 			return err
@@ -43,6 +45,8 @@ func AdminMiddleware(next echo.HandlerFunc) echo.HandlerFunc {
 			emo.ParamError("The user "+claims.UserName+" is not admin for namespace", claims.Namespace)
 			return c.NoContent(http.StatusUnauthorized)
 		}
+
+		//c.Set("is_admin", true)
 
 		// check session data in production
 		if conf.IsDevMode {

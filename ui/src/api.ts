@@ -42,10 +42,16 @@ async function adminLogin(namespace: string, username: string, password: string)
     }
     throw new Error(response.statusText)
   }
-  const t = await response.json();
-  console.log("T", t)
-  requests.refreshToken = t.token;
-  requests.namespace = namespace;
+  const resp = await response.json();
+  console.log("RESP", resp)
+  requests.refreshToken = resp.token;
+  requests.namespace = resp.namespace.name;
+  if (resp.namespace.name != 'quid') {
+    user.changeNs(resp.namespace);
+  } else {
+    user.type.value = "serverAdmin";
+    user.resetNs()
+  }
 }
 
 export { requests, adminLogin }

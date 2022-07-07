@@ -12,6 +12,26 @@ import (
 	"github.com/teal-finance/quid/quidlib/server"
 )
 
+// SelectNonDisabledUserID : get a user id from it's username.
+func SelectNonDisabledUserID(username string) (bool, int64, error) {
+	row := db.QueryRowx("SELECT id,username,password,is_disabled FROM usertable WHERE(username=$1)", username)
+	u := user{}
+	err := row.StructScan(&u)
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			emo.NotFound("User", username, "not found")
+			return false, 0, nil
+		}
+		return false, 0, err
+	}
+	//emo.Found("BASE USER", u.ID, u.UserName)
+	if u.IsDisabled {
+		return false, 0, nil
+	}
+	//emo.Found("USER", u.ID)
+	return true, u.ID, nil
+}
+
 // SelectNonDisabledUser : get a user from it's username.
 func SelectNonDisabledUser(username string, namespaceID int64) (bool, server.User, error) {
 	ux := server.User{}
@@ -22,10 +42,13 @@ func SelectNonDisabledUser(username string, namespaceID int64) (bool, server.Use
 	err := row.StructScan(&u)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
+			emo.NotFound("User", username, "not found for", namespaceID)
 			return false, ux, nil
 		}
 		return false, ux, err
 	}
+
+	//emo.Found("BASE USER", u.ID, u.UserName)
 
 	if u.IsDisabled {
 		return false, ux, nil
@@ -33,7 +56,9 @@ func SelectNonDisabledUser(username string, namespaceID int64) (bool, server.Use
 
 	ux.Name = u.UserName
 	ux.PasswordHash = u.Password
+	ux.Namespace = u.Namespace
 	ux.ID = u.ID
+	//emo.Found("USER", ux.ID, ux.Name)
 	return true, ux, nil
 }
 

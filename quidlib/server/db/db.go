@@ -14,8 +14,8 @@ var db *sqlx.DB
 var emo = emolib.NewZone("db")
 
 // Init : init the db conf.
-func Init(isVerbose, isDev bool) {
-	if !isDev {
+func Init(isVerbose, isDev bool, isCmd bool) {
+	if !isDev && !isCmd {
 		emo.Print = isVerbose
 	}
 }

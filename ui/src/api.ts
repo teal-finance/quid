@@ -50,6 +50,7 @@ async function adminLogin(namespace: string, username: string, password: string)
     user.changeNs(resp.namespace);
   } else {
     user.type.value = "serverAdmin";
+    user.adminUrl = "/admin";
     user.resetNs()
   }
 }

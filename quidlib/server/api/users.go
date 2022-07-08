@@ -11,18 +11,6 @@ import (
 	db "github.com/teal-finance/quid/quidlib/server/db"
 )
 
-// AllUsers : add a user in a group.
-func AllUsers(c echo.Context) error {
-	data, err := db.SelectAllUsers()
-	if err != nil {
-		return c.JSON(http.StatusInternalServerError, echo.Map{
-			"error": "error selecting users",
-		})
-	}
-
-	return c.JSON(http.StatusOK, &data)
-}
-
 // AllUsersInNamespace : select all users for a namespace.
 func AllUsersInNamespace(c echo.Context) error {
 	m := echo.Map{}
@@ -31,6 +19,10 @@ func AllUsersInNamespace(c echo.Context) error {
 	}
 
 	nsID := int64(m["namespace_id"].(float64))
+
+	if !VerifyAdminNs(c, nsID) {
+		return c.NoContent(http.StatusUnauthorized)
+	}
 
 	data, err := db.SelectUsersInNamespace(nsID)
 	if err != nil {
@@ -124,6 +116,11 @@ func AddUserInGroup(c echo.Context) error {
 
 	uID := int64(m["user_id"].(float64))
 	gID := int64(m["group_id"].(float64))
+	nsID := int64(m["namespace_id"].(float64))
+
+	if !VerifyAdminNs(c, nsID) {
+		return c.NoContent(http.StatusUnauthorized)
+	}
 
 	err := db.AddUserInGroup(uID, gID)
 	if err != nil {
@@ -146,6 +143,11 @@ func RemoveUserFromGroup(c echo.Context) error {
 
 	uID := int64(m["user_id"].(float64))
 	gID := int64(m["group_id"].(float64))
+	nsID := int64(m["namespace_id"].(float64))
+
+	if !VerifyAdminNs(c, nsID) {
+		return c.NoContent(http.StatusUnauthorized)
+	}
 
 	err := db.RemoveUserFromGroup(uID, gID)
 	if err != nil {
@@ -192,6 +194,11 @@ func UserGroupsInfo(c echo.Context) error {
 	}
 
 	id := int64(m["id"].(float64))
+	nsID := int64(m["namespace_id"].(float64))
+
+	if !VerifyAdminNs(c, nsID) {
+		return c.NoContent(http.StatusUnauthorized)
+	}
 
 	g, err := db.SelectGroupsForUser(id)
 	if err != nil {
@@ -213,6 +220,12 @@ func DeleteUser(c echo.Context) error {
 	}
 
 	id := int64(m["id"].(float64))
+	nsID := int64(m["namespace_id"].(float64))
+
+	if !VerifyAdminNs(c, nsID) {
+		return c.NoContent(http.StatusUnauthorized)
+	}
+
 	if err := db.DeleteUser(id); err != nil {
 		return c.JSON(http.StatusConflict, echo.Map{
 			"error": "error deleting user",
@@ -234,6 +247,10 @@ func CreateUserHandler(c echo.Context) error {
 	name := m["name"].(string)
 	password := m["password"].(string)
 	nsID := int64(m["namespace_id"].(float64))
+
+	if !VerifyAdminNs(c, nsID) {
+		return c.NoContent(http.StatusUnauthorized)
+	}
 
 	// check if user exists
 	exists, err := db.UserNameExists(name, nsID)

@@ -18,6 +18,10 @@ func AllGroupsForNamespace(c echo.Context) error {
 
 	nsID := int64(m["namespace_id"].(float64))
 
+	if !VerifyAdminNs(c, nsID) {
+		return c.NoContent(http.StatusUnauthorized)
+	}
+
 	data, err := db.SelectGroupsForNamespace(nsID)
 	if err != nil {
 		return c.JSON(http.StatusConflict, echo.Map{
@@ -48,6 +52,11 @@ func GroupsInfo(c echo.Context) error {
 	}
 
 	id := int64(m["id"].(float64))
+	nsID := int64(m["namespace_id"].(float64))
+
+	if !VerifyAdminNs(c, nsID) {
+		return c.NoContent(http.StatusUnauthorized)
+	}
 
 	n, err := db.CountUsersInGroup(id)
 	if err != nil {
@@ -69,6 +78,11 @@ func DeleteGroup(c echo.Context) error {
 	}
 
 	id := int64(m["id"].(float64))
+	nsID := int64(m["namespace_id"].(float64))
+
+	if !VerifyAdminNs(c, nsID) {
+		return c.NoContent(http.StatusUnauthorized)
+	}
 
 	if err := db.DeleteGroup(id); err != nil {
 		return c.JSON(http.StatusConflict, echo.Map{
@@ -90,6 +104,10 @@ func CreateGroup(c echo.Context) error {
 
 	name := m["name"].(string)
 	nsID := int64(m["namespace_id"].(float64))
+
+	if !VerifyAdminNs(c, nsID) {
+		return c.NoContent(http.StatusUnauthorized)
+	}
 
 	ns, exists, err := createGroup(name, nsID)
 	if err != nil {

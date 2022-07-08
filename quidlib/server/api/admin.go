@@ -210,7 +210,7 @@ func RequestAdminAccessToken(c echo.Context) error {
 		})
 	}
 
-	emo.AccessToken("Issued an admin access token for user", u.Name, "and namespace", ns.Name)
+	//emo.AccessToken("Issued an admin access token for user", u.Name, "and namespace", ns.Name)
 
 	return c.JSON(http.StatusOK, echo.Map{
 		"token":     t,

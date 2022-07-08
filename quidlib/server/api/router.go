@@ -108,6 +108,27 @@ func RunServer(adminNsKey, address string) {
 	nsa.POST("/delete", DeleteAdministrator)
 	nsa.POST("/search/nonadmins", SearchForNonAdminUsersInNamespace)
 
+	// Namespace admin endpoints
+	nsadm := echoServer.Group("/ns")
+	nsadm.Use(middleware.JWTWithConfig(config))
+	nsadm.Use(NsAdminMiddleware)
+
+	// nsadmin users
+	nsadmUsers := nsadm.Group("/users")
+	nsadmUsers.POST("/add", CreateUserHandler)
+	nsadmUsers.POST("/delete", DeleteUser)
+	nsadmUsers.POST("/groups", UserGroupsInfo)
+	nsadmUsers.POST("/nsall", AllUsersInNamespace)
+
+	// nsadmin groups
+	nsadmGroups := nsadm.Group("/groups")
+	nsadmGroups.POST("/add", CreateGroup)
+	nsadmGroups.POST("/delete", DeleteGroup)
+	nsadmGroups.POST("/info", GroupsInfo)
+	nsadmGroups.POST("/add_user", AddUserInGroup)
+	nsadmGroups.POST("/remove_user", RemoveUserFromGroup)
+	nsadmGroups.POST("/nsall", AllGroupsForNamespace)
+
 	if conf.IsDevMode {
 		fmt.Println(color.BoldRed("Running in development mode"))
 	}

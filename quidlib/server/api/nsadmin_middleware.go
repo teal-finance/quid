@@ -13,8 +13,24 @@ import (
 	"github.com/teal-finance/quid/quidlib/tokens"
 )
 
-// AdminMiddleware : check the token claim to see if the user is admin.
-func AdminMiddleware(next echo.HandlerFunc) echo.HandlerFunc {
+func VerifyAdminNs(c echo.Context, nsID int64) bool {
+	// check that the requested namespace operation
+	// matches the request ns admin permissions
+	isAdmin := c.Get("isAdmin").(bool)
+	adminNs := c.Get("isAdminForNs").(int64)
+	if isAdmin {
+		return true
+	} else {
+		if adminNs == nsID {
+			return true
+		}
+	}
+	emo.ParamError("User is not nsadmin for namespace", nsID, "/", adminNs)
+	return false
+}
+
+// NsAdminMiddleware : check the token claim to see if the user is namespaace admin.
+func NsAdminMiddleware(next echo.HandlerFunc) echo.HandlerFunc {
 	return func(c echo.Context) error {
 		// check the access token to control that the user is admin
 		u, ok := c.Get("user").(*jwt.Token)
@@ -42,23 +58,25 @@ func AdminMiddleware(next echo.HandlerFunc) echo.HandlerFunc {
 			return err
 		}
 		if !isAdmin {
-			emo.ParamError("The user "+claims.UserName+" is not admin for namespace", claims.Namespace)
+			emo.ParamError("The user "+claims.UserName+" is not nsadmin for namespace", claims.Namespace)
 			return c.NoContent(http.StatusUnauthorized)
 		}
 
-		//c.Set("is_admin", true)
+		c.Set("isAdmin", false)
+		c.Set("isAdminForNs", claims.NsID)
 
 		// check session data in production
 		if conf.IsDevMode {
+			emo.RequestPost("Request ok from nsadmin middleware")
 			return next(c)
 		}
 
 		sess, _ := session.Get("session", c)
-		if sess.Values["is_admin"] == "true" {
+		if sess.Values["is_nsadmin"] == "true" {
 			return next(c)
 		}
 
-		emo.Warning("Unauthorized session from admin middleware")
+		emo.Warning("Unauthorized session from nsadmin middleware")
 		return c.NoContent(http.StatusUnauthorized)
 	}
 }

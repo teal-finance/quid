@@ -9,6 +9,7 @@ export default class SiteUser extends SwUser {
   devRefreshToken: string | null = null;
   type = ref<UserType>("nsAdmin");
   namespace = useStorage("namespace", Namespace.empty().toTableRow());
+  adminUrl = "/ns";
 
   get mustSelectNamespace(): boolean {
     return this.namespace.value.id == 0

@@ -1,6 +1,7 @@
 import { requests } from "@/api";
 import { GroupContract } from "./contract";
 import { GroupTable } from "./interface";
+import { user } from "@/state";
 
 export default class Group {
   id: number;
@@ -37,7 +38,7 @@ export default class Group {
   // *************************
 
   static async fetchAll(nsid: number): Promise<Array<GroupTable>> {
-    const url = "/admin/groups/nsall";
+    const url = user.adminUrl + "/groups/nsall";
     const ns = new Array<GroupTable>();
     try {
       const payload = { namespace_id: nsid }
@@ -54,10 +55,10 @@ export default class Group {
   }
 
   static async fetchUserGroups(uid: number) {
-    const url = "/admin/users/groups";
+    const url = user.adminUrl + "/users/groups";
     const data = new Array<GroupTable>();
     try {
-      const payload = { id: uid }
+      const payload = { id: uid, namespace_id: user.namespace.value.id }
       const resp = await requests.post<{ groups: Array<GroupContract> }>(url, payload);
       //console.log("RESP", JSON.stringify(resp.groups, null, "  "))
       if (resp.groups.length > 0) {
@@ -73,11 +74,12 @@ export default class Group {
   }
 
   static async addUserToGroup(uid: number, gid: number) {
-    const url = "/admin/groups/add_user";
+    const url = user.adminUrl + "/groups/add_user";
     try {
       const payload = {
         user_id: uid,
         group_id: gid,
+        namespace_id: user.namespace.value.id
       }
       await requests.post(url, payload);
     } catch (e) {
@@ -87,11 +89,12 @@ export default class Group {
   }
 
   static async removeUserFromGroup(uid: number, gid: number) {
-    const url = "/admin/groups/remove_user";
+    const url = user.adminUrl + "/groups/remove_user";
     try {
       const payload = {
         user_id: uid,
         group_id: gid,
+        namespace_id: user.namespace.value.id
       }
       await requests.post(url, payload);
     } catch (e) {
@@ -101,8 +104,9 @@ export default class Group {
   }
 
   static async delete(id: number) {
-    await requests.post("/admin/groups/delete", {
+    await requests.post(user.adminUrl + "/groups/delete", {
       id: id,
+      namespace_id: user.namespace.value.id
     });
   }
 }

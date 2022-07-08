@@ -1,44 +1,17 @@
 <template>
   <div class="flex flex-col space-y-5">
-    <sw-input
-      v-model:value="form.name.val"
-      v-model:isvalid="form.name.isValid"
-      :validator="form.name.validator"
-      inline-label="Name"
-      required
-      autofocus
-    ></sw-input>
-    <sw-input
-      class="mt-3"
-      :type="showPasswordFields ? 'text' : 'password'"
-      v-model:value="form.pwd.val"
-      v-model:isvalid="form.pwd.isValid"
-      :validator="form.pwd.validator"
-      inline-label="Password"
-      required
-    ></sw-input>
-    <sw-input
-      class="mt-3"
-      :type="showPasswordFields ? 'text' : 'password'"
-      v-model:value="form.pwdVerif.val"
-      v-model:isvalid="form.pwdVerif.isValid"
-      :validator="form.pwdVerif.validator"
-      inline-label="Password again"
-      required
-    ></sw-input>
+    <sw-input v-model:value="form.name.val" v-model:isvalid="form.name.isValid" :validator="form.name.validator"
+      inline-label="Name" required autofocus></sw-input>
+    <sw-input class="mt-3" :type="showPasswordFields ? 'text' : 'password'" v-model:value="form.pwd.val"
+      v-model:isvalid="form.pwd.isValid" :validator="form.pwd.validator" inline-label="Password" required></sw-input>
+    <sw-input class="mt-3" :type="showPasswordFields ? 'text' : 'password'" v-model:value="form.pwdVerif.val"
+      v-model:isvalid="form.pwdVerif.isValid" :validator="form.pwdVerif.validator" inline-label="Password again"
+      required></sw-input>
     <div class="flex flex-row">
-      <button
-        class="w-20 mr-3 btn success"
-        :disabled="!isFormValid === true"
-        @click="submitForm()"
-      >Save</button>
+      <button class="w-20 mr-3 btn success" :disabled="!isFormValid === true" @click="submitForm()">Save</button>
       <button class="w-20 btn warning" @click="onCancel()">Cancel</button>
       <div class="inline-block ml-2">
-        <button
-          class="btn lighter"
-          v-if="showPasswordFields"
-          @click="showPasswordFields = false"
-        >Hide password</button>
+        <button class="btn lighter" v-if="showPasswordFields" @click="showPasswordFields = false">Hide password</button>
         <button class="btn lighter" v-else @click="showPasswordFields = true">Show password</button>
       </div>
     </div>
@@ -96,7 +69,7 @@ function resetForm() {
 
 async function postForm() {
   try {
-    await requests.post("/admin/users/add", {
+    await requests.post(user.adminUrl + "/users/add", {
       name: form.name.val,
       password: form.pwd.val,
       namespace_id: user.namespace.value.id,

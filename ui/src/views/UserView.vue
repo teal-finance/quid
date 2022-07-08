@@ -1,24 +1,17 @@
 <template>
   <div class="text-3xl txt-primary dark:txt-light">
     Users
-    <button
-      class="ml-3 text-2xl border-none btn focus:outline-none txt-neutral"
-      @click="collapse = !collapse"
-      v-if="!user.mustSelectNamespace"
-    >
+    <button class="ml-3 text-2xl border-none btn focus:outline-none txt-neutral" @click="collapse = !collapse"
+      v-if="!user.mustSelectNamespace">
       <icon icon="fa6-solid:plus" v-if="collapse === true"></icon>
       <icon icon="fa6-solid:minus" v-else></icon>
     </button>
   </div>
-  <div
-    :class="{
-      'slide-y': true,
-      'slideup': collapse === true,
-      'slidedown': collapse === false
-    }"
-    class="mb-8"
-    v-if="!user.mustSelectNamespace"
-  >
+  <div :class="{
+    'slide-y': true,
+    'slideup': collapse === true,
+    'slidedown': collapse === false
+  }" class="mb-8" v-if="!user.mustSelectNamespace">
     <div class="p-5 mt-3 border bord-lighter w-96">
       <div class="text-xl">Add a user</div>
       <add-user class="mt-5" @end="endAdd()"></add-user>

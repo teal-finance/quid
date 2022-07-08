@@ -59,9 +59,10 @@ func main() {
 		// init conf flag
 		conn, port = conf.InitFromFile(*isDevMode)
 	}
+	isCmd := *genDevToken || *genDevNsToken
 
 	// Database
-	db.Init(*isVerbose, *isDevMode)
+	db.Init(*isVerbose, *isDevMode, isCmd)
 
 	if err := db.Connect(conn); err != nil {
 		log.Fatalln(err)
@@ -100,7 +101,7 @@ func main() {
 		if err != nil {
 			log.Fatal(err)
 		}
-		fmt.Println("Dev token generated in env file")
+		fmt.Println("Dev nsadmin token generated in env file for user", username, "and namespace", namespace)
 		return
 	}
 
@@ -121,7 +122,7 @@ func main() {
 	}
 
 	api.Init(*isVerbose, *isDevMode)
-	tokens.Init(*isVerbose, *isDevMode)
+	tokens.Init(*isVerbose, *isDevMode, isCmd)
 
 	// get the admin namespace
 	_, adminNS, err := db.SelectNamespaceFromName("quid")

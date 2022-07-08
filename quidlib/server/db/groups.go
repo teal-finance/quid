@@ -149,7 +149,7 @@ func RemoveUserFromGroup(userID, groupID int64) error {
 // IsUserInGroup : check if a user is in a group.
 func IsUserInGroup(userID, groupID int64) (bool, error) {
 	q := "SELECT COUNT(id) FROM usergroup WHERE(user_id=$1 AND group_id=$2)"
-
+	emo.Query(q, userID, groupID)
 	var n int
 	err := db.Get(&n, q, userID, groupID)
 	exists := (n == 1)

@@ -34,7 +34,7 @@ func writeDevAdminToken(username, namespace string) error {
 	}
 	relpath := "/ui/.env.development.local"
 	filepath := dir + relpath
-	f, err := os.OpenFile(filepath, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0o644)
+	f, err := os.OpenFile(filepath, os.O_RDWR|os.O_CREATE|os.O_TRUNC, 0o644)
 	if err != nil {
 		log.Fatal(err)
 	}

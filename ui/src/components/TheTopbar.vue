@@ -18,7 +18,7 @@
       </template>
       <template #menu>
         <div class="flex flex-row items-center justify-end w-full h-full">
-          <the-current-namespace class="pr-3"></the-current-namespace>
+          <the-current-namespace class="pr-3" v-if="user.type.value == 'serverAdmin'"></the-current-namespace>
           <div class="pr-5 text-lg cursor-pointer txt-lighter dark:txt-light" @click="user.toggleDarkMode()">
             <i-fa-solid:moon v-if="!user.isDarkMode.value"></i-fa-solid:moon>
             <i-fa-solid:sun v-else></i-fa-solid:sun>
@@ -30,7 +30,7 @@
       </template>
     </sw-header>
     <sw-mobile-menu :is-visible="isMenuVisible">
-      <div class="flex flex-col p-3 space-y-5 pt-16">
+      <div class="flex flex-col p-3 pt-16 space-y-5">
         <router-link to="/namespaces" @click="closeMenu()">Namespaces</router-link>
         <div>
           <i-mdi:logout v-if="user.isLoggedIn" @click="logout()"></i-mdi:logout>

@@ -1,6 +1,7 @@
 import { requests } from "@/api";
 import UserContract from "./contract";
 import { UserTable } from "./interface";
+import { user } from "@/state";
 
 export default class User {
   id: number;
@@ -18,7 +19,7 @@ export default class User {
   }
 
   static async fetchAll(nsid: number): Promise<Array<UserTable>> {
-    const url = "/admin/users/nsall";
+    const url = user.adminUrl + "/users/nsall";
     const data = new Array<UserTable>();
     try {
       const payload = { namespace_id: nsid }
@@ -32,8 +33,10 @@ export default class User {
   }
 
   static async delete(id: number) {
-    await requests.post("/admin/users/delete", {
+    const url = user.adminUrl + "/users/delete";
+    await requests.post(url, {
       id: id,
+      namespace_id: user.namespace.value.id
     });
   }
 }

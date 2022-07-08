@@ -6,9 +6,9 @@ import (
 
 var emo = emolib.NewZone("tokens")
 
-// Init : init the db conf.
-func Init(isVerbose, isDev bool) {
-	if !isDev {
+// Init : init the token zone.
+func Init(isVerbose, isDev bool, isCmd bool) {
+	if !isDev && !isCmd {
 		emo.Print = isVerbose
 	}
 }

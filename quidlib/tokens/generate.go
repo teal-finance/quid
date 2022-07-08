@@ -72,7 +72,7 @@ func GenAdminAccessToken(namespaceName, timeout, maxTTL, userName string, userId
 		return "", err
 	}
 
-	emo.RefreshToken("Issued an admin refresh token for user", userName, "and namespace", namespaceName)
+	emo.AccessToken("Issued an admin access token for user", userName, "and namespace", namespaceName)
 	return token, nil
 }
 
@@ -103,6 +103,8 @@ func GenAccessToken(timeout, maxTTL, user string, groups, orgs []string, secretK
 		emo.EncryptError(err)
 		return "", err
 	}
+
+	emo.AccessToken("Issued an access token for user", user)
 
 	return token, nil
 }

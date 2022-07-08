@@ -4,20 +4,10 @@
   </div>
 </template>
 
-<script lang="ts">
-import { defineComponent } from "vue";
-import categories from "@/const/categories";
-
+<script setup lang="ts">
+import { user } from "@/state";
 import CardsGrid from "@/components/widgets/cards/CardsGrid.vue";
+import { serverAdminCategories, nsAdminCategories } from "@/const/categories";
 
-export default defineComponent({
-  components: {
-    CardsGrid,
-  },
-  setup() {
-    return {
-      categories,
-    };
-  },
-});
+const categories = user.type.value == "serverAdmin" ? serverAdminCategories : nsAdminCategories;
 </script>

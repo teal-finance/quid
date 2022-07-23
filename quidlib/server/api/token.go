@@ -13,26 +13,24 @@ import (
 )
 
 // RequestAccessToken : request an access token from a refresh token.
-func RequestAccessToken(c echo.Context) error {
+func RequestAccessToken(w http.ResponseWriter, r *http.Request) {
 	m := echo.Map{}
-	if err := c.Bind(&m); err != nil {
-		return err
-	}
+	//TODO if err := c.Bind(&m); err != nil {
+	//TODO 	return
+	//TODO }
 
 	refreshToken, ok := m["refresh_token"].(string)
 	if !ok {
 		emo.ParamError("provide a refresh_token parameter")
-		return c.JSON(http.StatusBadRequest, echo.Map{
-			"error": "provide a refresh_token parameter",
-		})
+		gw.WriteErr(w, r, http.StatusBadRequest, "provide a refresh_token parameter")
+		return
 	}
 
 	namespace, ok := m["namespace"].(string)
 	if !ok {
 		emo.ParamError("provide a namespace parameter")
-		return c.JSON(http.StatusBadRequest, echo.Map{
-			"error": "provide a namespace parameter",
-		})
+		gw.WriteErr(w, r, http.StatusBadRequest, "provide a namespace parameter")
+		return
 	}
 
 	timeout := c.Param("timeout")
@@ -41,24 +39,21 @@ func RequestAccessToken(c echo.Context) error {
 	exists, ns, err := db.SelectNamespaceFromName(namespace)
 	if !exists {
 		emo.Warning("The namespace does not exist")
-		return c.JSON(http.StatusBadRequest, echo.Map{
-			"error": true,
-		})
+		w.WriteHeader(http.StatusBadRequest)
+		return
 	}
 	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
 		emo.Error(err)
 		log.Fatal(err)
-		return c.JSON(http.StatusInternalServerError, echo.Map{
-			"error": true,
-		})
+		return
 	}
 
 	// check if the endpoint is available
 	if !ns.PublicEndpointEnabled {
 		emo.Warning("Public endpoint unauthorized")
-		return c.JSON(http.StatusUnauthorized, echo.Map{
-			"error": "unauthorized",
-		})
+		gw.WriteErr(w, r, http.StatusUnauthorized, "unauthorized")
+		return
 	}
 
 	// verify the refresh token
@@ -75,68 +70,63 @@ func RequestAccessToken(c echo.Context) error {
 		fmt.Printf("%v %v", claims.UserName, claims.ExpiresAt)
 	} else {
 		emo.Warning(err.Error())
-		return c.JSON(http.StatusUnauthorized, echo.Map{
-			"error": "unauthorized",
-		})
+		gw.WriteErr(w, r, http.StatusUnauthorized, "unauthorized")
+		return
 	}
 
 	// get the user
 	found, u, err := db.SelectNonDisabledUser(username, ns.ID)
 	if !found {
 		emo.Warning("User not found: " + username)
-		return c.JSON(http.StatusUnauthorized, echo.Map{
-			"error": "unauthorized",
-		})
+		gw.WriteErr(w, r, http.StatusUnauthorized, "unauthorized")
+		return
 	}
 	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
 		log.Fatal(err)
-		return c.JSON(http.StatusInternalServerError, echo.Map{
-			"error": true,
-		})
+		return
 	}
 
 	// get the user groups names
 	groupNames, err := db.SelectGroupsNamesForUser(u.ID)
 	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
 		emo.Error("Groups error")
 		log.Fatal(err)
-		return err
+		return
 	}
 
 	// get the user orgs names
 	orgsNames, err := db.SelectOrgsNamesForUser(u.ID)
 	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
 		emo.Error("Groups error")
 		log.Fatal(err)
-		return err
+		return
 	}
 
 	// generate the access token
 	t, err := tokens.GenAccessToken(timeout, ns.MaxTokenTTL, u.Name, groupNames, orgsNames, []byte(ns.Key))
 	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
 		log.Fatal(err)
-		return c.JSON(http.StatusInternalServerError, echo.Map{
-			"error": true,
-		})
+		return
 	}
 	if t == "" {
 		emo.Warning("Timeout unauthorized")
-		return c.JSON(http.StatusUnauthorized, echo.Map{
-			"error": "unauthorized",
-		})
+		gw.WriteErr(w, r, http.StatusUnauthorized, "error", "unauthorized")
+		return
 	}
 
-	return c.JSON(http.StatusOK, echo.Map{
-		"token": t,
-	})
+	gw.WriteOK(w, r, http.StatusOK, "token", t)
 }
 
 // RequestRefreshToken : http login handler.
-func RequestRefreshToken(c echo.Context) error {
+func RequestRefreshToken(w http.ResponseWriter, r *http.Request) {
 	m := echo.Map{}
-	if err := c.Bind(&m); err != nil {
-		return err
-	}
+	//TODO if err := c.Bind(&m); err != nil {
+	//TODO 	return
+	//TODO }
 
 	// username
 	usernameParam, ok := m["username"]
@@ -144,9 +134,8 @@ func RequestRefreshToken(c echo.Context) error {
 	if ok {
 		username = usernameParam.(string)
 	} else {
-		return c.JSON(http.StatusBadRequest, echo.Map{
-			"error": "provide a username",
-		})
+		gw.WriteErr(w, r, http.StatusBadRequest, "provide a username")
+		return
 	}
 
 	// password
@@ -155,9 +144,8 @@ func RequestRefreshToken(c echo.Context) error {
 	if ok {
 		password = passwordParam.(string)
 	} else {
-		return c.JSON(http.StatusBadRequest, echo.Map{
-			"error": "provide a password",
-		})
+		gw.WriteErr(w, r, http.StatusBadRequest, "provide a password")
+		return
 	}
 
 	// namespace
@@ -166,9 +154,8 @@ func RequestRefreshToken(c echo.Context) error {
 	if ok {
 		namespace = nsParam.(string)
 	} else {
-		return c.JSON(http.StatusBadRequest, echo.Map{
-			"error": "provide a namespace",
-		})
+		gw.WriteErr(w, r, http.StatusBadRequest, "provide a namespace")
+		return
 	}
 
 	// timeout
@@ -177,39 +164,36 @@ func RequestRefreshToken(c echo.Context) error {
 	// get the namespace
 	exists, ns, err := db.SelectNamespaceFromName(namespace)
 	if err != nil {
-		return err
+		w.WriteHeader(http.StatusInternalServerError)
+		return
 	}
 	if !exists {
-		return c.JSON(http.StatusBadRequest, echo.Map{
-			"error": "namespace does not exist",
-		})
+		gw.WriteErr(w, r, http.StatusBadRequest, "namespace does not exist")
+		return
 	}
 	if !ns.PublicEndpointEnabled {
-		return c.JSON(http.StatusUnauthorized, echo.Map{
-			"error": "unauthorized",
-		})
+		gw.WriteErr(w, r, http.StatusUnauthorized, "unauthorized")
+		return
 	}
 
 	// check if the endpoint is available
 	if !ns.PublicEndpointEnabled {
 		emo.Warning("Public endpoint unauthorized")
-		return c.JSON(http.StatusUnauthorized, echo.Map{
-			"error": "unauthorized",
-		})
+		gw.WriteErr(w, r, http.StatusUnauthorized, "unauthorized")
+		return
 	}
 
 	// check if the user password matches
 	isAuthorized, u, err := checkUserPassword(username, password, ns.ID)
 	if err != nil {
-		return err
+		return
 	}
 
 	// Respond with unauthorized status
 	if !isAuthorized {
 		fmt.Println(username, "unauthorized")
-		return c.JSON(http.StatusUnauthorized, echo.Map{
-			"error": "unauthorized",
-		})
+		gw.WriteErr(w, r, http.StatusUnauthorized, "unauthorized")
+		return
 	}
 
 	// generate the token
@@ -218,12 +202,9 @@ func RequestRefreshToken(c echo.Context) error {
 		log.Fatal(err)
 	}
 	if t == "" {
-		return c.JSON(http.StatusUnauthorized, echo.Map{
-			"error": "max timeout exceeded",
-		})
+		gw.WriteErr(w, r, http.StatusUnauthorized, "max timeout exceeded")
+		return 
 	}
 
-	return c.JSON(http.StatusOK, echo.Map{
-		"token": t,
-	})
+	gw.WriteOK(w, r, http.StatusOK, "token", t)
 }

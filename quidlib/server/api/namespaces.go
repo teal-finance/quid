@@ -11,23 +11,21 @@ import (
 )
 
 // AllNamespaces : get all namespaces.
-func AllNamespaces(c echo.Context) error {
+func AllNamespaces(w http.ResponseWriter, r *http.Request) {
 	data, err := db.SelectAllNamespaces()
 	if err != nil {
 		emo.QueryError(err)
-		return c.JSON(http.StatusInternalServerError, echo.Map{
-			"error": "error selecting namespaces",
-		})
+		return gw.WriteErr(w, r, http.StatusInternalServerError, "error selecting namespaces")
 	}
-	return c.JSON(http.StatusOK, &data)
+	return gw.WriteErr(w, r, http.StatusOK, &data)
 }
 
 // SetNamespaceRefreshTokenMaxTTL : set a max refresh token ttl for a namespace.
-func SetNamespaceRefreshTokenMaxTTL(c echo.Context) error {
+func SetNamespaceRefreshTokenMaxTTL(w http.ResponseWriter, r *http.Request) {
 	m := echo.Map{}
-	if err := c.Bind(&m); err != nil {
-		return err
-	}
+	//TODO if err := c.Bind(&m); err != nil {
+	//TODO 	return
+	//TODO }
 
 	id := int64(m["id"].(float64))
 	refreshMxTTL := m["refresh_max_ttl"].(string)
@@ -35,22 +33,18 @@ func SetNamespaceRefreshTokenMaxTTL(c echo.Context) error {
 	err := db.UpdateNamespaceRefreshTokenMaxTTL(id, refreshMxTTL)
 	if err != nil {
 		emo.QueryError(err)
-		return c.JSON(http.StatusInternalServerError, echo.Map{
-			"error": "error updating tokens max ttl in namespace",
-		})
+		return gw.WriteErr(w, r, http.StatusInternalServerError, "error updating tokens max ttl in namespace")
 	}
 
-	return c.JSON(http.StatusOK, echo.Map{
-		"ok": true,
-	})
+	w.WriteHeader(http.StatusOK)
 }
 
 // SetNamespaceTokenMaxTTL : set a max access token ttl for a namespace.
-func SetNamespaceTokenMaxTTL(c echo.Context) error {
+func SetNamespaceTokenMaxTTL(w http.ResponseWriter, r *http.Request) {
 	m := echo.Map{}
-	if err := c.Bind(&m); err != nil {
-		return err
-	}
+	//TODO if err := c.Bind(&m); err != nil {
+	//TODO 	return
+	//TODO }
 
 	id := int64(m["id"].(float64))
 	ttl := m["max_ttl"].(string)
@@ -58,39 +52,33 @@ func SetNamespaceTokenMaxTTL(c echo.Context) error {
 	err := db.UpdateNamespaceTokenMaxTTL(id, ttl)
 	if err != nil {
 		emo.QueryError(err)
-		return c.JSON(http.StatusInternalServerError, echo.Map{
-			"error": "error updating tokens max ttl in namespace",
-		})
+		return gw.WriteErr(w, r, http.StatusInternalServerError, "error updating tokens max ttl in namespace")
 	}
 
-	return c.JSON(http.StatusOK, echo.Map{
-		"ok": true,
-	})
+	w.WriteHeader(http.StatusOK)
 }
 
 // NamespaceInfo : info about a namespace.
-func NamespaceInfo(c echo.Context) error {
+func NamespaceInfo(w http.ResponseWriter, r *http.Request) {
 	m := echo.Map{}
-	if err := c.Bind(&m); err != nil {
-		return err
-	}
+	//TODO if err := c.Bind(&m); err != nil {
+	//TODO 	return
+	//TODO }
 
 	id := int64(m["id"].(float64))
 
 	nu, err := db.CountUsersForNamespace(id)
 	if err != nil {
 		emo.QueryError(err)
-		return c.JSON(http.StatusInternalServerError, echo.Map{
-			"error": "error counting users in namespace",
-		})
+		 gw.WriteErr(w, r, http.StatusInternalServerError, "error counting users in namespace")
+		 return
 	}
 
 	g, err := db.SelectGroupsForNamespace(id)
 	if err != nil {
 		emo.QueryError(err)
-		return c.JSON(http.StatusInternalServerError, echo.Map{
-			"error": "error counting users in namespace",
-		})
+		gw.WriteErr(w, r, http.StatusInternalServerError, "error counting users in namespace")
+		return 
 	}
 
 	data := server.NamespaceInfo{
@@ -98,62 +86,57 @@ func NamespaceInfo(c echo.Context) error {
 		Groups:   g,
 	}
 
-	return c.JSON(http.StatusOK, &data)
+	gw.WriteOK(w, r, http.StatusOK, &data)
 }
 
 // GetNamespaceKey : get the key for a namespace.
-func GetNamespaceKey(c echo.Context) error {
+func GetNamespaceKey(w http.ResponseWriter, r *http.Request) {
 	m := echo.Map{}
-	if err := c.Bind(&m); err != nil {
-		return err
-	}
+	//TODO if err := c.Bind(&m); err != nil {
+	//TODO 	return
+	//TODO }
 
 	id := int64(m["id"].(float64))
 
 	found, data, err := db.SelectNamespaceKey(id)
 	if err != nil {
 		emo.QueryError(err)
-		return c.JSON(http.StatusInternalServerError, echo.Map{
-			"error": "error finding namespace key",
-		})
+		gw.WriteErr(w, r, http.StatusInternalServerError, "error finding namespace key")
+		return 
 	}
 	if !found {
-		return c.JSON(http.StatusBadRequest, echo.Map{
-			"error": "namespace not found",
-		})
+		 gw.WriteErr(w, r, http.StatusBadRequest, "namespace not found")
+		 return
 	}
 
-	return c.JSON(http.StatusOK, echo.Map{
-		"key": data,
-	})
+	gw.WriteOK(w, "key", data)
 }
 
 // FindNamespace : namespace creation http handler.
-func FindNamespace(c echo.Context) error {
+func FindNamespace(w http.ResponseWriter, r *http.Request) {
 	m := echo.Map{}
-	if err := c.Bind(&m); err != nil {
-		return err
-	}
+	//TODO if err := c.Bind(&m); err != nil {
+	//TODO 	return
+	//TODO }
 
 	name := m["name"].(string)
 
 	data, err := db.SelectNamespaceStartsWith(name)
 	if err != nil {
 		emo.QueryError(err)
-		return c.JSON(http.StatusInternalServerError, echo.Map{
-			"error": "error finding namespace",
-		})
+		 gw.WriteErr(w, r, http.StatusInternalServerError, "error finding namespace")
+		 return
 	}
 
-	return c.JSON(http.StatusOK, &data)
+	gw.WriteErr(w, r, http.StatusOK, &data)
 }
 
 // DeleteNamespace : namespace creation http handler.
-func DeleteNamespace(c echo.Context) error {
+func DeleteNamespace(w http.ResponseWriter, r *http.Request) {
 	m := echo.Map{}
-	if err := c.Bind(&m); err != nil {
-		return err
-	}
+	//TODO if err := c.Bind(&m); err != nil {
+	//TODO 	return
+	//TODO }
 
 	id := int64(m["id"].(float64))
 
@@ -161,46 +144,41 @@ func DeleteNamespace(c echo.Context) error {
 	if qRes.HasError {
 		emo.QueryError(qRes.Error.Message)
 		if qRes.Error.HasUserMessage {
-			return c.JSON(http.StatusConflict, echo.Map{
-				"error": "error deleting namespace: " + qRes.Error.Message,
-			})
+			 gw.WriteErr(w, r, http.StatusConflict, "error deleting namespace: " + qRes.Error.Message)
+			 return
 		}
-		return c.NoContent(http.StatusInternalServerError)
+		w.WriteHeader(http.StatusInternalServerError)
+		return 
 	}
 
-	return c.JSON(http.StatusOK, echo.Map{
-		"message": "ok",
-	})
+	w.WriteHeader(http.StatusOK)
 }
 
 // SetNamespaceEndpointAvailability :.
-func SetNamespaceEndpointAvailability(c echo.Context) error {
+func SetNamespaceEndpointAvailability(w http.ResponseWriter, r *http.Request) {
 	m := echo.Map{}
-	if err := c.Bind(&m); err != nil {
-		return err
-	}
+	//TODO if err := c.Bind(&m); err != nil {
+	//TODO 	return
+	//TODO }
 
 	id := int64(m["id"].(float64))
 	enable := m["enable"].(bool)
 
 	err := db.SetNamespaceEndpointAvailability(id, enable)
 	if err != nil {
-		return c.JSON(http.StatusConflict, echo.Map{
-			"error": "error updating namespace",
-		})
+		 gw.WriteErr(w, r, http.StatusConflict, "error updating namespace")
+		return
 	}
 
-	return c.JSON(http.StatusOK, echo.Map{
-		"message": "ok",
-	})
+	w.WriteHeader(http.StatusOK)
 }
 
 // CreateNamespace : namespace creation http handler.
-func CreateNamespace(c echo.Context) error {
+func CreateNamespace(w http.ResponseWriter, r *http.Request) {
 	m := echo.Map{}
-	if err := c.Bind(&m); err != nil {
-		return err
-	}
+	//TODO if err := c.Bind(&m); err != nil {
+	//TODO 	return
+	//TODO }
 
 	name := m["name"].(string)
 	maxTTL := m["max_ttl"].(string)
@@ -211,19 +189,15 @@ func CreateNamespace(c echo.Context) error {
 
 	nsID, exists, err := createNamespace(name, key, refreshKey, maxTTL, refreshMaxTTL, enableEndpoint)
 	if err != nil {
-		return c.JSON(http.StatusInternalServerError, echo.Map{
-			"error": "error creating namespace",
-		})
+		gw.WriteErr(w, r, http.StatusInternalServerError, "error creating namespace")
+		return 
 	}
 	if exists {
-		return c.JSON(http.StatusConflict, echo.Map{
-			"error": "namespace already exists",
-		})
+		gw.WriteErr(w, r, http.StatusConflict, "namespace already exists")
+		return 
 	}
 
-	return c.JSON(http.StatusOK, echo.Map{
-		"namespace_id": nsID,
-	})
+	gw.WriteOK(w, "namespace_id", nsID)
 }
 
 // createNamespace : create a namespace.

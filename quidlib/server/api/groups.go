@@ -1,6 +1,7 @@
 package api
 
 import (
+	"encoding/json"
 	"net/http"
 
 	"github.com/labstack/echo/v4"
@@ -10,120 +11,125 @@ import (
 )
 
 // AllGroupsForNamespace : get all groups for a namespace http handler.
-func AllGroupsForNamespace(c echo.Context) error {
+func AllGroupsForNamespace(w http.ResponseWriter, r *http.Request) {
 	m := echo.Map{}
-	if err := c.Bind(&m); err != nil {
-		return err
-	}
+	//TODO if err := c.Bind(&m); err != nil {
+	//TODO 	return
+	//TODO }
 
 	nsID := int64(m["namespace_id"].(float64))
 
 	if !VerifyAdminNs(c, nsID) {
-		return c.NoContent(http.StatusUnauthorized)
+		w.WriteHeader(http.StatusUnauthorized)
+		return
 	}
 
 	data, err := db.SelectGroupsForNamespace(nsID)
 	if err != nil {
-		return c.JSON(http.StatusConflict, echo.Map{
-			"error": "error selecting groups",
-		})
+		gw.WriteErr(w, r, http.StatusConflict, "error selecting groups")
+		return
 	}
 
-	return c.JSON(http.StatusOK, &data)
+	b, err := json.Marshal(&data)
+	if err != nil {
+		emo.Error("%v while serializing %v", err, data)
+		w.WriteHeader(http.StatusInternalServerError)
+	}
+
+	w.WriteHeader(http.StatusOK)
+	_, _ = w.Write(b)
 }
 
 // AllGroups : get all groups for a namespace http handler.
-func AllGroups(c echo.Context) error {
+func AllGroups(w http.ResponseWriter, r *http.Request) {
 	data, err := db.SelectAllGroups()
 	if err != nil {
-		return c.JSON(http.StatusConflict, echo.Map{
-			"error": "error selecting groups",
-		})
+		gw.WriteErr(w, r, http.StatusConflict, "error selecting groups")
 	}
 
-	return c.JSON(http.StatusOK, &data)
+	b, err := json.Marshal(&data)
+	if err != nil {
+		emo.Error("%v while serializing %v", err, data)
+		w.WriteHeader(http.StatusInternalServerError)
+	}
+
+	w.WriteHeader(http.StatusOK)
+	_, _ = w.Write(b)
 }
 
 // GroupsInfo : group creation http handler.
-func GroupsInfo(c echo.Context) error {
+func GroupsInfo(w http.ResponseWriter, r *http.Request) {
 	m := echo.Map{}
-	if err := c.Bind(&m); err != nil {
-		return err
-	}
+	//TODO if err := c.Bind(&m); err != nil {
+	//TODO 	return
+	//TODO }
 
 	id := int64(m["id"].(float64))
 	nsID := int64(m["namespace_id"].(float64))
 
 	if !VerifyAdminNs(c, nsID) {
-		return c.NoContent(http.StatusUnauthorized)
+		w.WriteHeader(http.StatusUnauthorized)
+		return
 	}
 
 	n, err := db.CountUsersInGroup(id)
 	if err != nil {
-		return c.JSON(http.StatusConflict, echo.Map{
-			"error": "error counting in group",
-		})
+		gw.WriteErr(w, r, http.StatusConflict, "error counting in group")
+		return
 	}
 
-	return c.JSON(http.StatusOK, echo.Map{
-		"num_users": n,
-	})
+	gw.WriteOK(w, "num_users", n)
 }
 
 // DeleteGroup : group deletion http handler.
-func DeleteGroup(c echo.Context) error {
+func DeleteGroup(w http.ResponseWriter, r *http.Request) {
 	m := echo.Map{}
-	if err := c.Bind(&m); err != nil {
-		return err
-	}
+	//TODO if err := c.Bind(&m); err != nil {
+	//TODO 	return
+	//TODO }
 
 	id := int64(m["id"].(float64))
 	nsID := int64(m["namespace_id"].(float64))
 
 	if !VerifyAdminNs(c, nsID) {
-		return c.NoContent(http.StatusUnauthorized)
+		w.WriteHeader(http.StatusUnauthorized)
+		return
 	}
 
 	if err := db.DeleteGroup(id); err != nil {
-		return c.JSON(http.StatusConflict, echo.Map{
-			"error": "error deleting group",
-		})
+		gw.WriteErr(w, r, http.StatusConflict, "error deleting group")
+		return
 	}
 
-	return c.JSON(http.StatusOK, echo.Map{
-		"message": "ok",
-	})
+	gw.WriteOK(w, r, http.StatusOK, "message", "ok")
 }
 
 // CreateGroup : group creation http handler.
-func CreateGroup(c echo.Context) error {
+func CreateGroup(w http.ResponseWriter, r *http.Request) {
 	m := echo.Map{}
-	if err := c.Bind(&m); err != nil {
-		return err
-	}
+	//TODO if err := c.Bind(&m); err != nil {
+	//TODO 	return
+	//TODO }
 
 	name := m["name"].(string)
 	nsID := int64(m["namespace_id"].(float64))
 
 	if !VerifyAdminNs(c, nsID) {
-		return c.NoContent(http.StatusUnauthorized)
+		w.WriteHeader(http.StatusUnauthorized)
+		return
 	}
 
 	ns, exists, err := createGroup(name, nsID)
 	if err != nil {
-		return c.JSON(http.StatusConflict, echo.Map{
-			"error": "error creating group",
-		})
+		gw.WriteErr(w, r, http.StatusConflict, "error creating group")
+		return
 	}
 	if exists {
-		return c.JSON(http.StatusConflict, echo.Map{
-			"error": "group already exists",
-		})
+		gw.WriteErr(w, r, http.StatusConflict, "group already exists")
+		return
 	}
 
-	return c.JSON(http.StatusOK, echo.Map{
-		"org_id": ns.ID,
-	})
+	gw.WriteOK(w, "org_id", ns.ID)
 }
 
 // createGroup : create a group.

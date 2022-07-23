@@ -4,16 +4,15 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/labstack/echo/v4"
-
 	"github.com/golang-jwt/jwt"
 	"github.com/labstack/echo-contrib/session"
+
 	"github.com/teal-finance/quid/quidlib/conf"
 	"github.com/teal-finance/quid/quidlib/server/db"
 	"github.com/teal-finance/quid/quidlib/tokens"
 )
 
-func VerifyAdminNs(c echo.Context, nsID int64) bool {
+func VerifyAdminNs(w http.ResponseWriter, r *http.Request, nsID int64) bool {
 	// check that the requested namespace operation
 	// matches the request ns admin permissions
 	isAdmin := c.Get("isAdmin").(bool)
@@ -30,36 +29,36 @@ func VerifyAdminNs(c echo.Context, nsID int64) bool {
 }
 
 // NsAdminMiddleware : check the token claim to see if the user is namespace admin.
-func NsAdminMiddleware(next echo.HandlerFunc) echo.HandlerFunc {
-	return func(c echo.Context) error {
+func NsAdminMiddleware(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		// check the access token to control that the user is admin
 		u, ok := c.Get("user").(*jwt.Token)
 		if !ok {
 			emo.Error("Wrong JWT type in context user: ", c.Get("user"))
 			log.Panicf("Wrong JWT type in context user: %T %v", c.Get("user"), c.Get("user"))
-			return c.JSON(http.StatusConflict, echo.Map{
-				"error": "Wrong JWT type in context user",
-			})
+			gw.WriteErr(w, r, http.StatusConflict, "Wrong JWT type in context user")
+			return
 		}
 
 		claims, ok := u.Claims.(*tokens.AdminAccessClaim)
 		if !ok {
 			emo.Error("Wrong AccessClaims type for claims: ", u.Claims)
 			log.Panic("Wrong AccessClaims type for claims: ", u.Claims)
-			return c.JSON(http.StatusConflict, echo.Map{
-				"error": "Wrong AccessClaims type for claims",
-			})
+			gw.WriteErr(w, r, http.StatusConflict, "Wrong AccessClaims type for claims")
+			return
 		}
 
 		emo.Data("Admin claims for", claims.Namespace, claims)
 
 		isAdmin, err := db.IsUserAdmin(claims.Namespace, claims.NsID, claims.UserID)
 		if err != nil {
-			return err
+			w.WriteHeader(http.StatusInternalServerError)
+			return
 		}
 		if !isAdmin {
 			emo.ParamError("The user "+claims.UserName+" is not nsadmin for namespace", claims.Namespace)
-			return c.NoContent(http.StatusUnauthorized)
+			w.WriteHeader(http.StatusUnauthorized)
+			return
 		}
 
 		c.Set("isAdmin", false)
@@ -68,15 +67,17 @@ func NsAdminMiddleware(next echo.HandlerFunc) echo.HandlerFunc {
 		// check session data in production
 		if conf.IsDevMode {
 			emo.RequestPost("Request ok from nsadmin middleware")
-			return next(c)
+			next.ServeHTTP(w, r)
+			return
 		}
 
 		sess, _ := session.Get("session", c)
 		if sess.Values["is_ns_admin"] == "true" {
-			return next(c)
+			next.ServeHTTP(w, r)
+			return
 		}
 
 		emo.Warning("Unauthorized session from nsadmin middleware")
-		return c.NoContent(http.StatusUnauthorized)
-	}
+		w.WriteHeader(http.StatusUnauthorized)
+	})
 }

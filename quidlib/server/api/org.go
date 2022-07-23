@@ -1,6 +1,7 @@
 package api
 
 import (
+	"encoding/json"
 	"net/http"
 
 	"github.com/labstack/echo/v4"
@@ -10,102 +11,104 @@ import (
 )
 
 // AllOrgs : get all orgs http handler.
-func AllOrgs(c echo.Context) error {
+func AllOrgs(w http.ResponseWriter, r *http.Request) {
 	data, err := db.SelectAllOrgs()
 	if err != nil {
-		return c.JSON(http.StatusConflict, echo.Map{
-			"error": "error selecting orgs",
-		})
+		gw.WriteErr(w, r, http.StatusConflict, "error selecting orgs")
+		return
 	}
 
-	return c.JSON(http.StatusOK, &data)
+	b, err := json.Marshal(&data)
+	if err != nil {
+		emo.Error("%v while serializing %v", err, data)
+		w.WriteHeader(http.StatusInternalServerError)
+	}
+
+	w.WriteHeader(http.StatusOK)
+	_, _ = w.Write(b)
 }
 
 // FindOrg : find an org from name.
-func FindOrg(c echo.Context) error {
+func FindOrg(w http.ResponseWriter, r *http.Request) {
 	m := echo.Map{}
-	if err := c.Bind(&m); err != nil {
-		return err
-	}
+	//TODO if err := c.Bind(&m); err != nil {
+	//TODO 	return
+	//TODO }
 
 	name := m["name"].(string)
 
 	data, err := db.SelectOrgStartsWith(name)
 	if err != nil {
 		emo.QueryError(err)
-		return c.JSON(http.StatusInternalServerError, echo.Map{
-			"error": "error finding org",
-		})
+		gw.WriteErr(w, r, http.StatusInternalServerError, "error finding org")
+		return 
 	}
 
-	return c.JSON(http.StatusOK, &data)
+	b, err := json.Marshal(&data)
+	if err != nil {
+		emo.Error("%v while serializing %v", err, data)
+		w.WriteHeader(http.StatusInternalServerError)
+	}
+
+   w.WriteHeader(http.StatusOK)
+	_, _ = w.Write(b)
 }
 
 // UserOrgsInfo : get orgs info for a user.
-func UserOrgsInfo(c echo.Context) error {
+func UserOrgsInfo(w http.ResponseWriter, r *http.Request) {
 	m := echo.Map{}
-	if err := c.Bind(&m); err != nil {
-		return err
-	}
+	//TODO if err := c.Bind(&m); err != nil {
+	//TODO 	return
+	//TODO }
 
 	id := int64(m["id"].(float64))
 
 	o, err := db.SelectOrgsForUser(id)
 	if err != nil {
-		return c.JSON(http.StatusInternalServerError, echo.Map{
-			"error": "error selecting orgs",
-		})
+		gw.WriteErr(w, r, http.StatusInternalServerError, "error selecting orgs")
+		return 
 	}
 
-	return c.JSON(http.StatusOK, echo.Map{
-		"orgs": o,
-	})
+	gw.WriteOK(w, "orgs", o)
 }
 
 // DeleteOrg : org deletion http handler.
-func DeleteOrg(c echo.Context) error {
+func DeleteOrg(w http.ResponseWriter, r *http.Request) {
 	m := echo.Map{}
-	if err := c.Bind(&m); err != nil {
-		return err
-	}
+	//TODO if err := c.Bind(&m); err != nil {
+	//TODO 	return
+	//TODO }
 
 	id := int64(m["id"].(float64))
 
 	if err := db.DeleteOrg(id); err != nil {
-		return c.JSON(http.StatusConflict, echo.Map{
-			"error": "error deleting org",
-		})
+		gw.WriteErr(w, r, http.StatusConflict, "error deleting org")
+		return 
 	}
 
-	return c.JSON(http.StatusOK, echo.Map{
-		"message": "ok",
-	})
+	gw.WriteOK(w, r, http.StatusOK, "message", "ok")
 }
 
 // CreateOrg : org creation http handler.
-func CreateOrg(c echo.Context) error {
+func CreateOrg(w http.ResponseWriter, r *http.Request) {
 	m := echo.Map{}
-	if err := c.Bind(&m); err != nil {
-		return err
-	}
+	//TODO if err := c.Bind(&m); err != nil {
+	//TODO 	return
+	//TODO }
 
 	name := m["name"].(string)
 
 	org, exists, err := createOrg(name)
 	if err != nil {
-		return c.JSON(http.StatusConflict, echo.Map{
-			"error": "error creating org",
-		})
+		gw.WriteErr(w, r, http.StatusConflict, "error creating org")
+		return 
 	}
 	if exists {
-		return c.JSON(http.StatusConflict, echo.Map{
-			"error": "org already exists",
-		})
+		gw.WriteErr(w, r, http.StatusConflict, "org already exists")
+		return 
 	}
 
-	return c.JSON(http.StatusOK, echo.Map{
-		"org_id": org.ID,
-	})
+	gw.WriteOK(w, "org_id", org.ID)
 }
 
 // createOrg : create an org.

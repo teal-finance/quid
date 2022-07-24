@@ -2,16 +2,16 @@ package api
 
 import (
 	"fmt"
+	"log"
 	"net/http"
+	"time"
 
 	color "github.com/acmacalister/skittles"
+	"github.com/go-chi/chi/v5"
 	"github.com/gorilla/sessions"
-	"github.com/labstack/echo-contrib/session"
-	"github.com/labstack/echo/v4"
-	"github.com/labstack/echo/v4/middleware"
 
+	"github.com/teal-finance/garcon"
 	"github.com/teal-finance/quid/quidlib/conf"
-	"github.com/teal-finance/quid/quidlib/tokens"
 )
 
 // SessionsStore : the session cookies store.
@@ -20,119 +20,156 @@ var SessionsStore = sessions.NewCookieStore([]byte(conf.EncodingKey))
 // AdminNsKey : store the Quid namespace key for admin
 var AdminNsKey = []byte("")
 
-var echoServer = echo.New()
-
 // RunServer : configure and run the server.
 func RunServer(adminNsKey, address string) {
 	AdminNsKey = []byte(adminNsKey)
-	echoServer.Use(middleware.Logger())
 
-	if !conf.IsDevMode {
-		echoServer.Use(middleware.Recover())
-		echoServer.Use(middleware.Secure())
+	//TODO echoServer.Use(middleware.Logger())
+	//TODO
+	//TODO if !conf.IsDevMode {
+	//TODO 	echoServer.Use(middleware.Recover())
+	//TODO 	echoServer.Use(middleware.Secure())
+	//TODO }
+	//TODO
+	//TODO echoServer.Use(middleware.CORSWithConfig(middleware.CORSConfig{
+	//TODO 	AllowOrigins:     []string{"*"},
+	//TODO 	AllowHeaders:     []string{echo.HeaderOrigin, echo.HeaderContentType, echo.HeaderAuthorization},
+	//TODO 	AllowMethods:     []string{http.MethodGet, http.MethodOptions, http.MethodPost, http.MethodDelete},
+	//TODO 	AllowCredentials: true,
+	//TODO }))
+
+	g, err := garcon.New(
+		garcon.WithURLs(address),
+		garcon.WithDocURL("/doc"),
+		garcon.WithServerHeader("Quid"),
+		garcon.WithJWT(adminNsKey, 0, true),
+		garcon.WithLimiter(20, 30),
+		garcon.WithProm(9193, address),
+		garcon.WithDev(conf.IsDevMode))
+	if err != nil {
+		log.Panic("garcon.New: ", err)
 	}
 
-	echoServer.Use(middleware.CORSWithConfig(middleware.CORSConfig{
-		AllowOrigins:     []string{"*"},
-		AllowHeaders:     []string{echo.HeaderOrigin, echo.HeaderContentType, echo.HeaderAuthorization},
-		AllowMethods:     []string{http.MethodGet, http.MethodOptions, http.MethodPost, http.MethodDelete},
-		AllowCredentials: true,
-	}))
+	r := chi.NewRouter()
 
-	echoServer.Use(session.MiddlewareWithConfig(session.Config{Store: SessionsStore}))
+	//TODO echoServer.Use(session.MiddlewareWithConfig(session.Config{Store: SessionsStore}))
 
 	// serve static files
-	echoServer.File("/", "ui/dist/index.html")
-	echoServer.File("/favicon.ico", "ui/dist/favicon.ico")
-	echoServer.Static("/assets", "ui/dist/assets")
-	echoServer.Static("/js", "ui/dist/js")
+	ws := garcon.NewStaticWebServer("ui/dist", g.Writer)
+	r.NotFound(ws.ServeFile("index.html", "text/html; charset=utf-8")) // catches index.html and other Vue sub-folders
+	r.Get("/favicon.ico", ws.ServeFile("favicon.ico", "image/x-icon"))
+	r.Get("/assets/*", ws.ServeAssets())
+	r.Get("/version", g.ServeVersion())
 
 	// HTTP Routes
 	// public routes
-	echoServer.POST("/token/refresh/:timeout", RequestRefreshToken)
-	echoServer.POST("/token/access/:timeout", RequestAccessToken)
-	echoServer.POST("/admin_login", AdminLogin)
-	echoServer.POST("/admin_token/access/", RequestAdminAccessToken)
+	r.Post("/token/refresh/{timeout}", RequestRefreshToken)
+	r.Post("/token/access/{timeout}", RequestAccessToken)
+	r.Post("/admin_login", AdminLogin)
+	r.Post("/admin_token/access/", RequestAdminAccessToken)
 
 	// admin routes
-	a := echoServer.Group("/admin")
+	r.Route("/admin", func(r chi.Router) {
+		//TODO a := echoServer.Group("/admin")
+		//TODO config := middleware.JWTConfig{
+		//TODO 	Claims:     &tokens.AdminAccessClaim{},
+		//TODO 	SigningKey: []byte(adminNsKey),
+		//TODO }
+		//TODO a.Use(middleware.JWTWithConfig(config))
+		//TODO a.Use(AdminMiddleware)
 
-	config := middleware.JWTConfig{
-		Claims:     &tokens.AdminAccessClaim{},
-		SigningKey: []byte(adminNsKey),
-	}
-	a.Use(middleware.JWTWithConfig(config))
-	a.Use(AdminMiddleware)
+		// HTTP API
+		r.Get("/logout", AdminLogout)
+		r.Route("/groups", func(r chi.Router) {
+			r.Post("/add", CreateGroup)
+			r.Post("/delete", DeleteGroup)
+			r.Post("/info", GroupsInfo)
+			r.Post("/add_user", AddUserInGroup)
+			r.Post("/remove_user", RemoveUserFromGroup)
+			// r.Get("/all", AllGroups) // TODO: remove when old frontend is disabled
+			r.Post("/nsall", AllGroupsForNamespace)
+		})
 
-	a.GET("/logout", AdminLogout)
-	g := a.Group("/groups")
-	g.POST("/add", CreateGroup)
-	g.POST("/delete", DeleteGroup)
-	g.POST("/info", GroupsInfo)
-	g.POST("/add_user", AddUserInGroup)
-	g.POST("/remove_user", RemoveUserFromGroup)
-	// g.GET("/all", AllGroups) // TODO: remove when old frontend is disabled
-	g.POST("/nsall", AllGroupsForNamespace)
+		r.Route("/users", func(r chi.Router) {
+			r.Post("/add", CreateUserHandler)
+			r.Post("/delete", DeleteUser)
+			r.Post("/groups", UserGroupsInfo)
+			r.Post("/orgs", UserOrgsInfo)
+			// r.Get("/all", AllUsers) // TODO: remove when old frontend is disabled
+			r.Post("/nsall", AllUsersInNamespace)
+			// r.Post("/search", SearchForUsersInNamespace)
+		})
 
-	m := a.Group("/users")
-	m.POST("/add", CreateUserHandler)
-	m.POST("/delete", DeleteUser)
-	m.POST("/groups", UserGroupsInfo)
-	m.POST("/orgs", UserOrgsInfo)
-	// m.GET("/all", AllUsers) // TODO: remove when old frontend is disabled
-	m.POST("/nsall", AllUsersInNamespace)
-	// m.POST("/search", SearchForUsersInNamespace)
+		r.Route("/namespaces", func(r chi.Router) {
+			r.Post("/add", CreateNamespace)
+			r.Post("/delete", DeleteNamespace)
+			r.Post("/find", FindNamespace)
+			r.Post("/info", NamespaceInfo)
+			r.Post("/key", GetNamespaceKey)
+			r.Post("/max-ttl", SetNamespaceTokenMaxTTL)
+			r.Post("/max-refresh-ttl", SetNamespaceRefreshTokenMaxTTL)
+			r.Post("/groups", GroupsForNamespace)
+			r.Post("/endpoint", SetNamespaceEndpointAvailability)
+			r.Get("/all", AllNamespaces)
+		})
 
-	ns := a.Group("/namespaces")
-	ns.POST("/add", CreateNamespace)
-	ns.POST("/delete", DeleteNamespace)
-	ns.POST("/find", FindNamespace)
-	ns.POST("/info", NamespaceInfo)
-	ns.POST("/key", GetNamespaceKey)
-	ns.POST("/max-ttl", SetNamespaceTokenMaxTTL)
-	ns.POST("/max-refresh-ttl", SetNamespaceRefreshTokenMaxTTL)
-	ns.POST("/groups", GroupsForNamespace)
-	ns.POST("/endpoint", SetNamespaceEndpointAvailability)
-	ns.GET("/all", AllNamespaces)
+		r.Route("/orgs", func(r chi.Router) {
+			r.Get("/all", AllOrgs)
+			r.Post("/add", CreateOrg)
+			r.Post("/delete", DeleteOrg)
+			r.Post("/find", FindOrg)
+			r.Post("/add_user", AddUserInOrg)
+			r.Post("/remove_user", RemoveUserFromOrg)
+		})
 
-	org := a.Group("/orgs")
-	org.GET("/all", AllOrgs)
-	org.POST("/add", CreateOrg)
-	org.POST("/delete", DeleteOrg)
-	org.POST("/find", FindOrg)
-	org.POST("/add_user", AddUserInOrg)
-	org.POST("/remove_user", RemoveUserFromOrg)
+		r.Route("/nsadmin", func(r chi.Router) {
+			r.Post("/add", CreateAdministrators)
+			r.Post("/nsall", AllAdministratorsInNamespace)
+			r.Post("/delete", DeleteAdministrator)
+			r.Post("/search/nonadmins", SearchForNonAdminUsersInNamespace)
+		})
 
-	nsa := a.Group("/nsadmin")
-	nsa.POST("/add", CreateAdministrators)
-	nsa.POST("/nsall", AllAdministratorsInNamespace)
-	nsa.POST("/delete", DeleteAdministrator)
-	nsa.POST("/search/nonadmins", SearchForNonAdminUsersInNamespace)
+		// Namespace admin endpoints
+		r.Route("/ns", func(r chi.Router) {
+			//TODO nsadm.Use(middleware.JWTWithConfig(config))
+			//TODO nsadm.Use(NsAdminMiddleware)
 
-	// Namespace admin endpoints
-	nsadm := echoServer.Group("/ns")
-	nsadm.Use(middleware.JWTWithConfig(config))
-	nsadm.Use(NsAdminMiddleware)
+			// nsadmin users
+			r.Route("/users", func(r chi.Router) {
+				r.Post("/add", CreateUserHandler)
+				r.Post("/delete", DeleteUser)
+				r.Post("/groups", UserGroupsInfo)
+				r.Post("/nsall", AllUsersInNamespace)
+			})
 
-	// nsadmin users
-	nsadmUsers := nsadm.Group("/users")
-	nsadmUsers.POST("/add", CreateUserHandler)
-	nsadmUsers.POST("/delete", DeleteUser)
-	nsadmUsers.POST("/groups", UserGroupsInfo)
-	nsadmUsers.POST("/nsall", AllUsersInNamespace)
+			// nsadmin groups
+			r.Route("/groups", func(r chi.Router) {
+				r.Post("/add", CreateGroup)
+				r.Post("/delete", DeleteGroup)
+				r.Post("/info", GroupsInfo)
+				r.Post("/add_user", AddUserInGroup)
+				r.Post("/remove_user", RemoveUserFromGroup)
+				r.Post("/nsall", AllGroupsForNamespace)
+			})
+		})
 
-	// nsadmin groups
-	nsadmGroups := nsadm.Group("/groups")
-	nsadmGroups.POST("/add", CreateGroup)
-	nsadmGroups.POST("/delete", DeleteGroup)
-	nsadmGroups.POST("/info", GroupsInfo)
-	nsadmGroups.POST("/add_user", AddUserInGroup)
-	nsadmGroups.POST("/remove_user", RemoveUserFromGroup)
-	nsadmGroups.POST("/nsall", AllGroupsForNamespace)
+	})
 
 	if conf.IsDevMode {
 		fmt.Println(color.BoldRed("Running in development mode"))
 	}
 
-	echoServer.Logger.Fatal(echoServer.Start(address))
+	server := http.Server{
+		Addr:              address,
+		Handler:           g.Middlewares.Then(r),
+		ReadTimeout:       time.Second,
+		ReadHeaderTimeout: time.Second,
+		WriteTimeout:      time.Minute, // Garcon.Limiter postpones response, attacker should wait long time.
+		IdleTimeout:       time.Second,
+		ConnState:         g.ConnState,
+		ErrorLog:          log.Default(),
+	}
+
+	log.Print("Server listening on http://localhost", server.Addr)
+	log.Fatal(server.ListenAndServe())
 }

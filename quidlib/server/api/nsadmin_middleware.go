@@ -29,7 +29,7 @@ func VerifyAdminNs(c echo.Context, nsID int64) bool {
 	return false
 }
 
-// NsAdminMiddleware : check the token claim to see if the user is namespaace admin.
+// NsAdminMiddleware : check the token claim to see if the user is namespace admin.
 func NsAdminMiddleware(next echo.HandlerFunc) echo.HandlerFunc {
 	return func(c echo.Context) error {
 		// check the access token to control that the user is admin

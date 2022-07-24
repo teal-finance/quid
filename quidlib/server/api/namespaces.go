@@ -15,9 +15,11 @@ func AllNamespaces(w http.ResponseWriter, r *http.Request) {
 	data, err := db.SelectAllNamespaces()
 	if err != nil {
 		emo.QueryError(err)
-		return gw.WriteErr(w, r, http.StatusInternalServerError, "error selecting namespaces")
+		gw.WriteErr(w, r, http.StatusInternalServerError, "error selecting namespaces")
+		return
 	}
-	return gw.WriteErr(w, r, http.StatusOK, &data)
+
+	gw.WriteOK(w, r, http.StatusOK, &data)
 }
 
 // SetNamespaceRefreshTokenMaxTTL : set a max refresh token ttl for a namespace.
@@ -33,7 +35,8 @@ func SetNamespaceRefreshTokenMaxTTL(w http.ResponseWriter, r *http.Request) {
 	err := db.UpdateNamespaceRefreshTokenMaxTTL(id, refreshMxTTL)
 	if err != nil {
 		emo.QueryError(err)
-		return gw.WriteErr(w, r, http.StatusInternalServerError, "error updating tokens max ttl in namespace")
+		gw.WriteErr(w, r, http.StatusInternalServerError, "error updating tokens max ttl in namespace")
+		return
 	}
 
 	w.WriteHeader(http.StatusOK)
@@ -52,7 +55,8 @@ func SetNamespaceTokenMaxTTL(w http.ResponseWriter, r *http.Request) {
 	err := db.UpdateNamespaceTokenMaxTTL(id, ttl)
 	if err != nil {
 		emo.QueryError(err)
-		return gw.WriteErr(w, r, http.StatusInternalServerError, "error updating tokens max ttl in namespace")
+		gw.WriteErr(w, r, http.StatusInternalServerError, "error updating tokens max ttl in namespace")
+		return
 	}
 
 	w.WriteHeader(http.StatusOK)
@@ -70,15 +74,15 @@ func NamespaceInfo(w http.ResponseWriter, r *http.Request) {
 	nu, err := db.CountUsersForNamespace(id)
 	if err != nil {
 		emo.QueryError(err)
-		 gw.WriteErr(w, r, http.StatusInternalServerError, "error counting users in namespace")
-		 return
+		gw.WriteErr(w, r, http.StatusInternalServerError, "error counting users in namespace")
+		return
 	}
 
 	g, err := db.SelectGroupsForNamespace(id)
 	if err != nil {
 		emo.QueryError(err)
 		gw.WriteErr(w, r, http.StatusInternalServerError, "error counting users in namespace")
-		return 
+		return
 	}
 
 	data := server.NamespaceInfo{
@@ -102,11 +106,11 @@ func GetNamespaceKey(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		emo.QueryError(err)
 		gw.WriteErr(w, r, http.StatusInternalServerError, "error finding namespace key")
-		return 
+		return
 	}
 	if !found {
-		 gw.WriteErr(w, r, http.StatusBadRequest, "namespace not found")
-		 return
+		gw.WriteErr(w, r, http.StatusBadRequest, "namespace not found")
+		return
 	}
 
 	gw.WriteOK(w, "key", data)
@@ -124,8 +128,8 @@ func FindNamespace(w http.ResponseWriter, r *http.Request) {
 	data, err := db.SelectNamespaceStartsWith(name)
 	if err != nil {
 		emo.QueryError(err)
-		 gw.WriteErr(w, r, http.StatusInternalServerError, "error finding namespace")
-		 return
+		gw.WriteErr(w, r, http.StatusInternalServerError, "error finding namespace")
+		return
 	}
 
 	gw.WriteErr(w, r, http.StatusOK, &data)
@@ -144,11 +148,11 @@ func DeleteNamespace(w http.ResponseWriter, r *http.Request) {
 	if qRes.HasError {
 		emo.QueryError(qRes.Error.Message)
 		if qRes.Error.HasUserMessage {
-			 gw.WriteErr(w, r, http.StatusConflict, "error deleting namespace: " + qRes.Error.Message)
-			 return
+			gw.WriteErr(w, r, http.StatusConflict, "error deleting namespace: "+qRes.Error.Message)
+			return
 		}
 		w.WriteHeader(http.StatusInternalServerError)
-		return 
+		return
 	}
 
 	w.WriteHeader(http.StatusOK)
@@ -166,7 +170,7 @@ func SetNamespaceEndpointAvailability(w http.ResponseWriter, r *http.Request) {
 
 	err := db.SetNamespaceEndpointAvailability(id, enable)
 	if err != nil {
-		 gw.WriteErr(w, r, http.StatusConflict, "error updating namespace")
+		gw.WriteErr(w, r, http.StatusConflict, "error updating namespace")
 		return
 	}
 
@@ -190,11 +194,11 @@ func CreateNamespace(w http.ResponseWriter, r *http.Request) {
 	nsID, exists, err := createNamespace(name, key, refreshKey, maxTTL, refreshMaxTTL, enableEndpoint)
 	if err != nil {
 		gw.WriteErr(w, r, http.StatusInternalServerError, "error creating namespace")
-		return 
+		return
 	}
 	if exists {
 		gw.WriteErr(w, r, http.StatusConflict, "namespace already exists")
-		return 
+		return
 	}
 
 	gw.WriteOK(w, "namespace_id", nsID)

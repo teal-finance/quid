@@ -5,6 +5,7 @@ import (
 	"log"
 	"net/http"
 
+	"github.com/go-chi/chi/v5"
 	"github.com/golang-jwt/jwt"
 	"github.com/labstack/echo/v4"
 
@@ -33,7 +34,7 @@ func RequestAccessToken(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	timeout := c.Param("timeout")
+	timeout := chi.URLParam(r, "timeout")
 
 	// get the namespace
 	exists, ns, err := db.SelectNamespaceFromName(namespace)
@@ -159,7 +160,7 @@ func RequestRefreshToken(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// timeout
-	timeout := c.Param("timeout")
+	timeout := chi.URLParam(r, "timeout")
 
 	// get the namespace
 	exists, ns, err := db.SelectNamespaceFromName(namespace)
@@ -203,7 +204,7 @@ func RequestRefreshToken(w http.ResponseWriter, r *http.Request) {
 	}
 	if t == "" {
 		gw.WriteErr(w, r, http.StatusUnauthorized, "max timeout exceeded")
-		return 
+		return
 	}
 
 	gw.WriteOK(w, r, http.StatusOK, "token", t)

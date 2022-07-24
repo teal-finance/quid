@@ -83,7 +83,7 @@ func AdminLogin(w http.ResponseWriter, r *http.Request) {
 		sess.Options.SameSite = http.SameSiteLaxMode
 	}
 
-	if err = sess.Save(c.Request(), c.Response()); err != nil {
+	if err = sess.Save(r, w); err != nil {
 		emo.Error("Error saving session", err)
 	}
 
@@ -113,7 +113,7 @@ func AdminLogout(w http.ResponseWriter, r *http.Request) {
 	sess, _ := session.Get("session", c)
 	sess.Values["is_admin"] = "false"
 
-	if err := sess.Save(c.Request(), c.Response()); err != nil {
+	if err := sess.Save(r, w); err != nil {
 		return
 	}
 

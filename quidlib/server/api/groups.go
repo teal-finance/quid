@@ -13,13 +13,13 @@ import (
 // AllGroupsForNamespace : get all groups for a namespace http handler.
 func AllGroupsForNamespace(w http.ResponseWriter, r *http.Request) {
 	m := echo.Map{}
-	//TODO if err := c.Bind(&m); err != nil {
-	//TODO 	return
-	//TODO }
+	if err := c.Bind(&m); err != nil {
+		return
+	}
 
 	nsID := int64(m["namespace_id"].(float64))
 
-	if !VerifyAdminNs(c, nsID) {
+	if !VerifyAdminNs(w, r, nsID) {
 		w.WriteHeader(http.StatusUnauthorized)
 		return
 	}
@@ -67,7 +67,7 @@ func GroupsInfo(w http.ResponseWriter, r *http.Request) {
 	id := int64(m["id"].(float64))
 	nsID := int64(m["namespace_id"].(float64))
 
-	if !VerifyAdminNs(c, nsID) {
+	if !VerifyAdminNs(w, r, nsID) {
 		w.WriteHeader(http.StatusUnauthorized)
 		return
 	}
@@ -91,7 +91,7 @@ func DeleteGroup(w http.ResponseWriter, r *http.Request) {
 	id := int64(m["id"].(float64))
 	nsID := int64(m["namespace_id"].(float64))
 
-	if !VerifyAdminNs(c, nsID) {
+	if !VerifyAdminNs(w, r, nsID) {
 		w.WriteHeader(http.StatusUnauthorized)
 		return
 	}
@@ -114,7 +114,7 @@ func CreateGroup(w http.ResponseWriter, r *http.Request) {
 	name := m["name"].(string)
 	nsID := int64(m["namespace_id"].(float64))
 
-	if !VerifyAdminNs(c, nsID) {
+	if !VerifyAdminNs(w, r, nsID) {
 		w.WriteHeader(http.StatusUnauthorized)
 		return
 	}

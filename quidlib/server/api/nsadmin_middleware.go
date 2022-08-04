@@ -15,16 +15,14 @@ import (
 func VerifyAdminNs(w http.ResponseWriter, r *http.Request, nsID int64) bool {
 	// check that the requested namespace operation
 	// matches the request ns admin permissions
-	isAdmin := c.Get("isAdmin").(bool)
-	adminNs := c.Get("isAdminForNs").(int64)
-	if isAdmin {
+	info := GetAdminInfoFromCtx(r)
+	if info.isAdmin {
 		return true
-	} else {
-		if adminNs == nsID {
-			return true
-		}
 	}
-	emo.ParamError("User is not nsadmin for namespace", nsID, "/", adminNs)
+	if info.namespaceID == nsID {
+		return true
+	}
+	emo.ParamError("User is not nsadmin for namespace", nsID, "!=", info.namespaceID)
 	return false
 }
 
@@ -61,8 +59,7 @@ func NsAdminMiddleware(next http.Handler) http.Handler {
 			return
 		}
 
-		c.Set("isAdmin", false)
-		c.Set("isAdminForNs", claims.NsID)
+		r = PutAdminInfoInCtx(r, false, claims.NsID)
 
 		// check session data in production
 		if conf.IsDevMode {

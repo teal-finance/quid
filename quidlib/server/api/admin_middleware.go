@@ -1,6 +1,7 @@
 package api
 
 import (
+	"context"
 	"log"
 	"net/http"
 
@@ -53,8 +54,7 @@ func AdminMiddleware(next http.Handler) http.Handler {
 			return
 		}
 
-		c.Set("isAdmin", true)
-		c.Set("isAdminForNs", 0)
+		r = PutAdminInfoInCtx(r, true, 0)
 
 		// check session data in production
 		if conf.IsDevMode {
@@ -71,4 +71,32 @@ func AdminMiddleware(next http.Handler) http.Handler {
 		emo.Warning("Unauthorized session from admin middleware")
 		w.WriteHeader(http.StatusUnauthorized)
 	})
+}
+
+// --------------------------------------
+// Read/write admin info to/from context
+
+//nolint:gochecknoglobals // adminKey is a Context key and need to be global
+var adminKey struct{}
+
+type AdminInfo struct {
+	isAdmin     bool
+	namespaceID int64
+}
+
+// GetAdminInfoFromCtx gets the admin information from the request context.
+func GetAdminInfoFromCtx(r *http.Request) AdminInfo {
+	info, ok := r.Context().Value(adminKey).(AdminInfo)
+	if !ok {
+		log.Print("WRN JWT: no permission in context ", r.URL.Path)
+	}
+	return info
+}
+
+// PutAdminInfoInCtx stores the admin information within the request context.
+func PutAdminInfoInCtx(r *http.Request, isAdmin bool, namespaceID int64) *http.Request {
+	info := AdminInfo{isAdmin, namespaceID}
+	parent := r.Context()
+	child := context.WithValue(parent, adminKey, info)
+	return r.WithContext(child)
 }

@@ -30,7 +30,7 @@ func AdminLogin(w http.ResponseWriter, r *http.Request) {
 	password := m.Password
 	namespace := m.Namespace
 
-	if p := garcon.Printables(username, password, namespace); p >= 0 {
+	if p := garcon.Printable(username, password, namespace); p >= 0 {
 		emo.Warning("JSON contains a forbidden character")
 		w.WriteHeader(http.StatusBadRequest)
 		return
@@ -137,7 +137,7 @@ func RequestAdminAccessToken(w http.ResponseWriter, r *http.Request) {
 	refreshToken := m.RefreshToken
 	nsName := m.Namespace
 
-	if p := garcon.Printables(refreshToken, nsName); p >= 0 {
+	if p := garcon.Printable(refreshToken, nsName); p >= 0 {
 		emo.Warning("JSON contains a forbidden character")
 		w.WriteHeader(http.StatusBadRequest)
 		return

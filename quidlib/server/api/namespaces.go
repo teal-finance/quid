@@ -222,7 +222,7 @@ func CreateNamespace(w http.ResponseWriter, r *http.Request) {
 	refreshMaxTTL := m.RefreshMaxTTL
 	enableEndpoint := m.EnableEndpoint
 
-	if p := garcon.Printables(name, maxTTL, refreshMaxTTL); p >= 0 {
+	if p := garcon.Printable(name, maxTTL, refreshMaxTTL); p >= 0 {
 		emo.Warning("JSON contains a forbidden character")
 		w.WriteHeader(http.StatusBadRequest)
 		return

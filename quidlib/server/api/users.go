@@ -236,7 +236,7 @@ func CreateUserHandler(w http.ResponseWriter, r *http.Request) {
 	password := m.Password
 	nsID := m.NamespaceID
 
-	if p := garcon.Printables(name, password); p >= 0 {
+	if p := garcon.Printable(name, password); p >= 0 {
 		emo.Warning("JSON contains a forbidden character")
 		w.WriteHeader(http.StatusBadRequest)
 		return

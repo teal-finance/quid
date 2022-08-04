@@ -7,30 +7,27 @@ import (
 
 	"github.com/go-chi/chi/v5"
 	"github.com/golang-jwt/jwt"
-	"github.com/labstack/echo/v4"
 
+	"github.com/teal-finance/garcon"
 	db "github.com/teal-finance/quid/quidlib/server/db"
 	"github.com/teal-finance/quid/quidlib/tokens"
 )
 
 // RequestAccessToken : request an access token from a refresh token.
 func RequestAccessToken(w http.ResponseWriter, r *http.Request) {
-	m := echo.Map{}
-	if err := c.Bind(&m); err != nil {
+	var m AccessTokenRequest
+	if err := garcon.DecodeJSONBody(r, &m); err != nil {
+		emo.Warning(err)
+		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
 
-	refreshToken, ok := m["refresh_token"].(string)
-	if !ok {
-		emo.ParamError("provide a refresh_token parameter")
-		gw.WriteErr(w, r, http.StatusBadRequest, "provide a refresh_token parameter")
-		return
-	}
+	refreshToken := m.RefreshToken
+	namespace := m.Namespace
 
-	namespace, ok := m["namespace"].(string)
-	if !ok {
-		emo.ParamError("provide a namespace parameter")
-		gw.WriteErr(w, r, http.StatusBadRequest, "provide a namespace parameter")
+	if p := garcon.Printables(refreshToken, namespace); p >= 0 {
+		emo.Warning("JSON contains a forbidden character")
+		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
 
@@ -124,38 +121,20 @@ func RequestAccessToken(w http.ResponseWriter, r *http.Request) {
 
 // RequestRefreshToken : http login handler.
 func RequestRefreshToken(w http.ResponseWriter, r *http.Request) {
-	m := echo.Map{}
-	if err := c.Bind(&m); err != nil {
+	var m PasswordRequest
+	if err := garcon.DecodeJSONBody(r, &m); err != nil {
+		emo.Warning(err)
+		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
 
-	// username
-	usernameParam, ok := m["username"]
-	var username string
-	if ok {
-		username = usernameParam.(string)
-	} else {
-		gw.WriteErr(w, r, http.StatusBadRequest, "provide a username")
-		return
-	}
+	username := m.Username
+	password := m.Password
+	namespace := m.Namespace
 
-	// password
-	passwordParam, ok := m["password"]
-	var password string
-	if ok {
-		password = passwordParam.(string)
-	} else {
-		gw.WriteErr(w, r, http.StatusBadRequest, "provide a password")
-		return
-	}
-
-	// namespace
-	nsParam, ok := m["namespace"]
-	var namespace string
-	if ok {
-		namespace = nsParam.(string)
-	} else {
-		gw.WriteErr(w, r, http.StatusBadRequest, "provide a namespace")
+	if p := garcon.Printables(username, password, namespace); p >= 0 {
+		emo.Warning("JSON contains a forbidden character")
+		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
 

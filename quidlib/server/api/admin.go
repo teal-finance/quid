@@ -8,7 +8,6 @@ import (
 	"github.com/golang-jwt/jwt"
 	"github.com/gorilla/sessions"
 	"github.com/labstack/echo-contrib/session"
-	"github.com/labstack/echo/v4"
 
 	"github.com/teal-finance/garcon"
 	"github.com/teal-finance/quid/quidlib/conf"
@@ -20,14 +19,22 @@ var gw garcon.Writer
 
 // AdminLogin : http login handler for the admin interface.
 func AdminLogin(w http.ResponseWriter, r *http.Request) {
-	m := echo.Map{}
-	if err := c.Bind(&m); err != nil {
+	var m PasswordRequest
+	if err := garcon.DecodeJSONBody(r, &m); err != nil {
+		emo.Warning(err)
+		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
 
-	username := m["username"].(string)
-	password := m["password"].(string)
-	namespace := m["namespace"].(string)
+	username := m.Username
+	password := m.Password
+	namespace := m.Namespace
+
+	if p := garcon.Printables(username, password, namespace); p >= 0 {
+		emo.Warning("JSON contains a forbidden character")
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
 
 	// get the namespace
 	exists, ns, err := db.SelectNamespaceFromName(namespace)
@@ -102,10 +109,7 @@ func AdminLogin(w http.ResponseWriter, r *http.Request) {
 
 	emo.Info("Admin user ", u.Name, " is connected")
 
-	gw.WriteErr(w, r, http.StatusOK, echo.Map{
-		"token":     token,
-		"namespace": ns,
-	})
+	gw.WriteErr(w, r, http.StatusOK, "token", token, "namespace", ns)
 }
 
 // AdminLogout : http logout handler for the admin interface.
@@ -123,19 +127,23 @@ func AdminLogout(w http.ResponseWriter, r *http.Request) {
 // RequestAdminAccessToken : request an access token from a refresh token
 // for a namespace.
 func RequestAdminAccessToken(w http.ResponseWriter, r *http.Request) {
-	m := echo.Map{}
-	if err := c.Bind(&m); err != nil {
+	var m AdminAccessTokenRequest
+	if err := garcon.DecodeJSONBody(r, &m); err != nil {
+		emo.Warning(err)
+		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
 
-	refreshToken, ok := m["refresh_token"].(string)
-	nsName := m["namespace"].(string)
-	emo.RefreshToken(nsName, refreshToken)
-	if !ok {
-		emo.ParamError("provide a refresh_token parameter")
-		gw.WriteErr(w, r, http.StatusBadRequest, "provide a refresh_token parameter")
+	refreshToken := m.RefreshToken
+	nsName := m.Namespace
+
+	if p := garcon.Printables(refreshToken, nsName); p >= 0 {
+		emo.Warning("JSON contains a forbidden character")
+		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
+
+	emo.RefreshToken(nsName, refreshToken)
 
 	// get the namespace
 	_, ns, err := db.SelectNamespaceFromName(nsName)

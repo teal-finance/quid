@@ -4,20 +4,22 @@ import (
 	"encoding/json"
 	"net/http"
 
-	"github.com/labstack/echo/v4"
 	_ "github.com/lib/pq"
 
+	"github.com/teal-finance/garcon"
 	"github.com/teal-finance/quid/quidlib/server/db"
 )
 
 // AllAdministratorsInNamespace : select all admin users for a namespace.
 func AllAdministratorsInNamespace(w http.ResponseWriter, r *http.Request) {
-	m := echo.Map{}
-	if err := c.Bind(&m); err != nil {
+	var m NamespaceIDRequest
+	if err := garcon.DecodeJSONBody(r, &m); err != nil {
+		emo.Warning(err)
+		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
 
-	nsID := int64(m["namespace_id"].(float64))
+	nsID := m.NamespaceID
 
 	data, err := db.SelectAdministratorsInNamespace(nsID)
 	if err != nil {
@@ -37,13 +39,21 @@ func AllAdministratorsInNamespace(w http.ResponseWriter, r *http.Request) {
 
 // SearchForNonAdminUsersInNamespace : search from a username in namespace
 func SearchForNonAdminUsersInNamespace(w http.ResponseWriter, r *http.Request) {
-	m := echo.Map{}
-	if err := c.Bind(&m); err != nil {
+	var m NonAdminUsersRequest
+	if err := garcon.DecodeJSONBody(r, &m); err != nil {
+		emo.Warning(err)
+		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
 
-	username := m["username"].(string)
-	nsID := int64(m["namespace_id"].(float64))
+	username := m.Username
+	nsID := m.NamespaceID
+
+	if p := garcon.Printable(username); p >= 0 {
+		emo.Warning("JSON contains a forbidden character")
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
 
 	u, err := db.SearchForNonAdminUsersInNamespace(nsID, username)
 	if err != nil {
@@ -56,17 +66,17 @@ func SearchForNonAdminUsersInNamespace(w http.ResponseWriter, r *http.Request) {
 
 // CreateUserAdministrators : create admin users handler.
 func CreateAdministrators(w http.ResponseWriter, r *http.Request) {
-	m := echo.Map{}
-	if err := c.Bind(&m); err != nil {
+	var m AdministratorsCreation
+	if err := garcon.DecodeJSONBody(r, &m); err != nil {
+		emo.Warning(err)
+		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
 
-	uIDs := m["user_ids"].([]any)
-	nsID := int64(m["namespace_id"].(float64))
+	uIDs := m.UserIDs
+	nsID := m.NamespaceID
 
-	for _, fuserID := range uIDs {
-		uID := int64(fuserID.(float64))
-
+	for _, uID := range uIDs {
 		// check if user exists
 		exists, err := db.AdministratorExists(nsID, uID)
 		if err != nil {
@@ -90,13 +100,15 @@ func CreateAdministrators(w http.ResponseWriter, r *http.Request) {
 
 // DeleteAdministrator : delete an admin user handler.
 func DeleteAdministrator(w http.ResponseWriter, r *http.Request) {
-	m := echo.Map{}
-	if err := c.Bind(&m); err != nil {
+	var m AdministratorDeletion
+	if err := garcon.DecodeJSONBody(r, &m); err != nil {
+		emo.Warning(err)
+		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
 
-	uID := int64(m["user_id"].(float64))
-	nsID := int64(m["namespace_id"].(float64))
+	uID := m.UserID
+	nsID := m.NamespaceID
 
 	err := db.DeleteAdministrator(uID, nsID)
 	if err != nil {

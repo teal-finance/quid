@@ -2,10 +2,16 @@ package api
 
 //go:generate go run github.com/mailru/easyjson/... -all -snake_case ${GOFILE}
 
-type LoginRequest struct {
+type PasswordRequest struct {
 	Username  string
 	Password  string
 	Namespace string
+}
+
+type UserHandlerCreation struct {
+	Name        string
+	Password    string
+	NamespaceID int64
 }
 
 type AdminAccessTokenRequest struct {
@@ -18,12 +24,16 @@ type GroupCreation struct {
 	NamespaceID int64
 }
 
-type NamespaceRefreshTokenMaxTTLRequest struct {
+type NamespaceIDRequest struct {
+	NamespaceID int64
+}
+
+type RefreshMaxTTLRequest struct {
 	ID            int64
 	RefreshMaxTTL string
 }
 
-type NamespaceTokenMaxTTLRequest struct {
+type MaxTTLRequest struct {
 	ID     int64
 	MaxTTL string
 }
@@ -68,12 +78,6 @@ type AccessTokenRequest struct {
 	Namespace    string
 }
 
-type RefreshTokenRequest struct {
-	Username  string
-	Password  string
-	Namespace string
-}
-
 type NamespaceRequest struct {
 	Namespace string
 }
@@ -91,11 +95,5 @@ type UserGroupRequest struct {
 
 type UserRequest struct {
 	ID          int64
-	NamespaceID int64
-}
-
-type UserHandlerCreation struct {
-	Name        string
-	Password    string
 	NamespaceID int64
 }

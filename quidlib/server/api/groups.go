@@ -4,20 +4,21 @@ import (
 	"encoding/json"
 	"net/http"
 
-	"github.com/labstack/echo/v4"
-
+	"github.com/teal-finance/garcon"
 	"github.com/teal-finance/quid/quidlib/server"
 	db "github.com/teal-finance/quid/quidlib/server/db"
 )
 
 // AllGroupsForNamespace : get all groups for a namespace http handler.
 func AllGroupsForNamespace(w http.ResponseWriter, r *http.Request) {
-	m := echo.Map{}
-	if err := c.Bind(&m); err != nil {
+	var m NamespaceIDRequest
+	if err := garcon.DecodeJSONBody(r, &m); err != nil {
+		emo.Warning(err)
+		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
 
-	nsID := int64(m["namespace_id"].(float64))
+	nsID := m.NamespaceID
 
 	if !VerifyAdminNs(w, r, nsID) {
 		w.WriteHeader(http.StatusUnauthorized)
@@ -59,13 +60,15 @@ func AllGroups(w http.ResponseWriter, r *http.Request) {
 
 // GroupsInfo : group creation http handler.
 func GroupsInfo(w http.ResponseWriter, r *http.Request) {
-	m := echo.Map{}
-	if err := c.Bind(&m); err != nil {
+	var m UserRequest
+	if err := garcon.DecodeJSONBody(r, &m); err != nil {
+		emo.Warning(err)
+		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
 
-	id := int64(m["id"].(float64))
-	nsID := int64(m["namespace_id"].(float64))
+	id := m.ID
+	nsID := m.NamespaceID
 
 	if !VerifyAdminNs(w, r, nsID) {
 		w.WriteHeader(http.StatusUnauthorized)
@@ -83,13 +86,15 @@ func GroupsInfo(w http.ResponseWriter, r *http.Request) {
 
 // DeleteGroup : group deletion http handler.
 func DeleteGroup(w http.ResponseWriter, r *http.Request) {
-	m := echo.Map{}
-	if err := c.Bind(&m); err != nil {
+	var m UserRequest
+	if err := garcon.DecodeJSONBody(r, &m); err != nil {
+		emo.Warning(err)
+		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
 
-	id := int64(m["id"].(float64))
-	nsID := int64(m["namespace_id"].(float64))
+	id := m.ID
+	nsID := m.NamespaceID
 
 	if !VerifyAdminNs(w, r, nsID) {
 		w.WriteHeader(http.StatusUnauthorized)
@@ -106,13 +111,21 @@ func DeleteGroup(w http.ResponseWriter, r *http.Request) {
 
 // CreateGroup : group creation http handler.
 func CreateGroup(w http.ResponseWriter, r *http.Request) {
-	m := echo.Map{}
-	if err := c.Bind(&m); err != nil {
+	var m GroupCreation
+	if err := garcon.DecodeJSONBody(r, &m); err != nil {
+		emo.Warning(err)
+		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
 
-	name := m["name"].(string)
-	nsID := int64(m["namespace_id"].(float64))
+	name := m.Name
+	nsID := m.NamespaceID
+
+	if p := garcon.Printable(name); p >= 0 {
+		emo.Warning("JSON contains a forbidden character")
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
 
 	if !VerifyAdminNs(w, r, nsID) {
 		w.WriteHeader(http.StatusUnauthorized)

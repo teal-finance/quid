@@ -7,19 +7,21 @@ import (
 
 	"golang.org/x/crypto/bcrypt"
 
-	"github.com/labstack/echo/v4"
+	"github.com/teal-finance/garcon"
 	"github.com/teal-finance/quid/quidlib/server"
 	db "github.com/teal-finance/quid/quidlib/server/db"
 )
 
 // AllUsersInNamespace : select all users for a namespace.
 func AllUsersInNamespace(w http.ResponseWriter, r *http.Request) {
-	m := echo.Map{}
-	if err := c.Bind(&m); err != nil {
+	var m NamespaceIDRequest
+	if err := garcon.DecodeJSONBody(r, &m); err != nil {
+		emo.Warning(err)
+		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
 
-	nsID := int64(m["namespace_id"].(float64))
+	nsID := m.NamespaceID
 
 	if !VerifyAdminNs(w, r, nsID) {
 		w.WriteHeader(http.StatusUnauthorized)
@@ -45,12 +47,20 @@ func AllUsersInNamespace(w http.ResponseWriter, r *http.Request) {
 
 // GroupsForNamespace : get the groups of a user.
 func GroupsForNamespace(w http.ResponseWriter, r *http.Request) {
-	m := echo.Map{}
-	if err := c.Bind(&m); err != nil {
+	var m NamespaceRequest
+	if err := garcon.DecodeJSONBody(r, &m); err != nil {
+		emo.Warning(err)
+		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
 
-	namespace := m["namespace"].(string)
+	namespace := m.Namespace
+
+	if p := garcon.Printable(namespace); p >= 0 {
+		emo.Warning("JSON contains a forbidden character")
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
 
 	hasResult, ns, err := db.SelectNamespaceFromName(namespace)
 	if err != nil || !hasResult {
@@ -68,13 +78,15 @@ func GroupsForNamespace(w http.ResponseWriter, r *http.Request) {
 
 // AddUserInOrg : add a user in an org.
 func AddUserInOrg(w http.ResponseWriter, r *http.Request) {
-	m := echo.Map{}
-	if err := c.Bind(&m); err != nil {
+	var m UserOrgRequest
+	if err := garcon.DecodeJSONBody(r, &m); err != nil {
+		emo.Warning(err)
+		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
 
-	uID := int64(m["user_id"].(float64))
-	oID := int64(m["org_id"].(float64))
+	uID := m.UserID
+	oID := m.OrgID
 
 	err := db.AddUserInOrg(uID, oID)
 	if err != nil {
@@ -87,13 +99,15 @@ func AddUserInOrg(w http.ResponseWriter, r *http.Request) {
 
 // RemoveUserFromOrg : add a user in an org.
 func RemoveUserFromOrg(w http.ResponseWriter, r *http.Request) {
-	m := echo.Map{}
-	if err := c.Bind(&m); err != nil {
+	var m UserOrgRequest
+	if err := garcon.DecodeJSONBody(r, &m); err != nil {
+		emo.Warning(err)
+		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
 
-	uID := int64(m["user_id"].(float64))
-	oID := int64(m["org_id"].(float64))
+	uID := m.UserID
+	oID := m.OrgID
 
 	err := db.RemoveUserFromOrg(uID, oID)
 	if err != nil {
@@ -106,14 +120,16 @@ func RemoveUserFromOrg(w http.ResponseWriter, r *http.Request) {
 
 // AddUserInGroup : add a user in a group.
 func AddUserInGroup(w http.ResponseWriter, r *http.Request) {
-	m := echo.Map{}
-	if err := c.Bind(&m); err != nil {
+	var m UserGroupRequest
+	if err := garcon.DecodeJSONBody(r, &m); err != nil {
+		emo.Warning(err)
+		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
 
-	uID := int64(m["user_id"].(float64))
-	gID := int64(m["group_id"].(float64))
-	nsID := int64(m["namespace_id"].(float64))
+	uID := m.UserID
+	gID := m.GroupID
+	nsID := m.NamespaceID
 
 	if !VerifyAdminNs(w, r, nsID) {
 		w.WriteHeader(http.StatusUnauthorized)
@@ -131,14 +147,16 @@ func AddUserInGroup(w http.ResponseWriter, r *http.Request) {
 
 // RemoveUserFromGroup : add a user in a group.
 func RemoveUserFromGroup(w http.ResponseWriter, r *http.Request) {
-	m := echo.Map{}
-	if err := c.Bind(&m); err != nil {
+	var m UserGroupRequest
+	if err := garcon.DecodeJSONBody(r, &m); err != nil {
+		emo.Warning(err)
+		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
 
-	uID := int64(m["user_id"].(float64))
-	gID := int64(m["group_id"].(float64))
-	nsID := int64(m["namespace_id"].(float64))
+	uID := m.UserID
+	gID := m.GroupID
+	nsID := m.NamespaceID
 
 	if !VerifyAdminNs(w, r, nsID) {
 		w.WriteHeader(http.StatusUnauthorized)
@@ -154,37 +172,17 @@ func RemoveUserFromGroup(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 }
 
-// SearchForUsersInNamespace : search from a username in namespace.
-/*func SearchForUsersInNamespace(w http.ResponseWriter, r *http.Request) {
-	m := echo.Map{}
-	if err := c.Bind(&m); err != nil {
-		return
-	}
-
-	fmt.Println("Search")
-	username := m["username"].(string)
-	nsID := int64(m["namespace_id"].(float64))
-	fmt.Println("U", username, "NS", nsID)
-
-	u, err := db.SearchUsersInNamespaceFromUsername(username, nsID)
-	if err != nil {
-		fmt.Println("ERR", err)
-		gw.WriteErr(w, r, http.StatusInternalServerError, "error searching for users")
-		return
-	}
-
-	gw.WriteOK(w, "users", u)
-}*/
-
 // UserGroupsInfo : get info for a user.
 func UserGroupsInfo(w http.ResponseWriter, r *http.Request) {
-	m := echo.Map{}
-	if err := c.Bind(&m); err != nil {
+	var m UserRequest
+	if err := garcon.DecodeJSONBody(r, &m); err != nil {
+		emo.Warning(err)
+		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
 
-	id := int64(m["id"].(float64))
-	nsID := int64(m["namespace_id"].(float64))
+	id := m.ID
+	nsID := m.NamespaceID
 
 	if !VerifyAdminNs(w, r, nsID) {
 		w.WriteHeader(http.StatusUnauthorized)
@@ -202,13 +200,15 @@ func UserGroupsInfo(w http.ResponseWriter, r *http.Request) {
 
 // DeleteUser : delete a user handler.
 func DeleteUser(w http.ResponseWriter, r *http.Request) {
-	m := echo.Map{}
-	if err := c.Bind(&m); err != nil {
+	var m UserRequest
+	if err := garcon.DecodeJSONBody(r, &m); err != nil {
+		emo.Warning(err)
+		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
 
-	id := int64(m["id"].(float64))
-	nsID := int64(m["namespace_id"].(float64))
+	id := m.ID
+	nsID := m.NamespaceID
 
 	if !VerifyAdminNs(w, r, nsID) {
 		w.WriteHeader(http.StatusUnauthorized)
@@ -225,14 +225,22 @@ func DeleteUser(w http.ResponseWriter, r *http.Request) {
 
 // CreateUserHandler : create a user handler.
 func CreateUserHandler(w http.ResponseWriter, r *http.Request) {
-	m := echo.Map{}
-	if err := c.Bind(&m); err != nil {
+	var m UserHandlerCreation
+	if err := garcon.DecodeJSONBody(r, &m); err != nil {
+		emo.Warning(err)
+		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
 
-	name := m["name"].(string)
-	password := m["password"].(string)
-	nsID := int64(m["namespace_id"].(float64))
+	name := m.Name
+	password := m.Password
+	nsID := m.NamespaceID
+
+	if p := garcon.Printables(name, password); p >= 0 {
+		emo.Warning("JSON contains a forbidden character")
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
 
 	if !VerifyAdminNs(w, r, nsID) {
 		w.WriteHeader(http.StatusUnauthorized)

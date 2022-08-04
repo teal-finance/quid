@@ -4,8 +4,7 @@ import (
 	"encoding/json"
 	"net/http"
 
-	"github.com/labstack/echo/v4"
-
+	"github.com/teal-finance/garcon"
 	"github.com/teal-finance/quid/quidlib/server"
 	db "github.com/teal-finance/quid/quidlib/server/db"
 )
@@ -30,12 +29,20 @@ func AllOrgs(w http.ResponseWriter, r *http.Request) {
 
 // FindOrg : find an org from name.
 func FindOrg(w http.ResponseWriter, r *http.Request) {
-	m := echo.Map{}
-	if err := c.Bind(&m); err != nil {
+	var m NameRequest
+	if err := garcon.DecodeJSONBody(r, &m); err != nil {
+		emo.Warning(err)
+		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
 
-	name := m["name"].(string)
+	name := m.Name
+
+	if p := garcon.Printable(name); p >= 0 {
+		emo.Warning("JSON contains a forbidden character")
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
 
 	data, err := db.SelectOrgStartsWith(name)
 	if err != nil {
@@ -56,12 +63,14 @@ func FindOrg(w http.ResponseWriter, r *http.Request) {
 
 // UserOrgsInfo : get orgs info for a user.
 func UserOrgsInfo(w http.ResponseWriter, r *http.Request) {
-	m := echo.Map{}
-	if err := c.Bind(&m); err != nil {
+	var m InfoRequest
+	if err := garcon.DecodeJSONBody(r, &m); err != nil {
+		emo.Warning(err)
+		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
 
-	id := int64(m["id"].(float64))
+	id := m.ID
 
 	o, err := db.SelectOrgsForUser(id)
 	if err != nil {
@@ -74,12 +83,14 @@ func UserOrgsInfo(w http.ResponseWriter, r *http.Request) {
 
 // DeleteOrg : org deletion http handler.
 func DeleteOrg(w http.ResponseWriter, r *http.Request) {
-	m := echo.Map{}
-	if err := c.Bind(&m); err != nil {
+	var m InfoRequest
+	if err := garcon.DecodeJSONBody(r, &m); err != nil {
+		emo.Warning(err)
+		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
 
-	id := int64(m["id"].(float64))
+	id := m.ID
 
 	if err := db.DeleteOrg(id); err != nil {
 		gw.WriteErr(w, r, http.StatusConflict, "error deleting org")
@@ -91,12 +102,20 @@ func DeleteOrg(w http.ResponseWriter, r *http.Request) {
 
 // CreateOrg : org creation http handler.
 func CreateOrg(w http.ResponseWriter, r *http.Request) {
-	m := echo.Map{}
-	if err := c.Bind(&m); err != nil {
+	var m NameRequest
+	if err := garcon.DecodeJSONBody(r, &m); err != nil {
+		emo.Warning(err)
+		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
 
-	name := m["name"].(string)
+	name := m.Name
+
+	if p := garcon.Printable(name); p >= 0 {
+		emo.Warning("JSON contains a forbidden character")
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
 
 	org, exists, err := createOrg(name)
 	if err != nil {

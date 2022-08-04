@@ -28,7 +28,7 @@ func easyjson11d1a9baDecodeGithubComTealFinanceQuidQuidlibServerApi(in *jlexer.L
 	}
 	in.Delim('{')
 	for !in.IsDelim('}') {
-		key := in.UnsafeFieldName(false)
+		key := in.UnsafeFieldName(true)
 		in.WantColon()
 		if in.IsNull() {
 			in.Skip()
@@ -41,7 +41,11 @@ func easyjson11d1a9baDecodeGithubComTealFinanceQuidQuidlibServerApi(in *jlexer.L
 		case "namespace_id":
 			out.NamespaceID = int64(in.Int64())
 		default:
-			in.SkipRecursive()
+			in.AddError(&jlexer.LexerError{
+				Offset: in.GetPos(),
+				Reason: "unknown field",
+				Data:   key,
+			})
 		}
 		in.WantComma()
 	}
@@ -101,7 +105,7 @@ func easyjson11d1a9baDecodeGithubComTealFinanceQuidQuidlibServerApi1(in *jlexer.
 	}
 	in.Delim('{')
 	for !in.IsDelim('}') {
-		key := in.UnsafeFieldName(false)
+		key := in.UnsafeFieldName(true)
 		in.WantColon()
 		if in.IsNull() {
 			in.Skip()
@@ -114,7 +118,11 @@ func easyjson11d1a9baDecodeGithubComTealFinanceQuidQuidlibServerApi1(in *jlexer.
 		case "org_id":
 			out.OrgID = int64(in.Int64())
 		default:
-			in.SkipRecursive()
+			in.AddError(&jlexer.LexerError{
+				Offset: in.GetPos(),
+				Reason: "unknown field",
+				Data:   key,
+			})
 		}
 		in.WantComma()
 	}
@@ -174,7 +182,7 @@ func easyjson11d1a9baDecodeGithubComTealFinanceQuidQuidlibServerApi2(in *jlexer.
 	}
 	in.Delim('{')
 	for !in.IsDelim('}') {
-		key := in.UnsafeFieldName(false)
+		key := in.UnsafeFieldName(true)
 		in.WantColon()
 		if in.IsNull() {
 			in.Skip()
@@ -189,7 +197,11 @@ func easyjson11d1a9baDecodeGithubComTealFinanceQuidQuidlibServerApi2(in *jlexer.
 		case "namespace_id":
 			out.NamespaceID = int64(in.Int64())
 		default:
-			in.SkipRecursive()
+			in.AddError(&jlexer.LexerError{
+				Offset: in.GetPos(),
+				Reason: "unknown field",
+				Data:   key,
+			})
 		}
 		in.WantComma()
 	}
@@ -254,7 +266,7 @@ func easyjson11d1a9baDecodeGithubComTealFinanceQuidQuidlibServerApi3(in *jlexer.
 	}
 	in.Delim('{')
 	for !in.IsDelim('}') {
-		key := in.UnsafeFieldName(false)
+		key := in.UnsafeFieldName(true)
 		in.WantColon()
 		if in.IsNull() {
 			in.Skip()
@@ -269,7 +281,11 @@ func easyjson11d1a9baDecodeGithubComTealFinanceQuidQuidlibServerApi3(in *jlexer.
 		case "namespace_id":
 			out.NamespaceID = int64(in.Int64())
 		default:
-			in.SkipRecursive()
+			in.AddError(&jlexer.LexerError{
+				Offset: in.GetPos(),
+				Reason: "unknown field",
+				Data:   key,
+			})
 		}
 		in.WantComma()
 	}
@@ -334,7 +350,7 @@ func easyjson11d1a9baDecodeGithubComTealFinanceQuidQuidlibServerApi4(in *jlexer.
 	}
 	in.Delim('{')
 	for !in.IsDelim('}') {
-		key := in.UnsafeFieldName(false)
+		key := in.UnsafeFieldName(true)
 		in.WantColon()
 		if in.IsNull() {
 			in.Skip()
@@ -347,7 +363,11 @@ func easyjson11d1a9baDecodeGithubComTealFinanceQuidQuidlibServerApi4(in *jlexer.
 		case "refresh_max_ttl":
 			out.RefreshMaxTTL = string(in.String())
 		default:
-			in.SkipRecursive()
+			in.AddError(&jlexer.LexerError{
+				Offset: in.GetPos(),
+				Reason: "unknown field",
+				Data:   key,
+			})
 		}
 		in.WantComma()
 	}
@@ -407,7 +427,7 @@ func easyjson11d1a9baDecodeGithubComTealFinanceQuidQuidlibServerApi5(in *jlexer.
 	}
 	in.Delim('{')
 	for !in.IsDelim('}') {
-		key := in.UnsafeFieldName(false)
+		key := in.UnsafeFieldName(true)
 		in.WantColon()
 		if in.IsNull() {
 			in.Skip()
@@ -422,7 +442,11 @@ func easyjson11d1a9baDecodeGithubComTealFinanceQuidQuidlibServerApi5(in *jlexer.
 		case "namespace":
 			out.Namespace = string(in.String())
 		default:
-			in.SkipRecursive()
+			in.AddError(&jlexer.LexerError{
+				Offset: in.GetPos(),
+				Reason: "unknown field",
+				Data:   key,
+			})
 		}
 		in.WantComma()
 	}
@@ -487,7 +511,7 @@ func easyjson11d1a9baDecodeGithubComTealFinanceQuidQuidlibServerApi6(in *jlexer.
 	}
 	in.Delim('{')
 	for !in.IsDelim('}') {
-		key := in.UnsafeFieldName(false)
+		key := in.UnsafeFieldName(true)
 		in.WantColon()
 		if in.IsNull() {
 			in.Skip()
@@ -500,7 +524,11 @@ func easyjson11d1a9baDecodeGithubComTealFinanceQuidQuidlibServerApi6(in *jlexer.
 		case "namespace_id":
 			out.NamespaceID = int64(in.Int64())
 		default:
-			in.SkipRecursive()
+			in.AddError(&jlexer.LexerError{
+				Offset: in.GetPos(),
+				Reason: "unknown field",
+				Data:   key,
+			})
 		}
 		in.WantComma()
 	}
@@ -560,7 +588,7 @@ func easyjson11d1a9baDecodeGithubComTealFinanceQuidQuidlibServerApi7(in *jlexer.
 	}
 	in.Delim('{')
 	for !in.IsDelim('}') {
-		key := in.UnsafeFieldName(false)
+		key := in.UnsafeFieldName(true)
 		in.WantColon()
 		if in.IsNull() {
 			in.Skip()
@@ -571,7 +599,11 @@ func easyjson11d1a9baDecodeGithubComTealFinanceQuidQuidlibServerApi7(in *jlexer.
 		case "namespace":
 			out.Namespace = string(in.String())
 		default:
-			in.SkipRecursive()
+			in.AddError(&jlexer.LexerError{
+				Offset: in.GetPos(),
+				Reason: "unknown field",
+				Data:   key,
+			})
 		}
 		in.WantComma()
 	}
@@ -626,7 +658,7 @@ func easyjson11d1a9baDecodeGithubComTealFinanceQuidQuidlibServerApi8(in *jlexer.
 	}
 	in.Delim('{')
 	for !in.IsDelim('}') {
-		key := in.UnsafeFieldName(false)
+		key := in.UnsafeFieldName(true)
 		in.WantColon()
 		if in.IsNull() {
 			in.Skip()
@@ -637,7 +669,11 @@ func easyjson11d1a9baDecodeGithubComTealFinanceQuidQuidlibServerApi8(in *jlexer.
 		case "namespace_id":
 			out.NamespaceID = int64(in.Int64())
 		default:
-			in.SkipRecursive()
+			in.AddError(&jlexer.LexerError{
+				Offset: in.GetPos(),
+				Reason: "unknown field",
+				Data:   key,
+			})
 		}
 		in.WantComma()
 	}
@@ -692,7 +728,7 @@ func easyjson11d1a9baDecodeGithubComTealFinanceQuidQuidlibServerApi9(in *jlexer.
 	}
 	in.Delim('{')
 	for !in.IsDelim('}') {
-		key := in.UnsafeFieldName(false)
+		key := in.UnsafeFieldName(true)
 		in.WantColon()
 		if in.IsNull() {
 			in.Skip()
@@ -709,7 +745,11 @@ func easyjson11d1a9baDecodeGithubComTealFinanceQuidQuidlibServerApi9(in *jlexer.
 		case "enable_endpoint":
 			out.EnableEndpoint = bool(in.Bool())
 		default:
-			in.SkipRecursive()
+			in.AddError(&jlexer.LexerError{
+				Offset: in.GetPos(),
+				Reason: "unknown field",
+				Data:   key,
+			})
 		}
 		in.WantComma()
 	}
@@ -779,7 +819,7 @@ func easyjson11d1a9baDecodeGithubComTealFinanceQuidQuidlibServerApi10(in *jlexer
 	}
 	in.Delim('{')
 	for !in.IsDelim('}') {
-		key := in.UnsafeFieldName(false)
+		key := in.UnsafeFieldName(true)
 		in.WantColon()
 		if in.IsNull() {
 			in.Skip()
@@ -790,7 +830,11 @@ func easyjson11d1a9baDecodeGithubComTealFinanceQuidQuidlibServerApi10(in *jlexer
 		case "name":
 			out.Name = string(in.String())
 		default:
-			in.SkipRecursive()
+			in.AddError(&jlexer.LexerError{
+				Offset: in.GetPos(),
+				Reason: "unknown field",
+				Data:   key,
+			})
 		}
 		in.WantComma()
 	}
@@ -845,7 +889,7 @@ func easyjson11d1a9baDecodeGithubComTealFinanceQuidQuidlibServerApi11(in *jlexer
 	}
 	in.Delim('{')
 	for !in.IsDelim('}') {
-		key := in.UnsafeFieldName(false)
+		key := in.UnsafeFieldName(true)
 		in.WantColon()
 		if in.IsNull() {
 			in.Skip()
@@ -858,7 +902,11 @@ func easyjson11d1a9baDecodeGithubComTealFinanceQuidQuidlibServerApi11(in *jlexer
 		case "max_ttl":
 			out.MaxTTL = string(in.String())
 		default:
-			in.SkipRecursive()
+			in.AddError(&jlexer.LexerError{
+				Offset: in.GetPos(),
+				Reason: "unknown field",
+				Data:   key,
+			})
 		}
 		in.WantComma()
 	}
@@ -918,7 +966,7 @@ func easyjson11d1a9baDecodeGithubComTealFinanceQuidQuidlibServerApi12(in *jlexer
 	}
 	in.Delim('{')
 	for !in.IsDelim('}') {
-		key := in.UnsafeFieldName(false)
+		key := in.UnsafeFieldName(true)
 		in.WantColon()
 		if in.IsNull() {
 			in.Skip()
@@ -929,7 +977,11 @@ func easyjson11d1a9baDecodeGithubComTealFinanceQuidQuidlibServerApi12(in *jlexer
 		case "id":
 			out.ID = int64(in.Int64())
 		default:
-			in.SkipRecursive()
+			in.AddError(&jlexer.LexerError{
+				Offset: in.GetPos(),
+				Reason: "unknown field",
+				Data:   key,
+			})
 		}
 		in.WantComma()
 	}
@@ -984,7 +1036,7 @@ func easyjson11d1a9baDecodeGithubComTealFinanceQuidQuidlibServerApi13(in *jlexer
 	}
 	in.Delim('{')
 	for !in.IsDelim('}') {
-		key := in.UnsafeFieldName(false)
+		key := in.UnsafeFieldName(true)
 		in.WantColon()
 		if in.IsNull() {
 			in.Skip()
@@ -997,7 +1049,11 @@ func easyjson11d1a9baDecodeGithubComTealFinanceQuidQuidlibServerApi13(in *jlexer
 		case "namespace_id":
 			out.NamespaceID = int64(in.Int64())
 		default:
-			in.SkipRecursive()
+			in.AddError(&jlexer.LexerError{
+				Offset: in.GetPos(),
+				Reason: "unknown field",
+				Data:   key,
+			})
 		}
 		in.WantComma()
 	}
@@ -1057,7 +1113,7 @@ func easyjson11d1a9baDecodeGithubComTealFinanceQuidQuidlibServerApi14(in *jlexer
 	}
 	in.Delim('{')
 	for !in.IsDelim('}') {
-		key := in.UnsafeFieldName(false)
+		key := in.UnsafeFieldName(true)
 		in.WantColon()
 		if in.IsNull() {
 			in.Skip()
@@ -1070,7 +1126,11 @@ func easyjson11d1a9baDecodeGithubComTealFinanceQuidQuidlibServerApi14(in *jlexer
 		case "enable":
 			out.Enable = bool(in.Bool())
 		default:
-			in.SkipRecursive()
+			in.AddError(&jlexer.LexerError{
+				Offset: in.GetPos(),
+				Reason: "unknown field",
+				Data:   key,
+			})
 		}
 		in.WantComma()
 	}
@@ -1130,7 +1190,7 @@ func easyjson11d1a9baDecodeGithubComTealFinanceQuidQuidlibServerApi15(in *jlexer
 	}
 	in.Delim('{')
 	for !in.IsDelim('}') {
-		key := in.UnsafeFieldName(false)
+		key := in.UnsafeFieldName(true)
 		in.WantColon()
 		if in.IsNull() {
 			in.Skip()
@@ -1164,7 +1224,11 @@ func easyjson11d1a9baDecodeGithubComTealFinanceQuidQuidlibServerApi15(in *jlexer
 		case "namespace_id":
 			out.NamespaceID = int64(in.Int64())
 		default:
-			in.SkipRecursive()
+			in.AddError(&jlexer.LexerError{
+				Offset: in.GetPos(),
+				Reason: "unknown field",
+				Data:   key,
+			})
 		}
 		in.WantComma()
 	}
@@ -1235,7 +1299,7 @@ func easyjson11d1a9baDecodeGithubComTealFinanceQuidQuidlibServerApi16(in *jlexer
 	}
 	in.Delim('{')
 	for !in.IsDelim('}') {
-		key := in.UnsafeFieldName(false)
+		key := in.UnsafeFieldName(true)
 		in.WantColon()
 		if in.IsNull() {
 			in.Skip()
@@ -1248,7 +1312,11 @@ func easyjson11d1a9baDecodeGithubComTealFinanceQuidQuidlibServerApi16(in *jlexer
 		case "namespace_id":
 			out.NamespaceID = int64(in.Int64())
 		default:
-			in.SkipRecursive()
+			in.AddError(&jlexer.LexerError{
+				Offset: in.GetPos(),
+				Reason: "unknown field",
+				Data:   key,
+			})
 		}
 		in.WantComma()
 	}
@@ -1308,7 +1376,7 @@ func easyjson11d1a9baDecodeGithubComTealFinanceQuidQuidlibServerApi17(in *jlexer
 	}
 	in.Delim('{')
 	for !in.IsDelim('}') {
-		key := in.UnsafeFieldName(false)
+		key := in.UnsafeFieldName(true)
 		in.WantColon()
 		if in.IsNull() {
 			in.Skip()
@@ -1321,7 +1389,11 @@ func easyjson11d1a9baDecodeGithubComTealFinanceQuidQuidlibServerApi17(in *jlexer
 		case "namespace":
 			out.Namespace = string(in.String())
 		default:
-			in.SkipRecursive()
+			in.AddError(&jlexer.LexerError{
+				Offset: in.GetPos(),
+				Reason: "unknown field",
+				Data:   key,
+			})
 		}
 		in.WantComma()
 	}
@@ -1381,7 +1453,7 @@ func easyjson11d1a9baDecodeGithubComTealFinanceQuidQuidlibServerApi18(in *jlexer
 	}
 	in.Delim('{')
 	for !in.IsDelim('}') {
-		key := in.UnsafeFieldName(false)
+		key := in.UnsafeFieldName(true)
 		in.WantColon()
 		if in.IsNull() {
 			in.Skip()
@@ -1394,7 +1466,11 @@ func easyjson11d1a9baDecodeGithubComTealFinanceQuidQuidlibServerApi18(in *jlexer
 		case "namespace":
 			out.Namespace = string(in.String())
 		default:
-			in.SkipRecursive()
+			in.AddError(&jlexer.LexerError{
+				Offset: in.GetPos(),
+				Reason: "unknown field",
+				Data:   key,
+			})
 		}
 		in.WantComma()
 	}

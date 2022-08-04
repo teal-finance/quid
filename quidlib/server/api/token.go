@@ -16,9 +16,9 @@ import (
 // RequestAccessToken : request an access token from a refresh token.
 func RequestAccessToken(w http.ResponseWriter, r *http.Request) {
 	m := echo.Map{}
-	//TODO if err := c.Bind(&m); err != nil {
-	//TODO 	return
-	//TODO }
+	if err := c.Bind(&m); err != nil {
+		return
+	}
 
 	refreshToken, ok := m["refresh_token"].(string)
 	if !ok {
@@ -125,9 +125,9 @@ func RequestAccessToken(w http.ResponseWriter, r *http.Request) {
 // RequestRefreshToken : http login handler.
 func RequestRefreshToken(w http.ResponseWriter, r *http.Request) {
 	m := echo.Map{}
-	//TODO if err := c.Bind(&m); err != nil {
-	//TODO 	return
-	//TODO }
+	if err := c.Bind(&m); err != nil {
+		return
+	}
 
 	// username
 	usernameParam, ok := m["username"]

@@ -31,9 +31,9 @@ func AllOrgs(w http.ResponseWriter, r *http.Request) {
 // FindOrg : find an org from name.
 func FindOrg(w http.ResponseWriter, r *http.Request) {
 	m := echo.Map{}
-	//TODO if err := c.Bind(&m); err != nil {
-	//TODO 	return
-	//TODO }
+	if err := c.Bind(&m); err != nil {
+		return
+	}
 
 	name := m["name"].(string)
 
@@ -41,7 +41,7 @@ func FindOrg(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		emo.QueryError(err)
 		gw.WriteErr(w, r, http.StatusInternalServerError, "error finding org")
-		return 
+		return
 	}
 
 	b, err := json.Marshal(&data)
@@ -50,23 +50,23 @@ func FindOrg(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusInternalServerError)
 	}
 
-   w.WriteHeader(http.StatusOK)
+	w.WriteHeader(http.StatusOK)
 	_, _ = w.Write(b)
 }
 
 // UserOrgsInfo : get orgs info for a user.
 func UserOrgsInfo(w http.ResponseWriter, r *http.Request) {
 	m := echo.Map{}
-	//TODO if err := c.Bind(&m); err != nil {
-	//TODO 	return
-	//TODO }
+	if err := c.Bind(&m); err != nil {
+		return
+	}
 
 	id := int64(m["id"].(float64))
 
 	o, err := db.SelectOrgsForUser(id)
 	if err != nil {
 		gw.WriteErr(w, r, http.StatusInternalServerError, "error selecting orgs")
-		return 
+		return
 	}
 
 	gw.WriteOK(w, "orgs", o)
@@ -75,15 +75,15 @@ func UserOrgsInfo(w http.ResponseWriter, r *http.Request) {
 // DeleteOrg : org deletion http handler.
 func DeleteOrg(w http.ResponseWriter, r *http.Request) {
 	m := echo.Map{}
-	//TODO if err := c.Bind(&m); err != nil {
-	//TODO 	return
-	//TODO }
+	if err := c.Bind(&m); err != nil {
+		return
+	}
 
 	id := int64(m["id"].(float64))
 
 	if err := db.DeleteOrg(id); err != nil {
 		gw.WriteErr(w, r, http.StatusConflict, "error deleting org")
-		return 
+		return
 	}
 
 	gw.WriteOK(w, r, http.StatusOK, "message", "ok")
@@ -92,20 +92,20 @@ func DeleteOrg(w http.ResponseWriter, r *http.Request) {
 // CreateOrg : org creation http handler.
 func CreateOrg(w http.ResponseWriter, r *http.Request) {
 	m := echo.Map{}
-	//TODO if err := c.Bind(&m); err != nil {
-	//TODO 	return
-	//TODO }
+	if err := c.Bind(&m); err != nil {
+		return
+	}
 
 	name := m["name"].(string)
 
 	org, exists, err := createOrg(name)
 	if err != nil {
 		gw.WriteErr(w, r, http.StatusConflict, "error creating org")
-		return 
+		return
 	}
 	if exists {
 		gw.WriteErr(w, r, http.StatusConflict, "org already exists")
-		return 
+		return
 	}
 
 	gw.WriteOK(w, "org_id", org.ID)

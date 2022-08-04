@@ -25,9 +25,9 @@ func AllNamespaces(w http.ResponseWriter, r *http.Request) {
 // SetNamespaceRefreshTokenMaxTTL : set a max refresh token ttl for a namespace.
 func SetNamespaceRefreshTokenMaxTTL(w http.ResponseWriter, r *http.Request) {
 	m := echo.Map{}
-	//TODO if err := c.Bind(&m); err != nil {
-	//TODO 	return
-	//TODO }
+	if err := c.Bind(&m); err != nil {
+		return
+	}
 
 	id := int64(m["id"].(float64))
 	refreshMxTTL := m["refresh_max_ttl"].(string)
@@ -45,9 +45,9 @@ func SetNamespaceRefreshTokenMaxTTL(w http.ResponseWriter, r *http.Request) {
 // SetNamespaceTokenMaxTTL : set a max access token ttl for a namespace.
 func SetNamespaceTokenMaxTTL(w http.ResponseWriter, r *http.Request) {
 	m := echo.Map{}
-	//TODO if err := c.Bind(&m); err != nil {
-	//TODO 	return
-	//TODO }
+	if err := c.Bind(&m); err != nil {
+		return
+	}
 
 	id := int64(m["id"].(float64))
 	ttl := m["max_ttl"].(string)
@@ -65,9 +65,9 @@ func SetNamespaceTokenMaxTTL(w http.ResponseWriter, r *http.Request) {
 // NamespaceInfo : info about a namespace.
 func NamespaceInfo(w http.ResponseWriter, r *http.Request) {
 	m := echo.Map{}
-	//TODO if err := c.Bind(&m); err != nil {
-	//TODO 	return
-	//TODO }
+	if err := c.Bind(&m); err != nil {
+		return
+	}
 
 	id := int64(m["id"].(float64))
 
@@ -96,9 +96,9 @@ func NamespaceInfo(w http.ResponseWriter, r *http.Request) {
 // GetNamespaceKey : get the key for a namespace.
 func GetNamespaceKey(w http.ResponseWriter, r *http.Request) {
 	m := echo.Map{}
-	//TODO if err := c.Bind(&m); err != nil {
-	//TODO 	return
-	//TODO }
+	if err := c.Bind(&m); err != nil {
+		return
+	}
 
 	id := int64(m["id"].(float64))
 
@@ -119,9 +119,9 @@ func GetNamespaceKey(w http.ResponseWriter, r *http.Request) {
 // FindNamespace : namespace creation http handler.
 func FindNamespace(w http.ResponseWriter, r *http.Request) {
 	m := echo.Map{}
-	//TODO if err := c.Bind(&m); err != nil {
-	//TODO 	return
-	//TODO }
+	if err := c.Bind(&m); err != nil {
+		return
+	}
 
 	name := m["name"].(string)
 
@@ -138,9 +138,9 @@ func FindNamespace(w http.ResponseWriter, r *http.Request) {
 // DeleteNamespace : namespace creation http handler.
 func DeleteNamespace(w http.ResponseWriter, r *http.Request) {
 	m := echo.Map{}
-	//TODO if err := c.Bind(&m); err != nil {
-	//TODO 	return
-	//TODO }
+	if err := c.Bind(&m); err != nil {
+		return
+	}
 
 	id := int64(m["id"].(float64))
 
@@ -161,9 +161,9 @@ func DeleteNamespace(w http.ResponseWriter, r *http.Request) {
 // SetNamespaceEndpointAvailability :.
 func SetNamespaceEndpointAvailability(w http.ResponseWriter, r *http.Request) {
 	m := echo.Map{}
-	//TODO if err := c.Bind(&m); err != nil {
-	//TODO 	return
-	//TODO }
+	if err := c.Bind(&m); err != nil {
+		return
+	}
 
 	id := int64(m["id"].(float64))
 	enable := m["enable"].(bool)
@@ -180,9 +180,9 @@ func SetNamespaceEndpointAvailability(w http.ResponseWriter, r *http.Request) {
 // CreateNamespace : namespace creation http handler.
 func CreateNamespace(w http.ResponseWriter, r *http.Request) {
 	m := echo.Map{}
-	//TODO if err := c.Bind(&m); err != nil {
-	//TODO 	return
-	//TODO }
+	if err := c.Bind(&m); err != nil {
+		return
+	}
 
 	name := m["name"].(string)
 	maxTTL := m["max_ttl"].(string)

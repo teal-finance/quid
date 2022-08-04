@@ -60,9 +60,9 @@ func AllGroups(w http.ResponseWriter, r *http.Request) {
 // GroupsInfo : group creation http handler.
 func GroupsInfo(w http.ResponseWriter, r *http.Request) {
 	m := echo.Map{}
-	//TODO if err := c.Bind(&m); err != nil {
-	//TODO 	return
-	//TODO }
+	if err := c.Bind(&m); err != nil {
+		return
+	}
 
 	id := int64(m["id"].(float64))
 	nsID := int64(m["namespace_id"].(float64))
@@ -84,9 +84,9 @@ func GroupsInfo(w http.ResponseWriter, r *http.Request) {
 // DeleteGroup : group deletion http handler.
 func DeleteGroup(w http.ResponseWriter, r *http.Request) {
 	m := echo.Map{}
-	//TODO if err := c.Bind(&m); err != nil {
-	//TODO 	return
-	//TODO }
+	if err := c.Bind(&m); err != nil {
+		return
+	}
 
 	id := int64(m["id"].(float64))
 	nsID := int64(m["namespace_id"].(float64))
@@ -107,9 +107,9 @@ func DeleteGroup(w http.ResponseWriter, r *http.Request) {
 // CreateGroup : group creation http handler.
 func CreateGroup(w http.ResponseWriter, r *http.Request) {
 	m := echo.Map{}
-	//TODO if err := c.Bind(&m); err != nil {
-	//TODO 	return
-	//TODO }
+	if err := c.Bind(&m); err != nil {
+		return
+	}
 
 	name := m["name"].(string)
 	nsID := int64(m["namespace_id"].(float64))

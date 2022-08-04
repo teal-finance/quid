@@ -13,9 +13,9 @@ import (
 // AllAdministratorsInNamespace : select all admin users for a namespace.
 func AllAdministratorsInNamespace(w http.ResponseWriter, r *http.Request) {
 	m := echo.Map{}
-	//TODO if err := c.Bind(&m); err != nil {
-	//TODO 	return
-	//TODO }
+	if err := c.Bind(&m); err != nil {
+		return
+	}
 
 	nsID := int64(m["namespace_id"].(float64))
 
@@ -38,9 +38,9 @@ func AllAdministratorsInNamespace(w http.ResponseWriter, r *http.Request) {
 // SearchForNonAdminUsersInNamespace : search from a username in namespace
 func SearchForNonAdminUsersInNamespace(w http.ResponseWriter, r *http.Request) {
 	m := echo.Map{}
-	//TODO if err := c.Bind(&m); err != nil {
-	//TODO 	return
-	//TODO }
+	if err := c.Bind(&m); err != nil {
+		return
+	}
 
 	username := m["username"].(string)
 	nsID := int64(m["namespace_id"].(float64))
@@ -57,9 +57,9 @@ func SearchForNonAdminUsersInNamespace(w http.ResponseWriter, r *http.Request) {
 // CreateUserAdministrators : create admin users handler.
 func CreateAdministrators(w http.ResponseWriter, r *http.Request) {
 	m := echo.Map{}
-	//TODO if err := c.Bind(&m); err != nil {
-	//TODO 	return
-	//TODO }
+	if err := c.Bind(&m); err != nil {
+		return
+	}
 
 	uIDs := m["user_ids"].([]any)
 	nsID := int64(m["namespace_id"].(float64))
@@ -91,9 +91,9 @@ func CreateAdministrators(w http.ResponseWriter, r *http.Request) {
 // DeleteAdministrator : delete an admin user handler.
 func DeleteAdministrator(w http.ResponseWriter, r *http.Request) {
 	m := echo.Map{}
-	//TODO if err := c.Bind(&m); err != nil {
-	//TODO 	return
-	//TODO }
+	if err := c.Bind(&m); err != nil {
+		return
+	}
 
 	uID := int64(m["user_id"].(float64))
 	nsID := int64(m["namespace_id"].(float64))

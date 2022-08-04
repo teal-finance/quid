@@ -21,9 +21,9 @@ var gw garcon.Writer
 // AdminLogin : http login handler for the admin interface.
 func AdminLogin(w http.ResponseWriter, r *http.Request) {
 	m := echo.Map{}
-	//TODO if err := c.Bind(&m); err != nil {
-	//TODO 	return
-	//TODO }
+	if err := c.Bind(&m); err != nil {
+		return
+	}
 
 	username := m["username"].(string)
 	password := m["password"].(string)
@@ -124,9 +124,9 @@ func AdminLogout(w http.ResponseWriter, r *http.Request) {
 // for a namespace.
 func RequestAdminAccessToken(w http.ResponseWriter, r *http.Request) {
 	m := echo.Map{}
-	//TODO if err := c.Bind(&m); err != nil {
-	//TODO 	return
-	//TODO }
+	if err := c.Bind(&m); err != nil {
+		return
+	}
 
 	refreshToken, ok := m["refresh_token"].(string)
 	nsName := m["namespace"].(string)

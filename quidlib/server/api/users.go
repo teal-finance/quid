@@ -15,9 +15,9 @@ import (
 // AllUsersInNamespace : select all users for a namespace.
 func AllUsersInNamespace(w http.ResponseWriter, r *http.Request) {
 	m := echo.Map{}
-	//TODO if err := c.Bind(&m); err != nil {
-	//TODO 	return
-	//TODO }
+	if err := c.Bind(&m); err != nil {
+		return
+	}
 
 	nsID := int64(m["namespace_id"].(float64))
 
@@ -46,9 +46,9 @@ func AllUsersInNamespace(w http.ResponseWriter, r *http.Request) {
 // GroupsForNamespace : get the groups of a user.
 func GroupsForNamespace(w http.ResponseWriter, r *http.Request) {
 	m := echo.Map{}
-	//TODO if err := c.Bind(&m); err != nil {
-	//TODO 	return
-	//TODO }
+	if err := c.Bind(&m); err != nil {
+		return
+	}
 
 	namespace := m["namespace"].(string)
 
@@ -64,15 +64,14 @@ func GroupsForNamespace(w http.ResponseWriter, r *http.Request) {
 	}
 
 	gw.WriteOK(w, "groups", g)
-	return
 }
 
 // AddUserInOrg : add a user in an org.
 func AddUserInOrg(w http.ResponseWriter, r *http.Request) {
 	m := echo.Map{}
-	//TODO if err := c.Bind(&m); err != nil {
-	//TODO 	return
-	//TODO }
+	if err := c.Bind(&m); err != nil {
+		return
+	}
 
 	uID := int64(m["user_id"].(float64))
 	oID := int64(m["org_id"].(float64))
@@ -89,9 +88,9 @@ func AddUserInOrg(w http.ResponseWriter, r *http.Request) {
 // RemoveUserFromOrg : add a user in an org.
 func RemoveUserFromOrg(w http.ResponseWriter, r *http.Request) {
 	m := echo.Map{}
-	//TODO if err := c.Bind(&m); err != nil {
-	//TODO 	return
-	//TODO }
+	if err := c.Bind(&m); err != nil {
+		return
+	}
 
 	uID := int64(m["user_id"].(float64))
 	oID := int64(m["org_id"].(float64))
@@ -108,9 +107,9 @@ func RemoveUserFromOrg(w http.ResponseWriter, r *http.Request) {
 // AddUserInGroup : add a user in a group.
 func AddUserInGroup(w http.ResponseWriter, r *http.Request) {
 	m := echo.Map{}
-	//TODO if err := c.Bind(&m); err != nil {
-	//TODO 	return
-	//TODO }
+	if err := c.Bind(&m); err != nil {
+		return
+	}
 
 	uID := int64(m["user_id"].(float64))
 	gID := int64(m["group_id"].(float64))
@@ -133,9 +132,9 @@ func AddUserInGroup(w http.ResponseWriter, r *http.Request) {
 // RemoveUserFromGroup : add a user in a group.
 func RemoveUserFromGroup(w http.ResponseWriter, r *http.Request) {
 	m := echo.Map{}
-	//TODO if err := c.Bind(&m); err != nil {
-	//TODO 	return
-	//TODO }
+	if err := c.Bind(&m); err != nil {
+		return
+	}
 
 	uID := int64(m["user_id"].(float64))
 	gID := int64(m["group_id"].(float64))
@@ -158,9 +157,9 @@ func RemoveUserFromGroup(w http.ResponseWriter, r *http.Request) {
 // SearchForUsersInNamespace : search from a username in namespace.
 /*func SearchForUsersInNamespace(w http.ResponseWriter, r *http.Request) {
 	m := echo.Map{}
-	//TODO if err := c.Bind(&m); err != nil {
-	//TODO 	return
-	//TODO }
+	if err := c.Bind(&m); err != nil {
+		return
+	}
 
 	fmt.Println("Search")
 	username := m["username"].(string)
@@ -180,9 +179,9 @@ func RemoveUserFromGroup(w http.ResponseWriter, r *http.Request) {
 // UserGroupsInfo : get info for a user.
 func UserGroupsInfo(w http.ResponseWriter, r *http.Request) {
 	m := echo.Map{}
-	//TODO if err := c.Bind(&m); err != nil {
-	//TODO 	return
-	//TODO }
+	if err := c.Bind(&m); err != nil {
+		return
+	}
 
 	id := int64(m["id"].(float64))
 	nsID := int64(m["namespace_id"].(float64))
@@ -204,9 +203,9 @@ func UserGroupsInfo(w http.ResponseWriter, r *http.Request) {
 // DeleteUser : delete a user handler.
 func DeleteUser(w http.ResponseWriter, r *http.Request) {
 	m := echo.Map{}
-	//TODO if err := c.Bind(&m); err != nil {
-	//TODO 	return
-	//TODO }
+	if err := c.Bind(&m); err != nil {
+		return
+	}
 
 	id := int64(m["id"].(float64))
 	nsID := int64(m["namespace_id"].(float64))
@@ -227,9 +226,9 @@ func DeleteUser(w http.ResponseWriter, r *http.Request) {
 // CreateUserHandler : create a user handler.
 func CreateUserHandler(w http.ResponseWriter, r *http.Request) {
 	m := echo.Map{}
-	//TODO if err := c.Bind(&m); err != nil {
-	//TODO 	return
-	//TODO }
+	if err := c.Bind(&m); err != nil {
+		return
+	}
 
 	name := m["name"].(string)
 	password := m["password"].(string)

@@ -6,9 +6,9 @@ import (
 	"net/http"
 
 	"github.com/golang-jwt/jwt"
-	"github.com/labstack/echo-contrib/session"
 	"github.com/labstack/echo/v4"
 
+	"github.com/teal-finance/incorruptible/tvalues"
 	"github.com/teal-finance/quid/quidlib/conf"
 	"github.com/teal-finance/quid/quidlib/server/db"
 	"github.com/teal-finance/quid/quidlib/tokens"
@@ -62,8 +62,19 @@ func AdminMiddleware(next http.Handler) http.Handler {
 			return
 		}
 
-		sess, _ := session.Get("session", c)
-		if sess.Values["is_admin"] == "true" {
+		tv, ok := tvalues.FromCtx(r)
+		if !ok {
+			emo.Error("cookie is missing or is not Incorruptible")
+			w.WriteHeader(http.StatusInternalServerError)
+			return
+		}
+		isAdmin, err = tv.Bool(is_admin)
+		if err != nil {
+			emo.Error(err)
+			w.WriteHeader(http.StatusInternalServerError)
+			return
+		}
+		if isAdmin {
 			next.ServeHTTP(w, r)
 			return
 		}

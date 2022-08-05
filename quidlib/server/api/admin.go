@@ -6,16 +6,22 @@ import (
 	"net/http"
 
 	"github.com/golang-jwt/jwt"
-	"github.com/gorilla/sessions"
-	"github.com/labstack/echo-contrib/session"
 
 	"github.com/teal-finance/garcon"
-	"github.com/teal-finance/quid/quidlib/conf"
+	"github.com/teal-finance/incorruptible/tvalues"
 	"github.com/teal-finance/quid/quidlib/server/db"
 	"github.com/teal-finance/quid/quidlib/tokens"
 )
 
 var gw garcon.Writer
+
+const (
+	user = iota
+	ns_name
+	ns_id
+	is_admin
+	is_ns_admin
+)
 
 // AdminLogin : http login handler for the admin interface.
 func AdminLogin(w http.ResponseWriter, r *http.Request) {
@@ -72,27 +78,27 @@ func AdminLogin(w http.ResponseWriter, r *http.Request) {
 	_isAdmin := isUserAdmin && namespace == "quid"
 	_isNsAdmin := isUserAdmin && namespace != "quid"
 	emo.Info("Admin login successful for user", u.Name, "on namespace", ns.Name)
-	// set the session
-	sess, _ := session.Get("session", c)
-	sess.Values["user"] = u.Name
-	sess.Values["ns_name"] = ns.Name
-	sess.Values["ns_id"] = ns.ID
-	sess.Values["is_admin"] = _isAdmin
-	sess.Values["is_ns_admin"] = _isNsAdmin
-	sess.Options = &sessions.Options{
-		Path:     "/",
-		MaxAge:   3600 * 24,
-		HttpOnly: true,
-		Secure:   !conf.IsDevMode,
-		SameSite: http.SameSiteStrictMode,
-	}
-	if conf.IsDevMode {
-		sess.Options.SameSite = http.SameSiteLaxMode
-	}
 
-	if err = sess.Save(r, w); err != nil {
-		emo.Error("Error saving session", err)
+	// set the session
+	tv, ok := tvalues.FromCtx(r)
+	if !ok {
+		emo.Error("No cookie or cookie is not Incorruptible")
+		w.WriteHeader(http.StatusInternalServerError)
+		return
 	}
+	tv.SetString(user, u.Name)
+	tv.SetString(ns_name, ns.Name)
+	tv.SetUint64(ns_id, uint64(ns.ID))
+	tv.SetBool(is_admin, _isAdmin)
+	tv.SetBool(is_ns_admin, _isNsAdmin)
+	r = tv.ToCtx(r)
+	cookie, err := Incorruptible.NewCookieFromValues(tv)
+	if err != nil {
+		emo.Error(err)
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+	http.SetCookie(w, cookie)
 
 	// set the refresh token
 	token, err := tokens.GenRefreshToken("24h", ns.MaxRefreshTokenTTL, ns.Name, u.Name, []byte(ns.RefreshKey))
@@ -114,12 +120,20 @@ func AdminLogin(w http.ResponseWriter, r *http.Request) {
 
 // AdminLogout : http logout handler for the admin interface.
 func AdminLogout(w http.ResponseWriter, r *http.Request) {
-	sess, _ := session.Get("session", c)
-	sess.Values["is_admin"] = "false"
-
-	if err := sess.Save(r, w); err != nil {
+	tv, ok := tvalues.FromCtx(r)
+	if !ok {
+		emo.Error("No cookie or cookie is not Incorruptible")
+		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
+	tv.SetBool(is_admin, false)
+	cookie, err := Incorruptible.NewCookieFromValues(tv)
+	if err != nil {
+		emo.Error(err)
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+	http.SetCookie(w, cookie)
 
 	w.WriteHeader(http.StatusOK)
 }

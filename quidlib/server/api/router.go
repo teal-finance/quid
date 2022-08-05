@@ -8,41 +8,32 @@ import (
 
 	color "github.com/acmacalister/skittles"
 	"github.com/go-chi/chi/v5"
-	"github.com/gorilla/sessions"
 
 	"github.com/teal-finance/garcon"
+	"github.com/teal-finance/incorruptible"
 	"github.com/teal-finance/quid/quidlib/conf"
 )
 
-// SessionsStore : the session cookies store.
-var SessionsStore = sessions.NewCookieStore([]byte(conf.EncodingKey))
-
 // AdminNsKey : store the Quid namespace key for admin
 var AdminNsKey = []byte("")
+
+var Garcon *garcon.Garcon
+var Incorruptible *incorruptible.Incorruptible
 
 // RunServer : configure and run the server.
 func RunServer(adminNsKey, address string) {
 	AdminNsKey = []byte(adminNsKey)
 
-	//TODO echoServer.Use(middleware.Logger())
-	//TODO
 	//TODO if !conf.IsDevMode {
 	//TODO 	echoServer.Use(middleware.Recover())
 	//TODO 	echoServer.Use(middleware.Secure())
 	//TODO }
-	//TODO
-	//TODO echoServer.Use(middleware.CORSWithConfig(middleware.CORSConfig{
-	//TODO 	AllowOrigins:     []string{"*"},
-	//TODO 	AllowHeaders:     []string{echo.HeaderOrigin, echo.HeaderContentType, echo.HeaderAuthorization},
-	//TODO 	AllowMethods:     []string{http.MethodGet, http.MethodOptions, http.MethodPost, http.MethodDelete},
-	//TODO 	AllowCredentials: true,
-	//TODO }))
 
 	g, err := garcon.New(
 		garcon.WithURLs(address),
 		garcon.WithDocURL("/doc"),
 		garcon.WithServerHeader("Quid"),
-		garcon.WithJWT(adminNsKey, 0, true),
+		garcon.WithIncorruptible("", conf.EncodingKey, 3600*24, true),
 		garcon.WithLimiter(20, 30),
 		garcon.WithProm(9193, address),
 		garcon.WithDev(conf.IsDevMode))
@@ -50,9 +41,14 @@ func RunServer(adminNsKey, address string) {
 		log.Panic("garcon.New: ", err)
 	}
 
-	r := chi.NewRouter()
+	session, ok := g.Checker.(*incorruptible.Incorruptible)
+	if !ok {
+		emo.Fatal("Garcon.Checker is not Incorruptible")
+	}
+	Garcon = g
+	Incorruptible = session
 
-	//TODO echoServer.Use(session.MiddlewareWithConfig(session.Config{Store: SessionsStore}))
+	r := chi.NewRouter()
 
 	// serve static files
 	ws := garcon.NewStaticWebServer("ui/dist", g.Writer)
@@ -164,7 +160,7 @@ func RunServer(adminNsKey, address string) {
 		Handler:           g.Middlewares.Then(r),
 		ReadTimeout:       time.Second,
 		ReadHeaderTimeout: time.Second,
-		WriteTimeout:      time.Minute, // Garcon.Limiter postpones response, attacker should wait long time.
+		WriteTimeout:      time.Minute, // Garcon.Limiter postpones response, attacker will wait longer.
 		IdleTimeout:       time.Second,
 		ConnState:         g.ConnState,
 		ErrorLog:          log.Default(),

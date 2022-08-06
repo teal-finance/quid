@@ -23,15 +23,18 @@ all: front quid
 front: ui/dist
 
 ui/dist: ui/node_modules ui/node_modules/* ui/node_modules/*/* $(shell find ui/src -type f)
-	yarn --cwd ui build
+	yarn    --cwd ui build || \
+	yarnpkg --cwd ui build
 
 ui/node_modules/*/*: ui/yarn.lock
 ui/node_modules/*:   ui/yarn.lock
 ui/node_modules:     ui/yarn.lock
-	yarn install --cwd ui --link-duplicates
+	yarn    install --cwd ui --link-duplicates || \
+	yarnpkg install --cwd ui --link-duplicates
 
 ui/yarn.lock: ui/package.json
-	yarn install --cwd ui --link-duplicates
+	yarn    install --cwd ui --link-duplicates || \
+	yarnpkg install --cwd ui --link-duplicates
 
 quid: go.sum main.go quidlib/*.go quidlib/*/*.go quidlib/*/*/*.go
 	# go build -o $@
@@ -64,8 +67,9 @@ config.json:
 
 .PHONY: run-front
 run-front:
-	yarn --cwd ui --link-duplicates
-	yarn --cwd ui dev
+	cd ui && \
+	{ yarn    --link-duplicates && yarn    dev; } || \
+	{ yarnpkg --link-duplicates && yarnpkg dev; }
 
 define help
 
@@ -137,20 +141,23 @@ upg-minor: upg-minor-ui upg-minor-go
 
 .PHONY: upg-patch-ui
 upg-patch-ui:
-	yarn --cwd ui --link-duplicates
-	yarn upgrade-interactive --cwd ui --link-duplicates
+	cd ui && \
+	{ yarn    --link-duplicates && yarn    upgrade-interactive --link-duplicates; } || \
+	{ yarnpkg --link-duplicates && yarnpkg upgrade-interactive --link-duplicates; }
 
 .PHONY: upg-minor-ui
 upg-minor-ui:
-	yarn --cwd ui --link-duplicates
-	yarn --cwd ui upg-minor
+	cd ui && \
+	{ yarn --link-duplicates && yarn upg-minor; } || \
+	{ yarn --link-duplicates && yarn upg-minor; }
 
 .PHONY: upg-more
 upg-more: upg-minor-go
-	yarn --cwd ui --link-duplicates
+	cd ui && \
+	{ yarn    --link-duplicates && yarn    upgrade-interactive --link-duplicates --latest --tilde; } || \
+	{ yarnpkg --link-duplicates && yarnpkg upgrade-interactive --link-duplicates --latest --tilde; }
     # flag --tilde prepends the new version with "~" that limits vanilla upgrade to patch only
     # flag --caret prepends the new version with "^" allowing upgrading the minor number
-	yarn upgrade-interactive --cwd ui --link-duplicates --latest --tilde
 
 .PHONY: upg-patch-go
 upg-patch-go:

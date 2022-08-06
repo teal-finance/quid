@@ -72,7 +72,7 @@ func NsAdminMiddleware(next echo.HandlerFunc) echo.HandlerFunc {
 		}
 
 		sess, _ := session.Get("session", c)
-		if sess.Values["is_nsadmin"] == "true" {
+		if sess.Values["is_ns_admin"] == "true" {
 			return next(c)
 		}
 

@@ -61,7 +61,7 @@ func AdminLogin(c echo.Context) error {
 	}
 	_isAdmin := isUserAdmin && namespace == "quid"
 	_isNsAdmin := isUserAdmin && namespace != "quid"
-	emo.Info("Admin login successfull for user", u.Name, "on namespace", ns.Name)
+	emo.Info("Admin login successful for user", u.Name, "on namespace", ns.Name)
 	// set the session
 	sess, _ := session.Get("session", c)
 	sess.Values["user"] = u.Name

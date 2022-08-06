@@ -8,14 +8,19 @@ import (
 
 	color "github.com/acmacalister/skittles"
 	"github.com/go-chi/chi/v5"
+	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v4/middleware"
 
 	"github.com/teal-finance/garcon"
 	"github.com/teal-finance/incorruptible"
 	"github.com/teal-finance/quid/quidlib/conf"
+	"github.com/teal-finance/quid/quidlib/tokens"
 )
 
 // AdminNsKey : store the Quid namespace key for admin
 var AdminNsKey = []byte("")
+
+var echoServer = echo.New()
 
 var Garcon *garcon.Garcon
 var Incorruptible *incorruptible.Incorruptible
@@ -24,10 +29,11 @@ var Incorruptible *incorruptible.Incorruptible
 func RunServer(adminNsKey, address string) {
 	AdminNsKey = []byte(adminNsKey)
 
-	//TODO if !conf.IsDevMode {
-	//TODO 	echoServer.Use(middleware.Recover())
-	//TODO 	echoServer.Use(middleware.Secure())
-	//TODO }
+	// TODO FIXME
+	if !conf.IsDevMode {
+		echoServer.Use(middleware.Recover())
+		echoServer.Use(middleware.Secure())
+	}
 
 	g, err := garcon.New(
 		garcon.WithURLs(address),
@@ -43,7 +49,8 @@ func RunServer(adminNsKey, address string) {
 
 	session, ok := g.Checker.(*incorruptible.Incorruptible)
 	if !ok {
-		emo.Fatal("Garcon.Checker is not Incorruptible")
+		emo.Error("Garcon.Checker is not Incorruptible")
+		log.Panic("Garcon.Checker is not Incorruptible")
 	}
 	Garcon = g
 	Incorruptible = session
@@ -66,13 +73,13 @@ func RunServer(adminNsKey, address string) {
 
 	// admin routes
 	r.Route("/admin", func(r chi.Router) {
-		//TODO a := echoServer.Group("/admin")
-		//TODO config := middleware.JWTConfig{
-		//TODO 	Claims:     &tokens.AdminAccessClaim{},
-		//TODO 	SigningKey: []byte(adminNsKey),
-		//TODO }
-		//TODO a.Use(middleware.JWTWithConfig(config))
-		//TODO a.Use(AdminMiddleware)
+		a := echoServer.Group("/admin")
+		config := middleware.JWTConfig{
+			Claims:     &tokens.AdminAccessClaim{},
+			SigningKey: []byte(adminNsKey),
+		}
+		a.Use(middleware.JWTWithConfig(config))
+		// FIXME a.Use(AdminMiddleware)
 
 		// HTTP API
 		r.Get("/logout", AdminLogout)

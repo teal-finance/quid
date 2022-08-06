@@ -4,7 +4,6 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
 	"log"
 	"os"
 
@@ -33,7 +32,7 @@ func Create() error {
 		return err
 	}
 
-	return ioutil.WriteFile("config.json", jsonString, os.ModePerm)
+	return os.WriteFile("config.json", jsonString, os.ModePerm)
 }
 
 // InitFromFile : get the config

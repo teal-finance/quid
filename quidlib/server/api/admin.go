@@ -25,7 +25,7 @@ const (
 
 // AdminLogin : http login handler for the admin interface.
 func AdminLogin(w http.ResponseWriter, r *http.Request) {
-	var m PasswordRequest
+	var m passwordRequest
 	if err := garcon.DecodeJSONBody(r, &m); err != nil {
 		emo.Warning(err)
 		w.WriteHeader(http.StatusBadRequest)
@@ -141,7 +141,7 @@ func AdminLogout(w http.ResponseWriter, r *http.Request) {
 // RequestAdminAccessToken : request an access token from a refresh token
 // for a namespace.
 func RequestAdminAccessToken(w http.ResponseWriter, r *http.Request) {
-	var m AdminAccessTokenRequest
+	var m adminAccessTokenRequest
 	if err := garcon.DecodeJSONBody(r, &m); err != nil {
 		emo.Warning(err)
 		w.WriteHeader(http.StatusBadRequest)

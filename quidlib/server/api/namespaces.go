@@ -23,7 +23,7 @@ func AllNamespaces(w http.ResponseWriter, r *http.Request) {
 
 // SetNamespaceRefreshTokenMaxTTL : set a max refresh token ttl for a namespace.
 func SetNamespaceRefreshTokenMaxTTL(w http.ResponseWriter, r *http.Request) {
-	var m RefreshMaxTTLRequest
+	var m refreshMaxTTLRequest
 	if err := garcon.DecodeJSONBody(r, &m); err != nil {
 		emo.Warning(err)
 		w.WriteHeader(http.StatusBadRequest)
@@ -51,7 +51,7 @@ func SetNamespaceRefreshTokenMaxTTL(w http.ResponseWriter, r *http.Request) {
 
 // SetNamespaceTokenMaxTTL : set a max access token ttl for a namespace.
 func SetNamespaceTokenMaxTTL(w http.ResponseWriter, r *http.Request) {
-	var m MaxTTLRequest
+	var m maxTTLRequest
 	if err := garcon.DecodeJSONBody(r, &m); err != nil {
 		emo.Warning(err)
 		w.WriteHeader(http.StatusBadRequest)
@@ -79,7 +79,7 @@ func SetNamespaceTokenMaxTTL(w http.ResponseWriter, r *http.Request) {
 
 // NamespaceInfo : info about a namespace.
 func NamespaceInfo(w http.ResponseWriter, r *http.Request) {
-	var m InfoRequest
+	var m infoRequest
 	if err := garcon.DecodeJSONBody(r, &m); err != nil {
 		emo.Warning(err)
 		w.WriteHeader(http.StatusBadRequest)
@@ -112,7 +112,7 @@ func NamespaceInfo(w http.ResponseWriter, r *http.Request) {
 
 // GetNamespaceKey : get the key for a namespace.
 func GetNamespaceKey(w http.ResponseWriter, r *http.Request) {
-	var m InfoRequest
+	var m infoRequest
 	if err := garcon.DecodeJSONBody(r, &m); err != nil {
 		emo.Warning(err)
 		w.WriteHeader(http.StatusBadRequest)
@@ -137,7 +137,7 @@ func GetNamespaceKey(w http.ResponseWriter, r *http.Request) {
 
 // FindNamespace : namespace creation http handler.
 func FindNamespace(w http.ResponseWriter, r *http.Request) {
-	var m NameRequest
+	var m nameRequest
 	if err := garcon.DecodeJSONBody(r, &m); err != nil {
 		emo.Warning(err)
 		w.WriteHeader(http.StatusBadRequest)
@@ -164,7 +164,7 @@ func FindNamespace(w http.ResponseWriter, r *http.Request) {
 
 // DeleteNamespace : namespace creation http handler.
 func DeleteNamespace(w http.ResponseWriter, r *http.Request) {
-	var m InfoRequest
+	var m infoRequest
 	if err := garcon.DecodeJSONBody(r, &m); err != nil {
 		emo.Warning(err)
 		w.WriteHeader(http.StatusBadRequest)
@@ -189,7 +189,7 @@ func DeleteNamespace(w http.ResponseWriter, r *http.Request) {
 
 // SetNamespaceEndpointAvailability :.
 func SetNamespaceEndpointAvailability(w http.ResponseWriter, r *http.Request) {
-	var m Availability
+	var m availability
 	if err := garcon.DecodeJSONBody(r, &m); err != nil {
 		emo.Warning(err)
 		w.WriteHeader(http.StatusBadRequest)
@@ -210,7 +210,7 @@ func SetNamespaceEndpointAvailability(w http.ResponseWriter, r *http.Request) {
 
 // CreateNamespace : namespace creation http handler.
 func CreateNamespace(w http.ResponseWriter, r *http.Request) {
-	var m NamespaceCreation
+	var m namespaceCreation
 	if err := garcon.DecodeJSONBody(r, &m); err != nil {
 		emo.Warning(err)
 		w.WriteHeader(http.StatusBadRequest)

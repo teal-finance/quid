@@ -15,7 +15,7 @@ import (
 
 // RequestAccessToken : request an access token from a refresh token.
 func RequestAccessToken(w http.ResponseWriter, r *http.Request) {
-	var m AccessTokenRequest
+	var m accessTokenRequest
 	if err := garcon.DecodeJSONBody(r, &m); err != nil {
 		emo.Warning(err)
 		w.WriteHeader(http.StatusBadRequest)
@@ -121,7 +121,7 @@ func RequestAccessToken(w http.ResponseWriter, r *http.Request) {
 
 // RequestRefreshToken : http login handler.
 func RequestRefreshToken(w http.ResponseWriter, r *http.Request) {
-	var m PasswordRequest
+	var m passwordRequest
 	if err := garcon.DecodeJSONBody(r, &m); err != nil {
 		emo.Warning(err)
 		w.WriteHeader(http.StatusBadRequest)

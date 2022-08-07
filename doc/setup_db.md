@@ -7,7 +7,7 @@ Quid expects PostreSQL listens to the port 5432.
 You can check your PostreSQL status and the port:
 
 ```sh
-$ sudo apt install postgresqls
+$ sudo apt install postgresql
 $ sudo service postgresql status
 $ ss -nlt | grep 5432
 LISTEN 0      244        127.0.0.1:5432      0.0.0.0:*

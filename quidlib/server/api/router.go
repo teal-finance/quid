@@ -22,7 +22,7 @@ var AdminNsKey = []byte("")
 
 var echoServer = echo.New()
 
-var Garcon *garcon.Garcon
+// var Garcon *garcon.Garcon
 var Incorruptible *incorruptible.Incorruptible
 
 // RunServer : configure and run the server.
@@ -35,7 +35,7 @@ func RunServer(adminNsKey, address string) {
 		echoServer.Use(middleware.Secure())
 	}
 
-	g, err := garcon.New(
+	g := garcon.New(
 		garcon.WithURLs(address),
 		garcon.WithDocURL("/doc"),
 		garcon.WithServerHeader("Quid"),
@@ -43,16 +43,13 @@ func RunServer(adminNsKey, address string) {
 		garcon.WithLimiter(20, 30),
 		garcon.WithProm(9193, address),
 		garcon.WithDev(conf.IsDevMode))
-	if err != nil {
-		log.Panic("garcon.New: ", err)
-	}
 
-	session, ok := g.Checker.(*incorruptible.Incorruptible)
+	session, ok := g.TokenChecker().(*incorruptible.Incorruptible)
 	if !ok {
 		emo.Error("Garcon.Checker is not Incorruptible")
 		log.Panic("Garcon.Checker is not Incorruptible")
 	}
-	Garcon = g
+	// Garcon = g
 	Incorruptible = session
 
 	r := chi.NewRouter()
@@ -62,7 +59,7 @@ func RunServer(adminNsKey, address string) {
 	r.NotFound(ws.ServeFile("index.html", "text/html; charset=utf-8")) // catches index.html and other Vue sub-folders
 	r.Get("/favicon.ico", ws.ServeFile("favicon.ico", "image/x-icon"))
 	r.Get("/assets/*", ws.ServeAssets())
-	r.Get("/version", g.ServeVersion())
+	r.Get("/version", garcon.ServeVersion())
 
 	// HTTP Routes
 	// public routes
@@ -162,14 +159,15 @@ func RunServer(adminNsKey, address string) {
 		fmt.Println(color.BoldRed("Running in development mode"))
 	}
 
+	middleware, connState := g.ChainMiddleware()
 	server := http.Server{
 		Addr:              address,
-		Handler:           g.Middlewares.Then(r),
+		Handler:           middleware.Then(r),
 		ReadTimeout:       time.Second,
 		ReadHeaderTimeout: time.Second,
 		WriteTimeout:      time.Minute, // Garcon.Limiter delays responses, so people (attackers) who click frequently will wait longer.
 		IdleTimeout:       time.Second,
-		ConnState:         g.ConnState,
+		ConnState:         connState,
 		ErrorLog:          log.Default(),
 	}
 

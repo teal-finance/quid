@@ -39,7 +39,7 @@ func RunServer(adminNsKey, address string) {
 		garcon.WithURLs(address),
 		garcon.WithDocURL("/doc"),
 		garcon.WithServerHeader("Quid"),
-		garcon.WithIncorruptible("", conf.EncodingKey, 3600*24, true),
+		garcon.WithIncorruptible(conf.EncodingKey, 3600*24, true),
 		garcon.WithLimiter(20, 30),
 		garcon.WithProm(9193, address),
 		garcon.WithDev(conf.IsDevMode))
@@ -167,7 +167,7 @@ func RunServer(adminNsKey, address string) {
 		Handler:           g.Middlewares.Then(r),
 		ReadTimeout:       time.Second,
 		ReadHeaderTimeout: time.Second,
-		WriteTimeout:      time.Minute, // Garcon.Limiter postpones response, attacker will wait longer.
+		WriteTimeout:      time.Minute, // Garcon.Limiter delays responses, so people (attackers) who click frequently will wait longer.
 		IdleTimeout:       time.Second,
 		ConnState:         g.ConnState,
 		ErrorLog:          log.Default(),

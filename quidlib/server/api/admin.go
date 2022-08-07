@@ -86,11 +86,16 @@ func AdminLogin(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
-	tv.SetString(user, u.Name)
-	tv.SetString(ns_name, ns.Name)
-	tv.SetUint64(ns_id, uint64(ns.ID))
-	tv.SetBool(is_admin, _isAdmin)
-	tv.SetBool(is_ns_admin, _isNsAdmin)
+	err1 := tv.SetString(user, u.Name)
+	err2 := tv.SetString(ns_name, ns.Name)
+	err3 := tv.SetUint64(ns_id, uint64(ns.ID))
+	err4 := tv.SetBool(is_admin, _isAdmin)
+	err5 := tv.SetBool(is_ns_admin, _isNsAdmin)
+	if err1 != nil || err2 != nil || err3 != nil || err4 != nil || err5 != nil {
+		emo.Error(err1, err2, err3, err4, err5)
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
 	r = tv.ToCtx(r)
 	cookie, err := Incorruptible.NewCookieFromValues(tv)
 	if err != nil {
@@ -126,7 +131,11 @@ func AdminLogout(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
-	tv.SetBool(is_admin, false)
+	if err := tv.SetBool(is_admin, false); err != nil {
+		emo.Error(err)
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
 	cookie, err := Incorruptible.NewCookieFromValues(tv)
 	if err != nil {
 		emo.Error(err)

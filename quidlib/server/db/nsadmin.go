@@ -66,7 +66,6 @@ func CreateAdministrator(namespaceID, userID int64) (int64, error) {
 			emo.QueryError(err)
 			return 0, err
 		}
-
 		return idi.(int64), nil
 	}
 

@@ -14,7 +14,7 @@ Download the latest [release](https://github.com/teal-finance/quid/releases) to 
 
 1. Create the default config file:
 
-       ./quid -conf
+        ./quid -conf
 
 2. Create the `quid` database: [instructions](doc/setup_db.md)
 
@@ -24,7 +24,7 @@ Download the latest [release](https://github.com/teal-finance/quid/releases) to 
 
 4. Initialize the `quid` database and create the administrator user:
 
-       ./quid -init
+        ./quid -init
 
     These registered administrator username and password will be required to login the Administration UI.
 

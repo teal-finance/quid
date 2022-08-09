@@ -3,8 +3,6 @@ package api
 import (
 	"fmt"
 	"log"
-	"net/http"
-	"time"
 
 	color "github.com/acmacalister/skittles"
 	"github.com/go-chi/chi/v5"
@@ -26,7 +24,7 @@ var echoServer = echo.New()
 var Incorruptible *incorruptible.Incorruptible
 
 // RunServer : configure and run the server.
-func RunServer(adminNsKey, address string) {
+func RunServer(adminNsKey string, port int) {
 	AdminNsKey = []byte(adminNsKey)
 
 	// TODO FIXME
@@ -36,12 +34,11 @@ func RunServer(adminNsKey, address string) {
 	}
 
 	g := garcon.New(
-		garcon.WithURLs(address),
 		garcon.WithDocURL("/doc"),
 		garcon.WithServerHeader("Quid"),
 		garcon.WithIncorruptible(conf.EncodingKey, 3600*24, true),
 		garcon.WithLimiter(20, 30),
-		garcon.WithProm(9193, address),
+		garcon.WithProm(9193, "Quid"),
 		garcon.WithDev(conf.IsDevMode))
 
 	session, ok := g.TokenChecker().(*incorruptible.Incorruptible)
@@ -131,8 +128,8 @@ func RunServer(adminNsKey, address string) {
 
 		// Namespace admin endpoints
 		r.Route("/ns", func(r chi.Router) {
-			//TODO nsadm.Use(middleware.JWTWithConfig(config))
-			//TODO nsadm.Use(NsAdminMiddleware)
+			// TODO nsadm.Use(middleware.JWTWithConfig(config))
+			// TODO nsadm.Use(NsAdminMiddleware)
 
 			// nsadmin users
 			r.Route("/users", func(r chi.Router) {
@@ -152,24 +149,13 @@ func RunServer(adminNsKey, address string) {
 				r.Post("/nsall", AllGroupsForNamespace)
 			})
 		})
-
 	})
 
 	if conf.IsDevMode {
 		fmt.Println(color.BoldRed("Running in development mode"))
 	}
 
-	middleware, connState := g.ChainMiddleware()
-	server := http.Server{
-		Addr:              address,
-		Handler:           middleware.Then(r),
-		ReadTimeout:       time.Second,
-		ReadHeaderTimeout: time.Second,
-		WriteTimeout:      time.Minute, // Garcon.Limiter delays responses, so people (attackers) who click frequently will wait longer.
-		IdleTimeout:       time.Second,
-		ConnState:         connState,
-		ErrorLog:          log.Default(),
-	}
+	server := g.Server(r, port)
 
 	log.Print("Server listening on http://localhost", server.Addr)
 	log.Fatal(server.ListenAndServe())

@@ -236,6 +236,6 @@ func RequestAdminAccessToken(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	//emo.AccessToken("Issued an admin access token for user", u.Name, "and namespace", ns.Name)
+	// emo.AccessToken("Issued an admin access token for user", u.Name, "and namespace", ns.Name)
 	gw.WriteOK(w, "token", t, "namespace", ns)
 }

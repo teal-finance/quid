@@ -3,14 +3,14 @@ package api
 import (
 	"net/http"
 
-	"github.com/teal-finance/incorruptible/tvalues"
+	"github.com/teal-finance/incorruptible"
 	"github.com/teal-finance/quid/quidlib/server/db"
 )
 
 // VerifyAdminNs checks that the requested namespace operation
 // matches the request ns admin permissions
 func VerifyAdminNs(w http.ResponseWriter, r *http.Request, nsID int64) bool {
-	tv, ok := tvalues.FromCtx(r)
+	tv, ok := incorruptible.FromCtx(r)
 	if !ok {
 		emo.ParamError("Missing Incorruptible token: cannot check Admin NsID=", nsID)
 		return false
@@ -37,7 +37,7 @@ func VerifyAdminNs(w http.ResponseWriter, r *http.Request, nsID int64) bool {
 // NsAdminMiddleware : check the token claim to see if the user is namespace admin.
 func NsAdminMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		tv, ok := tvalues.FromCtx(r)
+		tv, ok := incorruptible.FromCtx(r)
 		if !ok {
 			emo.Error("Missing Incorruptible token")
 			w.WriteHeader(http.StatusUnauthorized)

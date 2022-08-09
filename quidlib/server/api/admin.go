@@ -8,7 +8,7 @@ import (
 	"github.com/golang-jwt/jwt"
 
 	"github.com/teal-finance/garcon"
-	"github.com/teal-finance/incorruptible/tvalues"
+	"github.com/teal-finance/incorruptible"
 	"github.com/teal-finance/quid/quidlib/server/db"
 	"github.com/teal-finance/quid/quidlib/tokens"
 )
@@ -82,7 +82,7 @@ func AdminLogin(w http.ResponseWriter, r *http.Request) {
 	emo.Info("Admin login successful for user", u.Name, "on namespace", ns.Name)
 
 	// get or create an Incorruptible token
-	tv, ok := tvalues.FromCtx(r)
+	tv, ok := incorruptible.FromCtx(r)
 	if !ok {
 		emo.Error("No Incorruptible token => Create a new one")
 	}
@@ -103,7 +103,7 @@ func AdminLogin(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// store the Incorruptible token in the request context
-	r = tv.ToCtx(r)
+	_ = tv.ToCtx(r)
 
 	// set the session
 	cookie, err := Incorruptible.NewCookieFromValues(tv)
@@ -119,7 +119,7 @@ func AdminLogin(w http.ResponseWriter, r *http.Request) {
 
 // AdminLogout : http logout handler for the admin interface.
 func AdminLogout(w http.ResponseWriter, r *http.Request) {
-	tv, ok := tvalues.FromCtx(r)
+	tv, ok := incorruptible.FromCtx(r)
 	if !ok {
 		emo.Error("No cookie or cookie is not Incorruptible")
 		w.WriteHeader(http.StatusInternalServerError)

@@ -3,14 +3,14 @@ package api
 import (
 	"net/http"
 
-	"github.com/teal-finance/incorruptible/tvalues"
+	"github.com/teal-finance/incorruptible"
 	"github.com/teal-finance/quid/quidlib/server/db"
 )
 
 // AdminMiddleware : check the token claim to see if the user is admin.
 func AdminMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		tv, ok := tvalues.FromCtx(r)
+		tv, ok := incorruptible.FromCtx(r)
 		if !ok {
 			emo.Error("Missing Incorruptible token")
 			w.WriteHeader(http.StatusUnauthorized)
@@ -53,6 +53,5 @@ func AdminMiddleware(next http.Handler) http.Handler {
 		}
 
 		next.ServeHTTP(w, r)
-		return
 	})
 }

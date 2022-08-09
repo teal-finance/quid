@@ -1,91 +1,85 @@
 package api
 
 import (
-	"log"
 	"net/http"
 
-	"github.com/golang-jwt/jwt"
-
 	"github.com/teal-finance/incorruptible/tvalues"
-	"github.com/teal-finance/quid/quidlib/conf"
 	"github.com/teal-finance/quid/quidlib/server/db"
-	"github.com/teal-finance/quid/quidlib/tokens"
 )
 
+// VerifyAdminNs checks that the requested namespace operation
+// matches the request ns admin permissions
 func VerifyAdminNs(w http.ResponseWriter, r *http.Request, nsID int64) bool {
-	// check that the requested namespace operation
-	// matches the request ns admin permissions
-	info := GetAdminInfoFromCtx(r)
-	if info.isAdmin {
+	tv, ok := tvalues.FromCtx(r)
+	if !ok {
+		emo.ParamError("Missing Incorruptible token: cannot check Admin NsID=", nsID)
+		return false
+	}
+
+	nsAdmin, err := tv.Bool(is_ns_admin)
+	if nsAdmin && (err == nil) {
 		return true
 	}
-	if info.namespaceID == nsID {
-		return true
+
+	gotID, err := tv.Int64(ns_id)
+	if err != nil {
+		emo.ParamError("Missing field 'ns_id' in Incorruptible token, want nsID=", nsID)
+		return false
 	}
-	emo.ParamError("User is not nsadmin for namespace", nsID, "/", info.namespaceID)
-	return false
+	if gotID != nsID {
+		emo.ParamError("User is nsAdmin for ", gotID, " but not ", nsID)
+		return false
+	}
+
+	return true
 }
 
 // NsAdminMiddleware : check the token claim to see if the user is namespace admin.
 func NsAdminMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		// check the access token to control that the user is admin
-		u, ok := c.Get("user").(*jwt.Token)
+		tv, ok := tvalues.FromCtx(r)
 		if !ok {
-			emo.Error("Wrong JWT type in context user: ", c.Get("user"))
-			log.Panicf("Wrong JWT type in context user: %T %v", c.Get("user"), c.Get("user"))
-			gw.WriteErr(w, r, http.StatusConflict, "Wrong JWT type in context user")
-			return
-		}
-
-		claims, ok := u.Claims.(*tokens.AdminAccessClaim)
-		if !ok {
-			emo.Error("Wrong AccessClaims type for claims: ", u.Claims)
-			log.Panic("Wrong AccessClaims type for claims: ", u.Claims)
-			gw.WriteErr(w, r, http.StatusConflict, "Wrong AccessClaims type for claims")
-			return
-		}
-
-		emo.Data("Admin claims for", claims.Namespace, claims)
-
-		isAdmin, err := db.IsUserAdmin(claims.Namespace, claims.NsID, claims.UserID)
-		if err != nil {
-			w.WriteHeader(http.StatusInternalServerError)
-			return
-		}
-		if !isAdmin {
-			emo.ParamError("The user "+claims.UserName+" is not nsadmin for namespace", claims.Namespace)
+			emo.Error("Missing Incorruptible token")
 			w.WriteHeader(http.StatusUnauthorized)
 			return
 		}
 
-		r = PutAdminInfoInCtx(r, false, claims.NsID)
-
-		// check session data in production
-		if conf.IsDevMode {
-			emo.RequestPost("Request ok from nsadmin middleware")
-			next.ServeHTTP(w, r)
-			return
-		}
-
-		tv, ok := tvalues.FromCtx(r)
-		if !ok {
-			emo.Error("cookie is missing or is not Incorruptible")
-			w.WriteHeader(http.StatusInternalServerError)
-			return
-		}
-		isAdmin, err = tv.Bool(is_ns_admin)
+		values, err := tv.Get(
+			tv.KString(user),
+			tv.KInt64(user_id),
+			tv.KString(ns_name),
+			tv.KInt64(ns_id),
+			tv.KBool(is_ns_admin))
 		if err != nil {
 			emo.Error(err)
 			w.WriteHeader(http.StatusInternalServerError)
 			return
 		}
-		if isAdmin {
-			next.ServeHTTP(w, r)
+
+		userName := values[0].String()
+		userID := values[1].Int64()
+		namespace := values[2].String()
+		nsID := values[3].Int64()
+		isAdmin := values[4].Bool()
+
+		if !isAdmin {
+			emo.Error("User " + userName + "is not a ns admin")
+			w.WriteHeader(http.StatusUnauthorized)
 			return
 		}
 
-		emo.Warning("Unauthorized session from nsadmin middleware")
-		w.WriteHeader(http.StatusUnauthorized)
+		isAdmin, err = db.IsUserAdmin(namespace, nsID, userID)
+		if err != nil {
+			w.WriteHeader(http.StatusInternalServerError)
+			return
+		}
+		if !isAdmin {
+			emo.ParamError("The user "+userName+" is not admin for namespace", namespace)
+			w.WriteHeader(http.StatusUnauthorized)
+			return
+		}
+
+		emo.RequestPost("Request ok from ns admin middleware")
+		next.ServeHTTP(w, r)
 	})
 }

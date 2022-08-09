@@ -15,8 +15,10 @@ import (
 
 var gw garcon.Writer
 
+// Key IDs for the Incorruptible TValues
 const (
 	user = iota
+	user_id
 	ns_name
 	ns_id
 	is_admin
@@ -79,24 +81,31 @@ func AdminLogin(w http.ResponseWriter, r *http.Request) {
 	_isNsAdmin := isUserAdmin && namespace != "quid"
 	emo.Info("Admin login successful for user", u.Name, "on namespace", ns.Name)
 
-	// set the session
+	// get or create an Incorruptible token
 	tv, ok := tvalues.FromCtx(r)
 	if !ok {
-		emo.Error("No cookie or cookie is not Incorruptible")
+		emo.Error("No Incorruptible token => Create a new one")
+	}
+
+	// update the token fields
+	err = tv.Set(
+		tv.KString(user, u.Name),
+		tv.KInt64(user_id, u.ID),
+		tv.KString(ns_name, ns.Name),
+		tv.KInt64(ns_id, ns.ID),
+		tv.KBool(is_admin, _isAdmin),
+		tv.KBool(is_ns_admin, _isNsAdmin),
+	)
+	if err != nil {
+		emo.Error(err)
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
-	err1 := tv.SetString(user, u.Name)
-	err2 := tv.SetString(ns_name, ns.Name)
-	err3 := tv.SetUint64(ns_id, uint64(ns.ID))
-	err4 := tv.SetBool(is_admin, _isAdmin)
-	err5 := tv.SetBool(is_ns_admin, _isNsAdmin)
-	if err1 != nil || err2 != nil || err3 != nil || err4 != nil || err5 != nil {
-		emo.Error(err1, err2, err3, err4, err5)
-		w.WriteHeader(http.StatusInternalServerError)
-		return
-	}
+
+	// store the Incorruptible token in the request context
 	r = tv.ToCtx(r)
+
+	// set the session
 	cookie, err := Incorruptible.NewCookieFromValues(tv)
 	if err != nil {
 		emo.Error(err)
@@ -105,22 +114,7 @@ func AdminLogin(w http.ResponseWriter, r *http.Request) {
 	}
 	http.SetCookie(w, cookie)
 
-	// set the refresh token
-	token, err := tokens.GenRefreshToken("24h", ns.MaxRefreshTokenTTL, ns.Name, u.Name, []byte(ns.RefreshKey))
-	if err != nil {
-		emo.Error("Error generating refresh token", err)
-		gw.WriteErr(w, r, http.StatusInternalServerError, "cannot generate the refresh token")
-		return
-	}
-	if token == "" {
-		emo.Warning("Unauthorized: timeout max (", ns.MaxRefreshTokenTTL, ") for refresh token for namespace", ns.Name)
-		gw.WriteErr(w, r, http.StatusUnauthorized, "unauthorized")
-		return
-	}
-
-	emo.Info("Admin user ", u.Name, " is connected")
-
-	gw.WriteErr(w, r, http.StatusOK, "token", token, "namespace", ns)
+	w.WriteHeader(http.StatusOK)
 }
 
 // AdminLogout : http logout handler for the admin interface.

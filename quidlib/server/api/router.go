@@ -50,10 +50,13 @@ func newServer(port int) http.Server {
 	r := chi.NewRouter()
 	ck := g.TokenChecker()
 
-	// serve static files
+	// Static website: set the Incorruptible cookie only when visiting index.html
 	ws := garcon.NewStaticWebServer("ui/dist", g.Writer)
-	r.With(ck.Set).NotFound(ws.ServeFile("index.html", "text/html; charset=utf-8")) // catches index.html and other Vue sub-folders
+	r.With(ck.Set).NotFound(ws.ServeFile("index.html", "text/html; charset=utf-8"))
 	r.Get("/favicon.ico", ws.ServeFile("favicon.ico", "image/x-icon"))
+	r.Get("/favicon.png", ws.ServeFile("favicon.png", "image/png"))
+	r.Get("/preview.jpg", ws.ServeFile("preview.jpg", "image/jpeg"))
+	r.Get("/js/*", ws.ServeDir("text/javascript; charset=utf-8"))
 	r.Get("/assets/*", ws.ServeAssets())
 	r.Get("/version", garcon.ServeVersion())
 

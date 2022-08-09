@@ -35,7 +35,7 @@ func RunServer(adminNsKey string, port int) {
 func newServer(port int) http.Server {
 	g := garcon.New(
 		garcon.WithServerHeader("Quid"),
-		garcon.WithIncorruptible(conf.EncodingKey, 3600*3, true),
+		garcon.WithIncorruptible(conf.EncodingKey[:32], 3600*3, true),
 		garcon.WithLimiter(10, 30),
 		garcon.WithProm(9193, "Quid"),
 		garcon.WithDev(conf.IsDevMode))

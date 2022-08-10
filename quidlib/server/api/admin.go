@@ -114,7 +114,7 @@ func AdminLogin(w http.ResponseWriter, r *http.Request) {
 	}
 	http.SetCookie(w, cookie)
 
-	gw.WriteErr(w, r, http.StatusOK,
+	gw.WriteOK(w,
 		"token", "FakeToken.TODO.RemoveJSONResponseWhenFrontendCleaned",
 		"namespace", ns)
 }

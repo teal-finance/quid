@@ -114,7 +114,9 @@ func AdminLogin(w http.ResponseWriter, r *http.Request) {
 	}
 	http.SetCookie(w, cookie)
 
-	w.WriteHeader(http.StatusOK)
+	gw.WriteErr(w, r, http.StatusOK,
+		"token", "FakeToken.TODO.RemoveJSONResponseWhenFrontendCleaned",
+		"namespace", ns)
 }
 
 // AdminLogout : http logout handler for the admin interface.

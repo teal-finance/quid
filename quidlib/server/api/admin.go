@@ -17,12 +17,12 @@ var gw garcon.Writer
 
 // Key IDs for the Incorruptible TValues
 const (
-	user = iota
-	user_id
-	ns_name
-	ns_id
-	is_admin
-	is_ns_admin
+	keyUserName = iota
+	KeyUserID
+	keyNsName
+	keyNsID
+	keyIsAdmin
+	keyIsNsAdmin
 )
 
 // AdminLogin : http login handler for the admin interface.
@@ -89,12 +89,12 @@ func AdminLogin(w http.ResponseWriter, r *http.Request) {
 
 	// update the token fields
 	err = tv.Set(
-		tv.KString(user, u.Name),
-		tv.KInt64(user_id, u.ID),
-		tv.KString(ns_name, ns.Name),
-		tv.KInt64(ns_id, ns.ID),
-		tv.KBool(is_admin, _isAdmin),
-		tv.KBool(is_ns_admin, _isNsAdmin),
+		tv.KString(keyUserName, u.Name),
+		tv.KInt64(KeyUserID, u.ID),
+		tv.KString(keyNsName, ns.Name),
+		tv.KInt64(keyNsID, ns.ID),
+		tv.KBool(keyIsAdmin, _isAdmin),
+		tv.KBool(keyIsNsAdmin, _isNsAdmin),
 	)
 	if err != nil {
 		emo.Error(err)
@@ -127,7 +127,7 @@ func AdminLogout(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
-	if err := tv.SetBool(is_admin, false); err != nil {
+	if err := tv.SetBool(keyIsAdmin, false); err != nil {
 		emo.Error(err)
 		w.WriteHeader(http.StatusInternalServerError)
 		return

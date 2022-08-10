@@ -16,12 +16,12 @@ func VerifyAdminNs(w http.ResponseWriter, r *http.Request, nsID int64) bool {
 		return false
 	}
 
-	nsAdmin, err := tv.Bool(is_ns_admin)
+	nsAdmin, err := tv.Bool(keyIsNsAdmin)
 	if nsAdmin && (err == nil) {
 		return true
 	}
 
-	gotID, err := tv.Int64(ns_id)
+	gotID, err := tv.Int64(keyNsID)
 	if err != nil {
 		emo.ParamError("Missing field 'ns_id' in Incorruptible token, want nsID=", nsID)
 		return false
@@ -45,11 +45,11 @@ func NsAdminMiddleware(next http.Handler) http.Handler {
 		}
 
 		values, err := tv.Get(
-			tv.KString(user),
-			tv.KInt64(user_id),
-			tv.KString(ns_name),
-			tv.KInt64(ns_id),
-			tv.KBool(is_ns_admin))
+			tv.KString(keyUserName),
+			tv.KInt64(KeyUserID),
+			tv.KString(keyNsName),
+			tv.KInt64(keyNsID),
+			tv.KBool(keyIsNsAdmin))
 		if err != nil {
 			emo.Error(err)
 			w.WriteHeader(http.StatusInternalServerError)

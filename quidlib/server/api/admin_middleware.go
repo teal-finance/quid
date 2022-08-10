@@ -18,11 +18,11 @@ func AdminMiddleware(next http.Handler) http.Handler {
 		}
 
 		values, err := tv.Get(
-			tv.KString(user),
-			tv.KInt64(user_id),
-			tv.KString(ns_name),
-			tv.KInt64(ns_id),
-			tv.KBool(is_admin))
+			tv.KString(keyUserName),
+			tv.KInt64(KeyUserID),
+			tv.KString(keyNsName),
+			tv.KInt64(keyNsID),
+			tv.KBool(keyIsAdmin))
 		if err != nil {
 			emo.Error(err)
 			w.WriteHeader(http.StatusInternalServerError)

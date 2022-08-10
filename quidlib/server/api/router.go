@@ -1,7 +1,6 @@
 package api
 
 import (
-	"fmt"
 	"log"
 	"net/http"
 
@@ -25,10 +24,10 @@ func RunServer(adminNsKey string, port int) {
 	server := newServer(port)
 
 	if conf.IsDevMode {
-		fmt.Println(color.BoldRed("Running in development mode"))
+		log.Print("INF " + color.BoldRed("Running in development mode"))
 	}
 
-	log.Print("Server listening on http://localhost", server.Addr)
+	log.Print("INF Server listening on " + color.UnderlineBlue("http://localhost"+server.Addr))
 	log.Fatal(server.ListenAndServe())
 }
 

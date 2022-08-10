@@ -30,7 +30,7 @@ func GenNsAdminTokenForUser(userName, nsName string) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	//emo.Debug("USER", userName, uid, "NS", nsName, "NSa", isNsAdmin)
+	// emo.Debug("USER", userName, uid, "NS", nsName, "NSa", isNsAdmin)
 	if !isNsAdmin {
 		qid, err := SelectNamespaceID("quid")
 		if err != nil {

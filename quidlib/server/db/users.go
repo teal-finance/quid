@@ -24,11 +24,11 @@ func SelectNonDisabledUserID(username string) (bool, int64, error) {
 		}
 		return false, 0, err
 	}
-	//emo.Found("BASE USER", u.ID, u.UserName)
+	// emo.Found("BASE USER", u.ID, u.UserName)
 	if u.IsDisabled {
 		return false, 0, nil
 	}
-	//emo.Found("USER", u.ID)
+	// emo.Found("USER", u.ID)
 	return true, u.ID, nil
 }
 
@@ -48,7 +48,7 @@ func SelectNonDisabledUser(username string, namespaceID int64) (bool, server.Use
 		return false, ux, err
 	}
 
-	//emo.Found("BASE USER", u.ID, u.UserName)
+	// emo.Found("BASE USER", u.ID, u.UserName)
 
 	if u.IsDisabled {
 		return false, ux, nil
@@ -58,7 +58,7 @@ func SelectNonDisabledUser(username string, namespaceID int64) (bool, server.Use
 	ux.PasswordHash = u.Password
 	ux.Namespace = u.Namespace
 	ux.ID = u.ID
-	//emo.Found("USER", ux.ID, ux.Name)
+	// emo.Found("USER", ux.ID, ux.Name)
 	return true, ux, nil
 }
 

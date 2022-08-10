@@ -197,7 +197,7 @@ func CreateNamespace(name, key, refreshKey, ttl, refreshTTL string, endpoint boo
 		return idi.(int64), nil
 	}
 
-	emo.QueryError("no namespace ", name)
+	emo.QueryError("no namespace", name)
 	return 0, fmt.Errorf("no namespace %q", name)
 }
 

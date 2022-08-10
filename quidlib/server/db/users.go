@@ -174,7 +174,7 @@ func CreateUserFromNameAndPassword(username, passwordHash string, namespaceID in
 		return idi.(int64), nil
 	}
 
-	emo.QueryError("no user ", username)
+	emo.QueryError("no user", username)
 	return 0, fmt.Errorf("no user %q", username)
 }
 

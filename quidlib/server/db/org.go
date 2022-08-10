@@ -126,7 +126,7 @@ func CreateOrg(name string) (int64, error) {
 		return idi.(int64), nil
 	}
 
-	emo.QueryError("no org ", name)
+	emo.QueryError("no org", name)
 	return 0, fmt.Errorf("no org %q", name)
 }
 

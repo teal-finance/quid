@@ -2,6 +2,7 @@ package tokens
 
 import (
 	"crypto/hmac"
+	"crypto/rand"
 	"crypto/sha256"
 	"encoding/hex"
 	"log"
@@ -9,7 +10,6 @@ import (
 
 	"github.com/golang-jwt/jwt"
 	"github.com/karrick/tparse/v2"
-	rand "github.com/zhangyunhao116/fastrand"
 )
 
 // GenRefreshToken generates a refresh token for a user in a namespace.

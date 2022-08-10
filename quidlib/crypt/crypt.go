@@ -3,10 +3,9 @@ package crypt
 import (
 	"crypto/aes"
 	"crypto/cipher"
+	"crypto/rand"
 	"encoding/hex"
 	"fmt"
-
-	rand "github.com/zhangyunhao116/fastrand"
 
 	"github.com/teal-finance/quid/quidlib/conf"
 )
@@ -27,17 +26,17 @@ func AesGcmEncrypt(plaintext string, additionalData []byte) (string, error) {
 		return "", err
 	}
 
-	aesgcm, err := cipher.NewGCM(block)
+	gcm, err := cipher.NewGCM(block)
 	if err != nil {
 		return "", err
 	}
 
 	iv := make([]byte, aesGcmNonceSize)
 	if _, err := rand.Read(iv); err != nil {
-		return "", fmt.Errorf("random iv generation : %w", err)
+		return "", fmt.Errorf("random iv generation: %w", err)
 	}
 
-	ciphertext := aesgcm.Seal(nil, iv, []byte(plaintext), additionalData)
+	ciphertext := gcm.Seal(nil, iv, []byte(plaintext), additionalData)
 
 	return hex.EncodeToString(append(iv, ciphertext...)), nil
 }
@@ -54,7 +53,7 @@ func AesGcmDecrypt(encryptedString string, additionalData []byte) (string, error
 		return "", err
 	}
 
-	aesgcm, err := cipher.NewGCM(block)
+	gcm, err := cipher.NewGCM(block)
 	if err != nil {
 		return "", err
 	}
@@ -66,7 +65,7 @@ func AesGcmDecrypt(encryptedString string, additionalData []byte) (string, error
 
 	iv, ciphertext := enc[:aesGcmNonceSize], enc[aesGcmNonceSize:]
 
-	plaintext, err := aesgcm.Open(nil, iv, ciphertext, additionalData)
+	plaintext, err := gcm.Open(nil, iv, ciphertext, additionalData)
 	if err != nil {
 		return "", err
 	}

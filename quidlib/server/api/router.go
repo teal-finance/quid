@@ -45,6 +45,7 @@ func RunServer(adminNsKey, address string) {
 	echoServer.File("/", "ui/dist/index.html")
 	echoServer.File("/favicon.ico", "ui/dist/favicon.ico")
 	echoServer.Static("/assets", "ui/dist/assets")
+	echoServer.Static("/js", "ui/dist/js")
 
 	// HTTP Routes
 	// public routes

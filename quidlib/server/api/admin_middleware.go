@@ -12,7 +12,7 @@ func AdminMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		tv, ok := incorruptible.FromCtx(r)
 		if !ok {
-			emo.Error("Missing Incorruptible token")
+			emo.Warning("AdminMiddleware: missing Incorruptible token")
 			w.WriteHeader(http.StatusUnauthorized)
 			return
 		}
@@ -24,7 +24,7 @@ func AdminMiddleware(next http.Handler) http.Handler {
 			tv.KInt64(keyNsID),
 			tv.KBool(keyIsAdmin))
 		if err != nil {
-			emo.Error(err)
+			emo.Error("AdminMiddleware tv.Get:", err)
 			w.WriteHeader(http.StatusInternalServerError)
 			return
 		}
@@ -36,22 +36,24 @@ func AdminMiddleware(next http.Handler) http.Handler {
 		isAdmin := values[4].Bool()
 
 		if !isAdmin {
-			emo.ParamError("User " + userName + "is not Admin")
+			emo.ParamError("AdminMiddleware: User " + userName + " is not Admin")
 			w.WriteHeader(http.StatusUnauthorized)
 			return
 		}
 
 		isAdmin, err = db.IsUserAdmin(namespace, nsID, userID)
 		if err != nil {
+			emo.QueryError("AdminMiddleware IsUserAdmin:", err)
 			w.WriteHeader(http.StatusInternalServerError)
 			return
 		}
 		if !isAdmin {
-			emo.ParamError("User " + userName + " is not admin")
+			emo.Data("AdminMiddleware: user " + userName + " is not Admin in database")
 			w.WriteHeader(http.StatusUnauthorized)
 			return
 		}
 
+		emo.Param("AdminMiddleware: admin "+userName+" (", userID, ") ns="+namespace+" (", nsID, ')')
 		next.ServeHTTP(w, r)
 	})
 }

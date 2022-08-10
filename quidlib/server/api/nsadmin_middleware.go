@@ -12,7 +12,7 @@ import (
 func VerifyAdminNs(w http.ResponseWriter, r *http.Request, nsID int64) bool {
 	tv, ok := incorruptible.FromCtx(r)
 	if !ok {
-		emo.ParamError("Missing Incorruptible token: cannot check Admin NsID=", nsID)
+		emo.ParamError("VerifyAdminNs: missing Incorruptible token: cannot check Admin NsID=", nsID)
 		return false
 	}
 
@@ -23,11 +23,11 @@ func VerifyAdminNs(w http.ResponseWriter, r *http.Request, nsID int64) bool {
 
 	gotID, err := tv.Int64(keyNsID)
 	if err != nil {
-		emo.ParamError("Missing field 'ns_id' in Incorruptible token, want nsID=", nsID)
+		emo.ParamError("VerifyAdminNs: missing field 'ns_id' in Incorruptible token, want nsID=", nsID)
 		return false
 	}
 	if gotID != nsID {
-		emo.ParamError("User is nsAdmin for ", gotID, " but not ", nsID)
+		emo.ParamError("VerifyAdminNs: user is nsAdmin for", gotID, " but not", nsID)
 		return false
 	}
 
@@ -39,7 +39,7 @@ func NsAdminMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		tv, ok := incorruptible.FromCtx(r)
 		if !ok {
-			emo.Error("Missing Incorruptible token")
+			emo.Error("NsAdminMiddleware: missing Incorruptible token")
 			w.WriteHeader(http.StatusUnauthorized)
 			return
 		}
@@ -63,18 +63,19 @@ func NsAdminMiddleware(next http.Handler) http.Handler {
 		isAdmin := values[4].Bool()
 
 		if !isAdmin {
-			emo.Error("User " + userName + "is not a ns admin")
+			emo.ParamError("NsAdminMiddleware: user " + userName + "is not ns admin")
 			w.WriteHeader(http.StatusUnauthorized)
 			return
 		}
 
 		isAdmin, err = db.IsUserAdmin(namespace, nsID, userID)
 		if err != nil {
+			emo.Error("NsAdminMiddleware:", err)
 			w.WriteHeader(http.StatusInternalServerError)
 			return
 		}
 		if !isAdmin {
-			emo.ParamError("The user "+userName+" is not admin for namespace", namespace)
+			emo.ParamError("NsAdminMiddleware: user "+userName+" is not admin for namespace", namespace)
 			w.WriteHeader(http.StatusUnauthorized)
 			return
 		}

@@ -13,13 +13,14 @@ import (
 func AllOrgs(w http.ResponseWriter, r *http.Request) {
 	data, err := db.SelectAllOrgs()
 	if err != nil {
+		emo.QueryError("AllOrgs: error selecting orgs:", err)
 		gw.WriteErr(w, r, http.StatusConflict, "error selecting orgs")
 		return
 	}
 
 	b, err := json.Marshal(&data)
 	if err != nil {
-		emo.Error("%v while serializing %v", err, data)
+		emo.Error("AllOrgs: %v while serializing %v", err, data)
 		w.WriteHeader(http.StatusInternalServerError)
 	}
 
@@ -31,7 +32,7 @@ func AllOrgs(w http.ResponseWriter, r *http.Request) {
 func FindOrg(w http.ResponseWriter, r *http.Request) {
 	var m nameRequest
 	if err := garcon.DecodeJSONBody(r, &m); err != nil {
-		emo.Warning(err)
+		emo.ParamError("FindOrg:", err)
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
@@ -39,21 +40,21 @@ func FindOrg(w http.ResponseWriter, r *http.Request) {
 	name := m.Name
 
 	if p := garcon.Printable(name); p >= 0 {
-		emo.Warning("JSON contains a forbidden character")
+		emo.Warning("FindOrg: JSON contains a forbidden character at p=", p)
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
 
 	data, err := db.SelectOrgStartsWith(name)
 	if err != nil {
-		emo.QueryError(err)
+		emo.QueryError("FindOrg:", err)
 		gw.WriteErr(w, r, http.StatusInternalServerError, "error finding org")
 		return
 	}
 
 	b, err := json.Marshal(&data)
 	if err != nil {
-		emo.Error("%v while serializing %v", err, data)
+		emo.Error("FindOrg: %v while serializing %v", err, data)
 		w.WriteHeader(http.StatusInternalServerError)
 	}
 
@@ -65,7 +66,7 @@ func FindOrg(w http.ResponseWriter, r *http.Request) {
 func UserOrgsInfo(w http.ResponseWriter, r *http.Request) {
 	var m infoRequest
 	if err := garcon.DecodeJSONBody(r, &m); err != nil {
-		emo.Warning(err)
+		emo.ParamError("UserOrgsInfo:", err)
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
@@ -74,6 +75,7 @@ func UserOrgsInfo(w http.ResponseWriter, r *http.Request) {
 
 	o, err := db.SelectOrgsForUser(id)
 	if err != nil {
+		emo.QueryError("UserOrgsInfo: error selecting orgs:", err)
 		gw.WriteErr(w, r, http.StatusInternalServerError, "error selecting orgs")
 		return
 	}
@@ -85,7 +87,7 @@ func UserOrgsInfo(w http.ResponseWriter, r *http.Request) {
 func DeleteOrg(w http.ResponseWriter, r *http.Request) {
 	var m infoRequest
 	if err := garcon.DecodeJSONBody(r, &m); err != nil {
-		emo.Warning(err)
+		emo.ParamError("DeleteOrg:", err)
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
@@ -93,18 +95,19 @@ func DeleteOrg(w http.ResponseWriter, r *http.Request) {
 	id := m.ID
 
 	if err := db.DeleteOrg(id); err != nil {
+		emo.QueryError("DeleteOrg:", err)
 		gw.WriteErr(w, r, http.StatusConflict, "error deleting org")
 		return
 	}
 
-	gw.WriteOK(w, r, http.StatusOK, "message", "ok")
+	gw.WriteOK(w, "message", "ok")
 }
 
 // CreateOrg : org creation http handler.
 func CreateOrg(w http.ResponseWriter, r *http.Request) {
 	var m nameRequest
 	if err := garcon.DecodeJSONBody(r, &m); err != nil {
-		emo.Warning(err)
+		emo.ParamError("CreateOrg:", err)
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
@@ -112,7 +115,7 @@ func CreateOrg(w http.ResponseWriter, r *http.Request) {
 	name := m.Name
 
 	if p := garcon.Printable(name); p >= 0 {
-		emo.Warning("JSON contains a forbidden character")
+		emo.ParamError("CreateOrg: JSON contains a forbidden character at p=", p)
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
@@ -136,14 +139,17 @@ func createOrg(name string) (server.Org, bool, error) {
 
 	exists, err := db.OrgExists(name)
 	if err != nil {
+		emo.QueryError("createOrg OrgExists:", err)
 		return org, false, err
 	}
 	if exists {
+		emo.QueryError("createOrg: already exist:", name)
 		return org, true, nil
 	}
 
 	id, err := db.CreateOrg(name)
 	if err != nil {
+		emo.QueryError("createOrg:", err)
 		return org, false, err
 	}
 

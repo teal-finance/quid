@@ -16,7 +16,7 @@ import (
 func AllUsersInNamespace(w http.ResponseWriter, r *http.Request) {
 	var m namespaceIDRequest
 	if err := garcon.DecodeJSONBody(r, &m); err != nil {
-		emo.Warning(err)
+		emo.ParamError("AllUsersInNamespace:", err)
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
@@ -30,14 +30,14 @@ func AllUsersInNamespace(w http.ResponseWriter, r *http.Request) {
 
 	data, err := db.SelectUsersInNamespace(nsID)
 	if err != nil {
-		fmt.Println("ERROR", err)
+		emo.QueryError("AllUsersInNamespace: error selecting users:", err)
 		gw.WriteErr(w, r, http.StatusInternalServerError, "error selecting users")
 		return
 	}
 
 	b, err := json.Marshal(&data)
 	if err != nil {
-		emo.Error("%v while serializing %v", err, data)
+		emo.Error("AllUsersInNamespace: %v while serializing %+v", err, data)
 		w.WriteHeader(http.StatusInternalServerError)
 	}
 
@@ -49,7 +49,7 @@ func AllUsersInNamespace(w http.ResponseWriter, r *http.Request) {
 func GroupsForNamespace(w http.ResponseWriter, r *http.Request) {
 	var m namespaceRequest
 	if err := garcon.DecodeJSONBody(r, &m); err != nil {
-		emo.Warning(err)
+		emo.ParamError("GroupsForNamespace:", err)
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
@@ -57,22 +57,25 @@ func GroupsForNamespace(w http.ResponseWriter, r *http.Request) {
 	namespace := m.Namespace
 
 	if p := garcon.Printable(namespace); p >= 0 {
-		emo.Warning("JSON contains a forbidden character")
+		emo.ParamError("GroupsForNamespace: JSON contains a forbidden character at p=", p)
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
 
 	hasResult, ns, err := db.SelectNamespaceFromName(namespace)
 	if err != nil || !hasResult {
+		emo.QueryError("GroupsForNamespace: error selecting namespace:", err)
 		gw.WriteErr(w, r, http.StatusInternalServerError, "error selecting namespace")
 		return
 	}
 
 	g, err := db.SelectGroupsForNamespace(ns.ID)
 	if err != nil {
+		emo.QueryError("GroupsForNamespace: error selecting groups:", err)
 		gw.WriteErr(w, r, http.StatusInternalServerError, "error selecting groups")
 	}
 
+	emo.Result("GroupsForNamespace:", g)
 	gw.WriteOK(w, "groups", g)
 }
 
@@ -80,7 +83,7 @@ func GroupsForNamespace(w http.ResponseWriter, r *http.Request) {
 func AddUserInOrg(w http.ResponseWriter, r *http.Request) {
 	var m userOrgRequest
 	if err := garcon.DecodeJSONBody(r, &m); err != nil {
-		emo.Warning(err)
+		emo.ParamError("AddUserInOrg:", err)
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
@@ -90,10 +93,12 @@ func AddUserInOrg(w http.ResponseWriter, r *http.Request) {
 
 	err := db.AddUserInOrg(uID, oID)
 	if err != nil {
+		emo.QueryError("AddUserInOrg: error adding user in org:", err)
 		gw.WriteErr(w, r, http.StatusInternalServerError, "error adding user in org")
 		return
 	}
 
+	emo.Result("AddUserInOrg OK")
 	w.WriteHeader(http.StatusOK)
 }
 
@@ -101,7 +106,7 @@ func AddUserInOrg(w http.ResponseWriter, r *http.Request) {
 func RemoveUserFromOrg(w http.ResponseWriter, r *http.Request) {
 	var m userOrgRequest
 	if err := garcon.DecodeJSONBody(r, &m); err != nil {
-		emo.Warning(err)
+		emo.ParamError("RemoveUserFromOrg:", err)
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
@@ -111,10 +116,12 @@ func RemoveUserFromOrg(w http.ResponseWriter, r *http.Request) {
 
 	err := db.RemoveUserFromOrg(uID, oID)
 	if err != nil {
+		emo.QueryError("RemoveUserFromOrg: error removing user from org:", err)
 		gw.WriteErr(w, r, http.StatusInternalServerError, "error removing user from org")
 		return
 	}
 
+	emo.Result("RemoveUserFromOrg OK")
 	w.WriteHeader(http.StatusOK)
 }
 
@@ -122,7 +129,7 @@ func RemoveUserFromOrg(w http.ResponseWriter, r *http.Request) {
 func AddUserInGroup(w http.ResponseWriter, r *http.Request) {
 	var m userGroupRequest
 	if err := garcon.DecodeJSONBody(r, &m); err != nil {
-		emo.Warning(err)
+		emo.ParamError("AddUserInGroup:", err)
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
@@ -138,10 +145,12 @@ func AddUserInGroup(w http.ResponseWriter, r *http.Request) {
 
 	err := db.AddUserInGroup(uID, gID)
 	if err != nil {
+		emo.QueryError("AddUserInGroup:", err)
 		gw.WriteErr(w, r, http.StatusInternalServerError, "error adding user in group")
 		return
 	}
 
+	emo.Result("AddUserInGroup OK")
 	w.WriteHeader(http.StatusOK)
 }
 
@@ -149,7 +158,7 @@ func AddUserInGroup(w http.ResponseWriter, r *http.Request) {
 func RemoveUserFromGroup(w http.ResponseWriter, r *http.Request) {
 	var m userGroupRequest
 	if err := garcon.DecodeJSONBody(r, &m); err != nil {
-		emo.Warning(err)
+		emo.ParamError("RemoveUserFromGroup:", err)
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
@@ -165,10 +174,12 @@ func RemoveUserFromGroup(w http.ResponseWriter, r *http.Request) {
 
 	err := db.RemoveUserFromGroup(uID, gID)
 	if err != nil {
+		emo.QueryError("RemoveUserFromGroup: error removing user from group:", err)
 		gw.WriteErr(w, r, http.StatusInternalServerError, "error removing user from group")
 		return
 	}
 
+	emo.Result("RemoveUserFromGroup OK")
 	w.WriteHeader(http.StatusOK)
 }
 
@@ -176,7 +187,7 @@ func RemoveUserFromGroup(w http.ResponseWriter, r *http.Request) {
 func UserGroupsInfo(w http.ResponseWriter, r *http.Request) {
 	var m userRequest
 	if err := garcon.DecodeJSONBody(r, &m); err != nil {
-		emo.Warning(err)
+		emo.ParamError("UserGroupsInfo:", err)
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
@@ -191,10 +202,12 @@ func UserGroupsInfo(w http.ResponseWriter, r *http.Request) {
 
 	g, err := db.SelectGroupsForUser(id)
 	if err != nil {
+		emo.QueryError("UserGroupsInfo: error selecting groups:", err)
 		gw.WriteErr(w, r, http.StatusInternalServerError, "error selecting groups")
 		return
 	}
 
+	emo.Result("UserGroupsInfo:", g)
 	gw.WriteOK(w, "groups", g)
 }
 
@@ -202,7 +215,7 @@ func UserGroupsInfo(w http.ResponseWriter, r *http.Request) {
 func DeleteUser(w http.ResponseWriter, r *http.Request) {
 	var m userRequest
 	if err := garcon.DecodeJSONBody(r, &m); err != nil {
-		emo.Warning(err)
+		emo.ParamError("DeleteUser:", err)
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
@@ -216,10 +229,12 @@ func DeleteUser(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if err := db.DeleteUser(id); err != nil {
+		emo.QueryError("DeleteUser: error deleting user:", err)
 		gw.WriteErr(w, r, http.StatusConflict, "error deleting user")
 		return
 	}
 
+	emo.Result("DeleteUser OK")
 	gw.WriteOK(w, "message", "ok")
 }
 
@@ -227,7 +242,7 @@ func DeleteUser(w http.ResponseWriter, r *http.Request) {
 func CreateUserHandler(w http.ResponseWriter, r *http.Request) {
 	var m userHandlerCreation
 	if err := garcon.DecodeJSONBody(r, &m); err != nil {
-		emo.Warning(err)
+		emo.ParamError("CreateUserHandler:", err)
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
@@ -237,7 +252,7 @@ func CreateUserHandler(w http.ResponseWriter, r *http.Request) {
 	nsID := m.NamespaceID
 
 	if p := garcon.Printable(name, password); p >= 0 {
-		emo.Warning("JSON contains a forbidden character")
+		emo.ParamError("CreateUserHandler: JSON contains a forbidden character at p=", p)
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
@@ -250,10 +265,12 @@ func CreateUserHandler(w http.ResponseWriter, r *http.Request) {
 	// check if user exists
 	exists, err := db.UserNameExists(name, nsID)
 	if err != nil {
+		emo.QueryError("CreateUserHandler: error checking user:", err)
 		gw.WriteErr(w, r, http.StatusConflict, "error checking user")
 		return
 	}
 	if exists {
+		emo.Data("CreateUserHandler: error user already exist")
 		gw.WriteErr(w, r, http.StatusConflict, "error user already exist")
 		return
 	}
@@ -261,11 +278,13 @@ func CreateUserHandler(w http.ResponseWriter, r *http.Request) {
 	// create user
 	u, err := db.CreateUser(name, password, nsID)
 	if err != nil {
+		emo.QueryError("CreateUserHandler: error creating user:", err)
 		gw.WriteErr(w, r, http.StatusConflict, "error creating user")
 		return
 	}
 
-	gw.WriteOK(w, r, http.StatusOK, "user_id", u.ID)
+	emo.Result("CreateUserHandler:", u)
+	gw.WriteOK(w, "user_id", u.ID)
 }
 
 func checkUserPassword(username, password string, namespaceID int64) (bool, server.User, error) {

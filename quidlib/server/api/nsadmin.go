@@ -14,7 +14,7 @@ import (
 func AllAdministratorsInNamespace(w http.ResponseWriter, r *http.Request) {
 	var m namespaceIDRequest
 	if err := garcon.DecodeJSONBody(r, &m); err != nil {
-		emo.Warning(err)
+		emo.Warning("AllAdministratorsInNamespace:", err)
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
@@ -23,13 +23,14 @@ func AllAdministratorsInNamespace(w http.ResponseWriter, r *http.Request) {
 
 	data, err := db.SelectAdministratorsInNamespace(nsID)
 	if err != nil {
+		emo.QueryError("AllAdministratorsInNamespace: error selecting admin users:", err)
 		gw.WriteErr(w, r, http.StatusInternalServerError, "error selecting admin users")
 		return
 	}
 
 	b, err := json.Marshal(&data)
 	if err != nil {
-		emo.Error("%v while serializing %v", err, data)
+		emo.Error("AllAdministratorsInNamespace: %v while serializing %v", err, data)
 		w.WriteHeader(http.StatusInternalServerError)
 	}
 
@@ -41,7 +42,7 @@ func AllAdministratorsInNamespace(w http.ResponseWriter, r *http.Request) {
 func SearchForNonAdminUsersInNamespace(w http.ResponseWriter, r *http.Request) {
 	var m nonAdminUsersRequest
 	if err := garcon.DecodeJSONBody(r, &m); err != nil {
-		emo.Warning(err)
+		emo.Warning("SearchForNonAdminUsersInNamespace:", err)
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
@@ -50,25 +51,26 @@ func SearchForNonAdminUsersInNamespace(w http.ResponseWriter, r *http.Request) {
 	nsID := m.NamespaceID
 
 	if p := garcon.Printable(username); p >= 0 {
-		emo.Warning("JSON contains a forbidden character")
+		emo.Warning("SearchForNonAdminUsersInNamespace: JSON contains a forbidden character at p=", p)
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
 
 	u, err := db.SearchForNonAdminUsersInNamespace(nsID, username)
 	if err != nil {
+		emo.QueryError("SearchForNonAdminUsersInNamespace: error searching for non admin users:", err)
 		gw.WriteErr(w, r, http.StatusInternalServerError, "error searching for non admin users")
 		return
 	}
 
-	gw.WriteOK(w, r, http.StatusOK, "users", u)
+	gw.WriteOK(w, "users", u)
 }
 
 // CreateUserAdministrators : create admin users handler.
 func CreateAdministrators(w http.ResponseWriter, r *http.Request) {
 	var m administratorsCreation
 	if err := garcon.DecodeJSONBody(r, &m); err != nil {
-		emo.Warning(err)
+		emo.Warning("CreateAdministrators:", err)
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
@@ -80,16 +82,19 @@ func CreateAdministrators(w http.ResponseWriter, r *http.Request) {
 		// check if user exists
 		exists, err := db.AdministratorExists(nsID, uID)
 		if err != nil {
+			emo.QueryError("CreateAdministrators: error checking admin user:", err)
 			gw.WriteErr(w, r, http.StatusConflict, "error checking admin user")
 			return
 		}
 		if exists {
-			gw.WriteErr(w, r, http.StatusConflict, "error creating admin user")
+			emo.QueryError("CreateAdministrators: admin user already exist:", err)
+			gw.WriteErr(w, r, http.StatusConflict, "admin user already exist")
 			return
 		}
 
 		// create admin user
 		if _, err = db.CreateAdministrator(nsID, uID); err != nil {
+			emo.QueryError("CreateAdministrators: error creating admin user:", err)
 			gw.WriteErr(w, r, http.StatusConflict, "error creating admin user")
 			return
 		}
@@ -102,7 +107,7 @@ func CreateAdministrators(w http.ResponseWriter, r *http.Request) {
 func DeleteAdministrator(w http.ResponseWriter, r *http.Request) {
 	var m administratorDeletion
 	if err := garcon.DecodeJSONBody(r, &m); err != nil {
-		emo.Warning(err)
+		emo.ParamError("DeleteAdministrator:", err)
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
@@ -112,6 +117,7 @@ func DeleteAdministrator(w http.ResponseWriter, r *http.Request) {
 
 	err := db.DeleteAdministrator(uID, nsID)
 	if err != nil {
+		emo.QueryError("DeleteAdministrator: error deleting admin users:", err)
 		gw.WriteErr(w, r, http.StatusInternalServerError, "error deleting admin users")
 		return
 	}

@@ -64,7 +64,7 @@ func newServer(port int) http.Server {
 	r.With(ck.Chk).Post("/token/refresh/{timeout}", RequestRefreshToken)
 	r.With(ck.Chk).Post("/token/access/{timeout}", RequestAccessToken)
 	r.With(ck.Chk).Post("/admin_login", AdminLogin)
-	r.With(ck.Chk).Post("/admin_token/access/", RequestAdminAccessToken)
+	//r.With(ck.Chk).Post("/admin_token/access/", RequestAdminAccessToken)
 
 	// admin routes
 	r.With(ck.Chk).With(AdminMiddleware).Route("/admin", func(r chi.Router) {

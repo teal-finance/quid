@@ -1,15 +1,11 @@
 package api
 
 import (
-	"fmt"
 	"net/http"
-
-	"github.com/golang-jwt/jwt"
 
 	"github.com/teal-finance/garcon"
 	"github.com/teal-finance/incorruptible"
 	"github.com/teal-finance/quid/quidlib/server/db"
-	"github.com/teal-finance/quid/quidlib/tokens"
 )
 
 var gw garcon.Writer
@@ -118,9 +114,7 @@ func AdminLogin(w http.ResponseWriter, r *http.Request) {
 	}
 	http.SetCookie(w, cookie)
 
-	gw.WriteOK(w,
-		"token", "FakeToken.TODO.RemoveJSONResponseWhenFrontendCleaned",
-		"namespace", ns)
+	gw.WriteOK(w)
 }
 
 // AdminLogout : http logout handler for the admin interface.
@@ -153,7 +147,7 @@ func AdminLogout(w http.ResponseWriter, r *http.Request) {
 
 // RequestAdminAccessToken : request an access token from a refresh token
 // for a namespace.
-func RequestAdminAccessToken(w http.ResponseWriter, r *http.Request) {
+/*func RequestAdminAccessToken(w http.ResponseWriter, r *http.Request) {
 	var m adminAccessTokenRequest
 	if err := garcon.DecodeJSONBody(r, &m); err != nil {
 		emo.ParamError("RequestAdminAccessToken DecodeJSONBody:", err)
@@ -254,4 +248,4 @@ func RequestAdminAccessToken(w http.ResponseWriter, r *http.Request) {
 
 	emo.AccessToken("Issued an admin access token for user", u.Name, "and namespace", ns.Name)
 	gw.WriteOK(w, "token", t, "namespace", ns)
-}
+}*/

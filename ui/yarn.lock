@@ -322,6 +322,13 @@
     estree-walker "^2.0.1"
     picomatch "^2.2.2"
 
+"@snowind/api@^0.0.2":
+  version "0.0.2"
+  resolved "https://registry.yarnpkg.com/@snowind/api/-/api-0.0.2.tgz#0222787d47989b67274dbc74bc49934d28408f3f"
+  integrity sha512-1ydpEPxxkRcuBeUbrz0AAjDcU0XrJuB5adr/zu/TSYGGkZ7ofcuzmpDwsdlN2KYzYFxNr9z7xv1qxx+F2yFJNQ==
+  dependencies:
+    js-cookie "^3.0.1"
+
 "@snowind/header@~0.0.8":
   version "0.0.8"
   resolved "https://registry.yarnpkg.com/@snowind/header/-/header-0.0.8.tgz#0c7b67bad35a727a1a7eacfe7e3669dc9fe08532"
@@ -2127,6 +2134,11 @@ jest-worker@^24.0.0:
   dependencies:
     merge-stream "^2.0.0"
     supports-color "^6.1.0"
+
+js-cookie@^3.0.1:
+  version "3.0.1"
+  resolved "https://registry.yarnpkg.com/js-cookie/-/js-cookie-3.0.1.tgz#9e39b4c6c2f56563708d7d31f6f5f21873a92414"
+  integrity sha512-+0rgsUXZu4ncpPxRL+lNEptWMOWl9etvPHc/koSRp6MPwpRYAhmk0dUG00J4bxVV3r9uUzfo24wW0knS07SKSw==
 
 js-tokens@^4.0.0:
   version "4.0.0"

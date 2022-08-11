@@ -1,9 +1,9 @@
-import { QuidRequests, QuidRequestError } from '@/packages/quidjs'
 import conf from "@/conf";
-import { EnvType } from './env';
 import { notify, user } from './state';
+import Api from "@snowind/api";
+import Namespace from "./models/namespace";
 
-const requests = new QuidRequests({
+/*const requests = new QuidRequests({
   namespace: "quid",
   timeouts: {
     accessToken: "5m",
@@ -17,7 +17,13 @@ const requests = new QuidRequests({
     notify.warning("Connection expired", "Please login again")
     user.isLoggedIn.value = false;
   }
-});
+});*/
+
+class QuidApi extends Api {
+  namespace = Namespace.empty()
+}
+
+const requests = new QuidApi(conf.quidUrl);
 
 async function adminLogin(namespace: string, username: string, password: string): Promise<void> {
   const payload = {
@@ -42,12 +48,11 @@ async function adminLogin(namespace: string, username: string, password: string)
     }
     throw new Error(response.statusText)
   }
-  const resp = await response.json();
-  console.log("RESP", resp)
-  requests.refreshToken = resp.token;
-  requests.namespace = resp.namespace.name;
-  if (resp.namespace.name != 'quid') {
-    user.changeNs(resp.namespace);
+  //const resp = await response.json();
+  //console.log("RESP", resp)
+  requests.namespace = new Namespace(0, namespace);
+  if (namespace != 'quid') {
+    user.changeNs(requests.namespace.toTableRow());
   } else {
     user.type.value = "serverAdmin";
     user.adminUrl = "/admin";

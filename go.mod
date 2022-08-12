@@ -9,12 +9,11 @@ require (
 	github.com/jmoiron/sqlx v1.3.5
 	github.com/karrick/tparse/v2 v2.8.2
 	github.com/labstack/echo-contrib v0.13.0
-	github.com/labstack/echo/v4 v4.7.2
+	github.com/labstack/echo/v4 v4.8.0
 	github.com/lib/pq v1.10.6
 	github.com/manifoldco/promptui v0.9.0
 	github.com/spf13/viper v1.12.0
 	github.com/teal-finance/emo v0.0.0-20220602102724-3ed209263d5a
-	github.com/zhangyunhao116/fastrand v0.3.0
 	golang.org/x/crypto v0.0.0-20220722155217-630584e8d5aa
 )
 

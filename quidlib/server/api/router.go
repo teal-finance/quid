@@ -30,7 +30,7 @@ func RunServer(adminNsKey string, port int) {
 	}
 
 	log.Print("INF Server listening on " + color.UnderlineBlue("http://localhost"+server.Addr))
-	log.Fatal(server.ListenAndServe())
+	log.Fatal(garcon.ListenAndServe(&server))
 }
 
 func newServer(port int) http.Server {

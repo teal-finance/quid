@@ -4,6 +4,8 @@
 *_ORI
 *_ORI.go
 *.go.old
+/ui/dist
+/ui/yarn.lock
 
 # Folders
 _obj

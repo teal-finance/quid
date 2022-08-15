@@ -13,8 +13,8 @@ require (
 	github.com/manifoldco/promptui v0.9.0
 	github.com/spf13/viper v1.12.0
 	github.com/teal-finance/emo v0.0.0-20220602102724-3ed209263d5a
-	github.com/teal-finance/garcon v0.23.0
-	github.com/teal-finance/incorruptible v0.0.0-20220814074809-65ea447c49d6
+	github.com/teal-finance/garcon v0.23.1
+	github.com/teal-finance/incorruptible v0.0.0-20220815163100-85ac4a78f98f
 	golang.org/x/crypto v0.0.0-20220722155217-630584e8d5aa
 )
 
@@ -41,7 +41,7 @@ require (
 	github.com/mtraver/base91 v1.0.0 // indirect
 	github.com/open-policy-agent/opa v0.43.0 // indirect
 	github.com/pelletier/go-toml v1.9.5 // indirect
-	github.com/pelletier/go-toml/v2 v2.0.2 // indirect
+	github.com/pelletier/go-toml/v2 v2.0.3 // indirect
 	github.com/pkg/errors v0.9.1 // indirect
 	github.com/pkg/profile v1.6.0 // indirect
 	github.com/prometheus/client_golang v1.13.0 // indirect

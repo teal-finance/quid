@@ -53,7 +53,7 @@ func AdminMiddleware(next http.Handler) http.Handler {
 			return
 		}
 
-		emo.Param("AdminMiddleware: admin "+userName+" (", userID, ") ns="+namespace+" (", nsID, ')')
+		emo.Param("AdminMiddleware: admin "+userName+" (id=", userID, ") ns="+namespace+" (id=", nsID, ")")
 		next.ServeHTTP(w, r)
 	})
 }

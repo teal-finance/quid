@@ -17,6 +17,8 @@ var AdminNsKey = []byte("")
 
 var Incorruptible *incorruptible.Incorruptible
 
+var gw garcon.Writer
+
 // RunServer : configure and run the server.
 func RunServer(adminNsKey string, port int) {
 	AdminNsKey = []byte(adminNsKey)
@@ -28,30 +30,41 @@ func RunServer(adminNsKey string, port int) {
 	}
 
 	log.Print("INF Server listening on " + color.UnderlineBlue("http://localhost"+server.Addr))
-	log.Fatal(server.ListenAndServe())
+	log.Fatal(garcon.ListenAndServe(&server))
 }
 
 func newServer(port int) http.Server {
 	g := garcon.New(
-		garcon.WithServerHeader("Quid"),
-		garcon.WithIncorruptible(conf.EncodingKey[:32], 3600*3, true),
-		garcon.WithLimiter(10, 30),
-		garcon.WithProm(9193, "Quid"),
+		garcon.WithServerName("Quid"),
 		garcon.WithDev(conf.IsDevMode))
 
-	session, ok := g.TokenChecker().(*incorruptible.Incorruptible)
-	if !ok {
-		emo.Error("Garcon.Checker is not Incorruptible")
-		log.Panic("Garcon.Checker is not Incorruptible")
-	}
-	Incorruptible = session
+	gw = g.Writer
 
+	Incorruptible = g.IncorruptibleChecker(conf.EncodingKey[:32], 3600*3, true)
+
+	chain, connState := g.StartMetricsServer(9193)
+	chain = chain.Append(g.MiddlewareRejectUnprintableURI())
+	chain = chain.Append(g.MiddlewareLogRequest())
+	chain = chain.Append(g.MiddlewareRateLimiter(10, 30))
+	chain = chain.Append(g.MiddlewareServerHeader("Quid"))
+
+	// Disable CORS in debug mode
+	if !conf.IsDevMode {
+		chain = chain.Append(g.MiddlewareCORS())
+	}
+
+	router := newRouter(g)
+	handler := chain.Then(router)
+
+	return garcon.Server(handler, port, connState)
+}
+
+func newRouter(g *garcon.Garcon) http.Handler {
 	r := chi.NewRouter()
-	ck := g.TokenChecker()
 
 	// Static website: set the Incorruptible cookie only when visiting index.html
-	ws := garcon.NewStaticWebServer("ui/dist", g.Writer)
-	r.With(ck.Set).NotFound(ws.ServeFile("index.html", "text/html; charset=utf-8"))
+	ws := g.NewStaticWebServer("ui/dist")
+	r.With(Incorruptible.Set).NotFound(ws.ServeFile("index.html", "text/html; charset=utf-8"))
 	r.Get("/favicon.ico", ws.ServeFile("favicon.ico", "image/x-icon"))
 	r.Get("/favicon.png", ws.ServeFile("favicon.png", "image/png"))
 	r.Get("/preview.jpg", ws.ServeFile("preview.jpg", "image/jpeg"))
@@ -61,13 +74,13 @@ func newServer(port int) http.Server {
 
 	// HTTP Routes
 	// public routes
-	r.With(ck.Chk).Post("/token/refresh/{timeout}", RequestRefreshToken)
-	r.With(ck.Chk).Post("/token/access/{timeout}", RequestAccessToken)
-	r.With(ck.Chk).Post("/admin_login", AdminLogin)
-	//r.With(ck.Chk).Post("/admin_token/access/", RequestAdminAccessToken)
+	r.With(Incorruptible.Chk).Post("/token/refresh/{timeout}", RequestRefreshToken)
+	r.With(Incorruptible.Chk).Post("/token/access/{timeout}", RequestAccessToken)
+	r.With(Incorruptible.Chk).Post("/admin_login", AdminLogin)
+	// r.With(Incorruptible.Chk).Post("/admin_token/access/", RequestAdminAccessToken)
 
 	// admin routes
-	r.With(ck.Chk).With(AdminMiddleware).Route("/admin", func(r chi.Router) {
+	r.With(Incorruptible.Chk).With(AdminMiddleware).Route("/admin", func(r chi.Router) {
 		// HTTP API
 		r.Get("/logout", AdminLogout)
 		r.Route("/groups", func(r chi.Router) {
@@ -141,5 +154,5 @@ func newServer(port int) http.Server {
 		})
 	})
 
-	return g.Server(r, port)
+	return r
 }

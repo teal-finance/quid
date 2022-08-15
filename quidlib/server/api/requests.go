@@ -51,11 +51,6 @@ type userHandlerCreation struct {
 	NamespaceID int64
 }
 
-type adminAccessTokenRequest struct {
-	RefreshToken string
-	Namespace    string
-}
-
 type groupCreation struct {
 	Name        string
 	NamespaceID int64

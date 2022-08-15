@@ -8,8 +8,6 @@ import (
 	"github.com/teal-finance/quid/quidlib/server/db"
 )
 
-var gw garcon.Writer
-
 // Key IDs for the Incorruptible TValues
 const (
 	keyUserName = iota

@@ -101,7 +101,7 @@ export default class Namespace {
     const url = "/admin/namespaces/all";
     const ns = new Array<NamespaceTable>();
     try {
-      const resp = await requests.get<Array<NamespaceContract>>(url);
+      const resp = await requests.get<Array<NamespaceContract>>(url, true);
       resp.forEach((row) => {
         //console.log(row)
         ns.push(new Namespace(row).toTableRow())

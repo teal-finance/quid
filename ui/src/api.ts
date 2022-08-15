@@ -1,6 +1,7 @@
 import conf from "@/conf";
 import { notify, user } from './state';
-import Api from "@snowind/api";
+//import Api from "@snowind/api";
+import useApi from "./useapi";
 import Namespace from "./models/namespace";
 
 /*const requests = new QuidRequests({
@@ -19,15 +20,18 @@ import Namespace from "./models/namespace";
   }
 });*/
 
-class QuidApi extends Api {
+const requests = useApi(conf.quidUrl);
+let namespace = Namespace.empty();
+
+/*class QuidApi extends Api {
   namespace = Namespace.empty()
 }
 
-const requests = new QuidApi(conf.quidUrl);
+const requests = new QuidApi(conf.quidUrl);*/
 
-async function adminLogin(namespace: string, username: string, password: string): Promise<void> {
+async function adminLogin(namespaceName: string, username: string, password: string): Promise<void> {
   const payload = {
-    namespace: namespace,
+    namespace: namespaceName,
     username: username,
     password: password,
   }
@@ -50,9 +54,9 @@ async function adminLogin(namespace: string, username: string, password: string)
   }
   //const resp = await response.json();
   //console.log("RESP", resp)
-  requests.namespace = new Namespace(0, namespace);
-  if (namespace != 'quid') {
-    user.changeNs(requests.namespace.toTableRow());
+  namespace.name = namespaceName;
+  if (namespaceName != 'quid') {
+    user.changeNs(namespace.toTableRow());
   } else {
     user.type.value = "serverAdmin";
     user.adminUrl = "/admin";

@@ -70,19 +70,20 @@ func AdminLogin(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	if !isUserAdmin {
-		emo.ParamError("AdminLogin:", username, " is not admin")
+		emo.ParamError("AdminLogin: u=" + username + " is not admin")
 		w.WriteHeader(http.StatusUnauthorized)
 		return
 	}
 
 	_isAdmin := isUserAdmin && namespace == "quid"
 	_isNsAdmin := isUserAdmin && namespace != "quid"
-	emo.Result("AdminLogin OK user "+u.Name+" ns=", namespace)
+	emo.Result("AdminLogin OK u=" + u.Name + " ns=" + namespace)
 
 	// get or create an Incorruptible token
 	tv, ok := incorruptible.FromCtx(r)
 	if !ok {
-		emo.Info("AdminLogin: no Incorruptible token => Create a new one")
+		emo.Info("AdminLogin: no Incorruptible token => Create a new one u="+u.Name+" (id=", u.ID,
+			") ns="+ns.Name+" (id=", ns.ID, ") admin=", _isAdmin, "NSAdmin=", _isNsAdmin)
 	}
 
 	// update the token fields
@@ -199,7 +200,7 @@ func AdminLogout(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	emo.Result("RequestAdminAccessToken: user", claims.UserName, " expires=", claims.ExpiresAt)
+	emo.Result("RequestAdminAccessToken: u="+claims.UserName+" expires=", claims.ExpiresAt)
 
 	// get the user
 	username := claims.UserName
@@ -223,7 +224,7 @@ func AdminLogout(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	if !isUserAdmin {
-		emo.Data("RequestAdminAccessToken: Admin access token request from user", u.Name, " is not admin for ns=", ns.Name)
+		emo.Data("RequestAdminAccessToken: Admin access token request from u="+u.Name+" is not admin for ns=", ns.Name)
 		w.WriteHeader(http.StatusUnauthorized)
 		return
 	}

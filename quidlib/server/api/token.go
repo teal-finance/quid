@@ -125,7 +125,7 @@ func RequestAccessToken(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	emo.AccessToken("RequestAccessToken: user="+u.Name+" t="+timeout+" TTL="+ns.MaxTokenTTL+" grp=", groupNames, " org=", orgsNames)
+	emo.AccessToken("RequestAccessToken: user="+u.Name+" t="+timeout+" TTL="+ns.MaxTokenTTL+" grp=", groupNames, "org=", orgsNames)
 	gw.WriteOK(w, "token", t)
 }
 
@@ -179,7 +179,7 @@ func RequestRefreshToken(w http.ResponseWriter, r *http.Request) {
 
 	// Respond with unauthorized status
 	if !isAuthorized {
-		emo.Info("RequestRefreshToken: user " + username + " unauthorized")
+		emo.Info("RequestRefreshToken: u=" + username + " unauthorized")
 		w.WriteHeader(http.StatusUnauthorized)
 		return
 	}

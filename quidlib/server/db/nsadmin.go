@@ -69,7 +69,7 @@ func CreateAdministrator(namespaceID, userID int64) (int64, error) {
 		return idi.(int64), nil
 	}
 
-	emo.QueryError("no namespaceadmin for namespaceID=", namespaceID, " userID=", userID)
+	emo.QueryError("no nsAdmin for nsID=", namespaceID, "userID=", userID)
 	return 0, fmt.Errorf("no namespaceadmin")
 }
 

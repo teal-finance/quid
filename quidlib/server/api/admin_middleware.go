@@ -48,12 +48,12 @@ func AdminMiddleware(next http.Handler) http.Handler {
 			return
 		}
 		if !isAdmin {
-			emo.Data("AdminMiddleware: user " + userName + " is not Admin in database")
+			emo.Data("AdminMiddleware: u=" + userName + " is not Admin in database")
 			w.WriteHeader(http.StatusUnauthorized)
 			return
 		}
 
-		emo.Param("AdminMiddleware: admin "+userName+" (id=", userID, ") ns="+namespace+" (id=", nsID, ")")
+		emo.Param("AdminMiddleware OK u="+userName+" (id=", userID, ") ns="+namespace+" (id=", nsID, ")")
 		next.ServeHTTP(w, r)
 	})
 }

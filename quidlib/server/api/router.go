@@ -47,11 +47,7 @@ func newServer(port int) http.Server {
 	chain = chain.Append(g.MiddlewareLogRequest())
 	chain = chain.Append(g.MiddlewareRateLimiter(10, 30))
 	chain = chain.Append(g.MiddlewareServerHeader("Quid"))
-
-	// Disable CORS in debug mode
-	if !conf.IsDevMode {
-		chain = chain.Append(g.MiddlewareCORS())
-	}
+	chain = chain.Append(g.MiddlewareCORS())
 
 	router := newRouter(g)
 	handler := chain.Then(router)

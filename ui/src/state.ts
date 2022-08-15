@@ -20,8 +20,8 @@ function initState(toast: ToastServiceMethods, confirm: ConfirmOptions): void {
     if (t) {
       user.devRefreshToken = t.toString();
       user.name.value = "devuser";
-      console.log("Logging in user from dev token")
-      requests.refreshToken = user.devRefreshToken;
+      //console.log("Logging in user from dev token")
+      //requests.refreshToken = user.devRefreshToken;
       user.isLoggedIn.value = true;
     }
   }

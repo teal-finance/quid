@@ -46,15 +46,15 @@ func newServer(port int) http.Server {
 	}
 	Incorruptible = g.IncorruptibleChecker(conf.EncodingKey[:32], maxAge, true)
 
-	chain, connState := g.StartMetricsServer(9193)
-	chain = chain.Append(g.MiddlewareRejectUnprintableURI())
-	chain = chain.Append(g.MiddlewareLogRequest())
-	chain = chain.Append(g.MiddlewareRateLimiter(10, 30))
-	chain = chain.Append(g.MiddlewareServerHeader("Quid"))
-	chain = chain.Append(g.MiddlewareCORS())
+	middleware, connState := g.StartMetricsServer(9193)
+	middleware = middleware.Append(g.MiddlewareRejectUnprintableURI())
+	middleware = middleware.Append(g.MiddlewareLogRequest())
+	middleware = middleware.Append(g.MiddlewareRateLimiter(10, 30))
+	middleware = middleware.Append(g.MiddlewareServerHeader("Quid"))
+	middleware = middleware.Append(g.MiddlewareCORS())
 
 	router := newRouter(g)
-	handler := chain.Then(router)
+	handler := middleware.Then(router)
 
 	return garcon.Server(handler, port, connState)
 }

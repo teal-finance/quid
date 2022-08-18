@@ -129,3 +129,9 @@ type userRequest struct {
 	ID          int64
 	NamespaceID int64
 }
+
+type statusResponse struct {
+	IsAdmin   bool
+	IsNsAdmin bool
+	NsID      int64
+}

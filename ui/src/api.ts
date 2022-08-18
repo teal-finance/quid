@@ -21,7 +21,7 @@ import Namespace from "./models/namespace";
 });*/
 
 const requests = useApi(conf.quidUrl);
-let namespace = Namespace.empty();
+//let namespace = Namespace.empty();
 
 /*class QuidApi extends Api {
   namespace = Namespace.empty()
@@ -54,14 +54,14 @@ async function adminLogin(namespaceName: string, username: string, password: str
   }
   //const resp = await response.json();
   //console.log("RESP", resp)
-  namespace.name = namespaceName;
+  /*namespace.name = namespaceName;
   if (namespaceName != 'quid') {
     user.changeNs(namespace.toTableRow());
   } else {
     user.type.value = "serverAdmin";
     user.adminUrl = "/admin";
     user.resetNs()
-  }
+  }*/
 }
 
 export { requests, adminLogin }

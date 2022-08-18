@@ -40,9 +40,9 @@ func newServer(port int) http.Server {
 
 	gw = g.Writer
 
-	maxAge := 3600*3 // three hours
+	maxAge := 3600 * 3 // three hours
 	if conf.IsDevMode {
-		maxAge = 3600*24*365 // one year
+		maxAge = 3600 * 24 * 365 // one year
 	}
 	Incorruptible = g.IncorruptibleChecker(conf.EncodingKey[:32], maxAge, true)
 

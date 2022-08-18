@@ -1,7 +1,6 @@
 package api
 
 import (
-	"encoding/json"
 	"fmt"
 	"net/http"
 
@@ -35,14 +34,7 @@ func AllUsersInNamespace(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	b, err := json.Marshal(&data)
-	if err != nil {
-		emo.Error("AllUsersInNamespace: %v while serializing %+v", err, data)
-		w.WriteHeader(http.StatusInternalServerError)
-	}
-
-	w.WriteHeader(http.StatusOK)
-	_, _ = w.Write(b)
+	gw.WriteOK(w, data)
 }
 
 // GroupsForNamespace : get the groups of a user.

@@ -1,7 +1,6 @@
 package api
 
 import (
-	"encoding/json"
 	"net/http"
 
 	"github.com/teal-finance/garcon"
@@ -19,14 +18,7 @@ func AllNamespaces(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	b, err := json.Marshal(data)
-	if err != nil {
-		emo.Error("AllNamespaces jsonify:", err)
-		w.WriteHeader(http.StatusInternalServerError)
-		return
-	}
-
-	_, _ = w.Write(b)
+	gw.WriteOK(w, data)
 }
 
 // SetNamespaceRefreshTokenMaxTTL : set a max refresh token ttl for a namespace.
@@ -115,14 +107,7 @@ func NamespaceInfo(w http.ResponseWriter, r *http.Request) {
 		Groups:   g,
 	}
 
-	b, err := json.Marshal(data)
-	if err != nil {
-		emo.Error("NamespaceInfo jsonify:", err)
-		w.WriteHeader(http.StatusInternalServerError)
-		return
-	}
-
-	_, _ = w.Write(b)
+	gw.WriteOK(w, data)
 }
 
 // GetNamespaceKey : get the key for a namespace.

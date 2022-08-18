@@ -1,7 +1,6 @@
 package api
 
 import (
-	"encoding/json"
 	"net/http"
 
 	"github.com/teal-finance/garcon"
@@ -32,14 +31,7 @@ func AllGroupsForNamespace(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	b, err := json.Marshal(&data)
-	if err != nil {
-		emo.Error("AllGroupsForNamespace: %v while serializing %v", err, data)
-		w.WriteHeader(http.StatusInternalServerError)
-	}
-
-	w.WriteHeader(http.StatusOK)
-	_, _ = w.Write(b)
+	gw.WriteOK(w, data)
 }
 
 // AllGroups : get all groups for a namespace http handler.
@@ -50,14 +42,7 @@ func AllGroups(w http.ResponseWriter, r *http.Request) {
 		gw.WriteErr(w, r, http.StatusConflict, "error selecting groups")
 	}
 
-	b, err := json.Marshal(&data)
-	if err != nil {
-		emo.Error("AllGroups: %v while serializing %v", err, data)
-		w.WriteHeader(http.StatusInternalServerError)
-	}
-
-	w.WriteHeader(http.StatusOK)
-	_, _ = w.Write(b)
+	gw.WriteOK(w, data)
 }
 
 // GroupsInfo : group creation http handler.

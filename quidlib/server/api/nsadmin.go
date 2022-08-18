@@ -1,7 +1,6 @@
 package api
 
 import (
-	"encoding/json"
 	"net/http"
 
 	_ "github.com/lib/pq"
@@ -28,14 +27,7 @@ func AllAdministratorsInNamespace(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	b, err := json.Marshal(&data)
-	if err != nil {
-		emo.Error("AllAdministratorsInNamespace: %v while serializing %v", err, data)
-		w.WriteHeader(http.StatusInternalServerError)
-	}
-
-	w.WriteHeader(http.StatusOK)
-	_, _ = w.Write(b)
+	gw.WriteOK(w, data)
 }
 
 // SearchForNonAdminUsersInNamespace : search from a username in namespace

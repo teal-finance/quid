@@ -1,7 +1,6 @@
 package api
 
 import (
-	"encoding/json"
 	"net/http"
 
 	"github.com/teal-finance/garcon"
@@ -18,14 +17,7 @@ func AllOrgs(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	b, err := json.Marshal(&data)
-	if err != nil {
-		emo.Error("AllOrgs: %v while serializing %v", err, data)
-		w.WriteHeader(http.StatusInternalServerError)
-	}
-
-	w.WriteHeader(http.StatusOK)
-	_, _ = w.Write(b)
+	gw.WriteOK(w, data)
 }
 
 // FindOrg : find an org from name.
@@ -52,14 +44,7 @@ func FindOrg(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	b, err := json.Marshal(&data)
-	if err != nil {
-		emo.Error("FindOrg: %v while serializing %v", err, data)
-		w.WriteHeader(http.StatusInternalServerError)
-	}
-
-	w.WriteHeader(http.StatusOK)
-	_, _ = w.Write(b)
+	gw.WriteOK(w, data)
 }
 
 // UserOrgsInfo : get orgs info for a user.

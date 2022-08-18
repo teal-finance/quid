@@ -364,6 +364,8 @@ func easyjson66c1e240DecodeGithubComTealFinanceQuidQuidlibServerApi4(in *jlexer.
 			out.IsNsAdmin = bool(in.Bool())
 		case "ns_id":
 			out.NsID = int64(in.Int64())
+		case "username":
+			out.Username = string(in.String())
 		default:
 			in.AddError(&jlexer.LexerError{
 				Offset: in.GetPos(),
@@ -396,6 +398,11 @@ func easyjson66c1e240EncodeGithubComTealFinanceQuidQuidlibServerApi4(out *jwrite
 		const prefix string = ",\"ns_id\":"
 		out.RawString(prefix)
 		out.Int64(int64(in.NsID))
+	}
+	{
+		const prefix string = ",\"username\":"
+		out.RawString(prefix)
+		out.String(string(in.Username))
 	}
 	out.RawByte('}')
 }

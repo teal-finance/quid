@@ -10,7 +10,7 @@ import (
 
 // Key IDs for the Incorruptible TValues
 const (
-	keyUserName = iota
+	keyUsername = iota
 	KeyUserID
 	keyNsName
 	keyNsID
@@ -88,7 +88,7 @@ func AdminLogin(w http.ResponseWriter, r *http.Request) {
 
 	// update the token fields
 	err = tv.Set(
-		tv.KString(keyUserName, u.Name),
+		tv.KString(keyUsername, u.Name),
 		tv.KInt64(KeyUserID, u.ID),
 		tv.KString(keyNsName, ns.Name),
 		tv.KInt64(keyNsID, ns.ID),

@@ -44,13 +44,12 @@ func status(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	m := statusResponse{
+	gw.WriteOK(w, statusResponse{
 		IsAdmin:   tv.BoolIfAny(keyIsAdmin),
 		IsNsAdmin: tv.BoolIfAny(keyIsNsAdmin),
 		NsID:      tv.Int64IfAny(keyNsID),
-	}
-
-	gw.WriteOK(w, m)
+		Username:  tv.StringIfAny(keyUsername),
+	})
 }
 
 // NsAdminMiddleware : check the token claim to see if the user is namespace admin.
@@ -64,7 +63,7 @@ func NsAdminMiddleware(next http.Handler) http.Handler {
 		}
 
 		values, err := tv.Get(
-			tv.KString(keyUserName),
+			tv.KString(keyUsername),
 			tv.KInt64(KeyUserID),
 			tv.KString(keyNsName),
 			tv.KInt64(keyNsID),

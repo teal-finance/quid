@@ -134,4 +134,5 @@ type statusResponse struct {
 	IsAdmin   bool
 	IsNsAdmin bool
 	NsID      int64
+	Username string
 }

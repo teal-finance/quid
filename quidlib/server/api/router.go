@@ -70,7 +70,6 @@ func newRouter(g *garcon.Garcon) http.Handler {
 	r.Get("/preview.jpg", ws.ServeFile("preview.jpg", "image/jpeg"))
 	r.Get("/js/*", ws.ServeDir("text/javascript; charset=utf-8"))
 	r.Get("/assets/*", ws.ServeAssets())
-	r.Get("/version", garcon.ServeVersion())
 
 	// HTTP Routes
 	// public routes
@@ -92,6 +91,9 @@ func newRouter(g *garcon.Garcon) http.Handler {
 			// r.Get("/all", AllGroups) // TODO: remove when old frontend is disabled
 			r.Post("/nsall", AllGroupsForNamespace)
 		})
+
+		// only admin can see the Git version & commit date.
+		r.Get("/version", garcon.ServeVersion())
 
 		r.Route("/users", func(r chi.Router) {
 			r.Post("/add", CreateUserHandler)

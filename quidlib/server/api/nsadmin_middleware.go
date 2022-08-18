@@ -64,7 +64,7 @@ func NsAdminMiddleware(next http.Handler) http.Handler {
 		}
 
 		values, err := tv.Get(
-			tv.KString(keyUserName),
+			tv.KString(keyUsername),
 			tv.KInt64(KeyUserID),
 			tv.KString(keyNsName),
 			tv.KInt64(keyNsID),

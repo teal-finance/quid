@@ -77,6 +77,7 @@ func newRouter(g *garcon.Garcon) http.Handler {
 	r.With(Incorruptible.Chk).Post("/token/access/{timeout}", RequestAccessToken)
 	r.With(Incorruptible.Chk).Post("/admin_login", AdminLogin)
 	// r.With(Incorruptible.Chk).Post("/admin_token/access/", RequestAdminAccessToken)
+	r.With(Incorruptible.Chk).Get("/status", status)
 
 	// admin routes
 	r.With(Incorruptible.Chk).With(AdminMiddleware).Route("/admin", func(r chi.Router) {

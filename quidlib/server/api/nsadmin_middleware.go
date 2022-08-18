@@ -35,12 +35,30 @@ func VerifyAdminNs(w http.ResponseWriter, r *http.Request, nsID int64) bool {
 	return true
 }
 
+// status returns 200 if user is admin.
+func status(w http.ResponseWriter, r *http.Request) {
+	tv, ok := incorruptible.FromCtx(r)
+	if !ok {
+		emo.Warning("status: missing Incorruptible token")
+		w.WriteHeader(http.StatusUnauthorized)
+		return
+	}
+
+	m := statusResponse{
+		IsAdmin:   tv.BoolIfAny(keyIsAdmin),
+		IsNsAdmin: tv.BoolIfAny(keyIsNsAdmin),
+		NsID:      tv.Int64IfAny(keyNsID),
+	}
+
+	gw.WriteOK(w, m)
+}
+
 // NsAdminMiddleware : check the token claim to see if the user is namespace admin.
 func NsAdminMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		tv, ok := incorruptible.FromCtx(r)
 		if !ok {
-			emo.Error("NsAdminMiddleware: missing Incorruptible token")
+			emo.ParamError("NsAdminMiddleware: missing Incorruptible token")
 			w.WriteHeader(http.StatusUnauthorized)
 			return
 		}

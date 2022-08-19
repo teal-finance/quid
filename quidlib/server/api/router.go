@@ -46,17 +46,19 @@ func newServer(port int) http.Server {
 	}
 	Incorruptible = g.IncorruptibleChecker(conf.EncodingKey[:32], maxAge, true)
 
-	middleware, connState := g.StartMetricsServer(9193)
-	middleware = middleware.Append(g.MiddlewareRejectUnprintableURI())
-	middleware = middleware.Append(g.MiddlewareLogRequest())
-	middleware = middleware.Append(g.MiddlewareRateLimiter(10, 30))
-	middleware = middleware.Append(g.MiddlewareServerHeader("Quid"))
-	middleware = middleware.Append(g.MiddlewareCORS())
+	middleware := garcon.NewChain(
+		g.MiddlewareRejectUnprintableURI(),
+		g.MiddlewareLogRequest(),
+		g.MiddlewareRateLimiter(10, 30),
+		g.MiddlewareCORSWithMethodsHeaders(
+			[]string{http.MethodGet, http.MethodOptions, http.MethodPost, http.MethodDelete},
+			[]string{"Origin", "Content-Type", "Authorization"},
+		))
 
 	router := newRouter(g)
 	handler := middleware.Then(router)
 
-	return garcon.Server(handler, port, connState)
+	return garcon.Server(handler, port, nil)
 }
 
 func newRouter(g *garcon.Garcon) http.Handler {

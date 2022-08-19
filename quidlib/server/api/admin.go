@@ -113,7 +113,18 @@ func AdminLogin(w http.ResponseWriter, r *http.Request) {
 	}
 	http.SetCookie(w, cookie)
 
-	gw.WriteOK(w)
+	gw.WriteOK(w, statusResponse{
+		User: unInfo{
+			Admin: tv.BoolIfAny(keyIsAdmin),
+			ID:    tv.Int64IfAny(KeyUserID),
+			Name:  tv.StringIfAny(keyUsername),
+		},
+		Ns: unInfo{
+			Admin: tv.BoolIfAny(keyIsNsAdmin),
+			ID:    tv.Int64IfAny(keyNsID),
+			Name:  tv.StringIfAny(keyNsName),
+		},
+	})
 }
 
 // AdminLogout : http logout handler for the admin interface.

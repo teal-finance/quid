@@ -130,9 +130,14 @@ type userRequest struct {
 	NamespaceID int64
 }
 
+// unInfo is User / Namespace info, used in statusResponse.
+type unInfo struct {
+	Admin bool
+	ID    int64
+	Name  string
+}
+
 type statusResponse struct {
-	IsAdmin   bool
-	IsNsAdmin bool
-	NsID      int64
-	Username string
+	User unInfo
+	Ns   unInfo
 }

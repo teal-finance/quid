@@ -1,5 +1,5 @@
 import { ToastServiceMethods } from "primevue/toastservice";
-import { requests } from "./api";
+import { api, checkStatus } from "./api";
 import conf from "./conf";
 import { EnvType } from "./env";
 import { ConfirmOptions, NotifyService } from "./interface";
@@ -12,6 +12,7 @@ let notify: NotifyService;
 const { isMobile, isTablet, isDesktop } = useScreenSize();
 
 function initState(toast: ToastServiceMethods, confirm: ConfirmOptions): void {
+  checkStatus()
   console.log("Running in env", conf.env);
   if (conf.env == EnvType.local && !conf.isProduction) {
     let t = import.meta.env.VITE_DEV_TOKEN;
@@ -21,7 +22,7 @@ function initState(toast: ToastServiceMethods, confirm: ConfirmOptions): void {
       user.devRefreshToken = t.toString();
       user.name.value = "devuser";
       //console.log("Logging in user from dev token")
-      //requests.refreshToken = user.devRefreshToken;
+      //api.refreshToken = user.devRefreshToken;
       user.isLoggedIn.value = true;
     }
   }

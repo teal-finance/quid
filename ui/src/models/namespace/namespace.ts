@@ -1,4 +1,4 @@
-import { requests } from "@/api";
+import { api } from "@/api";
 import NamespaceContract from "./contract";
 import NamespaceTable from "./interface";
 import Group from "@/models/group";
@@ -64,34 +64,34 @@ export default class Namespace {
   // *************************
 
   static async saveMaxAccessTokenTtl(id: number, ttl: string) {
-    await requests.post("/admin/namespaces/max-ttl", {
+    await api.post("/admin/namespaces/max-ttl", {
       id: id,
       max_ttl: ttl,
     });
   }
 
   static async saveMaxRefreshTokenTtl(id: number, ttl: string) {
-    await requests.post("/admin/namespaces/max-refresh-ttl", {
+    await api.post("/admin/namespaces/max-refresh-ttl", {
       id: id,
       refresh_max_ttl: ttl,
     });
   }
 
   static async delete(id: number) {
-    await requests.post("/admin/namespaces/delete", {
+    await api.post("/admin/namespaces/delete", {
       id: id,
     });
   }
 
   static async getKey(id: number): Promise<string> {
-    const data = await requests.post<{ key: string }>("/admin/namespaces/key", {
+    const data = await api.post<{ key: string }>("/admin/namespaces/key", {
       id: id,
     });
     return data.key
   }
 
   static async togglePublicEndpoint(id: number, enabled: boolean): Promise<void> {
-    await requests.post("/admin/namespaces/endpoint", {
+    await api.post("/admin/namespaces/endpoint", {
       id: id,
       enable: enabled,
     });
@@ -101,7 +101,7 @@ export default class Namespace {
     const url = "/admin/namespaces/all";
     const ns = new Array<NamespaceTable>();
     try {
-      const resp = await requests.get<Array<NamespaceContract>>(url, true);
+      const resp = await api.get<Array<NamespaceContract>>(url, true);
       resp.forEach((row) => {
         //console.log(row)
         ns.push(new Namespace(row).toTableRow())
@@ -115,7 +115,7 @@ export default class Namespace {
 
   static async fetchRowInfo(id: number): Promise<{ numUsers: number, groups: Array<Group> }> {
     const res: { numUsers: number, groups: Array<Group> } = { numUsers: 0, groups: [] };
-    const data = await requests.post<{ num_users: number, groups: Array<GroupContract> }>("/admin/namespaces/info", {
+    const data = await api.post<{ num_users: number, groups: Array<GroupContract> }>("/admin/namespaces/info", {
       id: id,
     });
     res.numUsers = data.num_users;

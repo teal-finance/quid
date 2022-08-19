@@ -1,4 +1,4 @@
-import { requests } from "@/api";
+import { api } from "@/api";
 import { notify } from "@/state";
 import { AdminUserContract, AdminUserTable } from "./interface";
 
@@ -25,7 +25,7 @@ export default class AdminUser {
     try {
       const payload = { namespace_id: nsid }
       try {
-        const resp = await requests.post<Array<AdminUserContract>>(url, payload);
+        const resp = await api.post<Array<AdminUserContract>>(url, payload);
         resp.forEach((row) => data.push(new AdminUser(row).toTableRow()));
       } catch (e) {
         console.log("QERR", JSON.stringify(e, null, "  "))
@@ -43,7 +43,7 @@ export default class AdminUser {
     const data = new Array<AdminUser>();
     try {
       const payload = { namespace_id: nsid, username: username }
-      const resp = await requests.post<{ users: Array<AdminUserContract> }>(url, payload);
+      const resp = await api.post<{ users: Array<AdminUserContract> }>(url, payload);
       resp.users.forEach((row) => data.push(new AdminUser(row)));
     } catch (e) {
       console.log("Err", e);
@@ -54,7 +54,7 @@ export default class AdminUser {
 
   static async fetchAdd(nsId: number, userIds: Array<number>) {
     try {
-      await requests.post("/admin/nsadmin/add", {
+      await api.post("/admin/nsadmin/add", {
         namespace_id: nsId,
         user_ids: userIds,
       });
@@ -70,7 +70,7 @@ export default class AdminUser {
       user_id: uid,
     })
     try {
-      await requests.post("/admin/nsadmin/delete", {
+      await api.post("/admin/nsadmin/delete", {
         namespace_id: nsid,
         user_id: uid,
       });

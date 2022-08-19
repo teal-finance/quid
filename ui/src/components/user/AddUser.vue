@@ -21,7 +21,7 @@
 <script setup lang="ts">
 import { computed, reactive, ref } from "vue";
 import SwInput from "@snowind/input";
-import { requests } from "@/api";
+import { api } from "@/api";
 import { notify, user } from "@/state";
 
 const emit = defineEmits(["end"]);
@@ -69,7 +69,7 @@ function resetForm() {
 
 async function postForm() {
   try {
-    await requests.post(user.adminUrl + "/users/add", {
+    await api.post(user.adminUrl + "/users/add", {
       name: form.name.val,
       password: form.pwd.val,
       namespace_id: user.namespace.value.id,

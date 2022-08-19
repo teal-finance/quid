@@ -1,33 +1,13 @@
 import conf from "@/conf";
-import { notify, user } from './state';
-//import Api from "@snowind/api";
-import useApi from "./useapi";
-import Namespace from "./models/namespace";
+import { notify } from './state';
+import { useApi } from "@snowind/api";
 
-/*const requests = new QuidRequests({
-  namespace: "quid",
-  timeouts: {
-    accessToken: "5m",
-    refreshToken: "24h"
-  },
-  quidUri: conf.quidUrl,
-  serverUri: conf.serverUri,
-  accessTokenUri: conf.serverUri + "/admin_token/access/",
-  verbose: conf.env === EnvType.local,
-  onHasToLogin: async () => {
-    notify.warning("Connection expired", "Please login again")
-    user.isLoggedIn.value = false;
-  }
-});*/
+const api = useApi(conf.quidUrl);
 
-const requests = useApi(conf.quidUrl);
-//let namespace = Namespace.empty();
-
-/*class QuidApi extends Api {
-  namespace = Namespace.empty()
+async function checkStatus() {
+  const st = await api.get("/status")
+  console.log("ST", st)
 }
-
-const requests = new QuidApi(conf.quidUrl);*/
 
 async function adminLogin(namespaceName: string, username: string, password: string): Promise<void> {
   const payload = {
@@ -64,4 +44,4 @@ async function adminLogin(namespaceName: string, username: string, password: str
   }*/
 }
 
-export { requests, adminLogin }
+export { api, adminLogin, checkStatus }

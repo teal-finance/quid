@@ -101,9 +101,6 @@ func AdminLogin(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// store the Incorruptible token in the request context
-	_ = tv.ToCtx(r)
-
 	// set the session
 	cookie, err := Incorruptible.NewCookieFromValues(tv)
 	if err != nil {
@@ -113,17 +110,32 @@ func AdminLogin(w http.ResponseWriter, r *http.Request) {
 	}
 	http.SetCookie(w, cookie)
 
+	// store the Incorruptible token in the request context
+	r = tv.ToCtx(r)
+	status(w, r)
+}
+
+// status returns 200 if user is admin.
+func status(w http.ResponseWriter, r *http.Request) {
+	tv, ok := incorruptible.FromCtx(r)
+	if !ok {
+		emo.Warning("status: missing Incorruptible token")
+		w.WriteHeader(http.StatusUnauthorized)
+		return
+	}
+
+	var adminType string
+	if tv.BoolIfAny(keyIsAdmin) {
+		adminType = "admin"
+	} else if tv.BoolIfAny(keyIsAdmin) {
+		adminType = "nsadmin"
+	}
+
 	gw.WriteOK(w, statusResponse{
-		User: unInfo{
-			Admin: tv.BoolIfAny(keyIsAdmin),
-			ID:    tv.Int64IfAny(KeyUserID),
-			Name:  tv.StringIfAny(keyUsername),
-		},
-		Ns: unInfo{
-			Admin: tv.BoolIfAny(keyIsNsAdmin),
-			ID:    tv.Int64IfAny(keyNsID),
-			Name:  tv.StringIfAny(keyNsName),
-		},
+		User:      unInfo{Admin: tv.BoolIfAny(keyIsAdmin), ID: tv.Int64IfAny(KeyUserID), Name: tv.StringIfAny(keyUsername)},
+		AdminType: adminType,
+		Username:  tv.StringIfAny(keyUsername),
+		Ns:        unInfo{Admin: tv.BoolIfAny(keyIsNsAdmin), ID: tv.Int64IfAny(keyNsID), Name: tv.StringIfAny(keyNsName)},
 	})
 }
 

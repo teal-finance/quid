@@ -444,6 +444,10 @@ func easyjson66c1e240DecodeGithubComTealFinanceQuidQuidlibServerApi5(in *jlexer.
 		switch key {
 		case "user":
 			(out.User).UnmarshalEasyJSON(in)
+		case "admin_type":
+			out.AdminType = string(in.String())
+		case "username":
+			out.Username = string(in.String())
 		case "ns":
 			(out.Ns).UnmarshalEasyJSON(in)
 		default:
@@ -468,6 +472,16 @@ func easyjson66c1e240EncodeGithubComTealFinanceQuidQuidlibServerApi5(out *jwrite
 		const prefix string = ",\"user\":"
 		out.RawString(prefix[1:])
 		(in.User).MarshalEasyJSON(out)
+	}
+	{
+		const prefix string = ",\"admin_type\":"
+		out.RawString(prefix)
+		out.String(string(in.AdminType))
+	}
+	{
+		const prefix string = ",\"username\":"
+		out.RawString(prefix)
+		out.String(string(in.Username))
 	}
 	{
 		const prefix string = ",\"ns\":"

@@ -132,12 +132,17 @@ type userRequest struct {
 
 // unInfo is User / Namespace info, used in statusResponse.
 type unInfo struct {
-	Admin bool
-	ID    int64
-	Name  string
+	Admin bool // TODO: delete once frontend has migrated
+
+	ID   int64
+	Name string
 }
 
 type statusResponse struct {
-	User unInfo
-	Ns   unInfo
+	User unInfo // TODO: delete once frontend has migrated
+
+	// new interface contract
+	AdminType string // "admin" | "nsadmin"
+	Username  string
+	Ns        unInfo
 }

@@ -53,7 +53,7 @@ func AdminMiddleware(next http.Handler) http.Handler {
 		}
 
 		emo.Param("AdminMiddleware OK u="+userName+" (id=", userID, ") ns="+namespace+" (id=", nsID, ")")
-		r = tv.ToCtx(r)  // save the token in the request context
+		r = tv.ToCtx(r) // save the token in the request context
 		next.ServeHTTP(w, r)
 	})
 }

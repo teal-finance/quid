@@ -13,6 +13,11 @@ let notify: NotifyService;
 const { isMobile, isTablet, isDesktop } = useScreenSize();
 
 async function initState(toast: ToastServiceMethods, confirm: ConfirmOptions) {
+  notify = useNotify(toast, confirm)
+  await initUserState();
+}
+
+async function initUserState() {
   const { ok, status } = await checkStatus();
   if (!ok) {
     console.log("Status unauthorized");
@@ -24,23 +29,13 @@ async function initState(toast: ToastServiceMethods, confirm: ConfirmOptions) {
   const ns = Namespace.empty();
   ns.id = status.ns.id;
   ns.name = status.ns.name;
-  user.changeNs(ns.toTableRow())
-  //user.namespace.value = status["ns"]["name"];
-  //console.log("Running in env", conf.env);
-  /*if (conf.env == EnvType.local && !conf.isProduction) {
-    let t = import.meta.env.VITE_DEV_TOKEN;
-    const ns = import.meta.env.VITE_NS;
-    //console.log("T", t)
-    if (t) {
-      user.devRefreshToken = t.toString();
-      user.name.value = "devuser";
-      //console.log("Logging in user from dev token")
-      //api.refreshToken = user.devRefreshToken;
-      user.isLoggedIn.value = true;
-    }
-  }*/
-  notify = useNotify(toast, confirm)
-  //console.log("NS", JSON.stringify(user.namespace.value, null, "  "))
+  if (status.user.admin === true) {
+    user.type.value = "serverAdmin";
+    user.adminUrl = "/admin";
+    user.resetNs()
+  } else {
+    user.changeNs(ns.toTableRow());
+  }
 }
 
-export { user, initState, notify, isMobile, isTablet, isDesktop }
+export { user, initState, initUserState, notify, isMobile, isTablet, isDesktop }

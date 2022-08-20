@@ -43,7 +43,6 @@ export default class Group {
     try {
       const payload = { namespace_id: nsid }
       const resp = await api.post<Array<GroupContract>>(url, payload, false, true);
-      console.log("RESP", resp)
       resp.forEach((row) => {
         //console.log(row)
         ns.push(new Group(row).toTableRow())

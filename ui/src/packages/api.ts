@@ -70,10 +70,15 @@ const useApi = (serverUrl: string, options: {
     }
     const response = await fetch(url, opts);
     if (!response.ok) {
-      throw new ResponseError(response);
+      throw new ResponseError(response, "request");
     }
-    console.log("RESP", response.text())
-    return (await response.json()) as T;
+    let _data: T
+    try {
+      _data = (await response.json()) as T
+    } catch (e) {
+      throw new ResponseError(response, "json", `${e}`);
+    }
+    return _data;
   }
 
   const patch = async <T>(uri: string, payload: Array<any> | Record<string, any>, verbose = false) => {
@@ -85,9 +90,15 @@ const useApi = (serverUrl: string, options: {
     }
     const response = await fetch(url, opts);
     if (!response.ok) {
-      throw new ResponseError(response);
+      throw new ResponseError(response, "request");
     }
-    return (await response.json()) as T;
+    let _data: T
+    try {
+      _data = (await response.json()) as T
+    } catch (e) {
+      throw new ResponseError(response, "json", `${e}`);
+    }
+    return _data;
   }
 
   const put = async <T>(uri: string, payload: Array<any> | Record<string, any>, verbose = false) => {
@@ -99,9 +110,15 @@ const useApi = (serverUrl: string, options: {
     }
     const response = await fetch(url, opts);
     if (!response.ok) {
-      throw new ResponseError(response);
+      throw new ResponseError(response, "request");
     }
-    return (await response.json()) as T;
+    let _data: T
+    try {
+      _data = (await response.json()) as T
+    } catch (e) {
+      throw new ResponseError(response, "json", `${e}`);
+    }
+    return _data;
   }
 
   const get = async <T>(uri: string, verbose = false): Promise<T> => {
@@ -113,9 +130,15 @@ const useApi = (serverUrl: string, options: {
     }
     const response = await fetch(url, opts);
     if (!response.ok) {
-      throw new ResponseError(response);
+      throw new ResponseError(response, "request");
     }
-    return (await response.json()) as T;
+    let _data: T
+    try {
+      _data = (await response.json()) as T
+    } catch (e) {
+      throw new ResponseError(response, "json", `${e}`);
+    }
+    return _data;
   }
 
   const del = async (uri: string, verbose = false): Promise<void> => {
@@ -127,7 +150,7 @@ const useApi = (serverUrl: string, options: {
     }
     const response = await fetch(url, opts);
     if (!response.ok) {
-      throw new ResponseError(response);
+      throw new ResponseError(response, "request");
     }
   }
 

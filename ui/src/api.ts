@@ -45,8 +45,8 @@ async function adminLogin(namespaceName: string, username: string, password: str
     }
     throw new Error(response.statusText)
   }
-  //const resp = await response.json();
-  //console.log("RESP", resp)
+  const resp = await response.json();
+  console.log("LOGIN RESP", resp)
   /*namespace.name = namespaceName;
   if (namespaceName != 'quid') {
     user.changeNs(namespace.toTableRow());

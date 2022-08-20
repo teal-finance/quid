@@ -358,8 +358,6 @@ func easyjson66c1e240DecodeGithubComTealFinanceQuidQuidlibServerApi4(in *jlexer.
 			continue
 		}
 		switch key {
-		case "admin":
-			out.Admin = bool(in.Bool())
 		case "id":
 			out.ID = int64(in.Int64())
 		case "name":
@@ -383,13 +381,8 @@ func easyjson66c1e240EncodeGithubComTealFinanceQuidQuidlibServerApi4(out *jwrite
 	first := true
 	_ = first
 	{
-		const prefix string = ",\"admin\":"
-		out.RawString(prefix[1:])
-		out.Bool(bool(in.Admin))
-	}
-	{
 		const prefix string = ",\"id\":"
-		out.RawString(prefix)
+		out.RawString(prefix[1:])
 		out.Int64(int64(in.ID))
 	}
 	{
@@ -442,8 +435,6 @@ func easyjson66c1e240DecodeGithubComTealFinanceQuidQuidlibServerApi5(in *jlexer.
 			continue
 		}
 		switch key {
-		case "user":
-			(out.User).UnmarshalEasyJSON(in)
 		case "admin_type":
 			out.AdminType = string(in.String())
 		case "username":
@@ -469,13 +460,8 @@ func easyjson66c1e240EncodeGithubComTealFinanceQuidQuidlibServerApi5(out *jwrite
 	first := true
 	_ = first
 	{
-		const prefix string = ",\"user\":"
-		out.RawString(prefix[1:])
-		(in.User).MarshalEasyJSON(out)
-	}
-	{
 		const prefix string = ",\"admin_type\":"
-		out.RawString(prefix)
+		out.RawString(prefix[1:])
 		out.String(string(in.AdminType))
 	}
 	{

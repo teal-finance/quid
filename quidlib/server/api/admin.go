@@ -132,10 +132,9 @@ func status(w http.ResponseWriter, r *http.Request) {
 	}
 
 	gw.WriteOK(w, statusResponse{
-		User:      unInfo{Admin: tv.BoolIfAny(keyIsAdmin), ID: tv.Int64IfAny(KeyUserID), Name: tv.StringIfAny(keyUsername)},
 		AdminType: adminType,
 		Username:  tv.StringIfAny(keyUsername),
-		Ns:        unInfo{Admin: tv.BoolIfAny(keyIsNsAdmin), ID: tv.Int64IfAny(keyNsID), Name: tv.StringIfAny(keyNsName)},
+		Ns:        unInfo{ID: tv.Int64IfAny(keyNsID), Name: tv.StringIfAny(keyNsName)},
 	})
 }
 

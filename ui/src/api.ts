@@ -6,7 +6,7 @@ const api = useApi(conf.quidUrl);
 
 async function checkStatus() {
   const st = await api.get("/status")
-  console.log("ST", st)
+  console.log("STATUS", st)
 }
 
 async function adminLogin(namespaceName: string, username: string, password: string): Promise<void> {

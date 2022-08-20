@@ -14,7 +14,7 @@ const { isMobile, isTablet, isDesktop } = useScreenSize();
 function initState(toast: ToastServiceMethods, confirm: ConfirmOptions): void {
   checkStatus()
   console.log("Running in env", conf.env);
-  if (conf.env == EnvType.local && !conf.isProduction) {
+  /*if (conf.env == EnvType.local && !conf.isProduction) {
     let t = import.meta.env.VITE_DEV_TOKEN;
     const ns = import.meta.env.VITE_NS;
     //console.log("T", t)
@@ -25,9 +25,9 @@ function initState(toast: ToastServiceMethods, confirm: ConfirmOptions): void {
       //api.refreshToken = user.devRefreshToken;
       user.isLoggedIn.value = true;
     }
-  }
+  }*/
   notify = useNotify(toast, confirm)
-  console.log("NS", JSON.stringify(user.namespace.value, null, "  "))
+  //console.log("NS", JSON.stringify(user.namespace.value, null, "  "))
 }
 
 export { user, initState, notify, isMobile, isTablet, isDesktop }

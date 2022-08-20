@@ -322,10 +322,10 @@
     estree-walker "^2.0.1"
     picomatch "^2.2.2"
 
-"@snowind/api@0.0.4":
-  version "0.0.4"
-  resolved "https://registry.yarnpkg.com/@snowind/api/-/api-0.0.4.tgz#c8932b57d708c2094cdf9b625109cbc00f4a76f4"
-  integrity sha512-ukjyV3194Ky0lk6dH1x4R0vMDWuXwbzq+S8PXfCYzVDM/Xiph/xLdoXi1eUgRfb5/qbij2cnwcU4ckJ8w99b4A==
+"@snowind/api@0.0.5":
+  version "0.0.5"
+  resolved "https://registry.yarnpkg.com/@snowind/api/-/api-0.0.5.tgz#ae48b2bf1397986ac37cd0ce1e2546c63c74adf6"
+  integrity sha512-oGp3RBGZDFyan1zc0zvzMGFWHF+heyRiWGuQVi6TZGQLFYfEREsgTwDxGqq6PcFU+j5ZkRFM7TIF7qbhkqWXFA==
   dependencies:
     js-cookie "^3.0.1"
 

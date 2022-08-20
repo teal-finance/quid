@@ -14,7 +14,7 @@ const (
 	KeyUserID
 	keyNsName
 	keyNsID
-	keyIsAdmin
+	keyAdminType
 	keyIsNsAdmin
 )
 
@@ -80,8 +80,8 @@ func AdminLogin(w http.ResponseWriter, r *http.Request) {
 	emo.Result("AdminLogin OK u=" + u.Name + " ns=" + namespace)
 
 	// get or create an Incorruptible token
-	tv, ok := incorruptible.FromCtx(r)
-	if !ok {
+	tv, err := Incorruptible.DecodeCookieToken(r)
+	if err != nil {
 		emo.Info("AdminLogin: no Incorruptible token => Create a new one u="+u.Name+" (id=", u.ID,
 			") ns="+ns.Name+" (id=", ns.ID, ") admin=", _isAdmin, "NSAdmin=", _isNsAdmin)
 	}
@@ -92,7 +92,7 @@ func AdminLogin(w http.ResponseWriter, r *http.Request) {
 		tv.KInt64(KeyUserID, u.ID),
 		tv.KString(keyNsName, ns.Name),
 		tv.KInt64(keyNsID, ns.ID),
-		tv.KBool(keyIsAdmin, _isAdmin),
+		tv.KBool(keyAdminType, _isAdmin),
 		tv.KBool(keyIsNsAdmin, _isNsAdmin),
 	)
 	if err != nil {
@@ -110,24 +110,27 @@ func AdminLogin(w http.ResponseWriter, r *http.Request) {
 	}
 	http.SetCookie(w, cookie)
 
-	// store the Incorruptible token in the request context
-	r = tv.ToCtx(r)
-	status(w, r)
+	sendStatusResponse(w, tv)
 }
 
 // status returns 200 if user is admin.
 func status(w http.ResponseWriter, r *http.Request) {
-	tv, ok := incorruptible.FromCtx(r)
-	if !ok {
-		emo.Warning("status: missing Incorruptible token")
+	tv, err := Incorruptible.DecodeCookieToken(r)
+	if err != nil {
+		emo.Warning("/status: no valid token:", err.Error())
 		w.WriteHeader(http.StatusUnauthorized)
 		return
 	}
 
+	sendStatusResponse(w, tv)
+}
+
+// status returns 200 if user is admin.
+func sendStatusResponse(w http.ResponseWriter, tv incorruptible.TValues) {
 	var adminType string
-	if tv.BoolIfAny(keyIsAdmin) {
+	if tv.BoolIfAny(keyAdminType) {
 		adminType = "admin"
-	} else if tv.BoolIfAny(keyIsAdmin) {
+	} else if tv.BoolIfAny(keyAdminType) {
 		adminType = "nsadmin"
 	}
 
@@ -149,7 +152,7 @@ func AdminLogout(w http.ResponseWriter, r *http.Request) {
 
 	emo.Result("AdminLogout OK")
 
-	if err := tv.SetBool(keyIsAdmin, false); err != nil {
+	if err := tv.SetBool(keyAdminType, false); err != nil {
 		emo.Error("AdminLogout tv.SetBool:", err)
 		w.WriteHeader(http.StatusInternalServerError)
 		return

@@ -66,7 +66,7 @@ func newRouter(g *garcon.Garcon) http.Handler {
 
 	// Static website: set the Incorruptible cookie only when visiting index.html
 	ws := g.NewStaticWebServer("ui/dist")
-	r.With(Incorruptible.Set).NotFound(ws.ServeFile("index.html", "text/html; charset=utf-8"))
+	r.NotFound(ws.ServeFile("index.html", "text/html; charset=utf-8"))
 	r.Get("/favicon.ico", ws.ServeFile("favicon.ico", "image/x-icon"))
 	r.Get("/favicon.png", ws.ServeFile("favicon.png", "image/png"))
 	r.Get("/preview.jpg", ws.ServeFile("preview.jpg", "image/jpeg"))
@@ -75,14 +75,14 @@ func newRouter(g *garcon.Garcon) http.Handler {
 
 	// HTTP Routes
 	// public routes
-	r.With(Incorruptible.Vet).Post("/token/refresh/{timeout}", RequestRefreshToken)
-	r.With(Incorruptible.Vet).Post("/token/access/{timeout}", RequestAccessToken)
-	r.With(Incorruptible.Chk).Post("/admin_login", AdminLogin)
+	r.Post("/token/refresh/{timeout}", RequestRefreshToken)
+	r.Post("/token/access/{timeout}", RequestAccessToken)
+	r.Post("/admin_login", AdminLogin)
 	// r.With(Incorruptible.Chk).Post("/admin_token/access/", RequestAdminAccessToken)
-	r.With(Incorruptible.Chk).Get("/status", status)
+	r.Get("/status", status)
 
 	// admin routes
-	r.With(Incorruptible.Chk).With(AdminMiddleware).Route("/admin", func(r chi.Router) {
+	r.With(AdminMiddleware).Route("/admin", func(r chi.Router) {
 		// HTTP API
 		r.Get("/logout", AdminLogout)
 		r.Route("/groups", func(r chi.Router) {
@@ -140,7 +140,7 @@ func newRouter(g *garcon.Garcon) http.Handler {
 	})
 
 	// Namespace admin endpoints
-	r.With(Incorruptible.Chk).With(NsAdminMiddleware).Route("/ns", func(r chi.Router) {
+	r.With(NsAdminMiddleware).Route("/ns", func(r chi.Router) {
 		// nsadmin users
 		r.Route("/users", func(r chi.Router) {
 			r.Post("/add", CreateUserHandler)

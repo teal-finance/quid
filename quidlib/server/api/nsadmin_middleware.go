@@ -38,9 +38,9 @@ func VerifyAdminNs(w http.ResponseWriter, r *http.Request, nsID int64) bool {
 // NsAdminMiddleware : check the token claim to see if the user is namespace admin.
 func NsAdminMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		tv, ok := incorruptible.FromCtx(r)
-		if !ok {
-			emo.ParamError("NsAdminMiddleware: missing Incorruptible token")
+		tv, err := Incorruptible.DecodeCookieToken(r)
+		if err != nil {
+			emo.Warning("AdminMiddleware: no valid token:", err.Error())
 			w.WriteHeader(http.StatusUnauthorized)
 			return
 		}
@@ -81,7 +81,8 @@ func NsAdminMiddleware(next http.Handler) http.Handler {
 			return
 		}
 
-		emo.RequestPost("Request ok from ns admin middleware")
+		emo.RequestPost("NsAdminMiddleware OK u="+userName+" (id=", userID, ") ns="+namespace+" (id=", nsID, ")")
+		r = tv.ToCtx(r) // save the token in the request context
 		next.ServeHTTP(w, r)
 	})
 }

@@ -3,20 +3,23 @@ import { notify } from './state';
 //import { useApi } from "@snowind/api";
 import { useApi } from "@/packages/api";
 import { ResponseError } from "./packages/errors";
+import { UserStatusContract } from "./interface";
 
 const api = useApi(conf.quidUrl);
 
-async function checkStatus(): Promise<{ ok: boolean, status: Record<string, any> }> {
-  let _data = {};
+async function checkStatus(): Promise<{ ok: boolean, status: UserStatusContract }> {
+  let _data: UserStatusContract = {} as UserStatusContract;
   try {
-    _data = await api.get("/status")
+    _data = await api.get<UserStatusContract>("/status")
   } catch (e) {
     if (e instanceof ResponseError) {
       console.log("Response error", e);
       if (e.response.status == 401) {
-        return { ok: false, status: _data }
+        return { ok: false, status: {} as UserStatusContract }
       }
       throw new Error(e.toString())
+    } else {
+      throw e
     }
   }
   return { ok: true, status: _data }

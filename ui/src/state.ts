@@ -25,16 +25,18 @@ async function initUserState() {
   }
   console.log("Status", status)
   user.isLoggedIn.value = true;
-  user.name.value = status["username"];
+  user.name.value = status.username;
   const ns = Namespace.empty();
   ns.id = status.ns.id;
   ns.name = status.ns.name;
-  if (status.user.admin === true) {
+  if (status.admin_type === "admin") {
     user.type.value = "serverAdmin";
     user.adminUrl = "/admin";
     user.resetNs()
-  } else {
+  } else if (status.admin_type === "nsadmin") {
     user.changeNs(ns.toTableRow());
+  } else {
+    throw new Error(`Unknown admin type ${status.admin_type}`)
   }
 }
 

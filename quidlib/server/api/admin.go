@@ -143,30 +143,7 @@ func sendStatusResponse(w http.ResponseWriter, tv incorruptible.TValues) {
 
 // AdminLogout : http logout handler for the admin interface.
 func AdminLogout(w http.ResponseWriter, r *http.Request) {
-	tv, ok := incorruptible.FromCtx(r)
-	if !ok {
-		emo.Warning("AdminLogout: missing valid Incorruptible cookie")
-		w.WriteHeader(http.StatusBadRequest)
-		return
-	}
-
-	emo.Result("AdminLogout OK")
-
-	if err := tv.SetBool(keyAdminType, false); err != nil {
-		emo.Error("AdminLogout tv.SetBool:", err)
-		w.WriteHeader(http.StatusInternalServerError)
-		return
-	}
-
-	cookie, err := Incorruptible.NewCookieFromValues(tv)
-	if err != nil {
-		emo.Error("AdminLogout NewCookieFromValues:", err)
-		w.WriteHeader(http.StatusInternalServerError)
-		return
-	}
-
-	http.SetCookie(w, cookie)
-	w.WriteHeader(http.StatusOK)
+	http.SetCookie(w, Incorruptible.DeadCookie())
 }
 
 // RequestAdminAccessToken : request an access token from a refresh token

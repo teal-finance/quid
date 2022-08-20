@@ -14,7 +14,7 @@ require (
 	github.com/spf13/viper v1.12.0
 	github.com/teal-finance/emo v0.0.0-20220602102724-3ed209263d5a
 	github.com/teal-finance/garcon v0.23.6
-	github.com/teal-finance/incorruptible v0.0.0-20220815163100-85ac4a78f98f
+	github.com/teal-finance/incorruptible v0.0.0-20220820134403-035be3a791c6
 	golang.org/x/crypto v0.0.0-20220722155217-630584e8d5aa
 )
 

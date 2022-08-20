@@ -33,6 +33,7 @@ async function adminLogin(namespaceName: string, username: string, password: str
   }
   const opts: RequestInit = {
     method: 'POST',
+    credentials: 'include',
     headers: {
       'Content-Type': 'application/json',
     } as HeadersInit,

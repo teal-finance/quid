@@ -173,6 +173,7 @@ const useApi = (serverUrl: string, options: {
   const _postHeader = (payload: Array<any> | Record<string, any> | FormData, method = "post", multipart: boolean = false): RequestInit => {
     const pl = multipart ? payload as FormData : JSON.stringify(payload);
     const r: RequestInit = {
+      credentials: 'include',
       method: method,
       mode: _mode,
       body: pl
@@ -180,9 +181,9 @@ const useApi = (serverUrl: string, options: {
     if (!multipart) {
       r.headers = { "Content-Type": "application/json" }
     }
-    if (_credentials !== null) {
-      r.credentials = _credentials as RequestCredentials
-    }
+    // if (_credentials !== null) {
+    //   r.credentials = _credentials as RequestCredentials
+    // }
     if (_csrfToken !== null) {
       if (multipart) {
         r.headers = {}

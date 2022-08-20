@@ -82,7 +82,9 @@ func newRouter(g *garcon.Garcon) http.Handler {
 	r.Get("/status", status)
 
 	// admin routes
-	r.With(AdminMiddleware).Route("/admin", func(r chi.Router) {
+	r.Route("/admin", func(r chi.Router) {
+		r.Use(AdminMiddleware)
+
 		// HTTP API
 		r.Get("/logout", AdminLogout)
 		r.Route("/groups", func(r chi.Router) {
@@ -136,11 +138,12 @@ func newRouter(g *garcon.Garcon) http.Handler {
 			r.Post("/delete", DeleteAdministrator)
 			r.Post("/search/nonadmins", SearchForNonAdminUsersInNamespace)
 		})
-
 	})
 
 	// Namespace admin endpoints
-	r.With(NsAdminMiddleware).Route("/ns", func(r chi.Router) {
+	r.Route("/ns", func(r chi.Router) {
+		r.Use(NsAdminMiddleware)
+
 		// nsadmin users
 		r.Route("/users", func(r chi.Router) {
 			r.Post("/add", CreateUserHandler)

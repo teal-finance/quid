@@ -1,12 +1,25 @@
 import conf from "@/conf";
 import { notify } from './state';
-import { useApi } from "@snowind/api";
+//import { useApi } from "@snowind/api";
+import { useApi } from "@/packages/api";
+import { ResponseError } from "./packages/errors";
 
 const api = useApi(conf.quidUrl);
 
-async function checkStatus() {
-  const st = await api.get("/status")
-  console.log("STATUS", st)
+async function checkStatus(): Promise<{ ok: boolean, status: Record<string, any> }> {
+  let _data = {};
+  try {
+    _data = await api.get("/status")
+  } catch (e) {
+    if (e instanceof ResponseError) {
+      console.log("Response error", e);
+      if (e.response.status == 401) {
+        return { ok: false, status: _data }
+      }
+      throw new Error(e.toString())
+    }
+  }
+  return { ok: true, status: _data }
 }
 
 async function adminLogin(namespaceName: string, username: string, password: string): Promise<void> {

@@ -137,25 +137,26 @@ func newRouter(g *garcon.Garcon) http.Handler {
 			r.Post("/search/nonadmins", SearchForNonAdminUsersInNamespace)
 		})
 
-		// Namespace admin endpoints
-		r.With(NsAdminMiddleware).Route("/ns", func(r chi.Router) {
-			// nsadmin users
-			r.Route("/users", func(r chi.Router) {
-				r.Post("/add", CreateUserHandler)
-				r.Post("/delete", DeleteUser)
-				r.Post("/groups", UserGroupsInfo)
-				r.Post("/nsall", AllUsersInNamespace)
-			})
+	})
 
-			// nsadmin groups
-			r.Route("/groups", func(r chi.Router) {
-				r.Post("/add", CreateGroup)
-				r.Post("/delete", DeleteGroup)
-				r.Post("/info", GroupsInfo)
-				r.Post("/add_user", AddUserInGroup)
-				r.Post("/remove_user", RemoveUserFromGroup)
-				r.Post("/nsall", AllGroupsForNamespace)
-			})
+	// Namespace admin endpoints
+	r.With(Incorruptible.Chk).With(NsAdminMiddleware).Route("/ns", func(r chi.Router) {
+		// nsadmin users
+		r.Route("/users", func(r chi.Router) {
+			r.Post("/add", CreateUserHandler)
+			r.Post("/delete", DeleteUser)
+			r.Post("/groups", UserGroupsInfo)
+			r.Post("/nsall", AllUsersInNamespace)
+		})
+
+		// nsadmin groups
+		r.Route("/groups", func(r chi.Router) {
+			r.Post("/add", CreateGroup)
+			r.Post("/delete", DeleteGroup)
+			r.Post("/info", GroupsInfo)
+			r.Post("/add_user", AddUserInGroup)
+			r.Post("/remove_user", RemoveUserFromGroup)
+			r.Post("/nsall", AllGroupsForNamespace)
 		})
 	})
 

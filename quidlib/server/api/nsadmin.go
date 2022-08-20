@@ -12,7 +12,7 @@ import (
 // AllAdministratorsInNamespace : select all admin users for a namespace.
 func AllAdministratorsInNamespace(w http.ResponseWriter, r *http.Request) {
 	var m namespaceIDRequest
-	if err := garcon.DecodeJSONBody(r, &m); err != nil {
+	if err := garcon.UnmarshalJSONRequest(w, r, &m); err != nil {
 		emo.Warning("AllAdministratorsInNamespace:", err)
 		w.WriteHeader(http.StatusBadRequest)
 		return
@@ -33,7 +33,7 @@ func AllAdministratorsInNamespace(w http.ResponseWriter, r *http.Request) {
 // SearchForNonAdminUsersInNamespace : search from a username in namespace
 func SearchForNonAdminUsersInNamespace(w http.ResponseWriter, r *http.Request) {
 	var m nonAdminUsersRequest
-	if err := garcon.DecodeJSONBody(r, &m); err != nil {
+	if err := garcon.UnmarshalJSONRequest(w, r, &m); err != nil {
 		emo.Warning("SearchForNonAdminUsersInNamespace:", err)
 		w.WriteHeader(http.StatusBadRequest)
 		return
@@ -61,7 +61,7 @@ func SearchForNonAdminUsersInNamespace(w http.ResponseWriter, r *http.Request) {
 // CreateUserAdministrators : create admin users handler.
 func CreateAdministrators(w http.ResponseWriter, r *http.Request) {
 	var m administratorsCreation
-	if err := garcon.DecodeJSONBody(r, &m); err != nil {
+	if err := garcon.UnmarshalJSONRequest(w, r, &m); err != nil {
 		emo.Warning("CreateAdministrators:", err)
 		w.WriteHeader(http.StatusBadRequest)
 		return
@@ -98,7 +98,7 @@ func CreateAdministrators(w http.ResponseWriter, r *http.Request) {
 // DeleteAdministrator : delete an admin user handler.
 func DeleteAdministrator(w http.ResponseWriter, r *http.Request) {
 	var m administratorDeletion
-	if err := garcon.DecodeJSONBody(r, &m); err != nil {
+	if err := garcon.UnmarshalJSONRequest(w, r, &m); err != nil {
 		emo.ParamError("DeleteAdministrator:", err)
 		w.WriteHeader(http.StatusBadRequest)
 		return

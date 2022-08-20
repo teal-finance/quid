@@ -23,7 +23,7 @@ func AllOrgs(w http.ResponseWriter, r *http.Request) {
 // FindOrg : find an org from name.
 func FindOrg(w http.ResponseWriter, r *http.Request) {
 	var m nameRequest
-	if err := garcon.DecodeJSONBody(r, &m); err != nil {
+	if err := garcon.UnmarshalJSONRequest(w, r, &m); err != nil {
 		emo.ParamError("FindOrg:", err)
 		w.WriteHeader(http.StatusBadRequest)
 		return
@@ -50,7 +50,7 @@ func FindOrg(w http.ResponseWriter, r *http.Request) {
 // UserOrgsInfo : get orgs info for a user.
 func UserOrgsInfo(w http.ResponseWriter, r *http.Request) {
 	var m infoRequest
-	if err := garcon.DecodeJSONBody(r, &m); err != nil {
+	if err := garcon.UnmarshalJSONRequest(w, r, &m); err != nil {
 		emo.ParamError("UserOrgsInfo:", err)
 		w.WriteHeader(http.StatusBadRequest)
 		return
@@ -71,7 +71,7 @@ func UserOrgsInfo(w http.ResponseWriter, r *http.Request) {
 // DeleteOrg : org deletion http handler.
 func DeleteOrg(w http.ResponseWriter, r *http.Request) {
 	var m infoRequest
-	if err := garcon.DecodeJSONBody(r, &m); err != nil {
+	if err := garcon.UnmarshalJSONRequest(w, r, &m); err != nil {
 		emo.ParamError("DeleteOrg:", err)
 		w.WriteHeader(http.StatusBadRequest)
 		return
@@ -91,7 +91,7 @@ func DeleteOrg(w http.ResponseWriter, r *http.Request) {
 // CreateOrg : org creation http handler.
 func CreateOrg(w http.ResponseWriter, r *http.Request) {
 	var m nameRequest
-	if err := garcon.DecodeJSONBody(r, &m); err != nil {
+	if err := garcon.UnmarshalJSONRequest(w, r, &m); err != nil {
 		emo.ParamError("CreateOrg:", err)
 		w.WriteHeader(http.StatusBadRequest)
 		return

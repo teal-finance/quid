@@ -14,7 +14,7 @@ import (
 // AllUsersInNamespace : select all users for a namespace.
 func AllUsersInNamespace(w http.ResponseWriter, r *http.Request) {
 	var m namespaceIDRequest
-	if err := garcon.DecodeJSONBody(r, &m); err != nil {
+	if err := garcon.UnmarshalJSONRequest(w, r, &m); err != nil {
 		emo.ParamError("AllUsersInNamespace:", err)
 		w.WriteHeader(http.StatusBadRequest)
 		return
@@ -40,7 +40,7 @@ func AllUsersInNamespace(w http.ResponseWriter, r *http.Request) {
 // GroupsForNamespace : get the groups of a user.
 func GroupsForNamespace(w http.ResponseWriter, r *http.Request) {
 	var m namespaceRequest
-	if err := garcon.DecodeJSONBody(r, &m); err != nil {
+	if err := garcon.UnmarshalJSONRequest(w, r, &m); err != nil {
 		emo.ParamError("GroupsForNamespace:", err)
 		w.WriteHeader(http.StatusBadRequest)
 		return
@@ -74,7 +74,7 @@ func GroupsForNamespace(w http.ResponseWriter, r *http.Request) {
 // AddUserInOrg : add a user in an org.
 func AddUserInOrg(w http.ResponseWriter, r *http.Request) {
 	var m userOrgRequest
-	if err := garcon.DecodeJSONBody(r, &m); err != nil {
+	if err := garcon.UnmarshalJSONRequest(w, r, &m); err != nil {
 		emo.ParamError("AddUserInOrg:", err)
 		w.WriteHeader(http.StatusBadRequest)
 		return
@@ -97,7 +97,7 @@ func AddUserInOrg(w http.ResponseWriter, r *http.Request) {
 // RemoveUserFromOrg : add a user in an org.
 func RemoveUserFromOrg(w http.ResponseWriter, r *http.Request) {
 	var m userOrgRequest
-	if err := garcon.DecodeJSONBody(r, &m); err != nil {
+	if err := garcon.UnmarshalJSONRequest(w, r, &m); err != nil {
 		emo.ParamError("RemoveUserFromOrg:", err)
 		w.WriteHeader(http.StatusBadRequest)
 		return
@@ -120,7 +120,7 @@ func RemoveUserFromOrg(w http.ResponseWriter, r *http.Request) {
 // AddUserInGroup : add a user in a group.
 func AddUserInGroup(w http.ResponseWriter, r *http.Request) {
 	var m userGroupRequest
-	if err := garcon.DecodeJSONBody(r, &m); err != nil {
+	if err := garcon.UnmarshalJSONRequest(w, r, &m); err != nil {
 		emo.ParamError("AddUserInGroup:", err)
 		w.WriteHeader(http.StatusBadRequest)
 		return
@@ -149,7 +149,7 @@ func AddUserInGroup(w http.ResponseWriter, r *http.Request) {
 // RemoveUserFromGroup : add a user in a group.
 func RemoveUserFromGroup(w http.ResponseWriter, r *http.Request) {
 	var m userGroupRequest
-	if err := garcon.DecodeJSONBody(r, &m); err != nil {
+	if err := garcon.UnmarshalJSONRequest(w, r, &m); err != nil {
 		emo.ParamError("RemoveUserFromGroup:", err)
 		w.WriteHeader(http.StatusBadRequest)
 		return
@@ -178,7 +178,7 @@ func RemoveUserFromGroup(w http.ResponseWriter, r *http.Request) {
 // UserGroupsInfo : get info for a user.
 func UserGroupsInfo(w http.ResponseWriter, r *http.Request) {
 	var m userRequest
-	if err := garcon.DecodeJSONBody(r, &m); err != nil {
+	if err := garcon.UnmarshalJSONRequest(w, r, &m); err != nil {
 		emo.ParamError("UserGroupsInfo:", err)
 		w.WriteHeader(http.StatusBadRequest)
 		return
@@ -206,7 +206,7 @@ func UserGroupsInfo(w http.ResponseWriter, r *http.Request) {
 // DeleteUser : delete a user handler.
 func DeleteUser(w http.ResponseWriter, r *http.Request) {
 	var m userRequest
-	if err := garcon.DecodeJSONBody(r, &m); err != nil {
+	if err := garcon.UnmarshalJSONRequest(w, r, &m); err != nil {
 		emo.ParamError("DeleteUser:", err)
 		w.WriteHeader(http.StatusBadRequest)
 		return
@@ -233,7 +233,7 @@ func DeleteUser(w http.ResponseWriter, r *http.Request) {
 // CreateUserHandler : create a user handler.
 func CreateUserHandler(w http.ResponseWriter, r *http.Request) {
 	var m userHandlerCreation
-	if err := garcon.DecodeJSONBody(r, &m); err != nil {
+	if err := garcon.UnmarshalJSONRequest(w, r, &m); err != nil {
 		emo.ParamError("CreateUserHandler:", err)
 		w.WriteHeader(http.StatusBadRequest)
 		return

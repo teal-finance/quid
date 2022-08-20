@@ -11,7 +11,7 @@ import (
 // AllGroupsForNamespace : get all groups for a namespace http handler.
 func AllGroupsForNamespace(w http.ResponseWriter, r *http.Request) {
 	var m namespaceIDRequest
-	if err := garcon.DecodeJSONBody(r, &m); err != nil {
+	if err := garcon.UnmarshalJSONRequest(w, r, &m); err != nil {
 		emo.Warning("AllGroupsForNamespace:", err)
 		w.WriteHeader(http.StatusBadRequest)
 		return
@@ -48,7 +48,7 @@ func AllGroups(w http.ResponseWriter, r *http.Request) {
 // GroupsInfo : group creation http handler.
 func GroupsInfo(w http.ResponseWriter, r *http.Request) {
 	var m userRequest
-	if err := garcon.DecodeJSONBody(r, &m); err != nil {
+	if err := garcon.UnmarshalJSONRequest(w, r, &m); err != nil {
 		emo.Warning("GroupsInfo:", err)
 		w.WriteHeader(http.StatusBadRequest)
 		return
@@ -75,7 +75,7 @@ func GroupsInfo(w http.ResponseWriter, r *http.Request) {
 // DeleteGroup : group deletion http handler.
 func DeleteGroup(w http.ResponseWriter, r *http.Request) {
 	var m userRequest
-	if err := garcon.DecodeJSONBody(r, &m); err != nil {
+	if err := garcon.UnmarshalJSONRequest(w, r, &m); err != nil {
 		emo.Warning("DeleteGroup:", err)
 		w.WriteHeader(http.StatusBadRequest)
 		return
@@ -101,7 +101,7 @@ func DeleteGroup(w http.ResponseWriter, r *http.Request) {
 // CreateGroup : group creation http handler.
 func CreateGroup(w http.ResponseWriter, r *http.Request) {
 	var m groupCreation
-	if err := garcon.DecodeJSONBody(r, &m); err != nil {
+	if err := garcon.UnmarshalJSONRequest(w, r, &m); err != nil {
 		emo.Warning("CreateGroup:", err)
 		w.WriteHeader(http.StatusBadRequest)
 		return

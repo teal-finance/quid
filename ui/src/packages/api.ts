@@ -1,23 +1,20 @@
 import Cookies from 'js-cookie';
 import { ResponseError } from './errors';
+import { UseApiParams } from './interfaces';
 
-const useApi = (serverUrl: string, options: {
-  csrfCookieName: string,
-  csrfHeaderKey: string,
-  credentials: RequestCredentials | null,
-  mode: RequestMode,
-} = {
-    csrfCookieName: "csrftoken",
-    csrfHeaderKey: "X-CSRFToken",
-    credentials: "include",
-    mode: "cors",
-  }) => {
+const useApi = (params: UseApiParams = {
+  serverUrl: "",
+  csrfCookieName: "csrftoken",
+  csrfHeaderKey: "X-CSRFToken",
+  credentials: "include",
+  mode: "cors",
+}) => {
   // options
-  let _serverUrl = serverUrl;
-  let _csrfCookieName = options.csrfCookieName;
-  let _csrfHeaderKey = options.csrfHeaderKey;
-  let _mode = options.mode;
-  let _credentials: RequestCredentials | null = options.credentials;
+  let _serverUrl = params.serverUrl ?? "";
+  let _csrfCookieName = params?.csrfCookieName ?? "csrftoken";
+  let _csrfHeaderKey = params?.csrfHeaderKey ?? "X-CSRFToken";
+  let _mode = params?.mode ?? "cors";
+  let _credentials: RequestCredentials | null = params?.credentials ?? "include";
   // state
   let _csrfToken: string | null = null;
 
@@ -72,6 +69,10 @@ const useApi = (serverUrl: string, options: {
     if (!response.ok) {
       throw new ResponseError(response, "request");
     }
+    if (response.headers.get("content-type") != "application/json") {
+      // no data
+      return {} as T;
+    }
     let _data: T
     try {
       _data = (await response.json()) as T
@@ -91,6 +92,10 @@ const useApi = (serverUrl: string, options: {
     const response = await fetch(url, opts);
     if (!response.ok) {
       throw new ResponseError(response, "request");
+    }
+    if (response.headers.get("content-type") != "application/json") {
+      // no data
+      return {} as T;
     }
     let _data: T
     try {
@@ -112,6 +117,10 @@ const useApi = (serverUrl: string, options: {
     if (!response.ok) {
       throw new ResponseError(response, "request");
     }
+    if (response.headers.get("content-type") != "application/json") {
+      // no data
+      return {} as T;
+    }
     let _data: T
     try {
       _data = (await response.json()) as T
@@ -131,6 +140,10 @@ const useApi = (serverUrl: string, options: {
     const response = await fetch(url, opts);
     if (!response.ok) {
       throw new ResponseError(response, "request");
+    }
+    if (response.headers.get("content-type") != "application/json") {
+      // no data
+      return {} as T;
     }
     let _data: T
     try {
@@ -161,7 +174,7 @@ const useApi = (serverUrl: string, options: {
       mode: _mode,
     } as RequestInit;
     if (_credentials !== null) {
-      h.credentials = _credentials as RequestCredentials;
+      h.credentials = _credentials
     }
     if (_csrfToken !== null) {
       h.headers = { "Content-Type": "application/json" }
@@ -173,7 +186,6 @@ const useApi = (serverUrl: string, options: {
   const _postHeader = (payload: Array<any> | Record<string, any> | FormData, method = "post", multipart: boolean = false): RequestInit => {
     const pl = multipart ? payload as FormData : JSON.stringify(payload);
     const r: RequestInit = {
-      credentials: 'include',
       method: method,
       mode: _mode,
       body: pl
@@ -181,9 +193,9 @@ const useApi = (serverUrl: string, options: {
     if (!multipart) {
       r.headers = { "Content-Type": "application/json" }
     }
-    // if (_credentials !== null) {
-    //   r.credentials = _credentials as RequestCredentials
-    // }
+    if (_credentials !== null) {
+      r.credentials = _credentials
+    }
     if (_csrfToken !== null) {
       if (multipart) {
         r.headers = {}

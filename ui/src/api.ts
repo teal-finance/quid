@@ -5,7 +5,7 @@ import { useApi } from "@/packages/api";
 import { ResponseError } from "./packages/errors";
 import { UserStatusContract } from "./interface";
 
-const api = useApi(conf.quidUrl);
+const api = useApi({ serverUrl: conf.quidUrl });
 
 async function checkStatus(): Promise<{ ok: boolean, status: UserStatusContract }> {
   let _data: UserStatusContract = {} as UserStatusContract;

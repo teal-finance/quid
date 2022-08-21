@@ -19,7 +19,7 @@ func AllGroupsForNamespace(w http.ResponseWriter, r *http.Request) {
 
 	nsID := m.NamespaceID
 
-	if !VerifyAdminNs(w, r, nsID) {
+	if !IsNsAdmin(r, nsID) {
 		w.WriteHeader(http.StatusUnauthorized)
 		return
 	}
@@ -57,7 +57,7 @@ func GroupsInfo(w http.ResponseWriter, r *http.Request) {
 	id := m.ID
 	nsID := m.NamespaceID
 
-	if !VerifyAdminNs(w, r, nsID) {
+	if !IsNsAdmin(r, nsID) {
 		w.WriteHeader(http.StatusUnauthorized)
 		return
 	}
@@ -84,7 +84,7 @@ func DeleteGroup(w http.ResponseWriter, r *http.Request) {
 	id := m.ID
 	nsID := m.NamespaceID
 
-	if !VerifyAdminNs(w, r, nsID) {
+	if !IsNsAdmin(r, nsID) {
 		w.WriteHeader(http.StatusUnauthorized)
 		return
 	}
@@ -116,7 +116,7 @@ func CreateGroup(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if !VerifyAdminNs(w, r, nsID) {
+	if !IsNsAdmin(r, nsID) {
 		w.WriteHeader(http.StatusUnauthorized)
 		return
 	}

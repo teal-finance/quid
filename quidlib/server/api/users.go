@@ -22,7 +22,7 @@ func AllUsersInNamespace(w http.ResponseWriter, r *http.Request) {
 
 	nsID := m.NamespaceID
 
-	if !VerifyAdminNs(w, r, nsID) {
+	if !IsNsAdmin(r, nsID) {
 		w.WriteHeader(http.StatusUnauthorized)
 		return
 	}
@@ -130,7 +130,7 @@ func AddUserInGroup(w http.ResponseWriter, r *http.Request) {
 	gID := m.GroupID
 	nsID := m.NamespaceID
 
-	if !VerifyAdminNs(w, r, nsID) {
+	if !IsNsAdmin(r, nsID) {
 		w.WriteHeader(http.StatusUnauthorized)
 		return
 	}
@@ -159,7 +159,7 @@ func RemoveUserFromGroup(w http.ResponseWriter, r *http.Request) {
 	gID := m.GroupID
 	nsID := m.NamespaceID
 
-	if !VerifyAdminNs(w, r, nsID) {
+	if !IsNsAdmin(r, nsID) {
 		w.WriteHeader(http.StatusUnauthorized)
 		return
 	}
@@ -187,7 +187,7 @@ func UserGroupsInfo(w http.ResponseWriter, r *http.Request) {
 	id := m.ID
 	nsID := m.NamespaceID
 
-	if !VerifyAdminNs(w, r, nsID) {
+	if !IsNsAdmin(r, nsID) {
 		w.WriteHeader(http.StatusUnauthorized)
 		return
 	}
@@ -215,7 +215,7 @@ func DeleteUser(w http.ResponseWriter, r *http.Request) {
 	id := m.ID
 	nsID := m.NamespaceID
 
-	if !VerifyAdminNs(w, r, nsID) {
+	if !IsNsAdmin(r, nsID) {
 		w.WriteHeader(http.StatusUnauthorized)
 		return
 	}
@@ -249,7 +249,7 @@ func CreateUserHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if !VerifyAdminNs(w, r, nsID) {
+	if !IsNsAdmin(r, nsID) {
 		w.WriteHeader(http.StatusUnauthorized)
 		return
 	}

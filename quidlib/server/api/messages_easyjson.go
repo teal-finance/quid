@@ -339,84 +339,7 @@ func (v *userGroupRequest) UnmarshalJSON(data []byte) error {
 func (v *userGroupRequest) UnmarshalEasyJSON(l *jlexer.Lexer) {
 	easyjson66c1e240DecodeGithubComTealFinanceQuidQuidlibServerApi3(l, v)
 }
-func easyjson66c1e240DecodeGithubComTealFinanceQuidQuidlibServerApi4(in *jlexer.Lexer, out *unInfo) {
-	isTopLevel := in.IsStart()
-	if in.IsNull() {
-		if isTopLevel {
-			in.Consumed()
-		}
-		in.Skip()
-		return
-	}
-	in.Delim('{')
-	for !in.IsDelim('}') {
-		key := in.UnsafeFieldName(true)
-		in.WantColon()
-		if in.IsNull() {
-			in.Skip()
-			in.WantComma()
-			continue
-		}
-		switch key {
-		case "id":
-			out.ID = int64(in.Int64())
-		case "name":
-			out.Name = string(in.String())
-		default:
-			in.AddError(&jlexer.LexerError{
-				Offset: in.GetPos(),
-				Reason: "unknown field",
-				Data:   key,
-			})
-		}
-		in.WantComma()
-	}
-	in.Delim('}')
-	if isTopLevel {
-		in.Consumed()
-	}
-}
-func easyjson66c1e240EncodeGithubComTealFinanceQuidQuidlibServerApi4(out *jwriter.Writer, in unInfo) {
-	out.RawByte('{')
-	first := true
-	_ = first
-	{
-		const prefix string = ",\"id\":"
-		out.RawString(prefix[1:])
-		out.Int64(int64(in.ID))
-	}
-	{
-		const prefix string = ",\"name\":"
-		out.RawString(prefix)
-		out.String(string(in.Name))
-	}
-	out.RawByte('}')
-}
-
-// MarshalJSON supports json.Marshaler interface
-func (v unInfo) MarshalJSON() ([]byte, error) {
-	w := jwriter.Writer{}
-	easyjson66c1e240EncodeGithubComTealFinanceQuidQuidlibServerApi4(&w, v)
-	return w.Buffer.BuildBytes(), w.Error
-}
-
-// MarshalEasyJSON supports easyjson.Marshaler interface
-func (v unInfo) MarshalEasyJSON(w *jwriter.Writer) {
-	easyjson66c1e240EncodeGithubComTealFinanceQuidQuidlibServerApi4(w, v)
-}
-
-// UnmarshalJSON supports json.Unmarshaler interface
-func (v *unInfo) UnmarshalJSON(data []byte) error {
-	r := jlexer.Lexer{Data: data}
-	easyjson66c1e240DecodeGithubComTealFinanceQuidQuidlibServerApi4(&r, v)
-	return r.Error()
-}
-
-// UnmarshalEasyJSON supports easyjson.Unmarshaler interface
-func (v *unInfo) UnmarshalEasyJSON(l *jlexer.Lexer) {
-	easyjson66c1e240DecodeGithubComTealFinanceQuidQuidlibServerApi4(l, v)
-}
-func easyjson66c1e240DecodeGithubComTealFinanceQuidQuidlibServerApi5(in *jlexer.Lexer, out *statusResponse) {
+func easyjson66c1e240DecodeGithubComTealFinanceQuidQuidlibServerApi4(in *jlexer.Lexer, out *statusResponse) {
 	isTopLevel := in.IsStart()
 	if in.IsNull() {
 		if isTopLevel {
@@ -436,7 +359,7 @@ func easyjson66c1e240DecodeGithubComTealFinanceQuidQuidlibServerApi5(in *jlexer.
 		}
 		switch key {
 		case "admin_type":
-			out.AdminType = string(in.String())
+			out.AdminType = AdminType(in.String())
 		case "username":
 			out.Username = string(in.String())
 		case "ns":
@@ -455,7 +378,7 @@ func easyjson66c1e240DecodeGithubComTealFinanceQuidQuidlibServerApi5(in *jlexer.
 		in.Consumed()
 	}
 }
-func easyjson66c1e240EncodeGithubComTealFinanceQuidQuidlibServerApi5(out *jwriter.Writer, in statusResponse) {
+func easyjson66c1e240EncodeGithubComTealFinanceQuidQuidlibServerApi4(out *jwriter.Writer, in statusResponse) {
 	out.RawByte('{')
 	first := true
 	_ = first
@@ -480,27 +403,27 @@ func easyjson66c1e240EncodeGithubComTealFinanceQuidQuidlibServerApi5(out *jwrite
 // MarshalJSON supports json.Marshaler interface
 func (v statusResponse) MarshalJSON() ([]byte, error) {
 	w := jwriter.Writer{}
-	easyjson66c1e240EncodeGithubComTealFinanceQuidQuidlibServerApi5(&w, v)
+	easyjson66c1e240EncodeGithubComTealFinanceQuidQuidlibServerApi4(&w, v)
 	return w.Buffer.BuildBytes(), w.Error
 }
 
 // MarshalEasyJSON supports easyjson.Marshaler interface
 func (v statusResponse) MarshalEasyJSON(w *jwriter.Writer) {
-	easyjson66c1e240EncodeGithubComTealFinanceQuidQuidlibServerApi5(w, v)
+	easyjson66c1e240EncodeGithubComTealFinanceQuidQuidlibServerApi4(w, v)
 }
 
 // UnmarshalJSON supports json.Unmarshaler interface
 func (v *statusResponse) UnmarshalJSON(data []byte) error {
 	r := jlexer.Lexer{Data: data}
-	easyjson66c1e240DecodeGithubComTealFinanceQuidQuidlibServerApi5(&r, v)
+	easyjson66c1e240DecodeGithubComTealFinanceQuidQuidlibServerApi4(&r, v)
 	return r.Error()
 }
 
 // UnmarshalEasyJSON supports easyjson.Unmarshaler interface
 func (v *statusResponse) UnmarshalEasyJSON(l *jlexer.Lexer) {
-	easyjson66c1e240DecodeGithubComTealFinanceQuidQuidlibServerApi5(l, v)
+	easyjson66c1e240DecodeGithubComTealFinanceQuidQuidlibServerApi4(l, v)
 }
-func easyjson66c1e240DecodeGithubComTealFinanceQuidQuidlibServerApi6(in *jlexer.Lexer, out *refreshMaxTTLRequest) {
+func easyjson66c1e240DecodeGithubComTealFinanceQuidQuidlibServerApi5(in *jlexer.Lexer, out *refreshMaxTTLRequest) {
 	isTopLevel := in.IsStart()
 	if in.IsNull() {
 		if isTopLevel {
@@ -537,7 +460,7 @@ func easyjson66c1e240DecodeGithubComTealFinanceQuidQuidlibServerApi6(in *jlexer.
 		in.Consumed()
 	}
 }
-func easyjson66c1e240EncodeGithubComTealFinanceQuidQuidlibServerApi6(out *jwriter.Writer, in refreshMaxTTLRequest) {
+func easyjson66c1e240EncodeGithubComTealFinanceQuidQuidlibServerApi5(out *jwriter.Writer, in refreshMaxTTLRequest) {
 	out.RawByte('{')
 	first := true
 	_ = first
@@ -557,27 +480,27 @@ func easyjson66c1e240EncodeGithubComTealFinanceQuidQuidlibServerApi6(out *jwrite
 // MarshalJSON supports json.Marshaler interface
 func (v refreshMaxTTLRequest) MarshalJSON() ([]byte, error) {
 	w := jwriter.Writer{}
-	easyjson66c1e240EncodeGithubComTealFinanceQuidQuidlibServerApi6(&w, v)
+	easyjson66c1e240EncodeGithubComTealFinanceQuidQuidlibServerApi5(&w, v)
 	return w.Buffer.BuildBytes(), w.Error
 }
 
 // MarshalEasyJSON supports easyjson.Marshaler interface
 func (v refreshMaxTTLRequest) MarshalEasyJSON(w *jwriter.Writer) {
-	easyjson66c1e240EncodeGithubComTealFinanceQuidQuidlibServerApi6(w, v)
+	easyjson66c1e240EncodeGithubComTealFinanceQuidQuidlibServerApi5(w, v)
 }
 
 // UnmarshalJSON supports json.Unmarshaler interface
 func (v *refreshMaxTTLRequest) UnmarshalJSON(data []byte) error {
 	r := jlexer.Lexer{Data: data}
-	easyjson66c1e240DecodeGithubComTealFinanceQuidQuidlibServerApi6(&r, v)
+	easyjson66c1e240DecodeGithubComTealFinanceQuidQuidlibServerApi5(&r, v)
 	return r.Error()
 }
 
 // UnmarshalEasyJSON supports easyjson.Unmarshaler interface
 func (v *refreshMaxTTLRequest) UnmarshalEasyJSON(l *jlexer.Lexer) {
-	easyjson66c1e240DecodeGithubComTealFinanceQuidQuidlibServerApi6(l, v)
+	easyjson66c1e240DecodeGithubComTealFinanceQuidQuidlibServerApi5(l, v)
 }
-func easyjson66c1e240DecodeGithubComTealFinanceQuidQuidlibServerApi7(in *jlexer.Lexer, out *passwordRequest) {
+func easyjson66c1e240DecodeGithubComTealFinanceQuidQuidlibServerApi6(in *jlexer.Lexer, out *passwordRequest) {
 	isTopLevel := in.IsStart()
 	if in.IsNull() {
 		if isTopLevel {
@@ -616,7 +539,7 @@ func easyjson66c1e240DecodeGithubComTealFinanceQuidQuidlibServerApi7(in *jlexer.
 		in.Consumed()
 	}
 }
-func easyjson66c1e240EncodeGithubComTealFinanceQuidQuidlibServerApi7(out *jwriter.Writer, in passwordRequest) {
+func easyjson66c1e240EncodeGithubComTealFinanceQuidQuidlibServerApi6(out *jwriter.Writer, in passwordRequest) {
 	out.RawByte('{')
 	first := true
 	_ = first
@@ -641,24 +564,101 @@ func easyjson66c1e240EncodeGithubComTealFinanceQuidQuidlibServerApi7(out *jwrite
 // MarshalJSON supports json.Marshaler interface
 func (v passwordRequest) MarshalJSON() ([]byte, error) {
 	w := jwriter.Writer{}
-	easyjson66c1e240EncodeGithubComTealFinanceQuidQuidlibServerApi7(&w, v)
+	easyjson66c1e240EncodeGithubComTealFinanceQuidQuidlibServerApi6(&w, v)
 	return w.Buffer.BuildBytes(), w.Error
 }
 
 // MarshalEasyJSON supports easyjson.Marshaler interface
 func (v passwordRequest) MarshalEasyJSON(w *jwriter.Writer) {
-	easyjson66c1e240EncodeGithubComTealFinanceQuidQuidlibServerApi7(w, v)
+	easyjson66c1e240EncodeGithubComTealFinanceQuidQuidlibServerApi6(w, v)
 }
 
 // UnmarshalJSON supports json.Unmarshaler interface
 func (v *passwordRequest) UnmarshalJSON(data []byte) error {
+	r := jlexer.Lexer{Data: data}
+	easyjson66c1e240DecodeGithubComTealFinanceQuidQuidlibServerApi6(&r, v)
+	return r.Error()
+}
+
+// UnmarshalEasyJSON supports easyjson.Unmarshaler interface
+func (v *passwordRequest) UnmarshalEasyJSON(l *jlexer.Lexer) {
+	easyjson66c1e240DecodeGithubComTealFinanceQuidQuidlibServerApi6(l, v)
+}
+func easyjson66c1e240DecodeGithubComTealFinanceQuidQuidlibServerApi7(in *jlexer.Lexer, out *nsInfo) {
+	isTopLevel := in.IsStart()
+	if in.IsNull() {
+		if isTopLevel {
+			in.Consumed()
+		}
+		in.Skip()
+		return
+	}
+	in.Delim('{')
+	for !in.IsDelim('}') {
+		key := in.UnsafeFieldName(true)
+		in.WantColon()
+		if in.IsNull() {
+			in.Skip()
+			in.WantComma()
+			continue
+		}
+		switch key {
+		case "id":
+			out.ID = int64(in.Int64())
+		case "name":
+			out.Name = string(in.String())
+		default:
+			in.AddError(&jlexer.LexerError{
+				Offset: in.GetPos(),
+				Reason: "unknown field",
+				Data:   key,
+			})
+		}
+		in.WantComma()
+	}
+	in.Delim('}')
+	if isTopLevel {
+		in.Consumed()
+	}
+}
+func easyjson66c1e240EncodeGithubComTealFinanceQuidQuidlibServerApi7(out *jwriter.Writer, in nsInfo) {
+	out.RawByte('{')
+	first := true
+	_ = first
+	{
+		const prefix string = ",\"id\":"
+		out.RawString(prefix[1:])
+		out.Int64(int64(in.ID))
+	}
+	{
+		const prefix string = ",\"name\":"
+		out.RawString(prefix)
+		out.String(string(in.Name))
+	}
+	out.RawByte('}')
+}
+
+// MarshalJSON supports json.Marshaler interface
+func (v nsInfo) MarshalJSON() ([]byte, error) {
+	w := jwriter.Writer{}
+	easyjson66c1e240EncodeGithubComTealFinanceQuidQuidlibServerApi7(&w, v)
+	return w.Buffer.BuildBytes(), w.Error
+}
+
+// MarshalEasyJSON supports easyjson.Marshaler interface
+func (v nsInfo) MarshalEasyJSON(w *jwriter.Writer) {
+	easyjson66c1e240EncodeGithubComTealFinanceQuidQuidlibServerApi7(w, v)
+}
+
+// UnmarshalJSON supports json.Unmarshaler interface
+func (v *nsInfo) UnmarshalJSON(data []byte) error {
 	r := jlexer.Lexer{Data: data}
 	easyjson66c1e240DecodeGithubComTealFinanceQuidQuidlibServerApi7(&r, v)
 	return r.Error()
 }
 
 // UnmarshalEasyJSON supports easyjson.Unmarshaler interface
-func (v *passwordRequest) UnmarshalEasyJSON(l *jlexer.Lexer) {
+func (v *nsInfo) UnmarshalEasyJSON(l *jlexer.Lexer) {
 	easyjson66c1e240DecodeGithubComTealFinanceQuidQuidlibServerApi7(l, v)
 }
 func easyjson66c1e240DecodeGithubComTealFinanceQuidQuidlibServerApi8(in *jlexer.Lexer, out *nonAdminUsersRequest) {

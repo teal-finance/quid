@@ -83,7 +83,7 @@ func newRouter(g *garcon.Garcon) http.Handler {
 
 	// admin routes
 	r.Route("/admin", func(r chi.Router) {
-		r.Use(AdminMiddleware)
+		r.Use(QuidAdminMiddleware)
 
 		// HTTP API
 		r.Get("/logout", AdminLogout)

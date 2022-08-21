@@ -130,15 +130,20 @@ type userRequest struct {
 	NamespaceID int64
 }
 
-// unInfo is User / Namespace info, used in statusResponse.
-type unInfo struct {
-	ID   int64
-	Name string
-}
+type AdminType string
+
+const (
+	QuidAdmin AdminType = "QuidAdmin"
+	NsAdmin   AdminType = "NsAdmin"
+)
 
 type statusResponse struct {
-	// new interface contract
-	AdminType string // "admin" | "nsadmin"
+	AdminType AdminType
 	Username  string
-	Ns        unInfo
+	Ns        nsInfo
+}
+
+type nsInfo struct {
+	ID   int64
+	Name string
 }

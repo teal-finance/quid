@@ -15,7 +15,6 @@ const (
 	keyNsName
 	keyNsID
 	keyAdminType
-	keyIsNsAdmin
 )
 
 // AdminLogin : http login handler for the admin interface.
@@ -63,51 +62,38 @@ func AdminLogin(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	isUserAdmin, err := db.IsUserAdmin(ns.Name, ns.ID, u.ID)
+	userType, err := db.GetUserType(ns.Name, ns.ID, u.ID)
 	if err != nil {
-		emo.QueryError("AdminLogin IsUserAdmin:", err)
+		emo.QueryError("AdminLogin AdminType:", err)
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
-	if !isUserAdmin {
+	if userType == db.UserNoAdmin {
 		emo.ParamError("AdminLogin: u=" + username + " is not admin")
 		w.WriteHeader(http.StatusUnauthorized)
 		return
 	}
 
-	_isAdmin := isUserAdmin && namespace == "quid"
-	_isNsAdmin := isUserAdmin && namespace != "quid"
-	emo.Result("AdminLogin OK u=" + u.Name + " ns=" + namespace)
-
-	// get or create an Incorruptible token
-	tv, err := Incorruptible.DecodeCookieToken(r)
-	if err != nil {
-		emo.Info("AdminLogin: no Incorruptible token => Create a new one u="+u.Name+" (id=", u.ID,
-			") ns="+ns.Name+" (id=", ns.ID, ") admin=", _isAdmin, "NSAdmin=", _isNsAdmin)
+	adminType := QuidAdmin
+	if userType == db.NsAdmin {
+		adminType = NsAdmin
 	}
+	emo.Result("AdminLogin OK u=" + u.Name + " ns=" + namespace + " AdminType=" + string(adminType))
 
-	// update the token fields
-	err = tv.Set(
-		tv.KString(keyUsername, u.Name),
-		tv.KInt64(KeyUserID, u.ID),
-		tv.KString(keyNsName, ns.Name),
-		tv.KInt64(keyNsID, ns.ID),
-		tv.KBool(keyAdminType, _isAdmin),
-		tv.KBool(keyIsNsAdmin, _isNsAdmin),
+	// create a new Incorruptible cookie
+	cookie, tv, err := Incorruptible.NewCookie(r,
+		incorruptible.String(keyUsername, u.Name),
+		incorruptible.Int64(KeyUserID, u.ID),
+		incorruptible.String(keyNsName, ns.Name),
+		incorruptible.Int64(keyNsID, ns.ID),
+		incorruptible.String(keyAdminType, string(adminType)),
 	)
 	if err != nil {
-		emo.Error("AdminLogin tv.Set:", err)
+		emo.Error("AdminLogin NewCookie:", err)
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 
-	// set the session
-	cookie, err := Incorruptible.NewCookieFromValues(tv)
-	if err != nil {
-		emo.Error("AdminLogin NewCookieFromValues:", err)
-		w.WriteHeader(http.StatusInternalServerError)
-		return
-	}
 	http.SetCookie(w, cookie)
 
 	sendStatusResponse(w, tv)
@@ -127,17 +113,15 @@ func status(w http.ResponseWriter, r *http.Request) {
 
 // status returns 200 if user is admin.
 func sendStatusResponse(w http.ResponseWriter, tv incorruptible.TValues) {
-	var adminType string
-	if tv.BoolIfAny(keyAdminType) {
-		adminType = "admin"
-	} else if tv.BoolIfAny(keyAdminType) {
-		adminType = "nsadmin"
-	}
+	adminType := tv.StringIfAny(keyAdminType)
 
 	gw.WriteOK(w, statusResponse{
-		AdminType: adminType,
+		AdminType: AdminType(adminType),
 		Username:  tv.StringIfAny(keyUsername),
-		Ns:        unInfo{ID: tv.Int64IfAny(keyNsID), Name: tv.StringIfAny(keyNsName)},
+		Ns: nsInfo{
+			ID:   tv.Int64IfAny(keyNsID),
+			Name: tv.StringIfAny(keyNsName),
+		},
 	})
 }
 

@@ -96,26 +96,29 @@ func DeleteAdministrator(userID, namespaceID int64) error {
 	return tx.Commit()
 }
 
-// IsUserAdmin : check if a user is admin in a namespace
-func IsUserAdmin(nsName string, nsID, userID int64) (bool, error) {
+type UserType int
+
+const (
+	UserNoAdmin = iota
+	NsAdmin
+	QuidAdmin
+)
+
+// GetUserType checks if a user is
+func GetUserType(nsName string, nsID, userID int64) (UserType, error) {
 	if nsName == "quid" {
-		// check the user quid admin group
+		// check if the user is in the quid admin group
 		exists, err := IsUserInAdminGroup(userID, nsID)
-		if err != nil {
-			return false, err
+		if (err != nil) || !exists {
+			return UserNoAdmin, err
 		}
-		if exists {
-			return true, nil
-		}
-	} else {
-		// check if the user is namespace administrator
-		exists, err := AdministratorExists(userID, nsID)
-		if err != nil {
-			return false, err
-		}
-		if exists {
-			return true, nil
-		}
+		return QuidAdmin, nil
 	}
-	return false, nil
+
+	// check if the user is namespace administrator
+	exists, err := AdministratorExists(userID, nsID)
+	if (err != nil) || !exists {
+		return UserNoAdmin, err
+	}
+	return NsAdmin, nil
 }

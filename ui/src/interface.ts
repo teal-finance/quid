@@ -6,7 +6,7 @@ interface ConfirmOptions {
 }
 
 interface UserStatusContract {
-  admin_type: "nsadmin" | "admin";
+  admin_type: "NsAdmin" | "QuidAdmin";
   username: string;
   ns: {
     id: number;

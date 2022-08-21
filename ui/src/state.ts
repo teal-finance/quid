@@ -29,11 +29,11 @@ async function initUserState() {
   const ns = Namespace.empty();
   ns.id = status.ns.id;
   ns.name = status.ns.name;
-  if (status.admin_type === "admin") {
+  if (status.admin_type === "QuidAdmin") {
     user.type.value = "serverAdmin";
     user.adminUrl = "/admin";
     user.resetNs()
-  } else if (status.admin_type === "nsadmin") {
+  } else if (status.admin_type === "NsAdmin") {
     user.changeNs(ns.toTableRow());
   } else {
     throw new Error(`Unknown admin type ${status.admin_type}`)

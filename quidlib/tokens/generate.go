@@ -40,7 +40,7 @@ func GenRefreshToken(timeout, maxTTL, namespace, user string, secretKey []byte) 
 		return "", err
 	}
 
-	emo.RefreshToken("Issued a refresh token for user", user, "and namespace", namespace)
+	emo.RefreshToken("Issued a refresh token for user '" + user + "' and namespace " + namespace)
 	return token, nil
 }
 

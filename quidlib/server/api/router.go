@@ -78,6 +78,7 @@ func newRouter(g *garcon.Garcon) http.Handler {
 	r.Post("/token/refresh/{timeout}", RequestRefreshToken)
 	r.Post("/token/access/{timeout}", RequestAccessToken)
 	r.Post("/admin_login", AdminLogin)
+	r.Get("/logout", AdminLogout)
 	// r.With(Incorruptible.Chk).Post("/admin_token/access/", RequestAdminAccessToken)
 	r.Get("/status", status)
 
@@ -86,7 +87,6 @@ func newRouter(g *garcon.Garcon) http.Handler {
 		r.Use(QuidAdminMiddleware)
 
 		// HTTP API
-		r.Get("/logout", AdminLogout)
 		r.Route("/groups", func(r chi.Router) {
 			r.Post("/add", CreateGroup)
 			r.Post("/delete", DeleteGroup)

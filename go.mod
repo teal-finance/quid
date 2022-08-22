@@ -13,7 +13,7 @@ require (
 	github.com/manifoldco/promptui v0.9.0
 	github.com/spf13/viper v1.12.0
 	github.com/teal-finance/emo v0.0.0-20220602102724-3ed209263d5a
-	github.com/teal-finance/garcon v0.23.7
+	github.com/teal-finance/garcon v0.23.8
 	github.com/teal-finance/incorruptible v0.0.0-20220821130051-6c77707fc5fe
 	golang.org/x/crypto v0.0.0-20220817201139-bc19a97f63c8
 )
@@ -37,7 +37,6 @@ require (
 	github.com/josharian/intern v1.0.0 // indirect
 	github.com/klauspost/compress v1.15.9 // indirect
 	github.com/magiconair/properties v1.8.6 // indirect
-	github.com/mattn/go-sqlite3 v1.14.15 // indirect
 	github.com/matttproud/golang_protobuf_extensions v1.0.2-0.20181231171920-c182affec369 // indirect
 	github.com/minio/highwayhash v1.0.2 // indirect
 	github.com/mitchellh/mapstructure v1.5.0 // indirect

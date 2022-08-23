@@ -68,8 +68,6 @@ func newRouter(g *garcon.Garcon) http.Handler {
 	ws := g.NewStaticWebServer("ui/dist")
 	r.NotFound(ws.ServeFile("index.html", "text/html; charset=utf-8"))
 	r.Get("/favicon.ico", ws.ServeFile("favicon.ico", "image/x-icon"))
-	r.Get("/favicon.png", ws.ServeFile("favicon.png", "image/png"))
-	r.Get("/preview.jpg", ws.ServeFile("preview.jpg", "image/jpeg"))
 	r.Get("/js/*", ws.ServeDir("text/javascript; charset=utf-8"))
 	r.Get("/assets/*", ws.ServeAssets())
 

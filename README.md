@@ -2,6 +2,14 @@
 
 Quid is a JSON Web Token (JWT) server.
 
+![Authentication flow chart](doc/img/authentication-flow.svg)
+
+1. First the user signs in with *Namespace* + *Username* + *Password*.
+   The *Namespace* is the name of the final application (represented on the diagram by an API logo).
+2. The client (JS code for example) receives an *Access Token* valid for the duration of the session, usually some hours.
+3. Every X minutes, the client sends the *Access Token* to get a *Refresh Token* valid usually some minutes.
+4. Finally, the client requests the application (API) with its temporary *Refresh Token*.
+
 ## Install
 
 Download the latest [release](https://github.com/teal-finance/quid/releases) to run a binary or clone the repository to compile from source.

@@ -1,0 +1,160 @@
+<svg version="1.1" viewBox="0 0 200 221" xmlns="http://www.w3.org/2000/svg">
+<defs>
+<marker id="a" overflow="visible" orient="auto">
+<path transform="matrix(-.2 0 0 -.2 -1.2 0)" d="m0 0 5-5-17.5 5 17.5 5z" fill="context-stroke" fill-rule="evenodd" stroke="context-stroke" stroke-width="1pt"/>
+</marker>
+<marker id="b" overflow="visible" orient="auto">
+<path transform="matrix(-.2 0 0 -.2 -1.2 0)" d="m0 0 5-5-17.5 5 17.5 5z" fill="context-stroke" fill-rule="evenodd" stroke="context-stroke" stroke-width="1pt"/>
+</marker>
+</defs>
+<g transform="translate(-7.03 -6.03)">
+<g fill="none" stroke="#929292" stroke-miterlimit="5" stroke-width="4.36">
+<path d="m24.2 103 63.5-60.3" marker-end="url(#a)"/>
+<path d="m117 53-51.1 62.9" marker-end="url(#a)"/>
+<path d="m188 57.9-53 67.5" marker-end="url(#a)"/>
+<path d="m122 140 .415 39.9" marker-end="url(#a)"/>
+<path d="m136 191 .122-43.9" marker-end="url(#b)"/>
+<path d="m100 117 51.1-63" marker-end="url(#a)"/>
+</g>
+<g transform="matrix(.328 0 0 .328 151 145)">
+<g transform="matrix(3.85 0 0 3.85 -310 -428)">
+<g transform="rotate(54.5 46.9 17.5)">
+<g transform="translate(-.0543 -.0417)" fill="#06b5d2" fill-opacity=".996" fill-rule="evenodd" stroke="#06b5d2" stroke-linecap="square">
+<g transform="rotate(-45.3 62.3 -38.1)">
+<path transform="scale(-1,1)" d="m-20-22.7h2.5l.104 6.99-2.66-1.09z" stroke-width=".0452" style="paint-order:stroke fill markers"/>
+<path transform="matrix(-1 -.00791 .00788 -1 0 0)" d="m-17.4 22.9a1.21 1.18 0 01-1.21 1.18 1.21 1.18 0 01-1.21-1.18" stroke-width=".118" style="paint-order:stroke fill markers"/>
+</g>
+<g transform="translate(28 24.7)">
+<path transform="scale(-1,1)" d="m-20-22.7h2.5c.596 5.82-3.02 5.85-2.5 0z" stroke-width=".0452" style="paint-order:stroke fill markers"/>
+<path transform="matrix(-1 -.00791 .00788 -1 0 0)" d="m-17.4 22.9a1.21 1.18 0 01-1.21 1.18 1.21 1.18 0 01-1.21-1.18" stroke-width=".118" style="paint-order:stroke fill markers"/>
+</g>
+</g>
+<g transform="translate(-.0543 -.0417)">
+<g transform="rotate(46.8 38.4 15.8)">
+<g transform="translate(19.6 21)" fill="#06b5d2" fill-opacity=".996" fill-rule="evenodd" stroke="#06b5d2" stroke-linecap="square">
+<path transform="scale(-1,1)" d="m-20-22.7h2.5v7.28-3l-2.5 2.98v-2.6z" stroke-width=".0452" style="paint-order:stroke fill markers"/>
+<path transform="matrix(-1 -.00791 .00788 -1 0 0)" d="m-17.4 22.9a1.21 1.18 0 01-1.21 1.18 1.21 1.18 0 01-1.21-1.18" stroke-width=".118" style="paint-order:stroke fill markers"/>
+</g>
+</g>
+</g>
+<g transform="rotate(180 46.7 17.5)">
+<g transform="translate(-.0543 -.0417)" fill="#06b5d2" fill-opacity=".996" fill-rule="evenodd" stroke="#06b5d2" stroke-linecap="square">
+<g transform="rotate(-45.3 62.3 -38.1)">
+<path transform="scale(-1,1)" d="m-20-22.7h2.5l.104 6.99-2.66-1.09z" stroke-width=".0452" style="paint-order:stroke fill markers"/>
+<path transform="matrix(-1 -.00791 .00788 -1 0 0)" d="m-17.4 22.9a1.21 1.18 0 01-1.21 1.18 1.21 1.18 0 01-1.21-1.18" stroke-width=".118" style="paint-order:stroke fill markers"/>
+</g>
+<g transform="translate(28 24.7)">
+<path transform="scale(-1,1)" d="m-20-22.7h2.5c.596 5.82-3.02 5.85-2.5 0z" stroke-width=".0452" style="paint-order:stroke fill markers"/>
+<path transform="matrix(-1 -.00791 .00788 -1 0 0)" d="m-17.4 22.9a1.21 1.18 0 01-1.21 1.18 1.21 1.18 0 01-1.21-1.18" stroke-width=".118" style="paint-order:stroke fill markers"/>
+</g>
+</g>
+<g transform="translate(-.0543 -.0417)">
+<g transform="rotate(46.8 38.4 15.8)">
+<g transform="translate(19.6 21)" fill="#06b5d2" fill-opacity=".996" fill-rule="evenodd" stroke="#06b5d2" stroke-linecap="square">
+<path transform="scale(-1,1)" d="m-20-22.7h2.5v7.28-3l-2.5 2.98v-2.6z" stroke-width=".0452" style="paint-order:stroke fill markers"/>
+<path transform="matrix(-1 -.00791 .00788 -1 0 0)" d="m-17.4 22.9a1.21 1.18 0 01-1.21 1.18 1.21 1.18 0 01-1.21-1.18" stroke-width=".118" style="paint-order:stroke fill markers"/>
+</g>
+</g>
+</g>
+</g>
+</g>
+<g transform="translate(-.0543 -.0417)" fill="#06b5d2" fill-opacity=".996" fill-rule="evenodd" stroke="#06b5d2" stroke-linecap="square">
+<g transform="rotate(-45.3 62.3 -38.1)">
+<path transform="scale(-1,1)" d="m-20-22.7h2.5l.104 6.99-2.66-1.09z" stroke-width=".0452" style="paint-order:stroke fill markers"/>
+<path transform="matrix(-1 -.00791 .00788 -1 0 0)" d="m-17.4 22.9a1.21 1.18 0 01-1.21 1.18 1.21 1.18 0 01-1.21-1.18" stroke-width=".118" style="paint-order:stroke fill markers"/>
+</g>
+<g transform="translate(28 24.7)">
+<path transform="scale(-1,1)" d="m-20-22.7h2.5c.596 5.82-3.02 5.85-2.5 0z" stroke-width=".0452" style="paint-order:stroke fill markers"/>
+<path transform="matrix(-1 -.00791 .00788 -1 0 0)" d="m-17.4 22.9a1.21 1.18 0 01-1.21 1.18 1.21 1.18 0 01-1.21-1.18" stroke-width=".118" style="paint-order:stroke fill markers"/>
+</g>
+</g>
+<g transform="translate(-.0543 -.0417)">
+<g transform="rotate(46.8 38.4 15.8)">
+<g transform="translate(19.6 21)" fill="#06b5d2" fill-opacity=".996" fill-rule="evenodd" stroke="#06b5d2" stroke-linecap="square">
+<path transform="scale(-1,1)" d="m-20-22.7h2.5v7.28-3l-2.5 2.98v-2.6z" stroke-width=".0452" style="paint-order:stroke fill markers"/>
+<path transform="matrix(-1 -.00791 .00788 -1 0 0)" d="m-17.4 22.9a1.21 1.18 0 01-1.21 1.18 1.21 1.18 0 01-1.21-1.18" stroke-width=".118" style="paint-order:stroke fill markers"/>
+</g>
+</g>
+</g>
+<g transform="rotate(180 46.7 17.5)">
+<g transform="translate(-.0543 -.0417)" fill="#06b5d2" fill-opacity=".996" fill-rule="evenodd" stroke="#06b5d2" stroke-linecap="square">
+<g transform="rotate(-45.3 62.3 -38.1)">
+<path transform="scale(-1,1)" d="m-20-22.7h2.5l.104 6.99-2.66-1.09z" stroke-width=".0452" style="paint-order:stroke fill markers"/>
+<path transform="matrix(-1 -.00791 .00788 -1 0 0)" d="m-17.4 22.9a1.21 1.18 0 01-1.21 1.18 1.21 1.18 0 01-1.21-1.18" stroke-width=".118" style="paint-order:stroke fill markers"/>
+</g>
+<g transform="translate(28 24.7)">
+<path transform="scale(-1,1)" d="m-20-22.7h2.5c.596 5.82-3.02 5.85-2.5 0z" stroke-width=".0452" style="paint-order:stroke fill markers"/>
+<path transform="matrix(-1 -.00791 .00788 -1 0 0)" d="m-17.4 22.9a1.21 1.18 0 01-1.21 1.18 1.21 1.18 0 01-1.21-1.18" stroke-width=".118" style="paint-order:stroke fill markers"/>
+</g>
+</g>
+<g transform="translate(-.0543 -.0417)">
+<g transform="rotate(46.8 38.4 15.8)">
+<g transform="translate(19.6 21)" fill="#06b5d2" fill-opacity=".996" fill-rule="evenodd" stroke="#06b5d2" stroke-linecap="square">
+<path transform="scale(-1,1)" d="m-20-22.7h2.5v7.28-3l-2.5 2.98v-2.6z" stroke-width=".0452" style="paint-order:stroke fill markers"/>
+<path transform="matrix(-1 -.00791 .00788 -1 0 0)" d="m-17.4 22.9a1.21 1.18 0 01-1.21 1.18 1.21 1.18 0 01-1.21-1.18" stroke-width=".118" style="paint-order:stroke fill markers"/>
+</g>
+</g>
+</g>
+</g>
+<g transform="rotate(-56.5 46.7 17.3)">
+<g transform="translate(-.0543 -.0417)" fill="#06b5d2" fill-opacity=".996" fill-rule="evenodd" stroke="#06b5d2" stroke-linecap="square">
+<g transform="rotate(-45.3 62.3 -38.1)">
+<path transform="scale(-1,1)" d="m-20-22.7h2.5l.104 6.99-2.66-1.09z" stroke-width=".0452" style="paint-order:stroke fill markers"/>
+<path transform="matrix(-1 -.00791 .00788 -1 0 0)" d="m-17.4 22.9a1.21 1.18 0 01-1.21 1.18 1.21 1.18 0 01-1.21-1.18" stroke-width=".118" style="paint-order:stroke fill markers"/>
+</g>
+<g transform="translate(28 24.7)">
+<path transform="scale(-1,1)" d="m-20-22.7h2.5c.596 5.82-3.02 5.85-2.5 0z" stroke-width=".0452" style="paint-order:stroke fill markers"/>
+<path transform="matrix(-1 -.00791 .00788 -1 0 0)" d="m-17.4 22.9a1.21 1.18 0 01-1.21 1.18 1.21 1.18 0 01-1.21-1.18" stroke-width=".118" style="paint-order:stroke fill markers"/>
+</g>
+</g>
+<g transform="translate(-.0543 -.0417)">
+<g transform="rotate(46.8 38.4 15.8)">
+<g transform="translate(19.6 21)" fill="#06b5d2" fill-opacity=".996" fill-rule="evenodd" stroke="#06b5d2" stroke-linecap="square">
+<path transform="scale(-1,1)" d="m-20-22.7h2.5v7.28-3l-2.5 2.98v-2.6z" stroke-width=".0452" style="paint-order:stroke fill markers"/>
+<path transform="matrix(-1 -.00791 .00788 -1 0 0)" d="m-17.4 22.9a1.21 1.18 0 01-1.21 1.18 1.21 1.18 0 01-1.21-1.18" stroke-width=".118" style="paint-order:stroke fill markers"/>
+</g>
+</g>
+</g>
+<g transform="rotate(180 46.7 17.5)">
+<g transform="translate(-.0543 -.0417)" fill="#83eafb" fill-opacity=".996" fill-rule="evenodd" stroke="#83eafb" stroke-linecap="square" stroke-opacity=".996">
+<g transform="rotate(-45.3 62.3 -38.1)">
+<path transform="scale(-1,1)" d="m-20-22.7h2.5l.104 6.99-.104 1.75-2.56-2.84z" stroke-width=".0452" style="paint-order:stroke fill markers"/>
+<path transform="matrix(-1 -.00791 .00788 -1 0 0)" d="m-17.4 22.9a1.21 1.18 0 01-1.21 1.18 1.21 1.18 0 01-1.21-1.18" stroke-width=".118" style="paint-order:stroke fill markers"/>
+</g>
+<g transform="translate(28 24.7)">
+<path transform="scale(-1,1)" d="m-20-22.7h2.5l-.106 12.4-2.35-.0882z" stroke-width=".0452" style="paint-order:stroke fill markers"/>
+<path transform="matrix(-1 -.00791 .00788 -1 0 0)" d="m-17.4 22.9a1.21 1.18 0 01-1.21 1.18 1.21 1.18 0 01-1.21-1.18" stroke-width=".118" style="paint-order:stroke fill markers"/>
+</g>
+</g>
+<g transform="translate(-.0543 -.0417)">
+<g transform="rotate(46.8 38.4 15.8)">
+<g transform="translate(19.6 21)" fill="#83eafb" fill-opacity=".996" fill-rule="evenodd" stroke="#83eafb" stroke-linecap="square" stroke-opacity=".996">
+<path transform="scale(-1,1)" d="m-20-22.7h2.5v7.28-3l-2.5 2.98v-2.6z" stroke-width=".0452" style="paint-order:stroke fill markers"/>
+<path transform="matrix(-1 -.00791 .00788 -1 0 0)" d="m-17.4 22.9a1.21 1.18 0 01-1.21 1.18 1.21 1.18 0 01-1.21-1.18" stroke-width=".118" style="paint-order:stroke fill markers"/>
+</g>
+</g>
+</g>
+</g>
+</g>
+</g>
+<circle cx="-130" cy="-360" r="32.6" fill="none" stroke="#83eafb" stroke-opacity=".996" stroke-width="8.2"/>
+</g>
+<text x="169.43536" y="18.974049" fill="#00ffff" font-family="sans-serif" font-size="10.6px" stroke-width=".265" text-anchor="middle" style="line-height:1.25" xml:space="preserve"><tspan x="169.43536" y="18.974049" font-weight="bold" text-align="center">Quid</tspan><tspan x="169.43536" y="32.203175" text-align="center">Authentication</tspan><tspan x="169.43536" y="45.432297" text-align="center">Server</tspan></text>
+<g fill="#e9afaf">
+<circle cx="20.6" cy="105" r="8.1" stroke-width=".265"/>
+<rect x="53.5" y="119" width="35.6" height="21.1" stroke-width=".22"/>
+<path d="m53.5 140h35.6l-14.3 7.4-34.6.266z" stroke-width=".16"/>
+<path d="m33.9 133c-8.16.141-15.9-.0526-26.9 0 0-11.5 6.03-20.8 13.5-20.8s13.5 9.32 13.5 20.8z" stroke-width=".305"/>
+</g>
+<g font-family="sans-serif" font-size="10.6px" stroke-width=".265" text-anchor="middle">
+<text x="54.133526" y="69.413902" fill="#00ff00" style="line-height:1.25" xml:space="preserve"><tspan x="54.133526" y="69.413902" text-align="center">namespace</tspan><tspan x="54.133526" y="82.643028" text-align="center">username</tspan><tspan x="54.133526" y="95.872154" text-align="center">password</tspan></text>
+<text x="110.94932" y="58.794136" fill="#ffff00" style="line-height:1.25" xml:space="preserve"><tspan x="110.94932" y="58.794136" font-size="10.6px" text-align="center">Access</tspan><tspan x="110.94932" y="72.023262" font-size="10.6px" text-align="center">Token</tspan><tspan x="110.94932" y="85.252388" font-size="6.35px" text-align="center">24 hours</tspan></text>
+<text x="108.81597" y="111.93519" fill="#ffff00" style="line-height:1.25" xml:space="preserve"><tspan x="108.81597" y="111.93519" text-align="center">Access</tspan><tspan x="108.81597" y="125.16431" text-align="center">Token</tspan></text>
+<text x="177.00555" y="63.300495" fill="#ff00ff" style="line-height:1.25" xml:space="preserve"><tspan x="177.00555" y="63.300495" text-align="center">Refresh</tspan><tspan x="177.00555" y="76.529617" text-align="center">Token</tspan><tspan x="177.00555" y="89.758743" font-size="7.06px" text-align="center">10 minutes</tspan></text>
+<text x="100.34445" y="158.8615" fill="#ff00ff" style="line-height:1.25" xml:space="preserve"><tspan x="100.34445" y="158.8615" text-align="center">Refresh</tspan><tspan x="100.34445" y="172.09062" font-size="10.6px" text-align="center">Token</tspan></text>
+</g>
+<path transform="matrix(.134 0 0 .134 71 81.6)" d="m551 991-158 49.1 2.35 39.1-95.6-135-36.5 14.3 99.3-133-24.9-30.2 157 53.4 21.1-33-2.26 166z" fill="#999" fill-opacity=".996" stroke="#000" stroke-miterlimit="5" stroke-opacity=".996" stroke-width="5.16"/>
+<text x="118.31104" y="209.39632" fill="#000000" font-family="sans-serif" font-size="10.6px" stroke-width=".265" style="line-height:1.25" xml:space="preserve"><tspan x="118.31104" y="209.39632" stroke-width=".265">API</tspan></text>
+<text x="138.80605" y="174.30856" fill="#000000" font-family="sans-serif" font-size="10.6px" stroke-width=".265" style="line-height:1.25" xml:space="preserve"><tspan x="138.80605" y="174.30856" stroke-width=".265">Data</tspan></text>
+</g>
+</svg>

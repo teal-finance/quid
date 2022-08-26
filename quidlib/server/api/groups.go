@@ -3,127 +3,135 @@ package api
 import (
 	"net/http"
 
-	"github.com/labstack/echo/v4"
-
+	"github.com/teal-finance/garcon"
 	"github.com/teal-finance/quid/quidlib/server"
 	db "github.com/teal-finance/quid/quidlib/server/db"
 )
 
 // AllGroupsForNamespace : get all groups for a namespace http handler.
-func AllGroupsForNamespace(c echo.Context) error {
-	m := echo.Map{}
-	if err := c.Bind(&m); err != nil {
-		return err
+func AllGroupsForNamespace(w http.ResponseWriter, r *http.Request) {
+	var m namespaceIDRequest
+	if err := garcon.UnmarshalJSONRequest(w, r, &m); err != nil {
+		emo.Warning("AllGroupsForNamespace:", err)
+		w.WriteHeader(http.StatusBadRequest)
+		return
 	}
 
-	nsID := int64(m["namespace_id"].(float64))
+	nsID := m.NamespaceID
 
-	if !VerifyAdminNs(c, nsID) {
-		return c.NoContent(http.StatusUnauthorized)
+	if !IsNsAdmin(r, nsID) {
+		w.WriteHeader(http.StatusUnauthorized)
+		return
 	}
 
 	data, err := db.SelectGroupsForNamespace(nsID)
 	if err != nil {
-		return c.JSON(http.StatusConflict, echo.Map{
-			"error": "error selecting groups",
-		})
+		emo.Warning("AllGroupsForNamespace: error selecting groups:", err)
+		gw.WriteErr(w, r, http.StatusConflict, "error selecting groups")
+		return
 	}
 
-	return c.JSON(http.StatusOK, &data)
+	gw.WriteOK(w, data)
 }
 
 // AllGroups : get all groups for a namespace http handler.
-func AllGroups(c echo.Context) error {
+func AllGroups(w http.ResponseWriter, r *http.Request) {
 	data, err := db.SelectAllGroups()
 	if err != nil {
-		return c.JSON(http.StatusConflict, echo.Map{
-			"error": "error selecting groups",
-		})
+		emo.Warning("AllGroups: error selecting groups:", err)
+		gw.WriteErr(w, r, http.StatusConflict, "error selecting groups")
 	}
 
-	return c.JSON(http.StatusOK, &data)
+	gw.WriteOK(w, data)
 }
 
 // GroupsInfo : group creation http handler.
-func GroupsInfo(c echo.Context) error {
-	m := echo.Map{}
-	if err := c.Bind(&m); err != nil {
-		return err
+func GroupsInfo(w http.ResponseWriter, r *http.Request) {
+	var m userRequest
+	if err := garcon.UnmarshalJSONRequest(w, r, &m); err != nil {
+		emo.Warning("GroupsInfo:", err)
+		w.WriteHeader(http.StatusBadRequest)
+		return
 	}
 
-	id := int64(m["id"].(float64))
-	nsID := int64(m["namespace_id"].(float64))
+	id := m.ID
+	nsID := m.NamespaceID
 
-	if !VerifyAdminNs(c, nsID) {
-		return c.NoContent(http.StatusUnauthorized)
+	if !IsNsAdmin(r, nsID) {
+		w.WriteHeader(http.StatusUnauthorized)
+		return
 	}
 
 	n, err := db.CountUsersInGroup(id)
 	if err != nil {
-		return c.JSON(http.StatusConflict, echo.Map{
-			"error": "error counting in group",
-		})
+		emo.Warning("GroupsInfo: error counting in group:", err)
+		gw.WriteErr(w, r, http.StatusConflict, "error counting in group")
+		return
 	}
 
-	return c.JSON(http.StatusOK, echo.Map{
-		"num_users": n,
-	})
+	gw.WriteOK(w, "num_users", n)
 }
 
 // DeleteGroup : group deletion http handler.
-func DeleteGroup(c echo.Context) error {
-	m := echo.Map{}
-	if err := c.Bind(&m); err != nil {
-		return err
+func DeleteGroup(w http.ResponseWriter, r *http.Request) {
+	var m userRequest
+	if err := garcon.UnmarshalJSONRequest(w, r, &m); err != nil {
+		emo.Warning("DeleteGroup:", err)
+		w.WriteHeader(http.StatusBadRequest)
+		return
 	}
 
-	id := int64(m["id"].(float64))
-	nsID := int64(m["namespace_id"].(float64))
+	id := m.ID
+	nsID := m.NamespaceID
 
-	if !VerifyAdminNs(c, nsID) {
-		return c.NoContent(http.StatusUnauthorized)
+	if !IsNsAdmin(r, nsID) {
+		w.WriteHeader(http.StatusUnauthorized)
+		return
 	}
 
 	if err := db.DeleteGroup(id); err != nil {
-		return c.JSON(http.StatusConflict, echo.Map{
-			"error": "error deleting group",
-		})
+		emo.Warning("DeleteGroup: error deleting group:", err)
+		gw.WriteErr(w, r, http.StatusConflict, "error deleting group")
+		return
 	}
 
-	return c.JSON(http.StatusOK, echo.Map{
-		"message": "ok",
-	})
+	gw.WriteOK(w, "message", "ok")
 }
 
 // CreateGroup : group creation http handler.
-func CreateGroup(c echo.Context) error {
-	m := echo.Map{}
-	if err := c.Bind(&m); err != nil {
-		return err
+func CreateGroup(w http.ResponseWriter, r *http.Request) {
+	var m groupCreation
+	if err := garcon.UnmarshalJSONRequest(w, r, &m); err != nil {
+		emo.Warning("CreateGroup:", err)
+		w.WriteHeader(http.StatusBadRequest)
+		return
 	}
 
-	name := m["name"].(string)
-	nsID := int64(m["namespace_id"].(float64))
+	name := m.Name
+	nsID := m.NamespaceID
 
-	if !VerifyAdminNs(c, nsID) {
-		return c.NoContent(http.StatusUnauthorized)
+	if p := garcon.Printable(name); p >= 0 {
+		emo.Warning("CreateGroup: JSON contains a forbidden character at p=", p)
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	if !IsNsAdmin(r, nsID) {
+		w.WriteHeader(http.StatusUnauthorized)
+		return
 	}
 
 	ns, exists, err := createGroup(name, nsID)
 	if err != nil {
-		return c.JSON(http.StatusConflict, echo.Map{
-			"error": "error creating group",
-		})
+		gw.WriteErr(w, r, http.StatusConflict, "error creating group")
+		return
 	}
 	if exists {
-		return c.JSON(http.StatusConflict, echo.Map{
-			"error": "group already exists",
-		})
+		gw.WriteErr(w, r, http.StatusConflict, "group already exists")
+		return
 	}
 
-	return c.JSON(http.StatusOK, echo.Map{
-		"org_id": ns.ID,
-	})
+	gw.WriteOK(w, "org_id", ns.ID)
 }
 
 // createGroup : create a group.
@@ -132,14 +140,17 @@ func createGroup(name string, namespaceID int64) (server.Group, bool, error) {
 
 	exists, err := db.GroupExists(name, namespaceID)
 	if err != nil {
+		emo.QueryError("createGroup GroupExists:", err)
 		return ns, false, err
 	}
 	if exists {
+		emo.QueryError("createGroup: group already exists")
 		return ns, true, nil
 	}
 
 	uid, err := db.CreateGroup(name, namespaceID)
 	if err != nil {
+		emo.QueryError("createGroup:", err)
 		return ns, false, err
 	}
 

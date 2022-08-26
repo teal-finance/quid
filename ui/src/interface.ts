@@ -5,6 +5,15 @@ interface ConfirmOptions {
   close: () => void;
 }
 
+interface UserStatusContract {
+  admin_type: "NsAdmin" | "QuidAdmin";
+  username: string;
+  ns: {
+    id: number;
+    name: string;
+  }
+}
+
 interface NotifyService {
   error: (content: string) => void;
   warning: (title: string, content: string, timeOnScreen?: number) => void;
@@ -13,4 +22,4 @@ interface NotifyService {
   confirmDelete: (msg: string, onConfirm: CallableFunction, onReject?: CallableFunction, title?: string) => void;
 }
 
-export { ConfirmOptions, NotifyService }
+export { ConfirmOptions, NotifyService, UserStatusContract }

@@ -10,5 +10,6 @@ var emo = emolib.NewZone("api")
 func Init(isVerbose, isDev bool) {
 	if !isDev {
 		emo.Print = isVerbose
+		emo.Info("Print verbose")
 	}
 }

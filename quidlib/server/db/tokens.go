@@ -26,12 +26,12 @@ func GenNsAdminTokenForUser(userName, nsName string) (string, error) {
 	}
 
 	// check admin perms
-	isNsAdmin, err := IsUserAdmin(nsName, ns.ID, uid)
+	adminType, err := GetUserType(nsName, ns.ID, uid)
 	if err != nil {
 		return "", err
 	}
 	// emo.Debug("USER", userName, uid, "NS", nsName, "NSa", isNsAdmin)
-	if !isNsAdmin {
+	if adminType == UserNoAdmin {
 		qid, err := SelectNamespaceID("quid")
 		if err != nil {
 			return "", err

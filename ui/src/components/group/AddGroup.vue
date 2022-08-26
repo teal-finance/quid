@@ -12,7 +12,7 @@
 <script setup lang="ts">
 import { computed, reactive } from "vue";
 import SwInput from "@snowind/input";
-import { requests } from "@/api";
+import { api } from "@/api";
 import { notify, user } from "@/state";
 
 const emit = defineEmits(["end"]);
@@ -37,7 +37,7 @@ function onCancel(): void {
 
 async function postForm() {
   try {
-    await requests.post(user.adminUrl + "/groups/add", {
+    await api.post(user.adminUrl + "/groups/add", {
       name: form.name.val,
       namespace_id: user.namespace.value.id,
     });

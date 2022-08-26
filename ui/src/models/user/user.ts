@@ -1,4 +1,4 @@
-import { requests } from "@/api";
+import { api } from "@/api";
 import UserContract from "./contract";
 import { UserTable } from "./interface";
 import { user } from "@/state";
@@ -23,7 +23,7 @@ export default class User {
     const data = new Array<UserTable>();
     try {
       const payload = { namespace_id: nsid }
-      const resp = await requests.post<Array<UserContract>>(url, payload);
+      const resp = await api.post<Array<UserContract>>(url, payload);
       resp.forEach((row) => data.push(new User(row).toTableRow()));
     } catch (e) {
       console.log("Err", e);
@@ -34,7 +34,7 @@ export default class User {
 
   static async delete(id: number) {
     const url = user.adminUrl + "/users/delete";
-    await requests.post(url, {
+    await api.post(url, {
       id: id,
       namespace_id: user.namespace.value.id
     });

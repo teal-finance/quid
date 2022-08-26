@@ -4,278 +4,279 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/labstack/echo/v4"
 	"golang.org/x/crypto/bcrypt"
 
+	"github.com/teal-finance/garcon"
 	"github.com/teal-finance/quid/quidlib/server"
 	db "github.com/teal-finance/quid/quidlib/server/db"
 )
 
 // AllUsersInNamespace : select all users for a namespace.
-func AllUsersInNamespace(c echo.Context) error {
-	m := echo.Map{}
-	if err := c.Bind(&m); err != nil {
-		return err
+func AllUsersInNamespace(w http.ResponseWriter, r *http.Request) {
+	var m namespaceIDRequest
+	if err := garcon.UnmarshalJSONRequest(w, r, &m); err != nil {
+		emo.ParamError("AllUsersInNamespace:", err)
+		w.WriteHeader(http.StatusBadRequest)
+		return
 	}
 
-	nsID := int64(m["namespace_id"].(float64))
+	nsID := m.NamespaceID
 
-	if !VerifyAdminNs(c, nsID) {
-		return c.NoContent(http.StatusUnauthorized)
+	if !IsNsAdmin(r, nsID) {
+		w.WriteHeader(http.StatusUnauthorized)
+		return
 	}
 
 	data, err := db.SelectUsersInNamespace(nsID)
 	if err != nil {
-		fmt.Println("ERROR", err)
-		return c.JSON(http.StatusInternalServerError, echo.Map{
-			"error": "error selecting users",
-		})
+		emo.QueryError("AllUsersInNamespace: error selecting users:", err)
+		gw.WriteErr(w, r, http.StatusInternalServerError, "error selecting users")
+		return
 	}
 
-	return c.JSON(http.StatusOK, &data)
+	gw.WriteOK(w, data)
 }
 
 // GroupsForNamespace : get the groups of a user.
-func GroupsForNamespace(c echo.Context) error {
-	m := echo.Map{}
-	if err := c.Bind(&m); err != nil {
-		return err
+func GroupsForNamespace(w http.ResponseWriter, r *http.Request) {
+	var m namespaceRequest
+	if err := garcon.UnmarshalJSONRequest(w, r, &m); err != nil {
+		emo.ParamError("GroupsForNamespace:", err)
+		w.WriteHeader(http.StatusBadRequest)
+		return
 	}
 
-	namespace := m["namespace"].(string)
+	namespace := m.Namespace
+
+	if p := garcon.Printable(namespace); p >= 0 {
+		emo.ParamError("GroupsForNamespace: JSON contains a forbidden character at p=", p)
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
 
 	hasResult, ns, err := db.SelectNamespaceFromName(namespace)
 	if err != nil || !hasResult {
-		return c.JSON(http.StatusInternalServerError, echo.Map{
-			"error": "error selecting namespace",
-		})
+		emo.QueryError("GroupsForNamespace: error selecting namespace:", err)
+		gw.WriteErr(w, r, http.StatusInternalServerError, "error selecting namespace")
+		return
 	}
 
 	g, err := db.SelectGroupsForNamespace(ns.ID)
 	if err != nil {
-		return c.JSON(http.StatusInternalServerError, echo.Map{
-			"error": "error selecting groups",
-		})
+		emo.QueryError("GroupsForNamespace: error selecting groups:", err)
+		gw.WriteErr(w, r, http.StatusInternalServerError, "error selecting groups")
 	}
 
-	return c.JSON(http.StatusOK, echo.Map{
-		"groups": g,
-	})
+	emo.Result("GroupsForNamespace:", g)
+	gw.WriteOK(w, "groups", g)
 }
 
 // AddUserInOrg : add a user in an org.
-func AddUserInOrg(c echo.Context) error {
-	m := echo.Map{}
-	if err := c.Bind(&m); err != nil {
-		return err
+func AddUserInOrg(w http.ResponseWriter, r *http.Request) {
+	var m userOrgRequest
+	if err := garcon.UnmarshalJSONRequest(w, r, &m); err != nil {
+		emo.ParamError("AddUserInOrg:", err)
+		w.WriteHeader(http.StatusBadRequest)
+		return
 	}
 
-	uID := int64(m["user_id"].(float64))
-	oID := int64(m["org_id"].(float64))
+	uID := m.UserID
+	oID := m.OrgID
 
 	err := db.AddUserInOrg(uID, oID)
 	if err != nil {
-		return c.JSON(http.StatusInternalServerError, echo.Map{
-			"error": "error adding user in org",
-		})
+		emo.QueryError("AddUserInOrg: error adding user in org:", err)
+		gw.WriteErr(w, r, http.StatusInternalServerError, "error adding user in org")
+		return
 	}
 
-	return c.JSON(http.StatusOK, echo.Map{
-		"ok": true,
-	})
+	emo.Result("AddUserInOrg OK")
+	w.WriteHeader(http.StatusOK)
 }
 
 // RemoveUserFromOrg : add a user in an org.
-func RemoveUserFromOrg(c echo.Context) error {
-	m := echo.Map{}
-	if err := c.Bind(&m); err != nil {
-		return err
+func RemoveUserFromOrg(w http.ResponseWriter, r *http.Request) {
+	var m userOrgRequest
+	if err := garcon.UnmarshalJSONRequest(w, r, &m); err != nil {
+		emo.ParamError("RemoveUserFromOrg:", err)
+		w.WriteHeader(http.StatusBadRequest)
+		return
 	}
 
-	uID := int64(m["user_id"].(float64))
-	oID := int64(m["org_id"].(float64))
+	uID := m.UserID
+	oID := m.OrgID
 
 	err := db.RemoveUserFromOrg(uID, oID)
 	if err != nil {
-		return c.JSON(http.StatusInternalServerError, echo.Map{
-			"error": "error removing user from org",
-		})
+		emo.QueryError("RemoveUserFromOrg: error removing user from org:", err)
+		gw.WriteErr(w, r, http.StatusInternalServerError, "error removing user from org")
+		return
 	}
 
-	return c.JSON(http.StatusOK, echo.Map{
-		"ok": true,
-	})
+	emo.Result("RemoveUserFromOrg OK")
+	w.WriteHeader(http.StatusOK)
 }
 
 // AddUserInGroup : add a user in a group.
-func AddUserInGroup(c echo.Context) error {
-	m := echo.Map{}
-	if err := c.Bind(&m); err != nil {
-		return err
+func AddUserInGroup(w http.ResponseWriter, r *http.Request) {
+	var m userGroupRequest
+	if err := garcon.UnmarshalJSONRequest(w, r, &m); err != nil {
+		emo.ParamError("AddUserInGroup:", err)
+		w.WriteHeader(http.StatusBadRequest)
+		return
 	}
 
-	uID := int64(m["user_id"].(float64))
-	gID := int64(m["group_id"].(float64))
-	nsID := int64(m["namespace_id"].(float64))
+	uID := m.UserID
+	gID := m.GroupID
+	nsID := m.NamespaceID
 
-	if !VerifyAdminNs(c, nsID) {
-		return c.NoContent(http.StatusUnauthorized)
+	if !IsNsAdmin(r, nsID) {
+		w.WriteHeader(http.StatusUnauthorized)
+		return
 	}
 
 	err := db.AddUserInGroup(uID, gID)
 	if err != nil {
-		return c.JSON(http.StatusInternalServerError, echo.Map{
-			"error": "error adding user in group",
-		})
+		emo.QueryError("AddUserInGroup:", err)
+		gw.WriteErr(w, r, http.StatusInternalServerError, "error adding user in group")
+		return
 	}
 
-	return c.JSON(http.StatusOK, echo.Map{
-		"ok": true,
-	})
+	emo.Result("AddUserInGroup OK")
+	w.WriteHeader(http.StatusOK)
 }
 
 // RemoveUserFromGroup : add a user in a group.
-func RemoveUserFromGroup(c echo.Context) error {
-	m := echo.Map{}
-	if err := c.Bind(&m); err != nil {
-		return err
+func RemoveUserFromGroup(w http.ResponseWriter, r *http.Request) {
+	var m userGroupRequest
+	if err := garcon.UnmarshalJSONRequest(w, r, &m); err != nil {
+		emo.ParamError("RemoveUserFromGroup:", err)
+		w.WriteHeader(http.StatusBadRequest)
+		return
 	}
 
-	uID := int64(m["user_id"].(float64))
-	gID := int64(m["group_id"].(float64))
-	nsID := int64(m["namespace_id"].(float64))
+	uID := m.UserID
+	gID := m.GroupID
+	nsID := m.NamespaceID
 
-	if !VerifyAdminNs(c, nsID) {
-		return c.NoContent(http.StatusUnauthorized)
+	if !IsNsAdmin(r, nsID) {
+		w.WriteHeader(http.StatusUnauthorized)
+		return
 	}
 
 	err := db.RemoveUserFromGroup(uID, gID)
 	if err != nil {
-		return c.JSON(http.StatusInternalServerError, echo.Map{
-			"error": "error removing user from group",
-		})
+		emo.QueryError("RemoveUserFromGroup: error removing user from group:", err)
+		gw.WriteErr(w, r, http.StatusInternalServerError, "error removing user from group")
+		return
 	}
 
-	return c.JSON(http.StatusOK, echo.Map{
-		"ok": true,
-	})
+	emo.Result("RemoveUserFromGroup OK")
+	w.WriteHeader(http.StatusOK)
 }
 
-// SearchForUsersInNamespace : search from a username in namespace.
-/*func SearchForUsersInNamespace(c echo.Context) error {
-	m := echo.Map{}
-	if err := c.Bind(&m); err != nil {
-		return err
-	}
-
-	fmt.Println("Search")
-	username := m["username"].(string)
-	nsID := int64(m["namespace_id"].(float64))
-	fmt.Println("U", username, "NS", nsID)
-
-	u, err := db.SearchUsersInNamespaceFromUsername(username, nsID)
-	if err != nil {
-		fmt.Println("ERR", err)
-		return c.JSON(http.StatusInternalServerError, echo.Map{
-			"error": "error searching for users",
-		})
-	}
-
-	return c.JSON(http.StatusOK, echo.Map{
-		"users": u,
-	})
-}*/
-
 // UserGroupsInfo : get info for a user.
-func UserGroupsInfo(c echo.Context) error {
-	m := echo.Map{}
-	if err := c.Bind(&m); err != nil {
-		return err
+func UserGroupsInfo(w http.ResponseWriter, r *http.Request) {
+	var m userRequest
+	if err := garcon.UnmarshalJSONRequest(w, r, &m); err != nil {
+		emo.ParamError("UserGroupsInfo:", err)
+		w.WriteHeader(http.StatusBadRequest)
+		return
 	}
 
-	id := int64(m["id"].(float64))
-	nsID := int64(m["namespace_id"].(float64))
+	id := m.ID
+	nsID := m.NamespaceID
 
-	if !VerifyAdminNs(c, nsID) {
-		return c.NoContent(http.StatusUnauthorized)
+	if !IsNsAdmin(r, nsID) {
+		w.WriteHeader(http.StatusUnauthorized)
+		return
 	}
 
 	g, err := db.SelectGroupsForUser(id)
 	if err != nil {
-		return c.JSON(http.StatusInternalServerError, echo.Map{
-			"error": "error selecting groups",
-		})
+		emo.QueryError("UserGroupsInfo: error selecting groups:", err)
+		gw.WriteErr(w, r, http.StatusInternalServerError, "error selecting groups")
+		return
 	}
 
-	return c.JSON(http.StatusOK, echo.Map{
-		"groups": g,
-	})
+	emo.Result("UserGroupsInfo:", g)
+	gw.WriteOK(w, "groups", g)
 }
 
 // DeleteUser : delete a user handler.
-func DeleteUser(c echo.Context) error {
-	m := echo.Map{}
-	if err := c.Bind(&m); err != nil {
-		return err
+func DeleteUser(w http.ResponseWriter, r *http.Request) {
+	var m userRequest
+	if err := garcon.UnmarshalJSONRequest(w, r, &m); err != nil {
+		emo.ParamError("DeleteUser:", err)
+		w.WriteHeader(http.StatusBadRequest)
+		return
 	}
 
-	id := int64(m["id"].(float64))
-	nsID := int64(m["namespace_id"].(float64))
+	id := m.ID
+	nsID := m.NamespaceID
 
-	if !VerifyAdminNs(c, nsID) {
-		return c.NoContent(http.StatusUnauthorized)
+	if !IsNsAdmin(r, nsID) {
+		w.WriteHeader(http.StatusUnauthorized)
+		return
 	}
 
 	if err := db.DeleteUser(id); err != nil {
-		return c.JSON(http.StatusConflict, echo.Map{
-			"error": "error deleting user",
-		})
+		emo.QueryError("DeleteUser: error deleting user:", err)
+		gw.WriteErr(w, r, http.StatusConflict, "error deleting user")
+		return
 	}
 
-	return c.JSON(http.StatusOK, echo.Map{
-		"message": "ok",
-	})
+	emo.Result("DeleteUser OK")
+	gw.WriteOK(w, "message", "ok")
 }
 
 // CreateUserHandler : create a user handler.
-func CreateUserHandler(c echo.Context) error {
-	m := echo.Map{}
-	if err := c.Bind(&m); err != nil {
-		return err
+func CreateUserHandler(w http.ResponseWriter, r *http.Request) {
+	var m userHandlerCreation
+	if err := garcon.UnmarshalJSONRequest(w, r, &m); err != nil {
+		emo.ParamError("CreateUserHandler:", err)
+		w.WriteHeader(http.StatusBadRequest)
+		return
 	}
 
-	name := m["name"].(string)
-	password := m["password"].(string)
-	nsID := int64(m["namespace_id"].(float64))
+	name := m.Name
+	password := m.Password
+	nsID := m.NamespaceID
 
-	if !VerifyAdminNs(c, nsID) {
-		return c.NoContent(http.StatusUnauthorized)
+	if p := garcon.Printable(name, password); p >= 0 {
+		emo.ParamError("CreateUserHandler: JSON contains a forbidden character at p=", p)
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	if !IsNsAdmin(r, nsID) {
+		w.WriteHeader(http.StatusUnauthorized)
+		return
 	}
 
 	// check if user exists
 	exists, err := db.UserNameExists(name, nsID)
 	if err != nil {
-		return c.JSON(http.StatusConflict, echo.Map{
-			"error": "error checking user",
-		})
+		emo.QueryError("CreateUserHandler: error checking user:", err)
+		gw.WriteErr(w, r, http.StatusConflict, "error checking user")
+		return
 	}
 	if exists {
-		return c.JSON(http.StatusConflict, echo.Map{
-			"error": "error user already exist",
-		})
+		emo.Data("CreateUserHandler: error user already exist")
+		gw.WriteErr(w, r, http.StatusConflict, "error user already exist")
+		return
 	}
 
 	// create user
 	u, err := db.CreateUser(name, password, nsID)
 	if err != nil {
-		return c.JSON(http.StatusConflict, echo.Map{
-			"error": "error creating user",
-		})
+		emo.QueryError("CreateUserHandler: error creating user:", err)
+		gw.WriteErr(w, r, http.StatusConflict, "error creating user")
+		return
 	}
 
-	return c.JSON(http.StatusOK, echo.Map{
-		"user_id": u.ID,
-	})
+	emo.Result("CreateUserHandler:", u)
+	gw.WriteOK(w, "user_id", u.ID)
 }
 
 func checkUserPassword(username, password string, namespaceID int64) (bool, server.User, error) {

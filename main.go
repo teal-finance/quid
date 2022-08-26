@@ -48,7 +48,8 @@ func main() {
 
 	// Read configuration
 	var (
-		conn, port string
+		conn       string
+		port       int
 		autoConfDb bool
 	)
 	if *env {
@@ -131,5 +132,5 @@ func main() {
 	}
 
 	// http server
-	api.RunServer(adminNS.Key, ":"+port)
+	api.RunServer(adminNS.Key, port)
 }

@@ -3,106 +3,116 @@ package api
 import (
 	"net/http"
 
-	"github.com/labstack/echo/v4"
 	_ "github.com/lib/pq"
 
+	"github.com/teal-finance/garcon"
 	"github.com/teal-finance/quid/quidlib/server/db"
 )
 
 // AllAdministratorsInNamespace : select all admin users for a namespace.
-func AllAdministratorsInNamespace(c echo.Context) error {
-	m := echo.Map{}
-	if err := c.Bind(&m); err != nil {
-		return err
+func AllAdministratorsInNamespace(w http.ResponseWriter, r *http.Request) {
+	var m namespaceIDRequest
+	if err := garcon.UnmarshalJSONRequest(w, r, &m); err != nil {
+		emo.Warning("AllAdministratorsInNamespace:", err)
+		w.WriteHeader(http.StatusBadRequest)
+		return
 	}
 
-	nsID := int64(m["namespace_id"].(float64))
+	nsID := m.NamespaceID
 
 	data, err := db.SelectAdministratorsInNamespace(nsID)
 	if err != nil {
-		return c.JSON(http.StatusInternalServerError, echo.Map{
-			"error": "error selecting admin users",
-		})
+		emo.QueryError("AllAdministratorsInNamespace: error selecting admin users:", err)
+		gw.WriteErr(w, r, http.StatusInternalServerError, "error selecting admin users")
+		return
 	}
 
-	return c.JSON(http.StatusOK, &data)
+	gw.WriteOK(w, data)
 }
 
 // SearchForNonAdminUsersInNamespace : search from a username in namespace
-func SearchForNonAdminUsersInNamespace(c echo.Context) error {
-	m := echo.Map{}
-	if err := c.Bind(&m); err != nil {
-		return err
+func SearchForNonAdminUsersInNamespace(w http.ResponseWriter, r *http.Request) {
+	var m nonAdminUsersRequest
+	if err := garcon.UnmarshalJSONRequest(w, r, &m); err != nil {
+		emo.Warning("SearchForNonAdminUsersInNamespace:", err)
+		w.WriteHeader(http.StatusBadRequest)
+		return
 	}
 
-	username := m["username"].(string)
-	nsID := int64(m["namespace_id"].(float64))
+	username := m.Username
+	nsID := m.NamespaceID
+
+	if p := garcon.Printable(username); p >= 0 {
+		emo.Warning("SearchForNonAdminUsersInNamespace: JSON contains a forbidden character at p=", p)
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
 
 	u, err := db.SearchForNonAdminUsersInNamespace(nsID, username)
 	if err != nil {
-		return c.JSON(http.StatusInternalServerError, echo.Map{
-			"error": "error searching for non admin users",
-		})
+		emo.QueryError("SearchForNonAdminUsersInNamespace: error searching for non admin users:", err)
+		gw.WriteErr(w, r, http.StatusInternalServerError, "error searching for non admin users")
+		return
 	}
 
-	return c.JSON(http.StatusOK, echo.Map{
-		"users": u,
-	})
+	gw.WriteOK(w, "users", u)
 }
 
 // CreateUserAdministrators : create admin users handler.
-func CreateAdministrators(c echo.Context) error {
-	m := echo.Map{}
-	if err := c.Bind(&m); err != nil {
-		return err
+func CreateAdministrators(w http.ResponseWriter, r *http.Request) {
+	var m administratorsCreation
+	if err := garcon.UnmarshalJSONRequest(w, r, &m); err != nil {
+		emo.Warning("CreateAdministrators:", err)
+		w.WriteHeader(http.StatusBadRequest)
+		return
 	}
 
-	uIDs := m["user_ids"].([]any)
-	nsID := int64(m["namespace_id"].(float64))
+	uIDs := m.UserIDs
+	nsID := m.NamespaceID
 
-	for _, fuserID := range uIDs {
-		uID := int64(fuserID.(float64))
-
+	for _, uID := range uIDs {
 		// check if user exists
 		exists, err := db.AdministratorExists(nsID, uID)
 		if err != nil {
-			return c.JSON(http.StatusConflict, echo.Map{
-				"error": "error checking admin user",
-			})
+			emo.QueryError("CreateAdministrators: error checking admin user:", err)
+			gw.WriteErr(w, r, http.StatusConflict, "error checking admin user")
+			return
 		}
 		if exists {
-			return c.JSON(http.StatusConflict, echo.Map{
-				"error": "error creating admin user",
-			})
+			emo.QueryError("CreateAdministrators: admin user already exist:", err)
+			gw.WriteErr(w, r, http.StatusConflict, "admin user already exist")
+			return
 		}
 
 		// create admin user
 		if _, err = db.CreateAdministrator(nsID, uID); err != nil {
-			return c.JSON(http.StatusConflict, echo.Map{
-				"error": "error creating admin user",
-			})
+			emo.QueryError("CreateAdministrators: error creating admin user:", err)
+			gw.WriteErr(w, r, http.StatusConflict, "error creating admin user")
+			return
 		}
 	}
 
-	return c.JSON(http.StatusOK, okResponse())
+	w.WriteHeader(http.StatusOK)
 }
 
 // DeleteAdministrator : delete an admin user handler.
-func DeleteAdministrator(c echo.Context) error {
-	m := echo.Map{}
-	if err := c.Bind(&m); err != nil {
-		return err
+func DeleteAdministrator(w http.ResponseWriter, r *http.Request) {
+	var m administratorDeletion
+	if err := garcon.UnmarshalJSONRequest(w, r, &m); err != nil {
+		emo.ParamError("DeleteAdministrator:", err)
+		w.WriteHeader(http.StatusBadRequest)
+		return
 	}
 
-	uID := int64(m["user_id"].(float64))
-	nsID := int64(m["namespace_id"].(float64))
+	uID := m.UserID
+	nsID := m.NamespaceID
 
 	err := db.DeleteAdministrator(uID, nsID)
 	if err != nil {
-		return c.JSON(http.StatusInternalServerError, echo.Map{
-			"error": "error deleting admin users",
-		})
+		emo.QueryError("DeleteAdministrator: error deleting admin users:", err)
+		gw.WriteErr(w, r, http.StatusInternalServerError, "error deleting admin users")
+		return
 	}
 
-	return c.JSON(http.StatusOK, okResponse())
+	w.WriteHeader(http.StatusOK)
 }

@@ -37,7 +37,7 @@ func Create() error {
 
 // InitFromFile : get the config
 // returns the postgres connection string.
-func InitFromFile(isDevMode bool) (conn, port string) {
+func InitFromFile(isDevMode bool) (conn string, port int) {
 	viper.SetConfigName("config")
 	viper.AddConfigPath(".")
 	viper.SetDefault("db_name", "quid")
@@ -69,7 +69,7 @@ func InitFromFile(isDevMode bool) (conn, port string) {
 	pwd := viper.Get("db_password").(string)
 
 	conn = "dbname=" + db + " user=" + usr + " password=" + pwd + " sslmode=disable"
-	port = "8082"
+	port = 8082
 	return conn, port
 }
 

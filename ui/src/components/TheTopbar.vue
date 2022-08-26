@@ -47,6 +47,7 @@ import { SwHeader, SwMobileMenu } from "@snowind/header";
 import router from '@/router';
 import { user, notify } from "@/state";
 import TheCurrentNamespace from './namespace/TheCurrentNamespace.vue';
+import { api } from '@/api';
 
 const isMenuVisible = ref(false);
 
@@ -56,9 +57,11 @@ function closeMenu() {
   isMenuVisible.value = false;
 }
 
-function logout() {
-  notify.confirmDelete("Logout from Quid admin?", () => {
+async function logout() {
+
+  notify.confirmDelete("Logout from Quid admin?", async () => {
     user.isLoggedIn.value = false;
+    await api.get("/logout");
   }, () => null, "Disconnect")
 }
 </script>

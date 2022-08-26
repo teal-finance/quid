@@ -8,7 +8,9 @@
     "upg-minor": "yarn-upgrade-minor"
   },
   "dependencies": {
+    "@snowind/api": "0.0.5",
     "emosd": "~0.2.1",
+    "js-cookie": "^3.0.1",
     "primeicons": "~5.0.0",
     "primevue": "~3.15.0",
     "quidjs": "~0.6.0",
@@ -19,6 +21,7 @@
     "@babel/core": "~7.18.6",
     "@iconify/json": "~2.1.74",
     "@iconify/vue": "~3.2.1",
+    "@playwright/test": "^1.25.0",
     "@snowind/header": "~0.0.8",
     "@snowind/input": "~0.0.5",
     "@snowind/plugin": "~0.3.1",
@@ -29,6 +32,7 @@
     "@snowind/switch": "~0.0.5",
     "@snowind/toast": "~0.0.1",
     "@tailwindcss/forms": "~0.5.2",
+    "@types/js-cookie": "^3.0.2",
     "@types/node": "~18.0.3",
     "@vitejs/plugin-vue": "~2.3.3",
     "@vue/compiler-sfc": "~3.2.37",
@@ -36,6 +40,7 @@
     "babel-loader": "~8.2.5",
     "postcss": "~8.4.14",
     "rollup-plugin-typescript2": "~0.32.1",
+    "runplaywright": "^0.0.7",
     "sass": "~1.53.0",
     "tailwindcss": "~3.1.5",
     "tailwindcss-semantic-colors": "~0.2.0",

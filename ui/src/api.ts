@@ -1,32 +1,39 @@
-import { QuidRequests, QuidRequestError } from '@/packages/quidjs'
 import conf from "@/conf";
-import { EnvType } from './env';
-import { notify, user } from './state';
+import { notify } from './state';
+//import { useApi } from "@snowind/api";
+import { useApi } from "@/packages/api";
+import { ResponseError } from "./packages/errors";
+import { UserStatusContract } from "./interface";
 
-const requests = new QuidRequests({
-  namespace: "quid",
-  timeouts: {
-    accessToken: "5m",
-    refreshToken: "24h"
-  },
-  quidUri: conf.quidUrl,
-  serverUri: conf.serverUri,
-  accessTokenUri: conf.serverUri + "/admin_token/access/",
-  verbose: conf.env === EnvType.local,
-  onHasToLogin: async () => {
-    notify.warning("Connection expired", "Please login again")
-    user.isLoggedIn.value = false;
+const api = useApi({ serverUrl: conf.quidUrl });
+
+async function checkStatus(): Promise<{ ok: boolean, status: UserStatusContract }> {
+  let _data: UserStatusContract = {} as UserStatusContract;
+  try {
+    _data = await api.get<UserStatusContract>("/status")
+  } catch (e) {
+    if (e instanceof ResponseError) {
+      console.log("Response error", e);
+      if (e.response.status == 401) {
+        return { ok: false, status: {} as UserStatusContract }
+      }
+      throw new Error(e.toString())
+    } else {
+      throw e
+    }
   }
-});
+  return { ok: true, status: _data }
+}
 
-async function adminLogin(namespace: string, username: string, password: string): Promise<void> {
+async function adminLogin(namespaceName: string, username: string, password: string): Promise<void> {
   const payload = {
-    namespace: namespace,
+    namespace: namespaceName,
     username: username,
     password: password,
   }
   const opts: RequestInit = {
     method: 'POST',
+    credentials: 'include',
     headers: {
       'Content-Type': 'application/json',
     } as HeadersInit,
@@ -43,16 +50,15 @@ async function adminLogin(namespace: string, username: string, password: string)
     throw new Error(response.statusText)
   }
   const resp = await response.json();
-  console.log("RESP", resp)
-  requests.refreshToken = resp.token;
-  requests.namespace = resp.namespace.name;
-  if (resp.namespace.name != 'quid') {
-    user.changeNs(resp.namespace);
+  console.log("LOGIN RESP", resp)
+  /*namespace.name = namespaceName;
+  if (namespaceName != 'quid') {
+    user.changeNs(namespace.toTableRow());
   } else {
     user.type.value = "serverAdmin";
     user.adminUrl = "/admin";
     user.resetNs()
-  }
+  }*/
 }
 
-export { requests, adminLogin }
+export { api, adminLogin, checkStatus }

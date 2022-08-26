@@ -2,7 +2,9 @@ package conf
 
 import (
 	"fmt"
+	"log"
 	"os"
+	"strconv"
 	"strings"
 )
 
@@ -13,7 +15,7 @@ var AdminUser string
 var AdminPassword string
 
 // InitFromEnv : get the config from environment variables.
-func InitFromEnv(isDevMode bool) (conn, port string) {
+func InitFromEnv(isDevMode bool) (conn string, port int) {
 	fmt.Println("Initializing from env")
 
 	if isDevMode {
@@ -29,7 +31,12 @@ func InitFromEnv(isDevMode bool) (conn, port string) {
 	conn = os.Getenv("DATABASE_URL")
 	conn = strings.Replace(conn, "postgresql://", "postgres://", 1)
 
-	port = os.Getenv("PORT")
+	portStr := os.Getenv("PORT")
+
+	port, err := strconv.Atoi(portStr)
+	if err != nil {
+		log.Panic("PORT must be an integer got=", portStr)
+	}
 
 	return conn, port
 }

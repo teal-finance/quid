@@ -1,4 +1,4 @@
-import { requests } from "@/api";
+import { api } from "@/api";
 import OrgContract from "./contract";
 import { OrgTable } from "./interface";
 
@@ -21,7 +21,7 @@ export default class Org {
     const url = "/admin/orgs/all";
     const data = new Array<OrgTable>();
     try {
-      const resp = await requests.get<Array<OrgContract>>(url);
+      const resp = await api.get<Array<OrgContract>>(url);
       resp.forEach((row) => data.push(new Org(row).toTableRow()));
     } catch (e) {
       console.log("Err", e);
@@ -31,7 +31,7 @@ export default class Org {
   }
 
   static async delete(id: number) {
-    await requests.post("/admin/orgs/delete", {
+    await api.post("/admin/orgs/delete", {
       id: id,
     });
   }

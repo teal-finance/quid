@@ -14,7 +14,8 @@
       "dom"
     ],
     "types": [
-      "vite/client"
+      "vite/client",
+      "@types/js-cookie"
     ],
     "baseUrl": ".",
     "paths": {

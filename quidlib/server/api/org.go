@@ -3,109 +3,119 @@ package api
 import (
 	"net/http"
 
-	"github.com/labstack/echo/v4"
-
+	"github.com/teal-finance/garcon"
 	"github.com/teal-finance/quid/quidlib/server"
 	db "github.com/teal-finance/quid/quidlib/server/db"
 )
 
 // AllOrgs : get all orgs http handler.
-func AllOrgs(c echo.Context) error {
+func AllOrgs(w http.ResponseWriter, r *http.Request) {
 	data, err := db.SelectAllOrgs()
 	if err != nil {
-		return c.JSON(http.StatusConflict, echo.Map{
-			"error": "error selecting orgs",
-		})
+		emo.QueryError("AllOrgs: error selecting orgs:", err)
+		gw.WriteErr(w, r, http.StatusConflict, "error selecting orgs")
+		return
 	}
 
-	return c.JSON(http.StatusOK, &data)
+	gw.WriteOK(w, data)
 }
 
 // FindOrg : find an org from name.
-func FindOrg(c echo.Context) error {
-	m := echo.Map{}
-	if err := c.Bind(&m); err != nil {
-		return err
+func FindOrg(w http.ResponseWriter, r *http.Request) {
+	var m nameRequest
+	if err := garcon.UnmarshalJSONRequest(w, r, &m); err != nil {
+		emo.ParamError("FindOrg:", err)
+		w.WriteHeader(http.StatusBadRequest)
+		return
 	}
 
-	name := m["name"].(string)
+	name := m.Name
+
+	if p := garcon.Printable(name); p >= 0 {
+		emo.Warning("FindOrg: JSON contains a forbidden character at p=", p)
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
 
 	data, err := db.SelectOrgStartsWith(name)
 	if err != nil {
-		emo.QueryError(err)
-		return c.JSON(http.StatusInternalServerError, echo.Map{
-			"error": "error finding org",
-		})
+		emo.QueryError("FindOrg:", err)
+		gw.WriteErr(w, r, http.StatusInternalServerError, "error finding org")
+		return
 	}
 
-	return c.JSON(http.StatusOK, &data)
+	gw.WriteOK(w, data)
 }
 
 // UserOrgsInfo : get orgs info for a user.
-func UserOrgsInfo(c echo.Context) error {
-	m := echo.Map{}
-	if err := c.Bind(&m); err != nil {
-		return err
+func UserOrgsInfo(w http.ResponseWriter, r *http.Request) {
+	var m infoRequest
+	if err := garcon.UnmarshalJSONRequest(w, r, &m); err != nil {
+		emo.ParamError("UserOrgsInfo:", err)
+		w.WriteHeader(http.StatusBadRequest)
+		return
 	}
 
-	id := int64(m["id"].(float64))
+	id := m.ID
 
 	o, err := db.SelectOrgsForUser(id)
 	if err != nil {
-		return c.JSON(http.StatusInternalServerError, echo.Map{
-			"error": "error selecting orgs",
-		})
+		emo.QueryError("UserOrgsInfo: error selecting orgs:", err)
+		gw.WriteErr(w, r, http.StatusInternalServerError, "error selecting orgs")
+		return
 	}
 
-	return c.JSON(http.StatusOK, echo.Map{
-		"orgs": o,
-	})
+	gw.WriteOK(w, "orgs", o)
 }
 
 // DeleteOrg : org deletion http handler.
-func DeleteOrg(c echo.Context) error {
-	m := echo.Map{}
-	if err := c.Bind(&m); err != nil {
-		return err
+func DeleteOrg(w http.ResponseWriter, r *http.Request) {
+	var m infoRequest
+	if err := garcon.UnmarshalJSONRequest(w, r, &m); err != nil {
+		emo.ParamError("DeleteOrg:", err)
+		w.WriteHeader(http.StatusBadRequest)
+		return
 	}
 
-	id := int64(m["id"].(float64))
+	id := m.ID
 
 	if err := db.DeleteOrg(id); err != nil {
-		return c.JSON(http.StatusConflict, echo.Map{
-			"error": "error deleting org",
-		})
+		emo.QueryError("DeleteOrg:", err)
+		gw.WriteErr(w, r, http.StatusConflict, "error deleting org")
+		return
 	}
 
-	return c.JSON(http.StatusOK, echo.Map{
-		"message": "ok",
-	})
+	gw.WriteOK(w, "message", "ok")
 }
 
 // CreateOrg : org creation http handler.
-func CreateOrg(c echo.Context) error {
-	m := echo.Map{}
-	if err := c.Bind(&m); err != nil {
-		return err
+func CreateOrg(w http.ResponseWriter, r *http.Request) {
+	var m nameRequest
+	if err := garcon.UnmarshalJSONRequest(w, r, &m); err != nil {
+		emo.ParamError("CreateOrg:", err)
+		w.WriteHeader(http.StatusBadRequest)
+		return
 	}
 
-	name := m["name"].(string)
+	name := m.Name
+
+	if p := garcon.Printable(name); p >= 0 {
+		emo.ParamError("CreateOrg: JSON contains a forbidden character at p=", p)
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
 
 	org, exists, err := createOrg(name)
 	if err != nil {
-		return c.JSON(http.StatusConflict, echo.Map{
-			"error": "error creating org",
-		})
+		gw.WriteErr(w, r, http.StatusConflict, "error creating org")
+		return
 	}
 	if exists {
-		return c.JSON(http.StatusConflict, echo.Map{
-			"error": "org already exists",
-		})
+		gw.WriteErr(w, r, http.StatusConflict, "org already exists")
+		return
 	}
 
-	return c.JSON(http.StatusOK, echo.Map{
-		"org_id": org.ID,
-	})
+	gw.WriteOK(w, "org_id", org.ID)
 }
 
 // createOrg : create an org.
@@ -114,14 +124,17 @@ func createOrg(name string) (server.Org, bool, error) {
 
 	exists, err := db.OrgExists(name)
 	if err != nil {
+		emo.QueryError("createOrg OrgExists:", err)
 		return org, false, err
 	}
 	if exists {
+		emo.QueryError("createOrg: already exist:", name)
 		return org, true, nil
 	}
 
 	id, err := db.CreateOrg(name)
 	if err != nil {
+		emo.QueryError("createOrg:", err)
 		return org, false, err
 	}
 

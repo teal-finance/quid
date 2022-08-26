@@ -1,4 +1,4 @@
-import { requests } from "@/api";
+import { api } from "@/api";
 import { GroupContract } from "./contract";
 import { GroupTable } from "./interface";
 import { user } from "@/state";
@@ -42,7 +42,7 @@ export default class Group {
     const ns = new Array<GroupTable>();
     try {
       const payload = { namespace_id: nsid }
-      const resp = await requests.post<Array<GroupContract>>(url, payload);
+      const resp = await api.post<Array<GroupContract>>(url, payload, false, true);
       resp.forEach((row) => {
         //console.log(row)
         ns.push(new Group(row).toTableRow())
@@ -59,7 +59,7 @@ export default class Group {
     const data = new Array<GroupTable>();
     try {
       const payload = { id: uid, namespace_id: user.namespace.value.id }
-      const resp = await requests.post<{ groups: Array<GroupContract> }>(url, payload);
+      const resp = await api.post<{ groups: Array<GroupContract> }>(url, payload);
       //console.log("RESP", JSON.stringify(resp.groups, null, "  "))
       if (resp.groups.length > 0) {
         resp.groups.forEach((row) => {
@@ -81,7 +81,7 @@ export default class Group {
         group_id: gid,
         namespace_id: user.namespace.value.id
       }
-      await requests.post(url, payload);
+      await api.post(url, payload);
     } catch (e) {
       console.log("Err", e);
       throw e;
@@ -96,7 +96,7 @@ export default class Group {
         group_id: gid,
         namespace_id: user.namespace.value.id
       }
-      await requests.post(url, payload);
+      await api.post(url, payload);
     } catch (e) {
       console.log("Err", e);
       throw e;
@@ -104,7 +104,7 @@ export default class Group {
   }
 
   static async delete(id: number) {
-    await requests.post(user.adminUrl + "/groups/delete", {
+    await api.post(user.adminUrl + "/groups/delete", {
       id: id,
       namespace_id: user.namespace.value.id
     });

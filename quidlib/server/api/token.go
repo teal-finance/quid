@@ -5,60 +5,52 @@ import (
 	"log"
 	"net/http"
 
+	"github.com/go-chi/chi/v5"
 	"github.com/golang-jwt/jwt"
-	"github.com/labstack/echo/v4"
 
+	"github.com/teal-finance/garcon"
 	db "github.com/teal-finance/quid/quidlib/server/db"
 	"github.com/teal-finance/quid/quidlib/tokens"
 )
 
 // RequestAccessToken : request an access token from a refresh token.
-func RequestAccessToken(c echo.Context) error {
-	m := echo.Map{}
-	if err := c.Bind(&m); err != nil {
-		return err
+func RequestAccessToken(w http.ResponseWriter, r *http.Request) {
+	var m accessTokenRequest
+	if err := garcon.UnmarshalJSONRequest(w, r, &m); err != nil {
+		emo.ParamError("RequestAccessToken:", err)
+		w.WriteHeader(http.StatusBadRequest)
+		return
 	}
 
-	refreshToken, ok := m["refresh_token"].(string)
-	if !ok {
-		emo.ParamError("provide a refresh_token parameter")
-		return c.JSON(http.StatusBadRequest, echo.Map{
-			"error": "provide a refresh_token parameter",
-		})
+	refreshToken := m.RefreshToken
+	namespace := m.Namespace
+
+	if p := garcon.Printable(refreshToken, namespace); p >= 0 {
+		emo.Warning("RequestAccessToken: JSON contains a forbidden character at p=", p)
+		w.WriteHeader(http.StatusBadRequest)
+		return
 	}
 
-	namespace, ok := m["namespace"].(string)
-	if !ok {
-		emo.ParamError("provide a namespace parameter")
-		return c.JSON(http.StatusBadRequest, echo.Map{
-			"error": "provide a namespace parameter",
-		})
-	}
-
-	timeout := c.Param("timeout")
+	timeout := chi.URLParam(r, "timeout")
 
 	// get the namespace
 	exists, ns, err := db.SelectNamespaceFromName(namespace)
-	if !exists {
-		emo.Warning("The namespace does not exist")
-		return c.JSON(http.StatusBadRequest, echo.Map{
-			"error": true,
-		})
-	}
 	if err != nil {
-		emo.Error(err)
-		log.Fatal(err)
-		return c.JSON(http.StatusInternalServerError, echo.Map{
-			"error": true,
-		})
+		emo.QueryError("RequestAccessToken SelectNamespaceFromName:", err)
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+	if !exists {
+		emo.Data("RequestAccessToken: the namespace does not exist")
+		w.WriteHeader(http.StatusBadRequest)
+		return
 	}
 
 	// check if the endpoint is available
 	if !ns.PublicEndpointEnabled {
-		emo.Warning("Public endpoint unauthorized")
-		return c.JSON(http.StatusUnauthorized, echo.Map{
-			"error": "unauthorized",
-		})
+		emo.Warning("RequestAccessToken: Public endpoint unauthorized")
+		w.WriteHeader(http.StatusUnauthorized)
+		return
 	}
 
 	// verify the refresh token
@@ -69,161 +61,142 @@ func RequestAccessToken(c echo.Context) error {
 		}
 		return []byte(ns.RefreshKey), nil
 	})
-
-	if claims, ok := token.Claims.(*tokens.RefreshClaims); ok && token.Valid {
-		username = claims.UserName
-		fmt.Printf("%v %v", claims.UserName, claims.ExpiresAt)
-	} else {
-		emo.Warning(err.Error())
-		return c.JSON(http.StatusUnauthorized, echo.Map{
-			"error": "unauthorized",
-		})
+	if err != nil {
+		emo.Warning("RequestAccessToken ParseWithClaims:", err)
+		w.WriteHeader(http.StatusUnauthorized)
+		return
 	}
+	if !token.Valid {
+		emo.Warning("RequestAccessToken: invalid token")
+		w.WriteHeader(http.StatusUnauthorized)
+		return
+	}
+
+	claims, ok := token.Claims.(*tokens.RefreshClaims)
+	if !ok {
+		emo.Error("RequestAccessToken: cannot convert to RefreshClaims")
+		w.WriteHeader(http.StatusUnauthorized)
+		return
+	}
+
+	username = claims.UserName
+	emo.AccessToken("RequestAccessToken:", claims.UserName, claims.ExpiresAt)
 
 	// get the user
 	found, u, err := db.SelectNonDisabledUser(username, ns.ID)
-	if !found {
-		emo.Warning("User not found: " + username)
-		return c.JSON(http.StatusUnauthorized, echo.Map{
-			"error": "unauthorized",
-		})
-	}
 	if err != nil {
+		emo.QueryError("RequestAccessToken SelectNonDisabledUser:", err)
+		w.WriteHeader(http.StatusInternalServerError)
 		log.Fatal(err)
-		return c.JSON(http.StatusInternalServerError, echo.Map{
-			"error": true,
-		})
+		return
+	}
+	if !found {
+		emo.Warning("RequestAccessToken: user not found: " + username)
+		w.WriteHeader(http.StatusUnauthorized)
+		return
 	}
 
 	// get the user groups names
 	groupNames, err := db.SelectGroupsNamesForUser(u.ID)
 	if err != nil {
-		emo.Error("Groups error")
-		log.Fatal(err)
-		return err
+		emo.QueryError("RequestAccessToken: Groups error:", err)
+		w.WriteHeader(http.StatusInternalServerError)
+		return
 	}
 
 	// get the user orgs names
 	orgsNames, err := db.SelectOrgsNamesForUser(u.ID)
 	if err != nil {
-		emo.Error("Groups error")
-		log.Fatal(err)
-		return err
+		emo.QueryError("RequestAccessToken: Orgs error:", err)
+		w.WriteHeader(http.StatusInternalServerError)
+		return
 	}
 
 	// generate the access token
 	t, err := tokens.GenAccessToken(timeout, ns.MaxTokenTTL, u.Name, groupNames, orgsNames, []byte(ns.Key))
 	if err != nil {
-		log.Fatal(err)
-		return c.JSON(http.StatusInternalServerError, echo.Map{
-			"error": true,
-		})
+		emo.Error("RequestAccessToken GenAccessToken:", err)
+		w.WriteHeader(http.StatusInternalServerError)
+		return
 	}
 	if t == "" {
-		emo.Warning("Timeout unauthorized")
-		return c.JSON(http.StatusUnauthorized, echo.Map{
-			"error": "unauthorized",
-		})
+		emo.Warning("RequestAccessToken: Timeout unauthorized")
+		gw.WriteErr(w, r, http.StatusUnauthorized, "error", "unauthorized")
+		return
 	}
 
-	return c.JSON(http.StatusOK, echo.Map{
-		"token": t,
-	})
+	emo.AccessToken("RequestAccessToken: user="+u.Name+" t="+timeout+" TTL="+ns.MaxTokenTTL+" grp=", groupNames, "org=", orgsNames)
+	gw.WriteOK(w, "token", t)
 }
 
 // RequestRefreshToken : http login handler.
-func RequestRefreshToken(c echo.Context) error {
-	m := echo.Map{}
-	if err := c.Bind(&m); err != nil {
-		return err
+func RequestRefreshToken(w http.ResponseWriter, r *http.Request) {
+	var m passwordRequest
+	if err := garcon.UnmarshalJSONRequest(w, r, &m); err != nil {
+		emo.ParamError("RequestRefreshToken:", err)
+		w.WriteHeader(http.StatusBadRequest)
+		return
 	}
 
-	// username
-	usernameParam, ok := m["username"]
-	var username string
-	if ok {
-		username = usernameParam.(string)
-	} else {
-		return c.JSON(http.StatusBadRequest, echo.Map{
-			"error": "provide a username",
-		})
-	}
+	username := m.Username
+	password := m.Password
+	namespace := m.Namespace
 
-	// password
-	passwordParam, ok := m["password"]
-	var password string
-	if ok {
-		password = passwordParam.(string)
-	} else {
-		return c.JSON(http.StatusBadRequest, echo.Map{
-			"error": "provide a password",
-		})
-	}
-
-	// namespace
-	nsParam, ok := m["namespace"]
-	var namespace string
-	if ok {
-		namespace = nsParam.(string)
-	} else {
-		return c.JSON(http.StatusBadRequest, echo.Map{
-			"error": "provide a namespace",
-		})
+	if p := garcon.Printable(username, password, namespace); p >= 0 {
+		emo.ParamError("RequestRefreshToken: JSON contains a forbidden character at p=", p)
+		w.WriteHeader(http.StatusBadRequest)
+		return
 	}
 
 	// timeout
-	timeout := c.Param("timeout")
+	timeout := chi.URLParam(r, "timeout")
 
 	// get the namespace
 	exists, ns, err := db.SelectNamespaceFromName(namespace)
 	if err != nil {
-		return err
+		emo.QueryError("RequestRefreshToken SelectNamespaceFromName:", err)
+		w.WriteHeader(http.StatusInternalServerError)
+		return
 	}
 	if !exists {
-		return c.JSON(http.StatusBadRequest, echo.Map{
-			"error": "namespace does not exist",
-		})
-	}
-	if !ns.PublicEndpointEnabled {
-		return c.JSON(http.StatusUnauthorized, echo.Map{
-			"error": "unauthorized",
-		})
+		emo.Data("RequestRefreshToken: namespace does not exist")
+		gw.WriteErr(w, r, http.StatusBadRequest, "namespace does not exist")
+		return
 	}
 
 	// check if the endpoint is available
 	if !ns.PublicEndpointEnabled {
-		emo.Warning("Public endpoint unauthorized")
-		return c.JSON(http.StatusUnauthorized, echo.Map{
-			"error": "unauthorized",
-		})
+		emo.Data("RequestRefreshToken: public endpoint unauthorized")
+		w.WriteHeader(http.StatusUnauthorized)
+		return
 	}
 
 	// check if the user password matches
 	isAuthorized, u, err := checkUserPassword(username, password, ns.ID)
 	if err != nil {
-		return err
+		return
 	}
 
 	// Respond with unauthorized status
 	if !isAuthorized {
-		fmt.Println(username, "unauthorized")
-		return c.JSON(http.StatusUnauthorized, echo.Map{
-			"error": "unauthorized",
-		})
+		emo.Info("RequestRefreshToken: u=" + username + " unauthorized")
+		w.WriteHeader(http.StatusUnauthorized)
+		return
 	}
 
 	// generate the token
 	t, err := tokens.GenRefreshToken(timeout, ns.MaxRefreshTokenTTL, ns.Name, u.Name, []byte(ns.RefreshKey))
 	if err != nil {
-		log.Fatal(err)
+		emo.Error("RequestRefreshToken GenRefreshToken:", err)
+		w.WriteHeader(http.StatusInternalServerError)
+		return
 	}
 	if t == "" {
-		return c.JSON(http.StatusUnauthorized, echo.Map{
-			"error": "max timeout exceeded",
-		})
+		emo.Info("RequestRefreshToken: max timeout exceeded")
+		gw.WriteErr(w, r, http.StatusUnauthorized, "max timeout exceeded")
+		return
 	}
 
-	return c.JSON(http.StatusOK, echo.Map{
-		"token": t,
-	})
+	emo.RefreshToken("RequestRefreshToken: user=" + u.Name + " t=" + timeout + " TTL=" + ns.MaxRefreshTokenTTL + " ns=" + ns.Name)
+	gw.WriteOK(w, "token", t)
 }

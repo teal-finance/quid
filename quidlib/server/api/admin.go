@@ -1,197 +1,218 @@
 package api
 
 import (
-	"fmt"
-	"log"
 	"net/http"
 
-	"github.com/golang-jwt/jwt"
-	"github.com/gorilla/sessions"
-	"github.com/labstack/echo-contrib/session"
-	"github.com/labstack/echo/v4"
-
-	"github.com/teal-finance/quid/quidlib/conf"
+	"github.com/teal-finance/garcon"
+	"github.com/teal-finance/incorruptible"
 	"github.com/teal-finance/quid/quidlib/server/db"
-	"github.com/teal-finance/quid/quidlib/tokens"
+)
+
+// Key IDs for the Incorruptible TValues
+const (
+	keyUsername = iota
+	KeyUserID
+	keyNsName
+	keyNsID
+	keyAdminType
 )
 
 // AdminLogin : http login handler for the admin interface.
-func AdminLogin(c echo.Context) error {
-	m := echo.Map{}
-	if err := c.Bind(&m); err != nil {
-		return err
+func AdminLogin(w http.ResponseWriter, r *http.Request) {
+	var m passwordRequest
+	if err := garcon.UnmarshalJSONRequest(w, r, &m); err != nil {
+		emo.ParamError("AdminLogin DecodeJSONBody:", err)
+		w.WriteHeader(http.StatusBadRequest)
+		return
 	}
 
-	username := m["username"].(string)
-	password := m["password"].(string)
-	namespace := m["namespace"].(string)
+	username := m.Username
+	password := m.Password
+	namespace := m.Namespace
+
+	if p := garcon.Printable(username, password, namespace); p >= 0 {
+		emo.ParamError("AdminLogin: JSON contains a forbidden character at p=", p)
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
 
 	// get the namespace
 	exists, ns, err := db.SelectNamespaceFromName(namespace)
 	if err != nil {
-		return err
+		emo.QueryError("AdminLogin SelectNamespaceFromName:", err)
+		w.WriteHeader(http.StatusInternalServerError)
+		return
 	}
 	if !exists {
-		return c.JSON(http.StatusBadRequest, echo.Map{
-			"error": "namespace does not exist",
-		})
+		emo.ParamError("AdminLogin: namespace " + namespace + " does not exist")
+		gw.WriteErr(w, r, http.StatusBadRequest, "namespace does not exist", "namespace", namespace)
+		return
 	}
 
 	// check the user password
 	isAuthorized, u, err := checkUserPassword(username, password, ns.ID)
+	if err != nil {
+		emo.Error("AdminLogin checkUserPassword:", err)
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
 	if !isAuthorized {
-		emo.Warning(username, "unauthorized: password check failed", password, ns.ID)
-		return c.JSON(http.StatusUnauthorized, echo.Map{
-			"error": "unauthorized",
-		})
+		emo.ParamError("AdminLogin: Bad password for " + username + " ns=" + namespace)
+		w.WriteHeader(http.StatusUnauthorized)
+		return
 	}
+
+	userType, err := db.GetUserType(ns.Name, ns.ID, u.ID)
 	if err != nil {
-		return err
+		emo.QueryError("AdminLogin AdminType:", err)
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+	if userType == db.UserNoAdmin {
+		emo.ParamError("AdminLogin: u=" + username + " is not admin")
+		w.WriteHeader(http.StatusUnauthorized)
+		return
 	}
 
-	isUserAdmin, err := db.IsUserAdmin(ns.Name, ns.ID, u.ID)
+	adminType := QuidAdmin
+	if userType == db.NsAdmin {
+		adminType = NsAdmin
+	}
+	emo.Result("AdminLogin OK u=" + u.Name + " ns=" + namespace + " AdminType=" + string(adminType))
+
+	// create a new Incorruptible cookie
+	cookie, tv, err := Incorruptible.NewCookie(r,
+		incorruptible.String(keyUsername, u.Name),
+		incorruptible.Int64(KeyUserID, u.ID),
+		incorruptible.String(keyNsName, ns.Name),
+		incorruptible.Int64(keyNsID, ns.ID),
+		incorruptible.String(keyAdminType, string(adminType)),
+	)
 	if err != nil {
-		return err
-	}
-	if !isUserAdmin {
-		emo.Warning(username, "unauthorized: user is not admin")
-		return c.JSON(http.StatusUnauthorized, echo.Map{
-			"error": "unauthorized",
-		})
-	}
-	_isAdmin := isUserAdmin && namespace == "quid"
-	_isNsAdmin := isUserAdmin && namespace != "quid"
-	emo.Info("Admin login successful for user", u.Name, "on namespace", ns.Name)
-	// set the session
-	sess, _ := session.Get("session", c)
-	sess.Values["user"] = u.Name
-	sess.Values["ns_name"] = ns.Name
-	sess.Values["ns_id"] = ns.ID
-	sess.Values["is_admin"] = _isAdmin
-	sess.Values["is_ns_admin"] = _isNsAdmin
-	sess.Options = &sessions.Options{
-		Path:     "/",
-		MaxAge:   3600 * 24,
-		HttpOnly: true,
-		Secure:   !conf.IsDevMode,
-		SameSite: http.SameSiteStrictMode,
-	}
-	if conf.IsDevMode {
-		sess.Options.SameSite = http.SameSiteLaxMode
+		emo.Error("AdminLogin NewCookie:", err)
+		w.WriteHeader(http.StatusInternalServerError)
+		return
 	}
 
-	if err = sess.Save(c.Request(), c.Response()); err != nil {
-		emo.Error("Error saving session", err)
-	}
+	http.SetCookie(w, cookie)
 
-	// set the refresh token
-	token, err := tokens.GenRefreshToken("24h", ns.MaxRefreshTokenTTL, ns.Name, u.Name, []byte(ns.RefreshKey))
+	sendStatusResponse(w, tv)
+}
+
+// status returns 200 if user is admin.
+func status(w http.ResponseWriter, r *http.Request) {
+	tv, err := Incorruptible.DecodeCookieToken(r)
 	if err != nil {
-		emo.Error("Error generating refresh token", err)
-		return c.JSON(http.StatusInternalServerError, echo.Map{
-			"error": true,
-		})
-	}
-	if token == "" {
-		emo.Warning("Unauthorized: timeout max (", ns.MaxRefreshTokenTTL, ") for refresh token for namespace", ns.Name)
-		return c.JSON(http.StatusUnauthorized, echo.Map{
-			"error": "unauthorized",
-		})
+		emo.Warning("/status: no valid token:", err.Error())
+		w.WriteHeader(http.StatusUnauthorized)
+		return
 	}
 
-	emo.Info("Admin user ", u.Name, " is connected")
+	sendStatusResponse(w, tv)
+}
 
-	return c.JSON(http.StatusOK, echo.Map{
-		"token":     token,
-		"namespace": ns,
+// status returns 200 if user is admin.
+func sendStatusResponse(w http.ResponseWriter, tv incorruptible.TValues) {
+	adminType := tv.StringIfAny(keyAdminType)
+
+	gw.WriteOK(w, statusResponse{
+		AdminType: AdminType(adminType),
+		Username:  tv.StringIfAny(keyUsername),
+		Ns: nsInfo{
+			ID:   tv.Int64IfAny(keyNsID),
+			Name: tv.StringIfAny(keyNsName),
+		},
 	})
 }
 
 // AdminLogout : http logout handler for the admin interface.
-func AdminLogout(c echo.Context) error {
-	sess, _ := session.Get("session", c)
-	sess.Values["is_admin"] = "false"
-
-	if err := sess.Save(c.Request(), c.Response()); err != nil {
-		return err
-	}
-
-	return c.NoContent(http.StatusOK)
+func AdminLogout(w http.ResponseWriter, r *http.Request) {
+	http.SetCookie(w, Incorruptible.DeadCookie())
 }
 
 // RequestAdminAccessToken : request an access token from a refresh token
 // for a namespace.
-func RequestAdminAccessToken(c echo.Context) error {
-	m := echo.Map{}
-	if err := c.Bind(&m); err != nil {
-		return err
+/*func RequestAdminAccessToken(w http.ResponseWriter, r *http.Request) {
+	var m adminAccessTokenRequest
+	if err := garcon.UnmarshalJSONRequest(w, r, &m); err != nil {
+		emo.ParamError("RequestAdminAccessToken DecodeJSONBody:", err)
+		w.WriteHeader(http.StatusBadRequest)
+		return
 	}
 
-	refreshToken, ok := m["refresh_token"].(string)
-	nsName := m["namespace"].(string)
-	emo.RefreshToken(nsName, refreshToken)
-	if !ok {
-		emo.ParamError("provide a refresh_token parameter")
-		return c.JSON(http.StatusBadRequest, echo.Map{
-			"error": "provide a refresh_token parameter",
-		})
+	refreshToken := m.RefreshToken
+	nsName := m.Namespace
+
+	if p := garcon.Printable(refreshToken, nsName); p >= 0 {
+		emo.ParamError("RequestAdminAccessToken: JSON contains a forbidden character at p=", p)
+		w.WriteHeader(http.StatusBadRequest)
+		return
 	}
+
+	emo.RefreshToken(nsName, refreshToken)
 
 	// get the namespace
 	_, ns, err := db.SelectNamespaceFromName(nsName)
 	if err != nil {
-		emo.Error(err)
-		log.Fatal(err)
-		return c.JSON(http.StatusInternalServerError, echo.Map{
-			"error": true,
-		})
+		emo.QueryError("RequestAdminAccessToken:", err)
+		w.WriteHeader(http.StatusInternalServerError)
+		return
 	}
 
 	emo.State("Verifying refresh token")
 	// verify the refresh token
-	var username string
 	token, err := jwt.ParseWithClaims(refreshToken, &tokens.RefreshClaims{}, func(token *jwt.Token) (any, error) {
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
 			return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
 		}
 		return []byte(ns.RefreshKey), nil
 	})
-
-	if claims, ok := token.Claims.(*tokens.RefreshClaims); ok && token.Valid {
-		username = claims.UserName
-		fmt.Printf("%v %v", claims.UserName, claims.ExpiresAt)
-	} else {
-		emo.Warning(err.Error())
-		return c.JSON(http.StatusUnauthorized, echo.Map{
-			"error": "unauthorized",
-		})
+	if err != nil {
+		emo.QueryError("RequestAdminAccessToken ParseWithClaims:", err)
+		w.WriteHeader(http.StatusInternalServerError)
+		return
 	}
+
+	if !token.Valid {
+		emo.Warning("RequestAdminAccessToken: invalid token")
+		w.WriteHeader(http.StatusUnauthorized)
+		return
+	}
+
+	claims, ok := token.Claims.(*tokens.RefreshClaims)
+	if !ok {
+		emo.Warning("RequestAdminAccessToken: cannot convert to RefreshClaims")
+		w.WriteHeader(http.StatusUnauthorized)
+		return
+	}
+
+	emo.Result("RequestAdminAccessToken: u="+claims.UserName+" expires=", claims.ExpiresAt)
 
 	// get the user
+	username := claims.UserName
 	found, u, err := db.SelectNonDisabledUser(username, ns.ID)
-	if !found {
-		emo.Warning("User not found: " + username)
-		return c.JSON(http.StatusUnauthorized, echo.Map{
-			"error": "unauthorized",
-		})
-	}
 	if err != nil {
-		log.Fatal(err)
-		return c.JSON(http.StatusInternalServerError, echo.Map{
-			"error": true,
-		})
+		emo.QueryError("RequestAdminAccessToken SelectNonDisabledUser:", err)
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+	if !found {
+		emo.Data("RequestAdminAccessToken: user not found: " + username)
+		w.WriteHeader(http.StatusUnauthorized)
+		return
 	}
 
 	// check if the user is in the admin group
 	isUserAdmin, err := db.IsUserAdmin(ns.Name, ns.ID, u.ID)
 	if err != nil {
-		return err
+		emo.QueryError("RequestAdminAccessToken IsUserAdmin:", err)
+		w.WriteHeader(http.StatusInternalServerError)
+		return
 	}
 	if !isUserAdmin {
-		emo.Warning("Admin access token request from user", u.Name, "that is not admin for namespace", ns.Name)
-		return c.JSON(http.StatusUnauthorized, echo.Map{
-			"error": "unauthorized",
-		})
+		emo.Data("RequestAdminAccessToken: Admin access token request from u="+u.Name+" is not admin for ns=", ns.Name)
+		w.WriteHeader(http.StatusUnauthorized)
+		return
 	}
 
 	_isAdmin := false
@@ -201,19 +222,15 @@ func RequestAdminAccessToken(c echo.Context) error {
 	} else {
 		_isNsAdmin = true
 	}
+
 	// generate the access token
 	t, err := tokens.GenAdminAccessToken(ns.Name, "5m", ns.MaxTokenTTL, u.Name, u.ID, ns.ID, []byte(AdminNsKey), _isAdmin, _isNsAdmin)
 	if err != nil {
-		log.Fatal(err)
-		return c.JSON(http.StatusInternalServerError, echo.Map{
-			"error": true,
-		})
+		emo.Error("RequestAdminAccessToken GenAdminAccessToken:", err)
+		w.WriteHeader(http.StatusInternalServerError)
+		return
 	}
 
-	//emo.AccessToken("Issued an admin access token for user", u.Name, "and namespace", ns.Name)
-
-	return c.JSON(http.StatusOK, echo.Map{
-		"token":     t,
-		"namespace": ns,
-	})
-}
+	emo.AccessToken("Issued an admin access token for user", u.Name, "and namespace", ns.Name)
+	gw.WriteOK(w, "token", t, "namespace", ns)
+}*/

@@ -6,7 +6,7 @@ import (
 	"net/http"
 
 	"github.com/go-chi/chi/v5"
-	"github.com/golang-jwt/jwt"
+	"github.com/golang-jwt/jwt/v4"
 
 	"github.com/teal-finance/garcon"
 	db "github.com/teal-finance/quid/quidlib/server/db"

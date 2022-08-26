@@ -6,7 +6,7 @@ in independent **Namespaces**.
 
 [JWT]: https://wikiless.org/wiki/JSON_Web_Token "JSON Web Token"
 
-![Authentication flow chart](doc/img/authentication-flow.svg)
+![Authentication flow chart](doc/img/authentication-flow.png)
 
 1. First, the user logs in with **Namespace** + **Username** + **Password**.
    The **Namespace** is usually the final application name, represented by *Application API* at the bottom of the previous diagram.

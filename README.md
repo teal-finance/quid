@@ -1,18 +1,23 @@
 # Quid &emsp; &emsp; &emsp; [![Go Reference](https://pkg.go.dev/badge/github.com/teal-finance/quid.svg "Go documentation for Quid")](https://pkg.go.dev/github.com/teal-finance/quid) [![Go Report Card](https://goreportcard.com/badge/github.com/teal-finance/quid "Go Report Card for Quid")](https://goreportcard.com/report/github.com/teal-finance/quid)
 
-Quid is a JSON Web Token (JWT) server.
+**Quid** is a [JWT] server (frontend + backend)
+to manage Administrators, Users, **Refresh Tokens** and **Access Tokens**
+in independent **Namespaces**.
+
+[JWT]: https://wikiless.org/wiki/JSON_Web_Token "JSON Web Token"
 
 ![Authentication flow chart](doc/img/authentication-flow.svg)
 
-1. First the user signs in with *Namespace* + *Username* + *Password*.
-   The *Namespace* is the name of the final application (represented on the diagram by an API logo).
-2. The client (JS code for example) receives an *Access Token* valid for the duration of the session, usually some hours.
-3. Every X minutes, the client sends the *Access Token* to get a *Refresh Token* valid usually some minutes.
-4. Finally, the client requests the application (API) with its temporary *Refresh Token*.
+1. First, the user logs in with **Namespace** + **Username** + **Password**.
+   The **Namespace** is usually the final application name, represented by *Application API* at the bottom of the previous diagram.
+2. Then, the client (e.g. JS code) receives a **Refresh Token** that is usually valid for a few hours, to avoid to log again during the working session.
+3. The client sends this **Refresh Token** to get an **Access Token** that is valid for a short time, usually a few minutes, say 10 minutes. So the client must *refresh* its **Access Token** every 10 minutes.
+4. During these 10 minutes, the client can request the *Application API* with the same **Access Token**.
+5. When the *Application API* receives a request from the client, it checks the [JWT] signature and expiration time. The **Access Token** is stateless: the *Application API* does not need to store any information about the user (the **Access Token** content is enough).
 
 ## Install
 
-Download the latest [release](https://github.com/teal-finance/quid/releases) to run a binary or clone the repository to compile from source.
+Download the latest [release](https://github.com/teal-finance/quid/releases) to run a binary or clone the repository to compile from source. See also the [Dockerfile](Dockerfile) to run **Quid** within a light container (less than 20 MB).
 
 ## Build from source
 
@@ -72,7 +77,7 @@ curl localhost:8082/token/refresh/10m          \
 Response:
 
 ```json
-{"token":"eyJhbGciOiJIUzI1NiIsInR5cCI6IzpXVCJ9..."}
+{ "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IzpXVCJ9..." }
 ```
 
 ### Access token
@@ -91,7 +96,7 @@ curl localhost:8082/token/access/10m           \
 Response:
 
 ```json
-{"token":"eyJhbGciOiJIUzI1NiIsInR5cCI6IzpXVCJ9..."}
+{ "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IzpXVCJ9..." }
 ```
 
 Note: if the requested duration exceeds the max authorized tokens time to live for the namespace the demand will be rejected
@@ -135,4 +140,4 @@ using a refresh token, and will retry the request with the new access token.
 
 ### Javascript
 
-[Quidjs](https://github.com/teal-finance/quidjs) : the javascript requests library.
+[QuidJS](https://github.com/teal-finance/quidjs) : the javascript requests library.

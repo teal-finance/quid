@@ -6,6 +6,8 @@ import (
 	"github.com/golang-jwt/jwt"
 )
 
+//go:generate go run github.com/mailru/easyjson/... -all -byte -disable_members_unescape -disallow_unknown_fields ${GOFILE}
+
 // AccessClaims is the standard claims for a user access token.
 type AccessClaims struct {
 	jwt.StandardClaims

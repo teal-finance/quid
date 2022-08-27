@@ -74,6 +74,27 @@ func GenAccessToken(timeout, maxTTL, user string, groups, orgs []string, secretK
 	return token, nil
 }
 
+// NewAccessToken creates an Access Token with the JSON fields "exp", "usr", "grp" and "org".
+func NewAccessToken(timeout, maxTTL, user string, groups, orgs []string, algo jwt.SigningMethod, secretKey any) (string, error) {
+	expiry, err := authorizedExpiry(timeout, maxTTL)
+	if err != nil {
+		return "", err
+	}
+
+	claims := newAccessClaims(user, groups, orgs, expiry)
+	t := jwt.NewWithClaims(algo, claims)
+
+	token, err := t.SignedString(secretKey)
+	if err != nil {
+		emo.EncryptError(err)
+		return "", err
+	}
+
+	emo.AccessToken("Issued AccessToken exp="+timeout+" usr="+user+" grp=", groups, "orgs=", orgs, "Algo="+algo.Alg())
+
+	return token, nil
+}
+
 // RandomHMACKey generates a random HMAC-SHA256 key.
 func RandomHMACKey() string {
 	b := genRandomBytes(32)

@@ -9,9 +9,9 @@ import (
 // AccessClaims is the standard claims for a user access token.
 type AccessClaims struct {
 	*jwt.RegisteredClaims
-	UserName string   `json:"username,omitempty"`
-	Groups   []string `json:"groups,omitempty"`
-	Orgs     []string `json:"orgs,omitempty"`
+	UserName string   `json:"usr,omitempty"`
+	Groups   []string `json:"grp,omitempty"`
+	Orgs     []string `json:"org,omitempty"`
 }
 
 type AdminAccessClaim struct {
@@ -49,7 +49,7 @@ func newAdminAccessClaims(namespaceName, username string, userID, nsID int64, ex
 // newAccessClaims creates a standard claim for a user access token.
 func newAccessClaims(username string, groups, orgs []string, expiry time.Time) AccessClaims {
 	return AccessClaims{
-		&jwt.RegisteredClaims {
+		&jwt.RegisteredClaims{
 			ExpiresAt: jwt.NewNumericDate(expiry),
 		},
 		username,

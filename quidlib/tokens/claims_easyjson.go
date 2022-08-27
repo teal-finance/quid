@@ -4,6 +4,7 @@ package tokens
 
 import (
 	json "encoding/json"
+	_v4 "github.com/golang-jwt/jwt/v4"
 	easyjson "github.com/mailru/easyjson"
 	jlexer "github.com/mailru/easyjson/jlexer"
 	jwriter "github.com/mailru/easyjson/jwriter"
@@ -26,6 +27,7 @@ func easyjsonB448b467DecodeGithubComTealFinanceQuidQuidlibTokens(in *jlexer.Lexe
 		in.Skip()
 		return
 	}
+	out.RegisteredClaims = new(_v4.RegisteredClaims)
 	in.Delim('{')
 	for !in.IsDelim('}') {
 		key := in.UnsafeFieldName(true)
@@ -40,20 +42,52 @@ func easyjsonB448b467DecodeGithubComTealFinanceQuidQuidlibTokens(in *jlexer.Lexe
 			out.Namespace = string(in.String())
 		case "username":
 			out.UserName = string(in.String())
-		case "aud":
-			out.Audience = string(in.String())
-		case "exp":
-			out.ExpiresAt = int64(in.Int64())
-		case "jti":
-			out.Id = string(in.String())
-		case "iat":
-			out.IssuedAt = int64(in.Int64())
 		case "iss":
 			out.Issuer = string(in.String())
-		case "nbf":
-			out.NotBefore = int64(in.Int64())
 		case "sub":
 			out.Subject = string(in.String())
+		case "aud":
+			if data := in.Raw(); in.Ok() {
+				in.AddError((out.Audience).UnmarshalJSON(data))
+			}
+		case "exp":
+			if in.IsNull() {
+				in.Skip()
+				out.ExpiresAt = nil
+			} else {
+				if out.ExpiresAt == nil {
+					out.ExpiresAt = new(_v4.NumericDate)
+				}
+				if data := in.Raw(); in.Ok() {
+					in.AddError((*out.ExpiresAt).UnmarshalJSON(data))
+				}
+			}
+		case "nbf":
+			if in.IsNull() {
+				in.Skip()
+				out.NotBefore = nil
+			} else {
+				if out.NotBefore == nil {
+					out.NotBefore = new(_v4.NumericDate)
+				}
+				if data := in.Raw(); in.Ok() {
+					in.AddError((*out.NotBefore).UnmarshalJSON(data))
+				}
+			}
+		case "iat":
+			if in.IsNull() {
+				in.Skip()
+				out.IssuedAt = nil
+			} else {
+				if out.IssuedAt == nil {
+					out.IssuedAt = new(_v4.NumericDate)
+				}
+				if data := in.Raw(); in.Ok() {
+					in.AddError((*out.IssuedAt).UnmarshalJSON(data))
+				}
+			}
+		case "jti":
+			out.ID = string(in.String())
 		default:
 			in.AddError(&jlexer.LexerError{
 				Offset: in.GetPos(),
@@ -88,46 +122,6 @@ func easyjsonB448b467EncodeGithubComTealFinanceQuidQuidlibTokens(out *jwriter.Wr
 		}
 		out.String(string(in.UserName))
 	}
-	if in.Audience != "" {
-		const prefix string = ",\"aud\":"
-		if first {
-			first = false
-			out.RawString(prefix[1:])
-		} else {
-			out.RawString(prefix)
-		}
-		out.String(string(in.Audience))
-	}
-	if in.ExpiresAt != 0 {
-		const prefix string = ",\"exp\":"
-		if first {
-			first = false
-			out.RawString(prefix[1:])
-		} else {
-			out.RawString(prefix)
-		}
-		out.Int64(int64(in.ExpiresAt))
-	}
-	if in.Id != "" {
-		const prefix string = ",\"jti\":"
-		if first {
-			first = false
-			out.RawString(prefix[1:])
-		} else {
-			out.RawString(prefix)
-		}
-		out.String(string(in.Id))
-	}
-	if in.IssuedAt != 0 {
-		const prefix string = ",\"iat\":"
-		if first {
-			first = false
-			out.RawString(prefix[1:])
-		} else {
-			out.RawString(prefix)
-		}
-		out.Int64(int64(in.IssuedAt))
-	}
 	if in.Issuer != "" {
 		const prefix string = ",\"iss\":"
 		if first {
@@ -138,16 +132,6 @@ func easyjsonB448b467EncodeGithubComTealFinanceQuidQuidlibTokens(out *jwriter.Wr
 		}
 		out.String(string(in.Issuer))
 	}
-	if in.NotBefore != 0 {
-		const prefix string = ",\"nbf\":"
-		if first {
-			first = false
-			out.RawString(prefix[1:])
-		} else {
-			out.RawString(prefix)
-		}
-		out.Int64(int64(in.NotBefore))
-	}
 	if in.Subject != "" {
 		const prefix string = ",\"sub\":"
 		if first {
@@ -157,6 +141,56 @@ func easyjsonB448b467EncodeGithubComTealFinanceQuidQuidlibTokens(out *jwriter.Wr
 			out.RawString(prefix)
 		}
 		out.String(string(in.Subject))
+	}
+	if len(in.Audience) != 0 {
+		const prefix string = ",\"aud\":"
+		if first {
+			first = false
+			out.RawString(prefix[1:])
+		} else {
+			out.RawString(prefix)
+		}
+		out.Raw((in.Audience).MarshalJSON())
+	}
+	if in.ExpiresAt != nil {
+		const prefix string = ",\"exp\":"
+		if first {
+			first = false
+			out.RawString(prefix[1:])
+		} else {
+			out.RawString(prefix)
+		}
+		out.Raw((*in.ExpiresAt).MarshalJSON())
+	}
+	if in.NotBefore != nil {
+		const prefix string = ",\"nbf\":"
+		if first {
+			first = false
+			out.RawString(prefix[1:])
+		} else {
+			out.RawString(prefix)
+		}
+		out.Raw((*in.NotBefore).MarshalJSON())
+	}
+	if in.IssuedAt != nil {
+		const prefix string = ",\"iat\":"
+		if first {
+			first = false
+			out.RawString(prefix[1:])
+		} else {
+			out.RawString(prefix)
+		}
+		out.Raw((*in.IssuedAt).MarshalJSON())
+	}
+	if in.ID != "" {
+		const prefix string = ",\"jti\":"
+		if first {
+			first = false
+			out.RawString(prefix[1:])
+		} else {
+			out.RawString(prefix)
+		}
+		out.String(string(in.ID))
 	}
 	out.RawByte('}')
 }
@@ -193,6 +227,7 @@ func easyjsonB448b467DecodeGithubComTealFinanceQuidQuidlibTokens1(in *jlexer.Lex
 		in.Skip()
 		return
 	}
+	out.RegisteredClaims = new(_v4.RegisteredClaims)
 	in.Delim('{')
 	for !in.IsDelim('}') {
 		key := in.UnsafeFieldName(true)
@@ -215,20 +250,52 @@ func easyjsonB448b467DecodeGithubComTealFinanceQuidQuidlibTokens1(in *jlexer.Lex
 			out.IsAdmin = bool(in.Bool())
 		case "is_ns_admin":
 			out.IsNsAdmin = bool(in.Bool())
-		case "aud":
-			out.Audience = string(in.String())
-		case "exp":
-			out.ExpiresAt = int64(in.Int64())
-		case "jti":
-			out.Id = string(in.String())
-		case "iat":
-			out.IssuedAt = int64(in.Int64())
 		case "iss":
 			out.Issuer = string(in.String())
-		case "nbf":
-			out.NotBefore = int64(in.Int64())
 		case "sub":
 			out.Subject = string(in.String())
+		case "aud":
+			if data := in.Raw(); in.Ok() {
+				in.AddError((out.Audience).UnmarshalJSON(data))
+			}
+		case "exp":
+			if in.IsNull() {
+				in.Skip()
+				out.ExpiresAt = nil
+			} else {
+				if out.ExpiresAt == nil {
+					out.ExpiresAt = new(_v4.NumericDate)
+				}
+				if data := in.Raw(); in.Ok() {
+					in.AddError((*out.ExpiresAt).UnmarshalJSON(data))
+				}
+			}
+		case "nbf":
+			if in.IsNull() {
+				in.Skip()
+				out.NotBefore = nil
+			} else {
+				if out.NotBefore == nil {
+					out.NotBefore = new(_v4.NumericDate)
+				}
+				if data := in.Raw(); in.Ok() {
+					in.AddError((*out.NotBefore).UnmarshalJSON(data))
+				}
+			}
+		case "iat":
+			if in.IsNull() {
+				in.Skip()
+				out.IssuedAt = nil
+			} else {
+				if out.IssuedAt == nil {
+					out.IssuedAt = new(_v4.NumericDate)
+				}
+				if data := in.Raw(); in.Ok() {
+					in.AddError((*out.IssuedAt).UnmarshalJSON(data))
+				}
+			}
+		case "jti":
+			out.ID = string(in.String())
 		default:
 			in.AddError(&jlexer.LexerError{
 				Offset: in.GetPos(),
@@ -298,40 +365,40 @@ func easyjsonB448b467EncodeGithubComTealFinanceQuidQuidlibTokens1(out *jwriter.W
 		out.RawString(prefix)
 		out.Bool(bool(in.IsNsAdmin))
 	}
-	if in.Audience != "" {
-		const prefix string = ",\"aud\":"
-		out.RawString(prefix)
-		out.String(string(in.Audience))
-	}
-	if in.ExpiresAt != 0 {
-		const prefix string = ",\"exp\":"
-		out.RawString(prefix)
-		out.Int64(int64(in.ExpiresAt))
-	}
-	if in.Id != "" {
-		const prefix string = ",\"jti\":"
-		out.RawString(prefix)
-		out.String(string(in.Id))
-	}
-	if in.IssuedAt != 0 {
-		const prefix string = ",\"iat\":"
-		out.RawString(prefix)
-		out.Int64(int64(in.IssuedAt))
-	}
 	if in.Issuer != "" {
 		const prefix string = ",\"iss\":"
 		out.RawString(prefix)
 		out.String(string(in.Issuer))
 	}
-	if in.NotBefore != 0 {
-		const prefix string = ",\"nbf\":"
-		out.RawString(prefix)
-		out.Int64(int64(in.NotBefore))
-	}
 	if in.Subject != "" {
 		const prefix string = ",\"sub\":"
 		out.RawString(prefix)
 		out.String(string(in.Subject))
+	}
+	if len(in.Audience) != 0 {
+		const prefix string = ",\"aud\":"
+		out.RawString(prefix)
+		out.Raw((in.Audience).MarshalJSON())
+	}
+	if in.ExpiresAt != nil {
+		const prefix string = ",\"exp\":"
+		out.RawString(prefix)
+		out.Raw((*in.ExpiresAt).MarshalJSON())
+	}
+	if in.NotBefore != nil {
+		const prefix string = ",\"nbf\":"
+		out.RawString(prefix)
+		out.Raw((*in.NotBefore).MarshalJSON())
+	}
+	if in.IssuedAt != nil {
+		const prefix string = ",\"iat\":"
+		out.RawString(prefix)
+		out.Raw((*in.IssuedAt).MarshalJSON())
+	}
+	if in.ID != "" {
+		const prefix string = ",\"jti\":"
+		out.RawString(prefix)
+		out.String(string(in.ID))
 	}
 	out.RawByte('}')
 }
@@ -368,6 +435,7 @@ func easyjsonB448b467DecodeGithubComTealFinanceQuidQuidlibTokens2(in *jlexer.Lex
 		in.Skip()
 		return
 	}
+	out.RegisteredClaims = new(_v4.RegisteredClaims)
 	in.Delim('{')
 	for !in.IsDelim('}') {
 		key := in.UnsafeFieldName(true)
@@ -378,9 +446,9 @@ func easyjsonB448b467DecodeGithubComTealFinanceQuidQuidlibTokens2(in *jlexer.Lex
 			continue
 		}
 		switch key {
-		case "username":
+		case "usr":
 			out.UserName = string(in.String())
-		case "groups":
+		case "grp":
 			if in.IsNull() {
 				in.Skip()
 				out.Groups = nil
@@ -403,7 +471,7 @@ func easyjsonB448b467DecodeGithubComTealFinanceQuidQuidlibTokens2(in *jlexer.Lex
 				}
 				in.Delim(']')
 			}
-		case "orgs":
+		case "org":
 			if in.IsNull() {
 				in.Skip()
 				out.Orgs = nil
@@ -426,20 +494,52 @@ func easyjsonB448b467DecodeGithubComTealFinanceQuidQuidlibTokens2(in *jlexer.Lex
 				}
 				in.Delim(']')
 			}
-		case "aud":
-			out.Audience = string(in.String())
-		case "exp":
-			out.ExpiresAt = int64(in.Int64())
-		case "jti":
-			out.Id = string(in.String())
-		case "iat":
-			out.IssuedAt = int64(in.Int64())
 		case "iss":
 			out.Issuer = string(in.String())
-		case "nbf":
-			out.NotBefore = int64(in.Int64())
 		case "sub":
 			out.Subject = string(in.String())
+		case "aud":
+			if data := in.Raw(); in.Ok() {
+				in.AddError((out.Audience).UnmarshalJSON(data))
+			}
+		case "exp":
+			if in.IsNull() {
+				in.Skip()
+				out.ExpiresAt = nil
+			} else {
+				if out.ExpiresAt == nil {
+					out.ExpiresAt = new(_v4.NumericDate)
+				}
+				if data := in.Raw(); in.Ok() {
+					in.AddError((*out.ExpiresAt).UnmarshalJSON(data))
+				}
+			}
+		case "nbf":
+			if in.IsNull() {
+				in.Skip()
+				out.NotBefore = nil
+			} else {
+				if out.NotBefore == nil {
+					out.NotBefore = new(_v4.NumericDate)
+				}
+				if data := in.Raw(); in.Ok() {
+					in.AddError((*out.NotBefore).UnmarshalJSON(data))
+				}
+			}
+		case "iat":
+			if in.IsNull() {
+				in.Skip()
+				out.IssuedAt = nil
+			} else {
+				if out.IssuedAt == nil {
+					out.IssuedAt = new(_v4.NumericDate)
+				}
+				if data := in.Raw(); in.Ok() {
+					in.AddError((*out.IssuedAt).UnmarshalJSON(data))
+				}
+			}
+		case "jti":
+			out.ID = string(in.String())
 		default:
 			in.AddError(&jlexer.LexerError{
 				Offset: in.GetPos(),
@@ -459,13 +559,13 @@ func easyjsonB448b467EncodeGithubComTealFinanceQuidQuidlibTokens2(out *jwriter.W
 	first := true
 	_ = first
 	if in.UserName != "" {
-		const prefix string = ",\"username\":"
+		const prefix string = ",\"usr\":"
 		first = false
 		out.RawString(prefix[1:])
 		out.String(string(in.UserName))
 	}
 	if len(in.Groups) != 0 {
-		const prefix string = ",\"groups\":"
+		const prefix string = ",\"grp\":"
 		if first {
 			first = false
 			out.RawString(prefix[1:])
@@ -484,7 +584,7 @@ func easyjsonB448b467EncodeGithubComTealFinanceQuidQuidlibTokens2(out *jwriter.W
 		}
 	}
 	if len(in.Orgs) != 0 {
-		const prefix string = ",\"orgs\":"
+		const prefix string = ",\"org\":"
 		if first {
 			first = false
 			out.RawString(prefix[1:])
@@ -502,46 +602,6 @@ func easyjsonB448b467EncodeGithubComTealFinanceQuidQuidlibTokens2(out *jwriter.W
 			out.RawByte(']')
 		}
 	}
-	if in.Audience != "" {
-		const prefix string = ",\"aud\":"
-		if first {
-			first = false
-			out.RawString(prefix[1:])
-		} else {
-			out.RawString(prefix)
-		}
-		out.String(string(in.Audience))
-	}
-	if in.ExpiresAt != 0 {
-		const prefix string = ",\"exp\":"
-		if first {
-			first = false
-			out.RawString(prefix[1:])
-		} else {
-			out.RawString(prefix)
-		}
-		out.Int64(int64(in.ExpiresAt))
-	}
-	if in.Id != "" {
-		const prefix string = ",\"jti\":"
-		if first {
-			first = false
-			out.RawString(prefix[1:])
-		} else {
-			out.RawString(prefix)
-		}
-		out.String(string(in.Id))
-	}
-	if in.IssuedAt != 0 {
-		const prefix string = ",\"iat\":"
-		if first {
-			first = false
-			out.RawString(prefix[1:])
-		} else {
-			out.RawString(prefix)
-		}
-		out.Int64(int64(in.IssuedAt))
-	}
 	if in.Issuer != "" {
 		const prefix string = ",\"iss\":"
 		if first {
@@ -552,16 +612,6 @@ func easyjsonB448b467EncodeGithubComTealFinanceQuidQuidlibTokens2(out *jwriter.W
 		}
 		out.String(string(in.Issuer))
 	}
-	if in.NotBefore != 0 {
-		const prefix string = ",\"nbf\":"
-		if first {
-			first = false
-			out.RawString(prefix[1:])
-		} else {
-			out.RawString(prefix)
-		}
-		out.Int64(int64(in.NotBefore))
-	}
 	if in.Subject != "" {
 		const prefix string = ",\"sub\":"
 		if first {
@@ -571,6 +621,56 @@ func easyjsonB448b467EncodeGithubComTealFinanceQuidQuidlibTokens2(out *jwriter.W
 			out.RawString(prefix)
 		}
 		out.String(string(in.Subject))
+	}
+	if len(in.Audience) != 0 {
+		const prefix string = ",\"aud\":"
+		if first {
+			first = false
+			out.RawString(prefix[1:])
+		} else {
+			out.RawString(prefix)
+		}
+		out.Raw((in.Audience).MarshalJSON())
+	}
+	if in.ExpiresAt != nil {
+		const prefix string = ",\"exp\":"
+		if first {
+			first = false
+			out.RawString(prefix[1:])
+		} else {
+			out.RawString(prefix)
+		}
+		out.Raw((*in.ExpiresAt).MarshalJSON())
+	}
+	if in.NotBefore != nil {
+		const prefix string = ",\"nbf\":"
+		if first {
+			first = false
+			out.RawString(prefix[1:])
+		} else {
+			out.RawString(prefix)
+		}
+		out.Raw((*in.NotBefore).MarshalJSON())
+	}
+	if in.IssuedAt != nil {
+		const prefix string = ",\"iat\":"
+		if first {
+			first = false
+			out.RawString(prefix[1:])
+		} else {
+			out.RawString(prefix)
+		}
+		out.Raw((*in.IssuedAt).MarshalJSON())
+	}
+	if in.ID != "" {
+		const prefix string = ",\"jti\":"
+		if first {
+			first = false
+			out.RawString(prefix[1:])
+		} else {
+			out.RawString(prefix)
+		}
+		out.String(string(in.ID))
 	}
 	out.RawByte('}')
 }

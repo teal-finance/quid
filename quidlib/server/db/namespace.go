@@ -14,14 +14,13 @@ import (
 
 // SelectAllNamespaces : get the namespaces.
 func SelectAllNamespaces() ([]server.Namespace, error) {
-	res := []server.Namespace{}
-
-	data := []namespace{}
+	var data []namespace
 	err := db.Select(&data, "SELECT id,name,max_token_ttl,max_refresh_token_ttl,public_endpoint_enabled FROM namespace ORDER BY name")
 	if err != nil {
-		return res, err
+		return nil, err
 	}
 
+	res := make([]server.Namespace, 0, len(data))
 	for _, u := range data {
 		res = append(res, server.Namespace{
 			ID:                    u.ID,
@@ -39,14 +38,13 @@ func SelectAllNamespaces() ([]server.Namespace, error) {
 
 // SelectNamespaceStartsWith : get a namespace.
 func SelectNamespaceStartsWith(name string) ([]server.Namespace, error) {
-	res := []server.Namespace{}
-
-	data := []namespace{}
+	var data []namespace
 	err := db.Select(&data, "SELECT id,name FROM namespace WHERE name LIKE '"+name+"%'")
 	if err != nil {
-		return res, err
+		return nil, err
 	}
 
+	res := make([]server.Namespace, 0, len(data))
 	for _, u := range data {
 		res = append(res, server.Namespace{
 			ID:   u.ID,
@@ -63,11 +61,11 @@ func SelectNamespaceFromName(name string) (bool, server.Namespace, error) {
 		" FROM namespace WHERE name=$1"
 	// emo.Query(q, name)
 
-	ns := server.Namespace{}
+	var ns server.Namespace
 
 	row := db.QueryRowx(q, name)
 
-	data := namespace{}
+	var data namespace
 	err := row.StructScan(&data)
 	if err != nil {
 		emo.Error(err)
@@ -104,7 +102,7 @@ func SelectNamespaceFromName(name string) (bool, server.Namespace, error) {
 func SelectNamespaceKey(id int64) (bool, string, error) {
 	row := db.QueryRowx("SELECT key FROM namespace WHERE id=$1", id)
 
-	data := namespace{}
+	var data namespace
 	if err := row.StructScan(&data); err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			return false, "", nil
@@ -126,7 +124,7 @@ func SelectNamespaceKey(id int64) (bool, string, error) {
 /*
 // SelectNamespaceKeys : get the refresh key for a namespace
 func SelectNamespaceKeys(name string) (bool, string, string, error) {
-	data := namespace{}
+	var data namespace
 	row := db.QueryRowx("SELECT key,refresh_key FROM namespace WHERE name=$1", name)
 	err := row.StructScan(&data)
 	if err != nil {
@@ -152,7 +150,7 @@ func SelectNamespaceKeys(name string) (bool, string, string, error) {
 
 // SelectNamespaceID : get a namespace.
 func SelectNamespaceID(name string) (int64, error) {
-	data := []namespace{}
+	var data []namespace
 	err := db.Select(&data, "SELECT id,name FROM namespace WHERE name=$1", name)
 	if err != nil {
 		return 0, err

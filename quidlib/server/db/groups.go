@@ -16,7 +16,7 @@ func SelectAllGroups() ([]server.Group, error) {
 		" JOIN namespace ON grouptable.namespace_id = namespace.id" +
 		" ORDER BY grouptable.name"
 
-	data := []server.Group{}
+	var data []server.Group
 	err := db.Select(&data, q)
 	return data, err
 }
@@ -28,7 +28,7 @@ func SelectGroupsForUser(userID int64) ([]server.Group, error) {
 		" JOIN grouptable ON usergroup.group_id = grouptable.id" +
 		" WHERE usergroup.user_id=$1 ORDER BY grouptable.name"
 
-	data := []server.Group{}
+	var data []server.Group
 	err := db.Select(&data, q, userID)
 	return data, err
 }
@@ -39,7 +39,7 @@ func SelectGroupsNamesForUser(userID int64) ([]string, error) {
 		" JOIN grouptable ON usergroup.group_id = grouptable.id" +
 		" WHERE usergroup.user_id=$1 ORDER BY grouptable.name"
 
-	data := []userGroupName{}
+	var data []userGroupName
 	err := db.Select(&data, q, userID)
 	if err != nil {
 		return nil, err
@@ -60,14 +60,14 @@ func SelectGroupsForNamespace(namespaceID int64) ([]server.Group, error) {
 		" JOIN namespace ON grouptable.namespace_id = namespace.id" +
 		" WHERE grouptable.namespace_id=$1 ORDER BY grouptable.name"
 
-	data := []server.Group{}
+	var data []server.Group
 	err := db.Select(&data, q, namespaceID)
 	return data, err
 }
 
 // SelectGroup : get a group.
 func SelectGroup(name string, namespaceID int64) (server.Group, error) {
-	data := []server.Group{}
+	var data []server.Group
 	err := db.Select(&data, "SELECT id,name FROM grouptable WHERE(name=$1 AND namespace_id=$2)", name, namespaceID)
 
 	if len(data) == 0 {

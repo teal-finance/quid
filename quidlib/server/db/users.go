@@ -15,7 +15,7 @@ import (
 // SelectNonDisabledUserID : get a user id from it's username.
 func SelectNonDisabledUserID(username string) (bool, int64, error) {
 	row := db.QueryRowx("SELECT id,username,password,is_disabled FROM usertable WHERE(username=$1)", username)
-	u := user{}
+	var u user
 	err := row.StructScan(&u)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
@@ -34,11 +34,11 @@ func SelectNonDisabledUserID(username string) (bool, int64, error) {
 
 // SelectNonDisabledUser : get a user from it's username.
 func SelectNonDisabledUser(username string, namespaceID int64) (bool, server.User, error) {
-	ux := server.User{}
+	var ux server.User
 
 	row := db.QueryRowx("SELECT id,username,password,is_disabled FROM usertable WHERE(username=$1 AND namespace_id=$2)", username, namespaceID)
 
-	u := user{}
+	var u user
 	err := row.StructScan(&u)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
@@ -64,17 +64,16 @@ func SelectNonDisabledUser(username string, namespaceID int64) (bool, server.Use
 
 // SelectAllUsers : get the users.
 func SelectAllUsers() ([]server.User, error) {
-	users := []server.User{}
-
-	data := []user{}
+	var data []user
 	err := db.Select(&data,
 		"SELECT usertable.id,usertable.username,namespace.name as namespace FROM usertable "+
 			"JOIN namespace ON usertable.namespace_id = namespace.id "+
 			"ORDER BY usertable.username")
 	if err != nil {
-		return users, err
+		return nil, err
 	}
 
+	users := make([]server.User, 0, len(data))
 	for _, u := range data {
 		users = append(users, server.User{
 			ID:           u.ID,
@@ -90,17 +89,16 @@ func SelectAllUsers() ([]server.User, error) {
 
 // SelectUsersInNamespace : get the users in a namespace.
 func SelectUsersInNamespace(namespaceID int64) ([]server.User, error) {
-	users := []server.User{}
-
-	data := []user{}
+	var data []user
 	err := db.Select(&data,
 		"SELECT usertable.id,usertable.username,namespace.name as namespace FROM usertable "+
 			"JOIN namespace ON usertable.namespace_id = namespace.id  "+
 			"WHERE usertable.namespace_id=$1 ORDER BY usertable.username", namespaceID)
 	if err != nil {
-		return users, err
+		return nil, err
 	}
 
+	users := make([]server.User, 0, len(data))
 	for _, u := range data {
 		users = append(users, server.User{
 			ID:        u.ID,
@@ -115,9 +113,8 @@ func SelectUsersInNamespace(namespaceID int64) ([]server.User, error) {
 // SearchUsersInNamespaceFromUsername : get the users in a namespace from a username.
 // TODO FIXME TOFIX
 /*func SearchUsersInNamespaceFromUsername(username string, namespaceID int64) ([]server.User, error) {
-	data := []server.User{}
+	var data []server.User
 	err := db.Select(&data, "SELECT id,username FROM usertable WHERE(username LIKE $1 AND namespace_id=$2)", username+"%", namespaceID)
-
 	return data, err
 }*/
 
@@ -126,7 +123,7 @@ func SelectUsersInGroup(username string, namespaceID int64) (server.Group, error
 	q := "SELECT id,username FROM grouptable" +
 		" WHERE(username=$1 AND namespace_id=$2)"
 
-	data := []server.Group{}
+	var data []server.Group
 	err := db.Select(&data, q, username, namespaceID)
 	if err != nil {
 		return server.Group{}, err
@@ -137,7 +134,7 @@ func SelectUsersInGroup(username string, namespaceID int64) (server.Group, error
 
 // CreateUser : create a user.
 func CreateUser(username, password string, namespaceID int64) (server.User, error) {
-	user := server.User{}
+	var user server.User
 
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
 	if err != nil {
@@ -181,11 +178,11 @@ func CreateUserFromNameAndPassword(username, passwordHash string, namespaceID in
 /*
 // SelectGroupsForUser : get the groups for a user in a namespace
 func SelectGroupsForUser(userID int64) ([]server.Group, error) {
-	data := []group{}
+	var data []group
 	err := db.Select(&data, "SELECT grouptable.id,grouptable.name FROM usergroup "+
 		"JOIN grouptable ON usergroup.group_id = grouptable.id WHERE usergroup.user_id=$1 ORDER BY grouptable.name",
 		userID)
-	gr := []server.Group{}
+	var gr []server.Group
 	if err != nil {
 		return gr, err
 	}

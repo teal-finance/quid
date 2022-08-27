@@ -46,11 +46,11 @@ type User struct {
 
 // GroupNames : get the user group names.
 func (user User) GroupNames() []string {
-	u := []string{}
+	names := make([]string, 0, len(user.Groups))
 	for _, g := range user.Groups {
-		u = append(u, g.Name)
+		names = append(names, g.Name)
 	}
-	return u
+	return names
 }
 
 // Group : base model.

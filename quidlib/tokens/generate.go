@@ -14,24 +14,12 @@ import (
 
 // GenRefreshToken generates a refresh token for a user in a namespace.
 func GenRefreshToken(timeout, maxTTL, namespace, user string, secretKey []byte) (string, error) {
-	isAuthorized, err := isTimeoutAuthorized(timeout, maxTTL)
+	expiry, err := authorizedExpiry(timeout, maxTTL)
 	if err != nil {
-		emo.ParamError(err)
 		return "", err
 	}
 
-	if !isAuthorized {
-		emo.ParamError("Unauthorized timeout", timeout)
-		return "", nil
-	}
-
-	to, err := tparse.ParseNow(time.RFC3339, "now+"+timeout)
-	if err != nil {
-		emo.ParamError(err)
-		return "", err
-	}
-
-	claims := newRefreshClaims(namespace, user, to.UTC())
+	claims := newRefreshClaims(namespace, user, expiry)
 	t := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 
 	token, err := t.SignedString(secretKey)
@@ -46,24 +34,12 @@ func GenRefreshToken(timeout, maxTTL, namespace, user string, secretKey []byte) 
 
 // GenAdminAccessToken generates an admin access token for a user.
 func GenAdminAccessToken(namespaceName, timeout, maxTTL, userName string, userId, nsId int64, secretKey []byte, isAdmin, isNsAdmin bool) (string, error) {
-	isAuthorized, err := isTimeoutAuthorized(timeout, maxTTL)
+	expiry, err := authorizedExpiry(timeout, maxTTL)
 	if err != nil {
-		emo.ParamError(err)
 		return "", err
 	}
 
-	if !isAuthorized {
-		emo.ParamError("Unauthorized timeout", timeout)
-		return "", nil
-	}
-
-	to, err := tparse.ParseNow(time.RFC3339, "now+"+timeout)
-	if err != nil {
-		emo.ParamError(err)
-		return "", err
-	}
-
-	claims := newAdminAccessClaims(namespaceName, userName, userId, nsId, to.UTC(), isAdmin, isNsAdmin)
+	claims := newAdminAccessClaims(namespaceName, userName, userId, nsId, expiry, isAdmin, isNsAdmin)
 	t := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 
 	token, err := t.SignedString(secretKey)
@@ -78,24 +54,12 @@ func GenAdminAccessToken(namespaceName, timeout, maxTTL, userName string, userId
 
 // GenAccessToken generates an access token for a user.
 func GenAccessToken(timeout, maxTTL, user string, groups, orgs []string, secretKey []byte) (string, error) {
-	isAuthorized, err := isTimeoutAuthorized(timeout, maxTTL)
+	expiry, err := authorizedExpiry(timeout, maxTTL)
 	if err != nil {
-		emo.ParamError(err)
 		return "", err
 	}
 
-	if !isAuthorized {
-		emo.ParamError("Unauthorized timeout", timeout)
-		return "", nil
-	}
-
-	to, err := tparse.ParseNow(time.RFC3339, "now+"+timeout)
-	if err != nil {
-		emo.ParamError(err)
-		return "", err
-	}
-
-	claims := newAccessClaims(user, groups, orgs, to.UTC())
+	claims := newAccessClaims(user, groups, orgs, expiry)
 	t := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 
 	token, err := t.SignedString(secretKey)
@@ -126,16 +90,31 @@ func genRandomBytes(n int) []byte {
 	return b
 }
 
-func isTimeoutAuthorized(timeout, maxTTL string) (bool, error) {
+// TODO: this may be optimize by reusing "t" and "max" in the "expiry" computing.
+func authorizedExpiry(timeout, maxTTL string) (time.Time, error) {
 	t, err := tparse.AddDuration(time.Now(), timeout)
 	if err != nil {
-		return false, err
+		emo.ParamError(err)
+		return time.Time{}, err
 	}
 
 	max, err := tparse.AddDuration(time.Now().Add(time.Second), maxTTL)
 	if err != nil {
-		return false, err
+		emo.ParamError(err)
+		return time.Time{}, err
 	}
 
-	return t.Before(max), nil
+	isAuthorized := t.Before(max)
+	if !isAuthorized {
+		emo.ParamError("Unauthorized timeout", timeout)
+		return time.Time{}, nil
+	}
+
+	expiry, err := tparse.ParseNow(time.RFC3339, "now+"+timeout)
+	if err != nil {
+		emo.ParamError(err)
+		return time.Time{}, err
+	}
+
+	return expiry.UTC(), nil
 }

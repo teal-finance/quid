@@ -232,8 +232,8 @@ func CreateNamespace(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	key := tokens.GenKey()
-	refreshKey := tokens.GenKey()
+	key := tokens.RandomHMACKey()
+	refreshKey := tokens.RandomHMACKey()
 
 	nsID, exists, err := createNamespace(name, key, refreshKey, maxTTL, refreshMaxTTL, enableEndpoint)
 	if err != nil {

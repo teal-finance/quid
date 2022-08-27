@@ -74,8 +74,8 @@ func GenAccessToken(timeout, maxTTL, user string, groups, orgs []string, secretK
 	return token, nil
 }
 
-// GenKey generates a random hmac key.
-func GenKey() string {
+// RandomHMACKey generates a random HMAC-SHA256 key.
+func RandomHMACKey() string {
 	b := genRandomBytes(32)
 	h := hmac.New(sha256.New, b)
 	return hex.EncodeToString(h.Sum(nil))

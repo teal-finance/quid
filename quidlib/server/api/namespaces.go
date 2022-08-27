@@ -230,16 +230,26 @@ func CreateNamespace(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	key := tokens.RandomHMACKey()
-	refreshKey := tokens.RandomHMACKey()
+	algo := m.Algo
+	if algo == "" {
+		algo = "HS256"
+	}
 
-	nsID, exists, err := createNamespace(name, key, refreshKey, maxTTL, refreshMaxTTL, enableEndpoint)
+	var accessKey, refreshKey string
+	if algo == "HS256" {
+		accessKey = tokens.RandomHMACKey()
+		refreshKey = tokens.RandomHMACKey()
+	} else {
+		emo.Error("unsupported signing algo=" + algo)
+	}
+
+	nsID, exists, err := createNamespace(name, algo, accessKey, refreshKey, maxTTL, refreshMaxTTL, enableEndpoint)
 	if err != nil {
-		gw.WriteErr(w, r, http.StatusInternalServerError, "error creating namespace")
+		gw.WriteErr(w, r, http.StatusInternalServerError, "error creating namespace", "namespace", name)
 		return
 	}
 	if exists {
-		gw.WriteErr(w, r, http.StatusConflict, "namespace already exists")
+		gw.WriteErr(w, r, http.StatusConflict, "namespace already exists", "namespace", name)
 		return
 	}
 
@@ -247,7 +257,7 @@ func CreateNamespace(w http.ResponseWriter, r *http.Request) {
 }
 
 // createNamespace : create a namespace.
-func createNamespace(name, key, refreshKey, ttl, refreshMaxTTL string, endpoint bool) (int64, bool, error) {
+func createNamespace(name, algo, accessKey, refreshKey, ttl, refreshMaxTTL string, endpoint bool) (int64, bool, error) {
 	exists, err := db.NamespaceExists(name)
 	if err != nil {
 		emo.QueryError("createNamespace NamespaceExists:", err)
@@ -258,7 +268,7 @@ func createNamespace(name, key, refreshKey, ttl, refreshMaxTTL string, endpoint 
 		return 0, true, nil
 	}
 
-	nsID, err := db.CreateNamespace(name, key, refreshKey, ttl, refreshMaxTTL, endpoint)
+	nsID, err := db.CreateNamespace(name, algo, accessKey, refreshKey, ttl, refreshMaxTTL, endpoint)
 	if err != nil {
 		emo.QueryError("createNamespace:", err)
 		return 0, false, err

@@ -5,7 +5,8 @@ package server
 // Namespace : base model.
 type Namespace struct {
 	Name                  string `json:"name"`
-	AccessKey             string `db:"key" json:"-"`
+	SigningAlgo           string `db:"algo" json:"-"`
+	AccessKey             string `db:"access_key" json:"-"`
 	RefreshKey            string `db:"refresh_key" json:"-"`
 	MaxTokenTTL           string `db:"max_token_ttl" json:"max_token_ttl"`
 	MaxRefreshTokenTTL    string `db:"max_refresh_token_ttl" json:"max_refresh_token_ttl"`

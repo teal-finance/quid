@@ -23,13 +23,14 @@ func SelectAllNamespaces() ([]server.Namespace, error) {
 	res := make([]server.Namespace, 0, len(data))
 	for _, u := range data {
 		res = append(res, server.Namespace{
-			ID:                    u.ID,
 			Name:                  u.Name,
-			MaxTokenTTL:           u.MaxTokenTTL,
-			MaxRefreshTokenTTL:    u.MaxRefreshTokenTTL,
-			PublicEndpointEnabled: u.PublicEndpointEnabled,
+			SigningAlgo:           "",
 			AccessKey:             "",
 			RefreshKey:            "",
+			MaxTokenTTL:           u.MaxTokenTTL,
+			MaxRefreshTokenTTL:    u.MaxRefreshTokenTTL,
+			ID:                    u.ID,
+			PublicEndpointEnabled: u.PublicEndpointEnabled,
 		})
 	}
 
@@ -57,9 +58,8 @@ func SelectNamespaceStartsWith(name string) ([]server.Namespace, error) {
 
 // SelectNamespaceFromName : get a namespace.
 func SelectNamespaceFromName(name string) (bool, server.Namespace, error) {
-	q := "SELECT id,name,key,refresh_key,max_token_ttl,max_refresh_token_ttl,public_endpoint_enabled" +
+	q := "SELECT id,name,algo,access_key,refresh_key,max_token_ttl,max_refresh_token_ttl,public_endpoint_enabled" +
 		" FROM namespace WHERE name=$1"
-	// emo.Query(q, name)
 
 	var ns server.Namespace
 
@@ -75,23 +75,28 @@ func SelectNamespaceFromName(name string) (bool, server.Namespace, error) {
 		return true, ns, err
 	}
 
-	ns.AccessKey, err = crypt.AesGcmDecrypt(data.AccessKey, nil)
+	accessKey, err := crypt.AesGcmDecrypt(data.AccessKey, nil)
 	if err != nil {
 		emo.DecryptError(err)
 		return true, ns, err
 	}
 
-	ns.RefreshKey, err = crypt.AesGcmDecrypt(data.RefreshKey, nil)
+	refreshKey, err := crypt.AesGcmDecrypt(data.RefreshKey, nil)
 	if err != nil {
 		emo.DecryptError(err)
 		return true, ns, err
 	}
 
-	ns.ID = data.ID
-	ns.Name = data.Name
-	ns.MaxTokenTTL = data.MaxTokenTTL
-	ns.MaxRefreshTokenTTL = data.MaxRefreshTokenTTL
-	ns.PublicEndpointEnabled = data.PublicEndpointEnabled
+	ns = server.Namespace{
+		Name:                  data.Name,
+		SigningAlgo:           "HS256",
+		AccessKey:             accessKey,
+		RefreshKey:            refreshKey,
+		MaxTokenTTL:           data.MaxTokenTTL,
+		MaxRefreshTokenTTL:    data.MaxRefreshTokenTTL,
+		ID:                    data.ID,
+		PublicEndpointEnabled: data.PublicEndpointEnabled,
+	}
 
 	return true, ns, nil
 }
@@ -119,33 +124,6 @@ func SelectNamespaceAccessKey(id int64) (bool, string, error) {
 	return true, key, nil
 }
 
-/*
-// SelectNamespaceKeys : get the refresh and access keys for a namespace
-func SelectNamespaceKeys(name string) (bool, string, string, error) {
-	var data namespace
-	row := db.QueryRowx("SELECT key,refresh_key FROM namespace WHERE name=$1", name)
-	err := row.StructScan(&data)
-	if err != nil {
-		if err == sql.ErrNoRows {
-			return false, "", "", nil
-		}
-		return false, "", "", err
-	}
-	//emo.Decrypt("Decrypting refresh key data for the namespace id " + strconv.FormatInt(ID, 10))
-	rk, err := aesGcmDecrypt(data.RefreshKey, nil)
-	if err != nil {
-		emo.DecryptError(err)
-		return true, "", "", err
-	}
-	ak, err := aesGcmDecrypt(data.AccessKey, nil)
-	if err != nil {
-		emo.DecryptError(err)
-		return true, "", "", err
-	}
-
-	return true, rk, ak, nil
-}*/
-
 // SelectNamespaceID : get a namespace.
 func SelectNamespaceID(name string) (int64, error) {
 	var data []namespace
@@ -164,8 +142,11 @@ func SetNamespaceEndpointAvailability(id int64, enable bool) error {
 }
 
 // CreateNamespace : create a namespace.
-func CreateNamespace(name, key, refreshKey, ttl, refreshTTL string, endpoint bool) (int64, error) {
-	k, err := crypt.AesGcmEncrypt(key, nil)
+func CreateNamespace(name, algo, accessKey, refreshKey, ttl, refreshTTL string, endpoint bool) (int64, error) {
+	q := "INSERT INTO namespace(name,algo,access_key,refresh_key,max_token_ttl,max_refresh_token_ttl,public_endpoint_enabled)" +
+		" VALUES($1,$2,$3,$4,$5,$6) RETURNING id"
+
+	ak, err := crypt.AesGcmEncrypt(accessKey, nil)
 	if err != nil {
 		return 0, err
 	}
@@ -175,9 +156,7 @@ func CreateNamespace(name, key, refreshKey, ttl, refreshTTL string, endpoint boo
 		return 0, err
 	}
 
-	q := "INSERT INTO namespace(name,key,refresh_key,max_token_ttl,max_refresh_token_ttl,public_endpoint_enabled)" +
-		" VALUES($1,$2,$3,$4,$5,$6) RETURNING id"
-	rows, err := db.Query(q, name, k, rk, ttl, refreshTTL, endpoint)
+	rows, err := db.Query(q, name, ak, rk, ttl, refreshTTL, endpoint)
 	if err != nil {
 		emo.QueryError(err)
 		return 0, err

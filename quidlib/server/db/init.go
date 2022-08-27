@@ -41,10 +41,11 @@ func initDbConf(prompt bool, username, password string) {
 	} else {
 		fmt.Println("Creating the quid namespace")
 
-		key := tokens.RandomHMACKey()
+		algo := "HS256"
+		accessKey := tokens.RandomHMACKey()
 		refreshKey := tokens.RandomHMACKey()
 
-		nsID, err = CreateNamespace("quid", key, refreshKey, "6m", "24h", false)
+		nsID, err = CreateNamespace("quid", algo, accessKey, refreshKey, "6m", "24h", false)
 		if err != nil {
 			log.Fatal(err)
 		}

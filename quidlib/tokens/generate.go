@@ -90,7 +90,7 @@ func NewAccessToken(timeout, maxTTL, user string, groups, orgs []string, algo jw
 		return "", err
 	}
 
-	emo.AccessToken("Issued AccessToken exp="+timeout+" usr="+user+" grp=", groups, "orgs=", orgs, "Algo="+algo.Alg())
+	emo.AccessToken("Issued AccessToken exp="+timeout+" usr="+user+" grp=", groups, "org=", orgs, "Algo="+algo.Alg())
 
 	return token, nil
 }

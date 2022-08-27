@@ -110,30 +110,28 @@ func NamespaceInfo(w http.ResponseWriter, r *http.Request) {
 	gw.WriteOK(w, data)
 }
 
-// GetNamespaceKey : get the key for a namespace.
-func GetNamespaceKey(w http.ResponseWriter, r *http.Request) {
+// GetNamespaceAccessKey : get the key for a namespace.
+func GetNamespaceAccessKey(w http.ResponseWriter, r *http.Request) {
 	var m infoRequest
 	if err := garcon.UnmarshalJSONRequest(w, r, &m); err != nil {
-		emo.Warning("GetNamespaceKey:", err)
+		emo.Warning("GetNamespaceAccessKey:", err)
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
 
-	id := m.ID
-
-	found, data, err := db.SelectNamespaceKey(id)
+	found, key, err := db.SelectNamespaceAccessKey(m.ID)
 	if err != nil {
-		emo.QueryError("GetNamespaceKey: error finding namespace key:", err)
-		gw.WriteErr(w, r, http.StatusInternalServerError, "error finding namespace key")
+		emo.QueryError(err)
+		gw.WriteErr(w, r, http.StatusInternalServerError, "error finding namespace access key", "namespace_id", m.ID)
 		return
 	}
 	if !found {
-		emo.QueryError("GetNamespaceKey: namespace not found")
-		gw.WriteErr(w, r, http.StatusBadRequest, "namespace not found")
+		emo.QueryError("GetNamespaceAccessKey: namespace not found")
+		gw.WriteErr(w, r, http.StatusBadRequest, "namespace not found", "namespace_id", m.ID)
 		return
 	}
 
-	gw.WriteOK(w, "key", data)
+	gw.WriteOK(w, "key", key)
 }
 
 // FindNamespace : namespace creation http handler.

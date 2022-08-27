@@ -23,7 +23,7 @@ type userOrgName struct {
 
 type namespace struct {
 	Name                  string `db:"name" json:"name"`
-	Key                   string `db:"key" json:"key"`
+	AccessKey             string `db:"key" json:"key"`
 	RefreshKey            string `db:"refresh_key" json:"refresh_key"`
 	MaxTokenTTL           string `db:"max_token_ttl" json:"max_token_ttl"`
 	MaxRefreshTokenTTL    string `db:"max_refresh_token_ttl" json:"max_refresh_token_ttl"`

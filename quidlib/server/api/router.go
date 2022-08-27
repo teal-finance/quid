@@ -108,7 +108,7 @@ func newRouter(g *garcon.Garcon) http.Handler {
 			r.Post("/delete", DeleteNamespace)
 			r.Post("/find", FindNamespace)
 			r.Post("/info", NamespaceInfo)
-			r.Post("/key", GetNamespaceKey)
+			r.Post("/key", GetNamespaceAccessKey)
 			r.Post("/max-ttl", SetNamespaceTokenMaxTTL)
 			r.Post("/max-refresh-ttl", SetNamespaceRefreshTokenMaxTTL)
 			r.Post("/groups", GroupsForNamespace)

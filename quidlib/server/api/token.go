@@ -113,7 +113,7 @@ func RequestAccessToken(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// generate the access token
-	t, err := tokens.GenAccessToken(timeout, ns.MaxTokenTTL, u.Name, groupNames, orgsNames, []byte(ns.Key))
+	t, err := tokens.GenAccessToken(timeout, ns.MaxTokenTTL, u.Name, groupNames, orgsNames, []byte(ns.AccessKey))
 	if err != nil {
 		emo.Error("RequestAccessToken GenAccessToken:", err)
 		w.WriteHeader(http.StatusInternalServerError)

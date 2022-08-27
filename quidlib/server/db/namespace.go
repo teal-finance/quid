@@ -28,7 +28,7 @@ func SelectAllNamespaces() ([]server.Namespace, error) {
 			MaxTokenTTL:           u.MaxTokenTTL,
 			MaxRefreshTokenTTL:    u.MaxRefreshTokenTTL,
 			PublicEndpointEnabled: u.PublicEndpointEnabled,
-			Key:                   "",
+			AccessKey:             "",
 			RefreshKey:            "",
 		})
 	}
@@ -75,13 +75,13 @@ func SelectNamespaceFromName(name string) (bool, server.Namespace, error) {
 		return true, ns, err
 	}
 
-	k, err := crypt.AesGcmDecrypt(data.Key, nil)
+	ns.AccessKey, err = crypt.AesGcmDecrypt(data.AccessKey, nil)
 	if err != nil {
 		emo.DecryptError(err)
 		return true, ns, err
 	}
 
-	rk, err := crypt.AesGcmDecrypt(data.RefreshKey, nil)
+	ns.RefreshKey, err = crypt.AesGcmDecrypt(data.RefreshKey, nil)
 	if err != nil {
 		emo.DecryptError(err)
 		return true, ns, err
@@ -89,8 +89,6 @@ func SelectNamespaceFromName(name string) (bool, server.Namespace, error) {
 
 	ns.ID = data.ID
 	ns.Name = data.Name
-	ns.Key = k
-	ns.RefreshKey = rk
 	ns.MaxTokenTTL = data.MaxTokenTTL
 	ns.MaxRefreshTokenTTL = data.MaxRefreshTokenTTL
 	ns.PublicEndpointEnabled = data.PublicEndpointEnabled
@@ -98,8 +96,8 @@ func SelectNamespaceFromName(name string) (bool, server.Namespace, error) {
 	return true, ns, nil
 }
 
-// SelectNamespaceKey : get the key for a namespace.
-func SelectNamespaceKey(id int64) (bool, string, error) {
+// SelectNamespaceAccessKey : get the AccessToken key for a namespace.
+func SelectNamespaceAccessKey(id int64) (bool, string, error) {
 	row := db.QueryRowx("SELECT key FROM namespace WHERE id=$1", id)
 
 	var data namespace
@@ -112,7 +110,7 @@ func SelectNamespaceKey(id int64) (bool, string, error) {
 		return false, "", err
 	}
 
-	key, err := crypt.AesGcmDecrypt(data.Key, nil)
+	key, err := crypt.AesGcmDecrypt(data.AccessKey, nil)
 	if err != nil {
 		emo.DecryptError(err)
 		return true, "", err
@@ -122,7 +120,7 @@ func SelectNamespaceKey(id int64) (bool, string, error) {
 }
 
 /*
-// SelectNamespaceKeys : get the refresh key for a namespace
+// SelectNamespaceKeys : get the refresh and access keys for a namespace
 func SelectNamespaceKeys(name string) (bool, string, string, error) {
 	var data namespace
 	row := db.QueryRowx("SELECT key,refresh_key FROM namespace WHERE name=$1", name)
@@ -139,13 +137,13 @@ func SelectNamespaceKeys(name string) (bool, string, string, error) {
 		emo.DecryptError(err)
 		return true, "", "", err
 	}
-	k, err := aesGcmDecrypt(data.Key, nil)
+	ak, err := aesGcmDecrypt(data.AccessKey, nil)
 	if err != nil {
 		emo.DecryptError(err)
 		return true, "", "", err
 	}
 
-	return true, rk, k, nil
+	return true, rk, ak, nil
 }*/
 
 // SelectNamespaceID : get a namespace.

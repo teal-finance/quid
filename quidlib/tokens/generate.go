@@ -5,11 +5,12 @@ import (
 	"crypto/rand"
 	"crypto/sha256"
 	"encoding/hex"
+	"errors"
 	"log"
 	"time"
 
 	"github.com/golang-jwt/jwt/v4"
-	"github.com/karrick/tparse/v2"
+	"github.com/teal-finance/garcon/timex"
 )
 
 // GenRefreshToken generates a refresh token for a user in a namespace.
@@ -90,31 +91,25 @@ func genRandomBytes(n int) []byte {
 	return b
 }
 
-// TODO: this may be optimize by reusing "t" and "max" in the "expiry" computing.
 func authorizedExpiry(timeout, maxTTL string) (time.Time, error) {
-	t, err := tparse.AddDuration(time.Now(), timeout)
+	d, err := timex.ParseDuration(timeout)
 	if err != nil {
-		emo.ParamError(err)
+		emo.ParamError("timeout", err)
 		return time.Time{}, err
 	}
 
-	max, err := tparse.AddDuration(time.Now().Add(time.Second), maxTTL)
+	max, err := timex.ParseDuration(maxTTL)
 	if err != nil {
-		emo.ParamError(err)
+		emo.ParamError("maxTTL", err)
 		return time.Time{}, err
 	}
 
-	isAuthorized := t.Before(max)
-	if !isAuthorized {
-		emo.ParamError("Unauthorized timeout", timeout)
-		return time.Time{}, nil
-	}
-
-	expiry, err := tparse.ParseNow(time.RFC3339, "now+"+timeout)
-	if err != nil {
-		emo.ParamError(err)
+	if d > max {
+		err = errors.New("Unauthorized timeout=" + timeout + " > maxTTL=" + maxTTL)
+		emo.ParamError(err.Error())
 		return time.Time{}, err
 	}
 
-	return expiry.UTC(), nil
+	expiry := time.Now().Add(d).UTC()
+	return expiry, nil
 }

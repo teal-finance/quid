@@ -7,7 +7,6 @@ require (
 	github.com/go-chi/chi/v5 v5.0.7
 	github.com/golang-jwt/jwt/v4 v4.4.2
 	github.com/jmoiron/sqlx v1.3.5
-	github.com/karrick/tparse/v2 v2.8.2
 	github.com/lib/pq v1.10.6
 	github.com/mailru/easyjson v0.7.7
 	github.com/manifoldco/promptui v0.9.0

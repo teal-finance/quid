@@ -9,9 +9,9 @@ import (
 // AccessClaims is the standard claims for a user access token.
 type AccessClaims struct {
 	*jwt.RegisteredClaims
-	UserName string   `json:"username,omitempty"`
-	Groups   []string `json:"groups,omitempty"`
-	Orgs     []string `json:"orgs,omitempty"`
+	UserName string   `json:"u,omitempty"`
+	Groups   []string `json:"g,omitempty"`
+	Orgs     []string `json:"o,omitempty"`
 }
 
 type AdminAccessClaim struct {

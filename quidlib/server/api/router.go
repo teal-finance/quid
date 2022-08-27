@@ -12,17 +12,12 @@ import (
 	"github.com/teal-finance/quid/quidlib/conf"
 )
 
-// AdminNsKey : store the Quid namespace key for admin
-var AdminNsKey = []byte("")
-
 var Incorruptible *incorruptible.Incorruptible
 
 var gw garcon.Writer
 
 // RunServer : configure and run the server.
-func RunServer(adminNsKey string, port int) {
-	AdminNsKey = []byte(adminNsKey)
-
+func RunServer(port int) {
 	server := newServer(port)
 
 	if conf.IsDevMode {

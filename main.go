@@ -125,12 +125,6 @@ func main() {
 	api.Init(*isVerbose, *isDevMode)
 	tokens.Init(*isVerbose, *isDevMode, isCmd)
 
-	// get the admin namespace
-	_, adminNS, err := db.SelectNamespaceFromName("quid")
-	if err != nil {
-		log.Fatal(err)
-	}
-
 	// http server
-	api.RunServer(adminNS.Key, port)
+	api.RunServer(port)
 }

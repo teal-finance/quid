@@ -3,19 +3,19 @@ package tokens
 import (
 	"time"
 
-	"github.com/golang-jwt/jwt"
+	jwt "github.com/golang-jwt/jwt/v4"
 )
 
 // AccessClaims is the standard claims for a user access token.
 type AccessClaims struct {
-	jwt.StandardClaims
+	*jwt.RegisteredClaims
 	UserName string   `json:"username,omitempty"`
 	Groups   []string `json:"groups,omitempty"`
 	Orgs     []string `json:"orgs,omitempty"`
 }
 
 type AdminAccessClaim struct {
-	jwt.StandardClaims
+	*jwt.RegisteredClaims
 	Namespace string `json:"namespace,omitempty"`
 	UserName  string `json:"username,omitempty"`
 	UserID    int64  `json:"user_id,omitempty"`
@@ -26,22 +26,16 @@ type AdminAccessClaim struct {
 
 // RefreshClaims is the standard claims for a user refresh token.
 type RefreshClaims struct {
+	*jwt.RegisteredClaims
 	Namespace string `json:"namespace,omitempty"`
 	UserName  string `json:"username,omitempty"`
-	jwt.StandardClaims
 }
 
 // newAdminAccessClaims creates a standard claim for an admin user access token.
-func newAdminAccessClaims(namespaceName, username string, userID, nsID int64, timeout time.Time, isAdmin, isNsAdmin bool) AdminAccessClaim {
+func newAdminAccessClaims(namespaceName, username string, userID, nsID int64, expiry time.Time, isAdmin, isNsAdmin bool) AdminAccessClaim {
 	return AdminAccessClaim{
-		jwt.StandardClaims{
-			Audience:  "",
-			ExpiresAt: timeout.Unix(),
-			Id:        "",
-			IssuedAt:  0,
-			Issuer:    "",
-			NotBefore: 0,
-			Subject:   "",
+		&jwt.RegisteredClaims{
+			ExpiresAt: jwt.NewNumericDate(expiry),
 		},
 		namespaceName,
 		username,
@@ -53,16 +47,10 @@ func newAdminAccessClaims(namespaceName, username string, userID, nsID int64, ti
 }
 
 // newAccessClaims creates a standard claim for a user access token.
-func newAccessClaims(username string, groups, orgs []string, timeout time.Time) AccessClaims {
+func newAccessClaims(username string, groups, orgs []string, expiry time.Time) AccessClaims {
 	return AccessClaims{
-		jwt.StandardClaims{
-			Audience:  "",
-			ExpiresAt: timeout.Unix(),
-			Id:        "",
-			IssuedAt:  0,
-			Issuer:    "",
-			NotBefore: 0,
-			Subject:   "",
+		&jwt.RegisteredClaims {
+			ExpiresAt: jwt.NewNumericDate(expiry),
 		},
 		username,
 		groups,
@@ -71,18 +59,12 @@ func newAccessClaims(username string, groups, orgs []string, timeout time.Time) 
 }
 
 // newRefreshClaims creates a standard claim for a user refresh token.
-func newRefreshClaims(namespace, user string, timeout time.Time) RefreshClaims {
+func newRefreshClaims(namespace, user string, expiry time.Time) RefreshClaims {
 	return RefreshClaims{
+		&jwt.RegisteredClaims{
+			ExpiresAt: jwt.NewNumericDate(expiry),
+		},
 		namespace,
 		user,
-		jwt.StandardClaims{
-			Audience:  "",
-			ExpiresAt: timeout.Unix(),
-			Id:        "",
-			IssuedAt:  0,
-			Issuer:    "",
-			NotBefore: 0,
-			Subject:   "",
-		},
 	}
 }

@@ -5,7 +5,7 @@ go 1.18
 require (
 	github.com/acmacalister/skittles v0.0.0-20160609003031-7423546701e1
 	github.com/go-chi/chi/v5 v5.0.7
-	github.com/golang-jwt/jwt v3.2.2+incompatible
+	github.com/golang-jwt/jwt/v4 v4.4.2
 	github.com/jmoiron/sqlx v1.3.5
 	github.com/karrick/tparse/v2 v2.8.2
 	github.com/lib/pq v1.10.6
@@ -13,9 +13,9 @@ require (
 	github.com/manifoldco/promptui v0.9.0
 	github.com/spf13/viper v1.12.0
 	github.com/teal-finance/emo v0.0.0-20220602102724-3ed209263d5a
-	github.com/teal-finance/garcon v0.24.0
+	github.com/teal-finance/garcon v0.26.2
 	github.com/teal-finance/incorruptible v0.0.0-20220821130051-6c77707fc5fe
-	golang.org/x/crypto v0.0.0-20220817201139-bc19a97f63c8
+	golang.org/x/crypto v0.0.0-20220824171710-5757bc0c5503
 )
 
 require (
@@ -43,7 +43,7 @@ require (
 	github.com/mtraver/base91 v1.0.0 // indirect
 	github.com/open-policy-agent/opa v0.43.0 // indirect
 	github.com/pelletier/go-toml v1.9.5 // indirect
-	github.com/pelletier/go-toml/v2 v2.0.3 // indirect
+	github.com/pelletier/go-toml/v2 v2.0.4 // indirect
 	github.com/pkg/errors v0.9.1 // indirect
 	github.com/pkg/profile v1.6.0 // indirect
 	github.com/prometheus/client_golang v1.13.0 // indirect
@@ -56,14 +56,14 @@ require (
 	github.com/spf13/cast v1.5.0 // indirect
 	github.com/spf13/jwalterweatherman v1.1.0 // indirect
 	github.com/spf13/pflag v1.0.5 // indirect
-	github.com/subosito/gotenv v1.4.0 // indirect
+	github.com/subosito/gotenv v1.4.1 // indirect
 	github.com/teal-finance/notifier v1.1.1 // indirect
 	github.com/vektah/gqlparser/v2 v2.4.8 // indirect
 	github.com/xeipuuv/gojsonpointer v0.0.0-20190905194746-02993c407bfb // indirect
 	github.com/xeipuuv/gojsonreference v0.0.0-20180127040603-bd5ef7bd5415 // indirect
 	github.com/yashtewari/glob-intersection v0.1.0 // indirect
 	golang.org/x/net v0.0.0-20220822230855-b0a4917ee28c // indirect
-	golang.org/x/sys v0.0.0-20220818161305-2296e01440c6 // indirect
+	golang.org/x/sys v0.0.0-20220825204002-c680a09ffe64 // indirect
 	golang.org/x/text v0.3.7 // indirect
 	golang.org/x/time v0.0.0-20220722155302-e5dcc9cfc0b9 // indirect
 	google.golang.org/protobuf v1.28.1 // indirect

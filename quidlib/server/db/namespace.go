@@ -10,6 +10,7 @@ import (
 
 	"github.com/teal-finance/quid/quidlib/crypt"
 	"github.com/teal-finance/quid/quidlib/server"
+	"github.com/teal-finance/quid/quidlib/tokens"
 )
 
 // SelectAllNamespaces : get the namespaces.
@@ -25,8 +26,8 @@ func SelectAllNamespaces() ([]server.Namespace, error) {
 		res = append(res, server.Namespace{
 			Name:                  u.Name,
 			SigningAlgo:           "",
-			AccessKey:             "",
-			RefreshKey:            "",
+			AccessKey:             nil,
+			RefreshKey:            nil,
 			MaxTokenTTL:           u.MaxTokenTTL,
 			MaxRefreshTokenTTL:    u.MaxRefreshTokenTTL,
 			ID:                    u.ID,
@@ -75,13 +76,13 @@ func SelectNamespaceFromName(name string) (bool, server.Namespace, error) {
 		return true, ns, err
 	}
 
-	accessKey, err := crypt.AesGcmDecrypt(data.AccessKey, nil)
+	accessKey, err := crypt.AesGcmDecryptBin(data.AccessKey)
 	if err != nil {
 		emo.DecryptError(err)
 		return true, ns, err
 	}
 
-	refreshKey, err := crypt.AesGcmDecrypt(data.RefreshKey, nil)
+	refreshKey, err := crypt.AesGcmDecryptBin(data.RefreshKey)
 	if err != nil {
 		emo.DecryptError(err)
 		return true, ns, err
@@ -101,27 +102,33 @@ func SelectNamespaceFromName(name string) (bool, server.Namespace, error) {
 	return true, ns, nil
 }
 
-// SelectNamespaceAccessKey : get the AccessToken key for a namespace.
-func SelectNamespaceAccessKey(id int64) (bool, string, error) {
+// SelectNamespaceAccessPublicKey : get the AccessToken key for a namespace.
+func SelectNamespaceAccessPublicKey(id int64) (found bool, algo string, der []byte, _ error) {
 	row := db.QueryRowx("SELECT key FROM namespace WHERE id=$1", id)
 
 	var data namespace
 	if err := row.StructScan(&data); err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
-			return false, "", nil
+			return false, "", nil, nil
 		}
 
 		emo.QueryError(err)
-		return false, "", err
+		return false, "", nil, err
 	}
 
-	key, err := crypt.AesGcmDecrypt(data.AccessKey, nil)
+	private, err := crypt.AesGcmDecryptBin(data.AccessKey)
 	if err != nil {
 		emo.DecryptError(err)
-		return true, "", err
+		return true, "", nil, err
 	}
 
-	return true, key, nil
+	public, err := tokens.PrivateDERToPublicDER(data.SigningAlgo, private)
+	if err != nil {
+		emo.DecryptError(err)
+		return true, "", nil, err
+	}
+
+	return true, data.SigningAlgo, public, nil
 }
 
 // SelectNamespaceID : get a namespace.
@@ -142,16 +149,16 @@ func SetNamespaceEndpointAvailability(id int64, enable bool) error {
 }
 
 // CreateNamespace : create a namespace.
-func CreateNamespace(name, algo, accessKey, refreshKey, ttl, refreshTTL string, endpoint bool) (int64, error) {
+func CreateNamespace(name, ttl, refreshTTL, algo string, accessKey, refreshKey []byte, endpoint bool) (int64, error) {
 	q := "INSERT INTO namespace(name,algo,access_key,refresh_key,max_token_ttl,max_refresh_token_ttl,public_endpoint_enabled)" +
 		" VALUES($1,$2,$3,$4,$5,$6) RETURNING id"
 
-	ak, err := crypt.AesGcmEncrypt(accessKey, nil)
+	ak, err := crypt.AesGcmEncryptBin(accessKey)
 	if err != nil {
 		return 0, err
 	}
 
-	rk, err := crypt.AesGcmEncrypt(refreshKey, nil)
+	rk, err := crypt.AesGcmEncryptBin(refreshKey)
 	if err != nil {
 		return 0, err
 	}

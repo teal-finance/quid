@@ -5,8 +5,8 @@ var schema = `CREATE TABLE IF NOT EXISTS namespace (
 	id SERIAL PRIMARY KEY,
 	name TEXT UNIQUE NOT NULL,
 	algo TEXT NOT NULL,
-	access_key TEXT NOT NULL,
-	refresh_key TEXT NOT NULL,
+	access_key BYTEA NOT NULL,
+	refresh_key BYTEA NOT NULL,
 	max_token_ttl TEXT NOT NULL DEFAULT '20m',
 	max_refresh_token_ttl TEXT NOT NULL DEFAULT '24h',
 	public_endpoint_enabled BOOLEAN NOT NULL DEFAULT false

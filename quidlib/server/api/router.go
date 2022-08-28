@@ -39,7 +39,7 @@ func newServer(port int) http.Server {
 	if conf.IsDevMode {
 		maxAge = 3600 * 24 * 365 // one year
 	}
-	Incorruptible = g.IncorruptibleChecker(conf.EncodingKey[:32], maxAge, true)
+	Incorruptible = g.IncorruptibleCheckerBin(conf.EncodingKey[:16], maxAge, true)
 
 	middleware := garcon.NewChain(
 		g.MiddlewareRejectUnprintableURI(),
@@ -108,7 +108,7 @@ func newRouter(g *garcon.Garcon) http.Handler {
 			r.Post("/delete", DeleteNamespace)
 			r.Post("/find", FindNamespace)
 			r.Post("/info", NamespaceInfo)
-			r.Post("/key", GetNamespaceAccessKey)
+			r.Post("/key", GetNamespaceAccessPublicKey)
 			r.Post("/max-ttl", SetNamespaceTokenMaxTTL)
 			r.Post("/max-refresh-ttl", SetNamespaceRefreshTokenMaxTTL)
 			r.Post("/groups", GroupsForNamespace)

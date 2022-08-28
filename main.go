@@ -31,7 +31,7 @@ func main() {
 			os.Exit(1)
 		}
 
-		fmt.Println(tokens.RandomHMACKey())
+		fmt.Println(tokens.GenerateHMAC(256))
 		return
 	}
 

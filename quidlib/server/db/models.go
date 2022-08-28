@@ -24,8 +24,8 @@ type userOrgName struct {
 type namespace struct {
 	Name                  string `db:"name" json:"name"`
 	SigningAlgo           string `db:"algo" json:"algo"`
-	AccessKey             string `db:"access_key" json:"access_key"`
-	RefreshKey            string `db:"refresh_key" json:"refresh_key"`
+	AccessKey             []byte `db:"access_key" json:"access_key"`
+	RefreshKey            []byte `db:"refresh_key" json:"refresh_key"`
 	MaxTokenTTL           string `db:"max_token_ttl" json:"max_token_ttl"`
 	MaxRefreshTokenTTL    string `db:"max_refresh_token_ttl" json:"max_refresh_token_ttl"`
 	ID                    int64  `db:"id" json:"id"`

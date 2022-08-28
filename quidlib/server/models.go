@@ -6,8 +6,8 @@ package server
 type Namespace struct {
 	Name                  string `json:"name"`
 	SigningAlgo           string `db:"algo" json:"-"`
-	AccessKey             string `db:"access_key" json:"-"`
-	RefreshKey            string `db:"refresh_key" json:"-"`
+	AccessKey             []byte `db:"access_key" json:"-"`
+	RefreshKey            []byte `db:"refresh_key" json:"-"`
 	MaxTokenTTL           string `db:"max_token_ttl" json:"max_token_ttl"`
 	MaxRefreshTokenTTL    string `db:"max_refresh_token_ttl" json:"max_refresh_token_ttl"`
 	ID                    int64  `json:"id"`

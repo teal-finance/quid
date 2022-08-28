@@ -3,15 +3,16 @@ package tokens
 import (
 	"crypto/ecdsa"
 	"crypto/ed25519"
+	"crypto/elliptic"
 	"crypto/hmac"
 	"crypto/rand"
 	"crypto/rsa"
 	"crypto/sha256"
-	"encoding/hex"
+	"crypto/x509"
+	"encoding/asn1"
 	"errors"
 	"fmt"
 	"log"
-	"math/big"
 	"time"
 
 	"github.com/golang-jwt/jwt/v4"
@@ -80,7 +81,7 @@ func GenAccessToken(timeout, maxTTL, user string, groups, orgs []string, secretK
 }
 
 // NewAccessToken creates an Access Token with the JSON fields "exp", "usr", "grp" and "org".
-func NewAccessToken(timeout, maxTTL, user string, groups, orgs []string, algo, secretKey string) (string, error) {
+func NewAccessToken(timeout, maxTTL, user string, groups, orgs []string, algo string, secretKey []byte) (string, error) {
 	expiry, err := authorizedExpiry(timeout, maxTTL)
 	if err != nil {
 		return "", err
@@ -96,28 +97,8 @@ func NewAccessToken(timeout, maxTTL, user string, groups, orgs []string, algo, s
 	}
 	t := jwt.NewWithClaims(method, claims)
 
-	// convert secretKey depending on algo
-	var key any
-	switch method.Alg() {
-	case "HS256", "HS384", "HS512":
-		key = []byte(secretKey)
-	case "RS256", "RS384", "RS512":
-		key = &rsa.PrivateKey{ // TODO
-			PublicKey:   rsa.PublicKey{},
-			D:           &big.Int{},
-			Primes:      []*big.Int{},
-			Precomputed: rsa.PrecomputedValues{},
-		}
-	case "ES256", "ES384", "ES512":
-		key = &ecdsa.PrivateKey{ // TODO
-			PublicKey: ecdsa.PublicKey{},
-			D:         &big.Int{},
-		}
-	case "Ed25519":
-		key = ed25519.PrivateKey([]byte(secretKey))
-	default:
-		err = fmt.Errorf("unsupported signing algorithm %q", algo)
-		emo.ParamError(err)
+	key, err := convertDERToPrivateKey(algo, secretKey)
+	if err != nil {
 		return "", err
 	}
 
@@ -132,21 +113,97 @@ func NewAccessToken(timeout, maxTTL, user string, groups, orgs []string, algo, s
 	return token, nil
 }
 
-// RandomHMACKey generates a random HMAC-SHA256 key.
-func RandomHMACKey() string {
-	b := genRandomBytes(32)
+// convertDERToPrivateKey converts DER format to a private key depending on the algo.
+func convertDERToPrivateKey(algo string, der []byte) (any, error) {
+	switch algo {
+	case "HS256", "HS384", "HS512":
+		return der, nil
+	case "RS256", "RS384", "RS512":
+		return x509.ParsePKCS1PrivateKey(der)
+	case "ES256", "ES384", "ES512":
+		return x509.ParseECPrivateKey(der)
+	case "Ed25519":
+		return ed25519.PrivateKey(der), nil
+	}
+
+	err := fmt.Errorf("unsupported signing algorithm %q", algo)
+	emo.ParamError(err)
+	return nil, err
+}
+
+// convertDERToPrivateKey converts DER format to a private key depending on the algo.
+func PrivateDERToPublicDER(algo string, der []byte) ([]byte, error) {
+	switch algo {
+	case "HS256", "HS384", "HS512": // HMAC: same key to sign/verify
+		return der, nil
+	case "RS256", "RS384", "RS512": // RSA
+		private, err := x509.ParsePKCS1PrivateKey(der)
+		if err != nil {
+			return nil, err
+		}
+		public := private.Public()
+		return asn1.Marshal(public)
+	case "ES256", "ES384", "ES512": // ESDSA
+		private, err := x509.ParseECPrivateKey(der)
+		if err != nil {
+			return nil, err
+		}
+		public := private.Public()
+		return asn1.Marshal(public)
+	case "Ed25519": // EdDSA
+		private := ed25519.PrivateKey(der)
+		public := private.Public()
+		return x509.MarshalPKIXPublicKey(public)
+	}
+
+	err := fmt.Errorf("unsupported signing algorithm %q", algo)
+	emo.ParamError(err)
+	return nil, err
+}
+
+// GenerateHMAC generates a random HMAC-SHA256 key.
+func GenerateHMAC(bits int) []byte {
+	switch bits {
+	case 256, 384, 512: // ok
+	default:
+		log.Panic("accept 256, 384 and 512 bits, but got bits=", bits)
+	}
+
+	b := genRandomBytes(bits / 8)
 	h := hmac.New(sha256.New, b)
-	return hex.EncodeToString(h.Sum(nil))
+	return h.Sum(nil)
 }
 
 func genRandomBytes(n int) []byte {
 	b := make([]byte, n)
-
 	if _, err := rand.Read(b); err != nil {
-		log.Fatal(err)
+		log.Panic(err)
+	}
+	return b
+}
+
+// GenerateRSA generates a random RSA private key in DER format.
+func GenerateRSA(bits int) []byte {
+	private, err := rsa.GenerateKey(rand.Reader, bits)
+	if err != nil {
+		log.Panicf("rsa.GenerateKey(rand.Reader, bits=%d): %v", bits, err)
+	}
+	return x509.MarshalPKCS1PrivateKey(private)
+}
+
+// GenerateECDSA generates a random ECDSA private key in DER format.
+func GenerateECDSA(c elliptic.Curve) []byte {
+	private, err := ecdsa.GenerateKey(c, rand.Reader)
+	if err != nil {
+		log.Panicf("ecdsa.GenerateKey(%s): %v", c.Params().Name, err)
 	}
 
-	return b
+	der, err := x509.MarshalECPrivateKey(private)
+	if err != nil {
+		log.Panicf("GenerateECDSA(%s) x509.MarshalECPrivateKey: %v", c.Params().Name, err)
+	}
+
+	return der
 }
 
 func authorizedExpiry(timeout, maxTTL string) (time.Time, error) {

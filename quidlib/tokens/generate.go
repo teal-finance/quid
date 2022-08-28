@@ -10,6 +10,7 @@ import (
 	"crypto/sha256"
 	"crypto/x509"
 	"encoding/asn1"
+	"encoding/hex"
 	"errors"
 	"fmt"
 	"log"
@@ -131,7 +132,7 @@ func convertDERToPrivateKey(algo string, der []byte) (any, error) {
 	return nil, err
 }
 
-// convertDERToPrivateKey converts DER format to a private key depending on the algo.
+// PrivateDERToPublicDER converts a private key in DER format to a public key depending on the algo.
 func PrivateDERToPublicDER(algo string, der []byte) ([]byte, error) {
 	switch algo {
 	case "HS256", "HS384", "HS512": // HMAC: same key to sign/verify
@@ -154,6 +155,65 @@ func PrivateDERToPublicDER(algo string, der []byte) ([]byte, error) {
 		private := ed25519.PrivateKey(der)
 		public := private.Public()
 		return x509.MarshalPKIXPublicKey(public)
+	}
+
+	err := fmt.Errorf("unsupported signing algorithm %q", algo)
+	emo.ParamError(err)
+	return nil, err
+}
+
+func GenerateHexKey(algo string) (string, error) {
+	b, err := GenerateBinKey(algo)
+	return hex.EncodeToString(b), err
+}
+
+// GenerateBinKey produces the private key of the given algorithm.
+// Supported algorithms:
+//
+// - HS256 = HMAC using SHA-256
+// - HS384 = HMAC using SHA-384
+// - HS512 = HMAC using SHA-512
+// - RS256 = RSASSA-PKCS-v1.5 using SHA-256
+// - RS384 = RSASSA-PKCS-v1.5 using SHA-384
+// - RS512 = RSASSA-PKCS-v1.5 using SHA-512
+// - ES256 = ECDSA using P-256 and SHA-256
+// - ES384 = ECDSA using P-384 and SHA-384
+// - ES512 = ECDSA using P-521 and SHA-512
+// - Ed25519 = EdDSA
+func GenerateBinKey(algo string) ([]byte, error) {
+	switch algo {
+
+	// HMAC
+
+	case "HS256":
+		return GenerateHMAC(256), nil
+	case "HS384":
+		return GenerateHMAC(384), nil
+	case "HS512":
+		return GenerateHMAC(512), nil
+
+	// RSA
+
+	case "RS256":
+		return GenerateRSA(256), nil
+	case "RS384":
+		return GenerateRSA(384), nil
+	case "RS512":
+		return GenerateRSA(512), nil
+
+	// ESDSA
+
+	case "ES256":
+		return GenerateECDSA(elliptic.P256()), nil
+	case "ES384":
+		return GenerateECDSA(elliptic.P384()), nil
+	case "ES512":
+		return GenerateECDSA(elliptic.P521()), nil
+
+	// EdDSA
+
+	case "Ed25519":
+		return nil, nil
 	}
 
 	err := fmt.Errorf("unsupported signing algorithm %q", algo)
@@ -204,6 +264,28 @@ func GenerateECDSA(c elliptic.Curve) []byte {
 	}
 
 	return der
+}
+
+// GenerateEdDSA generates a random EdDSA-25519 key in DER format.
+func GenerateEdDSA(c elliptic.Curve) []byte {
+	public, private, err := ed25519.GenerateKey(nil)
+	if err != nil {
+		log.Panic(err)
+	}
+
+	if false {
+		privateDER, err := x509.MarshalPKCS8PrivateKey(private)
+		if err != nil {
+			log.Panic(err)
+		}
+		publicDER, err := x509.MarshalPKIXPublicKey(public)
+		if err != nil {
+			log.Panic(err)
+		}
+		return append(privateDER, publicDER...)
+	}
+
+	return append(private, public...)
 }
 
 func authorizedExpiry(timeout, maxTTL string) (time.Time, error) {

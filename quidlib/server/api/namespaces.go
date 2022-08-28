@@ -219,37 +219,32 @@ func CreateNamespace(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	name := m.Name
-	maxTTL := m.MaxTTL
-	refreshMaxTTL := m.RefreshMaxTTL
-	enableEndpoint := m.EnableEndpoint
-
-	if p := garcon.Printable(name, maxTTL, refreshMaxTTL); p >= 0 {
+	if p := garcon.Printable(m.Name, m.MaxTTL, m.RefreshMaxTTL); p >= 0 {
 		emo.Warning("CreateNamespace: JSON contains a forbidden character at p=", p)
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
 
-	algo := m.Algo
-	if algo == "" {
-		algo = "HS256"
+	if m.Algo == "" {
+		m.Algo = "HS256"
+		emo.Param("No signing algo provided, defaults to " + m.Algo)
 	}
 
-	var accessKey, refreshKey []byte
-	if algo == "HS256" {
-		accessKey = tokens.GenerateHMAC(256)
-		refreshKey = tokens.GenerateHMAC(256)
-	} else {
-		emo.Error("unsupported signing algo=" + algo)
-	}
-
-	nsID, exists, err := createNamespace(name, maxTTL, refreshMaxTTL, algo, accessKey, refreshKey, enableEndpoint)
+	refreshKey := tokens.GenerateHMAC(256)
+	accessKey, err := tokens.GenerateBinKey(m.Algo)
 	if err != nil {
-		gw.WriteErr(w, r, http.StatusInternalServerError, "error creating namespace", "namespace", name)
+		emo.Warning("Generate AccessKey algo=" + m.Algo + " err: " + err.Error())
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	nsID, exists, err := createNamespace(m.Name, m.MaxTTL, m.RefreshMaxTTL, m.Algo, accessKey, refreshKey, m.EnableEndpoint)
+	if err != nil {
+		gw.WriteErr(w, r, http.StatusInternalServerError, "error creating namespace", "namespace", m.Name)
 		return
 	}
 	if exists {
-		gw.WriteErr(w, r, http.StatusConflict, "namespace already exists", "namespace", name)
+		gw.WriteErr(w, r, http.StatusConflict, "namespace already exists", "namespace", m.Name)
 		return
 	}
 

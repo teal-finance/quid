@@ -19,7 +19,8 @@ var cases = []struct {
 	want       string
 	wantGenErr bool
 	wantNewErr bool
-}{{name: "HS256=HMAC-SHA256",
+}{{
+	name:       "HS256=HMAC-SHA256",
 	timeout:    "11m",
 	maxTTL:     "12m",
 	user:       "me",
@@ -28,7 +29,8 @@ var cases = []struct {
 	want:       "",
 	wantGenErr: false,
 	wantNewErr: false,
-}, {name: "HS384=HMAC-SHA384",
+}, {
+	name:       "HS384=HMAC-SHA384",
 	timeout:    "11m",
 	maxTTL:     "12m",
 	user:       "me",
@@ -37,7 +39,8 @@ var cases = []struct {
 	want:       "",
 	wantGenErr: false,
 	wantNewErr: false,
-}, {name: "HS512=HMAC-SHA512",
+}, {
+	name:       "HS512=HMAC-SHA512",
 	timeout:    "11m",
 	maxTTL:     "12m",
 	user:       "me",
@@ -46,7 +49,8 @@ var cases = []struct {
 	want:       "",
 	wantGenErr: false,
 	wantNewErr: false,
-}, {name: "RS256=RSASSA-PKCSv15-SHA256",
+}, {
+	name:       "RS256=RSASSA-PKCSv15-SHA256",
 	timeout:    "11m",
 	maxTTL:     "12m",
 	user:       "",
@@ -55,7 +59,8 @@ var cases = []struct {
 	want:       "",
 	wantGenErr: false,
 	wantNewErr: false,
-}, {name: "RS384=RSASSA-PKCSv15-SHA384",
+}, {
+	name:       "RS384=RSASSA-PKCSv15-SHA384",
 	timeout:    "11m",
 	maxTTL:     "12m",
 	user:       "",
@@ -64,7 +69,8 @@ var cases = []struct {
 	want:       "",
 	wantGenErr: false,
 	wantNewErr: false,
-}, {name: "RS512=RSASSA-PKCSv15-SHA512",
+}, {
+	name:       "RS512=RSASSA-PKCSv15-SHA512",
 	timeout:    "11m",
 	maxTTL:     "12m",
 	user:       "",
@@ -73,7 +79,8 @@ var cases = []struct {
 	want:       "",
 	wantGenErr: false,
 	wantNewErr: false,
-}, {name: "ES256=ECDSA-P256-SHA256",
+}, {
+	name:       "ES256=ECDSA-P256-SHA256",
 	timeout:    "11m",
 	maxTTL:     "12m",
 	user:       "me",
@@ -82,7 +89,8 @@ var cases = []struct {
 	want:       "",
 	wantGenErr: false,
 	wantNewErr: false,
-}, {name: "ES384=ECDSA-P384-SHA384",
+}, {
+	name:       "ES384=ECDSA-P384-SHA384",
 	timeout:    "11m",
 	maxTTL:     "12m",
 	user:       "me",
@@ -91,7 +99,8 @@ var cases = []struct {
 	want:       "",
 	wantGenErr: false,
 	wantNewErr: false,
-}, {name: "ES512=ECDSA-P521-SHA512",
+}, {
+	name:       "ES512=ECDSA-P521-SHA512",
 	timeout:    "11m",
 	maxTTL:     "12m",
 	user:       "me",
@@ -100,7 +109,8 @@ var cases = []struct {
 	want:       "",
 	wantGenErr: false,
 	wantNewErr: false,
-}, {name: "EdDSA=Ed25519",
+}, {
+	name:       "EdDSA=Ed25519",
 	timeout:    "11m",
 	maxTTL:     "12m",
 	user:       "me",

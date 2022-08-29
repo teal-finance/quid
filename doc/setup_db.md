@@ -60,3 +60,12 @@ quid-# GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA public TO pguser;
 GRANT
 quid=# exit
 ```
+
+## Perform all the previous operations in one command line
+
+```sql
+sudo -u postgres psql -c "CREATE USER pguser WITH PASSWORD 'my_password'" -c "CREATE DATABASE quid" -c "GRANT ALL PRIVILEGES ON DATABASE quid TO pguser"
+CREATE ROLE
+CREATE DATABASE
+GRANT
+```

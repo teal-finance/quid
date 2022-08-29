@@ -7,8 +7,8 @@ var schema = `CREATE TABLE IF NOT EXISTS namespace (
 	alg TEXT NOT NULL,
 	access_key BYTEA NOT NULL,
 	refresh_key BYTEA NOT NULL,
-	max_token_ttl TEXT NOT NULL DEFAULT '20m',
-	max_refresh_token_ttl TEXT NOT NULL DEFAULT '24h',
+	max_access_ttl TEXT NOT NULL DEFAULT '20m',
+	max_refresh_ttl TEXT NOT NULL DEFAULT '24h',
 	public_endpoint_enabled BOOLEAN NOT NULL DEFAULT false
 );
 

@@ -26,8 +26,8 @@ type namespace struct {
 	SigningAlgo           string `db:"alg" json:"alg"`
 	AccessKey             []byte `db:"access_key" json:"access_key"`
 	RefreshKey            []byte `db:"refresh_key" json:"refresh_key"`
-	MaxTokenTTL           string `db:"max_token_ttl" json:"max_token_ttl"`
-	MaxRefreshTokenTTL    string `db:"max_refresh_token_ttl" json:"max_refresh_token_ttl"`
+	MaxAccessTTL          string `db:"max_access_ttl" json:"max_access_ttl"`
+	MaxRefreshTTL         string `db:"max_refresh_ttl" json:"max_refresh_ttl"`
 	ID                    int64  `db:"id" json:"id"`
 	PublicEndpointEnabled bool   `db:"public_endpoint_enabled" json:"public_endpoint_enabled"`
 }

@@ -8,8 +8,8 @@ type Namespace struct {
 	SigningAlgo           string `db:"alg" json:"-"`
 	AccessKey             []byte `db:"access_key" json:"-"`
 	RefreshKey            []byte `db:"refresh_key" json:"-"`
-	MaxTokenTTL           string `db:"max_token_ttl" json:"max_token_ttl"`
-	MaxRefreshTokenTTL    string `db:"max_refresh_token_ttl" json:"max_refresh_token_ttl"`
+	MaxTokenTTL           string `db:"max_access_ttl" json:"max_access_ttl"`
+	MaxRefreshTokenTTL    string `db:"max_refresh_ttl" json:"max_refresh_ttl"`
 	ID                    int64  `json:"id"`
 	PublicEndpointEnabled bool   `db:"public_endpoint_enabled" json:"public_endpoint_enabled"`
 }

@@ -11,17 +11,17 @@ export default class Namespace {
   maxRefreshTokenTtl: string;
   publicEndpointEnabled: boolean;
 
-  constructor({ id, name, max_token_ttl, max_refresh_token_ttl, public_endpoint_enabled }: {
+  constructor({ id, name, max_access_ttl, max_refresh_ttl, public_endpoint_enabled }: {
     id: number,
     name: string,
-    max_token_ttl: string,
-    max_refresh_token_ttl: string,
+    max_access_ttl: string,
+    max_refresh_ttl: string,
     public_endpoint_enabled: boolean
   }) {
     this.id = id;
     this.name = name;
-    this.maxTokenTtl = max_token_ttl;
-    this.maxRefreshTokenTtl = max_refresh_token_ttl;
+    this.maxTokenTtl = max_access_ttl;
+    this.maxRefreshTokenTtl = max_refresh_ttl;
     this.publicEndpointEnabled = public_endpoint_enabled;
   }
 
@@ -33,14 +33,14 @@ export default class Namespace {
     return new Namespace({
       id: nst.id,
       name: nst.name,
-      max_token_ttl: nst.maxTokenTtl,
-      max_refresh_token_ttl: nst.maxRefreshTokenTtl,
+      max_access_ttl: nst.maxTokenTtl,
+      max_refresh_ttl: nst.maxRefreshTokenTtl,
       public_endpoint_enabled: nst.publicEndpointEnabled,
     })
   }
 
   static empty(): Namespace {
-    return new Namespace({ id: 0, name: "default", max_token_ttl: "10", max_refresh_token_ttl: "10m", public_endpoint_enabled: false })
+    return new Namespace({ id: 0, name: "default", max_access_ttl: "10", max_refresh_ttl: "10m", public_endpoint_enabled: false })
   }
 
   // *************************

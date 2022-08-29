@@ -16,7 +16,7 @@ import (
 // SelectAllNamespaces : get the namespaces.
 func SelectAllNamespaces() ([]server.Namespace, error) {
 	var data []namespace
-	err := db.Select(&data, "SELECT id,name,max_token_ttl,max_refresh_token_ttl,public_endpoint_enabled FROM namespace ORDER BY name")
+	err := db.Select(&data, "SELECT id,name,max_access_ttl,max_refresh_ttl,public_endpoint_enabled FROM namespace ORDER BY name")
 	if err != nil {
 		return nil, err
 	}
@@ -28,8 +28,8 @@ func SelectAllNamespaces() ([]server.Namespace, error) {
 			SigningAlgo:           "",
 			AccessKey:             nil,
 			RefreshKey:            nil,
-			MaxTokenTTL:           u.MaxTokenTTL,
-			MaxRefreshTokenTTL:    u.MaxRefreshTokenTTL,
+			MaxTokenTTL:           u.MaxAccessTTL,
+			MaxRefreshTokenTTL:    u.MaxRefreshTTL,
 			ID:                    u.ID,
 			PublicEndpointEnabled: u.PublicEndpointEnabled,
 		})
@@ -59,7 +59,7 @@ func SelectNamespaceStartsWith(name string) ([]server.Namespace, error) {
 
 // SelectNamespaceFromName : get a namespace.
 func SelectNamespaceFromName(name string) (bool, server.Namespace, error) {
-	q := "SELECT id,name,alg,access_key,refresh_key,max_token_ttl,max_refresh_token_ttl,public_endpoint_enabled" +
+	q := "SELECT id,name,alg,access_key,refresh_key,max_access_ttl,max_refresh_ttl,public_endpoint_enabled" +
 		" FROM namespace WHERE name=$1"
 
 	var ns server.Namespace
@@ -93,8 +93,8 @@ func SelectNamespaceFromName(name string) (bool, server.Namespace, error) {
 		SigningAlgo:           "HS256",
 		AccessKey:             accessKey,
 		RefreshKey:            refreshKey,
-		MaxTokenTTL:           data.MaxTokenTTL,
-		MaxRefreshTokenTTL:    data.MaxRefreshTokenTTL,
+		MaxTokenTTL:           data.MaxAccessTTL,
+		MaxRefreshTokenTTL:    data.MaxRefreshTTL,
 		ID:                    data.ID,
 		PublicEndpointEnabled: data.PublicEndpointEnabled,
 	}
@@ -150,8 +150,8 @@ func SetNamespaceEndpointAvailability(id int64, enable bool) error {
 
 // CreateNamespace : create a namespace.
 func CreateNamespace(name, ttl, refreshTTL, algo string, accessKey, refreshKey []byte, endpoint bool) (int64, error) {
-	q := "INSERT INTO namespace(name,alg,access_key,refresh_key,max_token_ttl,max_refresh_token_ttl,public_endpoint_enabled)" +
-		" VALUES($1,$2,$3,$4,$5,$6) RETURNING id"
+	q := "INSERT INTO namespace(name,alg,access_key,refresh_key,max_access_ttl,max_refresh_ttl,public_endpoint_enabled)" +
+		" VALUES($1,$2,$3,$4,$5,$6,$7) RETURNING id"
 
 	ak, err := crypt.AesGcmEncryptBin(accessKey)
 	if err != nil {
@@ -163,7 +163,7 @@ func CreateNamespace(name, ttl, refreshTTL, algo string, accessKey, refreshKey [
 		return 0, err
 	}
 
-	rows, err := db.Query(q, name, ak, rk, ttl, refreshTTL, endpoint)
+	rows, err := db.Query(q, name, algo, ak, rk, ttl, refreshTTL, endpoint)
 	if err != nil {
 		emo.QueryError(err)
 		return 0, err
@@ -185,14 +185,14 @@ func CreateNamespace(name, ttl, refreshTTL, algo string, accessKey, refreshKey [
 
 // UpdateNamespaceTokenMaxTTL : update a max access token ttl for a namespace.
 func UpdateNamespaceTokenMaxTTL(id int64, maxTTL string) error {
-	q := "UPDATE namespace set max_token_ttl=$2 WHERE id=$1"
+	q := "UPDATE namespace set max_access_ttl=$2 WHERE id=$1"
 	_, err := db.Query(q, id, maxTTL)
 	return err
 }
 
 // UpdateNamespaceRefreshTokenMaxTTL : update a max refresh token ttl for a namespace.
 func UpdateNamespaceRefreshTokenMaxTTL(id int64, refreshMaxTTL string) error {
-	q := "UPDATE namespace set max_refresh_token_ttl=$2 WHERE id=$1"
+	q := "UPDATE namespace set max_refresh_ttl=$2 WHERE id=$1"
 	_, err := db.Query(q, id, refreshMaxTTL)
 	return err
 }

@@ -131,7 +131,7 @@ func GetNamespaceAccessPublicKey(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	gw.WriteOK(w, "algo", algo, "key", key)
+	gw.WriteOK(w, "alg", algo, "key", key)
 }
 
 // FindNamespace : namespace creation http handler.

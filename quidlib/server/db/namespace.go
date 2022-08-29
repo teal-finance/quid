@@ -59,7 +59,7 @@ func SelectNamespaceStartsWith(name string) ([]server.Namespace, error) {
 
 // SelectNamespaceFromName : get a namespace.
 func SelectNamespaceFromName(name string) (bool, server.Namespace, error) {
-	q := "SELECT id,name,algo,access_key,refresh_key,max_token_ttl,max_refresh_token_ttl,public_endpoint_enabled" +
+	q := "SELECT id,name,alg,access_key,refresh_key,max_token_ttl,max_refresh_token_ttl,public_endpoint_enabled" +
 		" FROM namespace WHERE name=$1"
 
 	var ns server.Namespace
@@ -150,7 +150,7 @@ func SetNamespaceEndpointAvailability(id int64, enable bool) error {
 
 // CreateNamespace : create a namespace.
 func CreateNamespace(name, ttl, refreshTTL, algo string, accessKey, refreshKey []byte, endpoint bool) (int64, error) {
-	q := "INSERT INTO namespace(name,algo,access_key,refresh_key,max_token_ttl,max_refresh_token_ttl,public_endpoint_enabled)" +
+	q := "INSERT INTO namespace(name,alg,access_key,refresh_key,max_token_ttl,max_refresh_token_ttl,public_endpoint_enabled)" +
 		" VALUES($1,$2,$3,$4,$5,$6) RETURNING id"
 
 	ak, err := crypt.AesGcmEncryptBin(accessKey)

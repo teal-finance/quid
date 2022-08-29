@@ -4,7 +4,7 @@ package db
 var schema = `CREATE TABLE IF NOT EXISTS namespace (
 	id SERIAL PRIMARY KEY,
 	name TEXT UNIQUE NOT NULL,
-	algo TEXT NOT NULL,
+	alg TEXT NOT NULL,
 	access_key BYTEA NOT NULL,
 	refresh_key BYTEA NOT NULL,
 	max_token_ttl TEXT NOT NULL DEFAULT '20m',

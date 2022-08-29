@@ -64,10 +64,10 @@ func InitFromFile(isDevMode bool) (conn string, port int) {
 	}
 
 	hexKey := viper.Get("key").(string)
-	if len(hexKey) != 32 {
+	if len(hexKey) < 32 {
 		log.Panic("Want AES-128 key composed by 32 hexadecimal digits, but got ", len(hexKey))
 	}
-	EncodingKey, err = hex.DecodeString(hexKey)
+	EncodingKey, err = hex.DecodeString(hexKey[:32])
 	if err != nil {
 		fmt.Println("The key in config must be in hexadecimal format err=", err)
 		os.Exit(5)

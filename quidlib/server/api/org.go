@@ -120,7 +120,7 @@ func CreateOrg(w http.ResponseWriter, r *http.Request) {
 
 // createOrg : create an org.
 func createOrg(name string) (server.Org, bool, error) {
-	org := server.Org{}
+	var org server.Org
 
 	exists, err := db.OrgExists(name)
 	if err != nil {

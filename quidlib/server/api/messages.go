@@ -85,6 +85,7 @@ type availability struct {
 
 type namespaceCreation struct {
 	Name           string
+	Algo           string
 	MaxTTL         string
 	RefreshMaxTTL  string
 	EnableEndpoint bool

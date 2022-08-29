@@ -16,7 +16,7 @@ func SelectAdministratorsInNamespace(namespaceID int64) ([]server.NsAdmin, error
 		"LEFT OUTER JOIN namespace on namespace.id=namespaceadmin.namespace_id " +
 		"WHERE namespace.id=$1"
 
-	data := []server.NsAdmin{}
+	var data []server.NsAdmin
 	err := db.Select(&data, q, namespaceID)
 	if err != nil {
 		fmt.Println("ERR", err)
@@ -38,7 +38,7 @@ func SearchForNonAdminUsersInNamespace(namespaceID int64, qs string) ([]server.N
 		"LEFT OUTER JOIN namespace on namespace.id =  namespaceadmin.namespace_id" +
 		" )"
 	emo.Query(q, namespaceID)
-	data := []server.NonNsAdmin{}
+	var data []server.NonNsAdmin
 	err := db.Select(&data, q, namespaceID)
 	if err != nil {
 		fmt.Println("ERR", err)

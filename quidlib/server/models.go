@@ -5,8 +5,9 @@ package server
 // Namespace : base model.
 type Namespace struct {
 	Name                  string `json:"name"`
-	Key                   string `db:"key" json:"-"`
-	RefreshKey            string `db:"refresh_key" json:"-"`
+	SigningAlgo           string `db:"alg" json:"-"`
+	AccessKey             []byte `db:"access_key" json:"-"`
+	RefreshKey            []byte `db:"refresh_key" json:"-"`
 	MaxTokenTTL           string `db:"max_token_ttl" json:"max_token_ttl"`
 	MaxRefreshTokenTTL    string `db:"max_refresh_token_ttl" json:"max_refresh_token_ttl"`
 	ID                    int64  `json:"id"`
@@ -46,11 +47,11 @@ type User struct {
 
 // GroupNames : get the user group names.
 func (user User) GroupNames() []string {
-	u := []string{}
+	names := make([]string, 0, len(user.Groups))
 	for _, g := range user.Groups {
-		u = append(u, g.Name)
+		names = append(names, g.Name)
 	}
-	return u
+	return names
 }
 
 // Group : base model.

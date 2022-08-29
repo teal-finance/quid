@@ -27,7 +27,6 @@ func easyjsonB448b467DecodeGithubComTealFinanceQuidQuidlibTokens(in *jlexer.Lexe
 		in.Skip()
 		return
 	}
-	out.RegisteredClaims = new(_v4.RegisteredClaims)
 	in.Delim('{')
 	for !in.IsDelim('}') {
 		key := in.UnsafeFieldName(true)
@@ -227,7 +226,6 @@ func easyjsonB448b467DecodeGithubComTealFinanceQuidQuidlibTokens1(in *jlexer.Lex
 		in.Skip()
 		return
 	}
-	out.RegisteredClaims = new(_v4.RegisteredClaims)
 	in.Delim('{')
 	for !in.IsDelim('}') {
 		key := in.UnsafeFieldName(true)
@@ -435,7 +433,6 @@ func easyjsonB448b467DecodeGithubComTealFinanceQuidQuidlibTokens2(in *jlexer.Lex
 		in.Skip()
 		return
 	}
-	out.RegisteredClaims = new(_v4.RegisteredClaims)
 	in.Delim('{')
 	for !in.IsDelim('}') {
 		key := in.UnsafeFieldName(true)

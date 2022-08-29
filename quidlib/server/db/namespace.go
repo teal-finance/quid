@@ -10,27 +10,28 @@ import (
 
 	"github.com/teal-finance/quid/quidlib/crypt"
 	"github.com/teal-finance/quid/quidlib/server"
+	"github.com/teal-finance/quid/quidlib/tokens"
 )
 
 // SelectAllNamespaces : get the namespaces.
 func SelectAllNamespaces() ([]server.Namespace, error) {
-	res := []server.Namespace{}
-
-	data := []namespace{}
+	var data []namespace
 	err := db.Select(&data, "SELECT id,name,max_token_ttl,max_refresh_token_ttl,public_endpoint_enabled FROM namespace ORDER BY name")
 	if err != nil {
-		return res, err
+		return nil, err
 	}
 
+	res := make([]server.Namespace, 0, len(data))
 	for _, u := range data {
 		res = append(res, server.Namespace{
-			ID:                    u.ID,
 			Name:                  u.Name,
+			SigningAlgo:           "",
+			AccessKey:             nil,
+			RefreshKey:            nil,
 			MaxTokenTTL:           u.MaxTokenTTL,
 			MaxRefreshTokenTTL:    u.MaxRefreshTokenTTL,
+			ID:                    u.ID,
 			PublicEndpointEnabled: u.PublicEndpointEnabled,
-			Key:                   "",
-			RefreshKey:            "",
 		})
 	}
 
@@ -39,14 +40,13 @@ func SelectAllNamespaces() ([]server.Namespace, error) {
 
 // SelectNamespaceStartsWith : get a namespace.
 func SelectNamespaceStartsWith(name string) ([]server.Namespace, error) {
-	res := []server.Namespace{}
-
-	data := []namespace{}
+	var data []namespace
 	err := db.Select(&data, "SELECT id,name FROM namespace WHERE name LIKE '"+name+"%'")
 	if err != nil {
-		return res, err
+		return nil, err
 	}
 
+	res := make([]server.Namespace, 0, len(data))
 	for _, u := range data {
 		res = append(res, server.Namespace{
 			ID:   u.ID,
@@ -59,15 +59,14 @@ func SelectNamespaceStartsWith(name string) ([]server.Namespace, error) {
 
 // SelectNamespaceFromName : get a namespace.
 func SelectNamespaceFromName(name string) (bool, server.Namespace, error) {
-	q := "SELECT id,name,key,refresh_key,max_token_ttl,max_refresh_token_ttl,public_endpoint_enabled" +
+	q := "SELECT id,name,algo,access_key,refresh_key,max_token_ttl,max_refresh_token_ttl,public_endpoint_enabled" +
 		" FROM namespace WHERE name=$1"
-	// emo.Query(q, name)
 
-	ns := server.Namespace{}
+	var ns server.Namespace
 
 	row := db.QueryRowx(q, name)
 
-	data := namespace{}
+	var data namespace
 	err := row.StructScan(&data)
 	if err != nil {
 		emo.Error(err)
@@ -77,82 +76,64 @@ func SelectNamespaceFromName(name string) (bool, server.Namespace, error) {
 		return true, ns, err
 	}
 
-	k, err := crypt.AesGcmDecrypt(data.Key, nil)
+	accessKey, err := crypt.AesGcmDecryptBin(data.AccessKey)
 	if err != nil {
 		emo.DecryptError(err)
 		return true, ns, err
 	}
 
-	rk, err := crypt.AesGcmDecrypt(data.RefreshKey, nil)
+	refreshKey, err := crypt.AesGcmDecryptBin(data.RefreshKey)
 	if err != nil {
 		emo.DecryptError(err)
 		return true, ns, err
 	}
 
-	ns.ID = data.ID
-	ns.Name = data.Name
-	ns.Key = k
-	ns.RefreshKey = rk
-	ns.MaxTokenTTL = data.MaxTokenTTL
-	ns.MaxRefreshTokenTTL = data.MaxRefreshTokenTTL
-	ns.PublicEndpointEnabled = data.PublicEndpointEnabled
+	ns = server.Namespace{
+		Name:                  data.Name,
+		SigningAlgo:           "HS256",
+		AccessKey:             accessKey,
+		RefreshKey:            refreshKey,
+		MaxTokenTTL:           data.MaxTokenTTL,
+		MaxRefreshTokenTTL:    data.MaxRefreshTokenTTL,
+		ID:                    data.ID,
+		PublicEndpointEnabled: data.PublicEndpointEnabled,
+	}
 
 	return true, ns, nil
 }
 
-// SelectNamespaceKey : get the key for a namespace.
-func SelectNamespaceKey(id int64) (bool, string, error) {
+// SelectNamespaceAccessPublicKey : get the AccessToken key for a namespace.
+func SelectNamespaceAccessPublicKey(id int64) (found bool, algo string, der []byte, _ error) {
 	row := db.QueryRowx("SELECT key FROM namespace WHERE id=$1", id)
 
-	data := namespace{}
+	var data namespace
 	if err := row.StructScan(&data); err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
-			return false, "", nil
+			return false, "", nil, nil
 		}
 
 		emo.QueryError(err)
-		return false, "", err
+		return false, "", nil, err
 	}
 
-	key, err := crypt.AesGcmDecrypt(data.Key, nil)
+	private, err := crypt.AesGcmDecryptBin(data.AccessKey)
 	if err != nil {
 		emo.DecryptError(err)
-		return true, "", err
+		return true, "", nil, err
 	}
 
-	return true, key, nil
+	public, err := tokens.PrivateToPublicDER(data.SigningAlgo, private)
+	if err != nil {
+		emo.DecryptError(err)
+		return true, "", nil, err
+	}
+
+	return true, data.SigningAlgo, public, nil
 }
-
-/*
-// SelectNamespaceKeys : get the refresh key for a namespace
-func SelectNamespaceKeys(name string) (bool, string, string, error) {
-	data := namespace{}
-	row := db.QueryRowx("SELECT key,refresh_key FROM namespace WHERE name=$1", name)
-	err := row.StructScan(&data)
-	if err != nil {
-		if err == sql.ErrNoRows {
-			return false, "", "", nil
-		}
-		return false, "", "", err
-	}
-	//emo.Decrypt("Decrypting refresh key data for the namespace id " + strconv.FormatInt(ID, 10))
-	rk, err := aesGcmDecrypt(data.RefreshKey, nil)
-	if err != nil {
-		emo.DecryptError(err)
-		return true, "", "", err
-	}
-	k, err := aesGcmDecrypt(data.Key, nil)
-	if err != nil {
-		emo.DecryptError(err)
-		return true, "", "", err
-	}
-
-	return true, rk, k, nil
-}*/
 
 // SelectNamespaceID : get a namespace.
 func SelectNamespaceID(name string) (int64, error) {
-	data := []namespace{}
+	var data []namespace
 	err := db.Select(&data, "SELECT id,name FROM namespace WHERE name=$1", name)
 	if err != nil {
 		return 0, err
@@ -168,20 +149,21 @@ func SetNamespaceEndpointAvailability(id int64, enable bool) error {
 }
 
 // CreateNamespace : create a namespace.
-func CreateNamespace(name, key, refreshKey, ttl, refreshTTL string, endpoint bool) (int64, error) {
-	k, err := crypt.AesGcmEncrypt(key, nil)
-	if err != nil {
-		return 0, err
-	}
-
-	rk, err := crypt.AesGcmEncrypt(refreshKey, nil)
-	if err != nil {
-		return 0, err
-	}
-
-	q := "INSERT INTO namespace(name,key,refresh_key,max_token_ttl,max_refresh_token_ttl,public_endpoint_enabled)" +
+func CreateNamespace(name, ttl, refreshTTL, algo string, accessKey, refreshKey []byte, endpoint bool) (int64, error) {
+	q := "INSERT INTO namespace(name,algo,access_key,refresh_key,max_token_ttl,max_refresh_token_ttl,public_endpoint_enabled)" +
 		" VALUES($1,$2,$3,$4,$5,$6) RETURNING id"
-	rows, err := db.Query(q, name, k, rk, ttl, refreshTTL, endpoint)
+
+	ak, err := crypt.AesGcmEncryptBin(accessKey)
+	if err != nil {
+		return 0, err
+	}
+
+	rk, err := crypt.AesGcmEncryptBin(refreshKey)
+	if err != nil {
+		return 0, err
+	}
+
+	rows, err := db.Query(q, name, ak, rk, ttl, refreshTTL, endpoint)
 	if err != nil {
 		emo.QueryError(err)
 		return 0, err

@@ -14,8 +14,8 @@ import (
 )
 
 func main() {
-	init := flag.Bool("init", false, "initialize and create a superuser")
-	key := flag.Bool("key", false, "create a random key")
+	init := flag.Bool("init", false, "initialize and create the QuidAdmin")
+	key := flag.String("key", "", "create a random key among HS256, HS384, HS512, RS256, RS384, RS512, ES256, ES384, ES512 and Ed25519")
 	env := flag.Bool("env", false, "init from environment variables not config file")
 	isDevMode := flag.Bool("dev", false, "development mode")
 	isVerbose := flag.Bool("v", false, "verbose (info and debug logs)")
@@ -25,13 +25,13 @@ func main() {
 	flag.Parse()
 
 	// key flag
-	if *key {
+	if *key != "" {
 		if *env {
 			fmt.Println("The key command is not allowed when initializing from environment variables")
 			os.Exit(1)
 		}
 
-		fmt.Println(tokens.GenKey())
+		fmt.Println(tokens.GenerateSigningKey(*key))
 		return
 	}
 
@@ -125,12 +125,6 @@ func main() {
 	api.Init(*isVerbose, *isDevMode)
 	tokens.Init(*isVerbose, *isDevMode, isCmd)
 
-	// get the admin namespace
-	_, adminNS, err := db.SelectNamespaceFromName("quid")
-	if err != nil {
-		log.Fatal(err)
-	}
-
 	// http server
-	api.RunServer(adminNS.Key, port)
+	api.RunServer(port)
 }

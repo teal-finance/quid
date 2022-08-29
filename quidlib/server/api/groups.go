@@ -136,7 +136,7 @@ func CreateGroup(w http.ResponseWriter, r *http.Request) {
 
 // createGroup : create a group.
 func createGroup(name string, namespaceID int64) (server.Group, bool, error) {
-	ns := server.Group{}
+	var ns server.Group
 
 	exists, err := db.GroupExists(name, namespaceID)
 	if err != nil {

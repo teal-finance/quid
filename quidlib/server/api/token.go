@@ -113,7 +113,13 @@ func RequestAccessToken(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// generate the access token
-	t, err := tokens.GenAccessToken(timeout, ns.MaxTokenTTL, u.Name, groupNames, orgsNames, []byte(ns.Key))
+	var t string
+	if ns.SigningAlgo == "HS256" {
+		t, err = tokens.GenAccessToken(timeout, ns.MaxTokenTTL, u.Name, groupNames, orgsNames, []byte(ns.AccessKey))
+	} else {
+		t, err = tokens.NewAccessToken(timeout, ns.MaxTokenTTL, u.Name, groupNames, orgsNames, ns.SigningAlgo, ns.AccessKey)
+	}
+
 	if err != nil {
 		emo.Error("RequestAccessToken GenAccessToken:", err)
 		w.WriteHeader(http.StatusInternalServerError)

@@ -1,6 +1,7 @@
 package conf
 
 import (
+	"encoding/hex"
 	"fmt"
 	"log"
 	"os"
@@ -23,7 +24,13 @@ func InitFromEnv(isDevMode bool) (conn string, port int) {
 		os.Exit(1)
 	}
 
-	EncodingKey = os.Getenv("QUID_KEY")
+	hexKey := os.Getenv("QUID_KEY")
+	var err error
+	EncodingKey, err = hex.DecodeString(hexKey)
+	if err != nil {
+		fmt.Println("The key in config must be in hexadecimal format err=", err)
+		os.Exit(5)
+	}
 
 	AdminUser = os.Getenv("QUID_ADMIN_USER")
 	AdminPassword = os.Getenv("QUID_ADMIN_PWD")
@@ -33,7 +40,7 @@ func InitFromEnv(isDevMode bool) (conn string, port int) {
 
 	portStr := os.Getenv("PORT")
 
-	port, err := strconv.Atoi(portStr)
+	port, err = strconv.Atoi(portStr)
 	if err != nil {
 		log.Panic("PORT must be an integer got=", portStr)
 	}

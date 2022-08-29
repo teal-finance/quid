@@ -12,7 +12,7 @@ import (
 )
 
 // EncodingKey : the encoding key.
-var EncodingKey string
+var EncodingKey []byte
 
 // IsDevMode : enable development mode.
 var IsDevMode = false
@@ -46,7 +46,8 @@ func InitFromFile(isDevMode bool) (conn string, port int) {
 	viper.SetDefault("key", nil)
 	viper.SetDefault("enable_dev_mode", false)
 
-	if err := viper.ReadInConfig(); err != nil {
+	err := viper.ReadInConfig()
+	if err != nil {
 		if _, ok := err.(viper.ConfigFileNotFoundError); ok {
 			fmt.Println("No config file found. Use the -conf option to generate one")
 			os.Exit(4)
@@ -57,12 +58,20 @@ func InitFromFile(isDevMode bool) (conn string, port int) {
 	if isDevMode {
 		IsDevMode = true
 		if viper.Get("enable_dev_mode") == false {
-			fmt.Println("Please set enable_dev_mode to true in config in order to run in dev mode")
+			fmt.Println("Set enable_dev_mode to true in config in order to run in dev mode")
 			os.Exit(1)
 		}
 	}
 
-	EncodingKey = viper.Get("key").(string)
+	hexKey := viper.Get("key").(string)
+	if len(hexKey) != 32 {
+		log.Panic("Want AES-128 key composed by 32 hexadecimal digits, but got ", len(hexKey))
+	}
+	EncodingKey, err = hex.DecodeString(hexKey)
+	if err != nil {
+		fmt.Println("The key in config must be in hexadecimal format err=", err)
+		os.Exit(5)
+	}
 
 	db := viper.Get("db_name").(string)
 	usr := viper.Get("db_user").(string)

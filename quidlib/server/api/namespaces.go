@@ -110,30 +110,28 @@ func NamespaceInfo(w http.ResponseWriter, r *http.Request) {
 	gw.WriteOK(w, data)
 }
 
-// GetNamespaceKey : get the key for a namespace.
-func GetNamespaceKey(w http.ResponseWriter, r *http.Request) {
+// GetNamespaceAccessPublicKey : get the key for a namespace.
+func GetNamespaceAccessPublicKey(w http.ResponseWriter, r *http.Request) {
 	var m infoRequest
 	if err := garcon.UnmarshalJSONRequest(w, r, &m); err != nil {
-		emo.Warning("GetNamespaceKey:", err)
+		emo.Warning("GetNamespaceAccessKey:", err)
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
 
-	id := m.ID
-
-	found, data, err := db.SelectNamespaceKey(id)
+	found, algo, key, err := db.SelectNamespaceAccessPublicKey(m.ID)
 	if err != nil {
-		emo.QueryError("GetNamespaceKey: error finding namespace key:", err)
-		gw.WriteErr(w, r, http.StatusInternalServerError, "error finding namespace key")
+		emo.QueryError(err)
+		gw.WriteErr(w, r, http.StatusInternalServerError, "error finding namespace access key", "namespace_id", m.ID)
 		return
 	}
 	if !found {
-		emo.QueryError("GetNamespaceKey: namespace not found")
-		gw.WriteErr(w, r, http.StatusBadRequest, "namespace not found")
+		emo.QueryError("GetNamespaceAccessKey: namespace not found")
+		gw.WriteErr(w, r, http.StatusBadRequest, "namespace not found", "namespace_id", m.ID)
 		return
 	}
 
-	gw.WriteOK(w, "key", data)
+	gw.WriteOK(w, "alg", algo, "key", key)
 }
 
 // FindNamespace : namespace creation http handler.
@@ -221,27 +219,32 @@ func CreateNamespace(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	name := m.Name
-	maxTTL := m.MaxTTL
-	refreshMaxTTL := m.RefreshMaxTTL
-	enableEndpoint := m.EnableEndpoint
-
-	if p := garcon.Printable(name, maxTTL, refreshMaxTTL); p >= 0 {
+	if p := garcon.Printable(m.Name, m.MaxTTL, m.RefreshMaxTTL); p >= 0 {
 		emo.Warning("CreateNamespace: JSON contains a forbidden character at p=", p)
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
 
-	key := tokens.GenKey()
-	refreshKey := tokens.GenKey()
+	if m.Algo == "" {
+		m.Algo = "HS256"
+		emo.Param("No signing algo provided, defaults to " + m.Algo)
+	}
 
-	nsID, exists, err := createNamespace(name, key, refreshKey, maxTTL, refreshMaxTTL, enableEndpoint)
+	refreshKey := tokens.GenerateKeyHMAC(256)
+	accessKey, err := tokens.GenerateSigningKey(m.Algo)
 	if err != nil {
-		gw.WriteErr(w, r, http.StatusInternalServerError, "error creating namespace")
+		emo.Warning("Generate AccessKey algo=" + m.Algo + " err: " + err.Error())
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	nsID, exists, err := createNamespace(m.Name, m.MaxTTL, m.RefreshMaxTTL, m.Algo, accessKey, refreshKey, m.EnableEndpoint)
+	if err != nil {
+		gw.WriteErr(w, r, http.StatusInternalServerError, "error creating namespace", "namespace", m.Name)
 		return
 	}
 	if exists {
-		gw.WriteErr(w, r, http.StatusConflict, "namespace already exists")
+		gw.WriteErr(w, r, http.StatusConflict, "namespace already exists", "namespace", m.Name)
 		return
 	}
 
@@ -249,7 +252,7 @@ func CreateNamespace(w http.ResponseWriter, r *http.Request) {
 }
 
 // createNamespace : create a namespace.
-func createNamespace(name, key, refreshKey, ttl, refreshMaxTTL string, endpoint bool) (int64, bool, error) {
+func createNamespace(name, ttl, refreshMaxTTL, algo string, accessKey, refreshKey []byte, endpoint bool) (int64, bool, error) {
 	exists, err := db.NamespaceExists(name)
 	if err != nil {
 		emo.QueryError("createNamespace NamespaceExists:", err)
@@ -260,7 +263,7 @@ func createNamespace(name, key, refreshKey, ttl, refreshMaxTTL string, endpoint 
 		return 0, true, nil
 	}
 
-	nsID, err := db.CreateNamespace(name, key, refreshKey, ttl, refreshMaxTTL, endpoint)
+	nsID, err := db.CreateNamespace(name, ttl, refreshMaxTTL, algo, accessKey, refreshKey, endpoint)
 	if err != nil {
 		emo.QueryError("createNamespace:", err)
 		return 0, false, err

@@ -13,7 +13,7 @@ import (
 func SelectAllOrgs() ([]server.Org, error) {
 	q := "SELECT id,name FROM orgtable"
 
-	data := []server.Org{}
+	var data []server.Org
 	err := db.Select(&data, q)
 
 	return data, err
@@ -23,7 +23,7 @@ func SelectAllOrgs() ([]server.Org, error) {
 func SelectOrg(name string) (server.Org, error) {
 	q := "SELECT id,name FROM orgtable WHERE(name=$1)"
 
-	data := []server.Org{}
+	var data []server.Org
 	err := db.Select(&data, q, name)
 	if err != nil {
 		return server.Org{}, err
@@ -38,7 +38,7 @@ func SelectOrgsForUser(userID int64) ([]server.Org, error) {
 		"JOIN orgtable ON userorg.org_id = orgtable.id " +
 		"WHERE userorg.user_id=$1 ORDER BY orgtable.name"
 
-	data := []server.Org{}
+	var data []server.Org
 	err := db.Select(&data, q, userID)
 
 	return data, err
@@ -46,15 +46,15 @@ func SelectOrgsForUser(userID int64) ([]server.Org, error) {
 
 // SelectOrgStartsWith : get a namespace.
 func SelectOrgStartsWith(name string) ([]server.Org, error) {
-	res := []server.Org{}
 	q := "SELECT id,name FROM orgtable WHERE name LIKE '" + name + "%'"
 
-	data := []org{}
+	var data []org
 	err := db.Select(&data, q)
 	if err != nil {
-		return res, err
+		return nil, err
 	}
 
+	res := make([]server.Org, 0, len(data))
 	for _, u := range data {
 		res = append(res, server.Org{
 			ID:   u.ID,
@@ -71,7 +71,7 @@ func SelectOrgsNamesForUser(userID int64) ([]string, error) {
 		"JOIN orgtable ON userorg.org_id = orgtable.id " +
 		"WHERE userorg.user_id=$1 ORDER BY orgtable.name"
 
-	data := []userOrgName{}
+	var data []userOrgName
 	err := db.Select(&data, q, userID)
 	if err != nil {
 		return nil, err

@@ -1,6 +1,7 @@
 package tokens_test
 
 import (
+	"reflect"
 	"strings"
 	"testing"
 
@@ -128,14 +129,28 @@ func TestNewAccessToken(t *testing.T) {
 			}
 			t.Log(algo+" Private key len=", len(privateKey))
 
-			publicDER, err := tokens.PublicDER(algo, privateKey)
+			publicDER, err := tokens.PrivateToPublicDER(algo, privateKey)
 			if err != nil {
 				t.Error("Public(privateKey) error:", err)
 				return
 			}
 			t.Log(algo+" Public  key len=", len(publicDER))
 
-			publicKey, err := tokens.Public(algo, privateKey)
+			publicKey, err := tokens.PrivateToPublic(algo, privateKey)
+			if err != nil {
+				t.Error("PrivateToPublic("+algo+",privateKey) error:", err)
+				return
+			}
+
+			publicKey2, err := tokens.ParsePublicDER(algo, publicDER)
+			if err != nil {
+				t.Error("ParsePublicDER("+algo+",der) error:", err)
+				return
+			}
+
+			if !reflect.DeepEqual(publicKey2, publicKey) {
+				t.Error("public keys are not equal")
+			}
 
 			tokenStr, err := tokens.NewAccessToken(c.timeout, c.maxTTL, c.user, c.groups, c.orgs, algo, privateKey)
 			if (err != nil) != c.wantNewErr {

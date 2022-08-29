@@ -133,15 +133,15 @@ func convertDERToPrivateKey(algo string, der []byte) (any, error) {
 	return nil, err
 }
 
-// PublicDER converts a private key to a public key depending on the algo.
+// PrivateToPublicDER converts a private key into a public key depending on the algo.
 // The input and output are in DER form.
-func PublicDER(algo string, der []byte) ([]byte, error) {
+func PrivateToPublicDER(algo string, der []byte) ([]byte, error) {
 	switch algo {
 	case "HS256", "HS384", "HS512": // HMAC: same key to sign/verify
 		return der, nil
 	}
 
-	public, err := Public(algo, der)
+	public, err := PrivateToPublic(algo, der)
 	if err != nil {
 		return nil, err
 	}
@@ -149,8 +149,18 @@ func PublicDER(algo string, der []byte) ([]byte, error) {
 	return x509.MarshalPKIXPublicKey(public)
 }
 
-// Public converts a private key to a public key depending on the algo.
-func Public(algo string, der []byte) (any, error) {
+// ParsePublicDER converts a public key in DER form into the original public key.
+func ParsePublicDER(algo string, der []byte) (any, error) {
+	switch algo {
+	case "HS256", "HS384", "HS512": // HMAC: same key to sign/verify
+		return der, nil
+	}
+
+	return x509.ParsePKIXPublicKey(der)
+}
+
+// PrivateToPublic converts a private key into a public key depending on the algo.
+func PrivateToPublic(algo string, der []byte) (any, error) {
 	switch algo {
 	case "HS256", "HS384", "HS512": // HMAC: same key to sign/verify
 		return der, nil

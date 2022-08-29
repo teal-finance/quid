@@ -230,8 +230,8 @@ func CreateNamespace(w http.ResponseWriter, r *http.Request) {
 		emo.Param("No signing algo provided, defaults to " + m.Algo)
 	}
 
-	refreshKey := tokens.GenerateHMAC(256)
-	accessKey, err := tokens.GenerateBinKey(m.Algo)
+	refreshKey := tokens.GenerateKeyHMAC(256)
+	accessKey, err := tokens.GenerateSigningKey(m.Algo)
 	if err != nil {
 		emo.Warning("Generate AccessKey algo=" + m.Algo + " err: " + err.Error())
 		w.WriteHeader(http.StatusBadRequest)

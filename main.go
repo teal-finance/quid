@@ -31,7 +31,7 @@ func main() {
 			os.Exit(1)
 		}
 
-		fmt.Println(tokens.GenerateBinKey(*key))
+		fmt.Println(tokens.GenerateSigningKey(*key))
 		return
 	}
 

@@ -122,7 +122,7 @@ func SelectNamespaceAccessPublicKey(id int64) (found bool, algo string, der []by
 		return true, "", nil, err
 	}
 
-	public, err := tokens.PrivateDERToPublicDER(data.SigningAlgo, private)
+	public, err := tokens.PublicDER(data.SigningAlgo, private)
 	if err != nil {
 		emo.DecryptError(err)
 		return true, "", nil, err

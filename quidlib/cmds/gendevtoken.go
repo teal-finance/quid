@@ -21,7 +21,7 @@ func writeDevAdminToken(username, namespace string) error {
 	token, err := db.GenNsAdminTokenForUser(username, namespace)
 	if err != nil {
 		msg := "Error generating refresh token"
-		emo.Error(msg, err)
+		logg.Error(msg, err)
 		return err
 	}
 
@@ -29,7 +29,7 @@ func writeDevAdminToken(username, namespace string) error {
 
 	dir, err := os.Getwd()
 	if err != nil {
-		emo.Error(err)
+		logg.Error(err)
 		return err
 	}
 	relpath := "/ui/.env.development.local"

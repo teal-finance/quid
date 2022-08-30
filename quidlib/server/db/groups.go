@@ -83,7 +83,7 @@ func CreateGroup(name string, namespaceID int64) (int64, error) {
 
 	rows, err := db.Query(q, name, namespaceID)
 	if err != nil {
-		emo.QueryError(err)
+		logg.QueryError(err)
 		return 0, err
 	}
 
@@ -91,7 +91,7 @@ func CreateGroup(name string, namespaceID int64) (int64, error) {
 		var idi any
 		err = rows.Scan(&idi)
 		if err != nil {
-			emo.QueryError(err)
+			logg.QueryError(err)
 			return 0, err
 		}
 		return idi.(int64), nil
@@ -99,7 +99,7 @@ func CreateGroup(name string, namespaceID int64) (int64, error) {
 
 	err = fmt.Errorf("no group %q", name)
 	if err != nil {
-		emo.QueryError(err)
+		logg.QueryError(err)
 	}
 
 	return 0, err
@@ -149,7 +149,7 @@ func RemoveUserFromGroup(userID, groupID int64) error {
 // IsUserInGroup : check if a user is in a group.
 func IsUserInGroup(userID, groupID int64) (bool, error) {
 	q := "SELECT COUNT(id) FROM usergroup WHERE(user_id=$1 AND group_id=$2)"
-	emo.Query(q, userID, groupID)
+	logg.Query(q, userID, groupID)
 
 	var n int
 	err := db.Get(&n, q, userID, groupID)

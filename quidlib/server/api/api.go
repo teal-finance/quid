@@ -1,15 +1,15 @@
 package api
 
 import (
-	emolib "github.com/teal-finance/emo"
+	"github.com/teal-finance/emo"
 )
 
-var emo = emolib.NewZone("api")
+var logg = emo.NewLogger("api")
 
 // Init : init the db conf.
 func Init(isVerbose, isDev bool) {
 	if !isDev {
-		emo.Print = isVerbose
-		emo.Info("Print verbose")
+		logg.Print = isVerbose
+		logg.Info("Print verbose")
 	}
 }

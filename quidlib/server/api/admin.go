@@ -21,7 +21,7 @@ const (
 func AdminLogin(w http.ResponseWriter, r *http.Request) {
 	var m passwordRequest
 	if err := garcon.UnmarshalJSONRequest(w, r, &m); err != nil {
-		emo.ParamError("AdminLogin DecodeJSONBody:", err)
+		logg.ParamError("AdminLogin DecodeJSONBody:", err)
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
@@ -31,7 +31,7 @@ func AdminLogin(w http.ResponseWriter, r *http.Request) {
 	namespace := m.Namespace
 
 	if p := garcon.Printable(username, password, namespace); p >= 0 {
-		emo.ParamError("AdminLogin: JSON contains a forbidden character at p=", p)
+		logg.ParamError("AdminLogin: JSON contains a forbidden character at p=", p)
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
@@ -39,12 +39,12 @@ func AdminLogin(w http.ResponseWriter, r *http.Request) {
 	// get the namespace
 	exists, ns, err := db.SelectNamespaceFromName(namespace)
 	if err != nil {
-		emo.QueryError("AdminLogin SelectNamespaceFromName:", err)
+		logg.QueryError("AdminLogin SelectNamespaceFromName:", err)
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 	if !exists {
-		emo.ParamError("AdminLogin: namespace " + namespace + " does not exist")
+		logg.ParamError("AdminLogin: namespace " + namespace + " does not exist")
 		gw.WriteErr(w, r, http.StatusBadRequest, "namespace does not exist", "namespace", namespace)
 		return
 	}
@@ -52,24 +52,24 @@ func AdminLogin(w http.ResponseWriter, r *http.Request) {
 	// check the user password
 	isAuthorized, u, err := checkUserPassword(username, password, ns.ID)
 	if err != nil {
-		emo.Error("AdminLogin checkUserPassword:", err)
+		logg.Error("AdminLogin checkUserPassword:", err)
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 	if !isAuthorized {
-		emo.ParamError("AdminLogin: Bad password for " + username + " ns=" + namespace)
+		logg.ParamError("AdminLogin: Bad password for " + username + " ns=" + namespace)
 		w.WriteHeader(http.StatusUnauthorized)
 		return
 	}
 
 	userType, err := db.GetUserType(ns.Name, ns.ID, u.ID)
 	if err != nil {
-		emo.QueryError("AdminLogin AdminType:", err)
+		logg.QueryError("AdminLogin AdminType:", err)
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 	if userType == db.UserNoAdmin {
-		emo.ParamError("AdminLogin: u=" + username + " is not admin")
+		logg.ParamError("AdminLogin: u=" + username + " is not admin")
 		w.WriteHeader(http.StatusUnauthorized)
 		return
 	}
@@ -78,7 +78,7 @@ func AdminLogin(w http.ResponseWriter, r *http.Request) {
 	if userType == db.NsAdmin {
 		adminType = NsAdmin
 	}
-	emo.Result("AdminLogin OK u=" + u.Name + " ns=" + namespace + " AdminType=" + string(adminType))
+	logg.Result("AdminLogin OK u=" + u.Name + " ns=" + namespace + " AdminType=" + string(adminType))
 
 	// create a new Incorruptible cookie
 	cookie, tv, err := Incorruptible.NewCookie(r,
@@ -89,7 +89,7 @@ func AdminLogin(w http.ResponseWriter, r *http.Request) {
 		incorruptible.String(keyAdminType, string(adminType)),
 	)
 	if err != nil {
-		emo.Error("AdminLogin NewCookie:", err)
+		logg.Error("AdminLogin NewCookie:", err)
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
@@ -103,7 +103,7 @@ func AdminLogin(w http.ResponseWriter, r *http.Request) {
 func status(w http.ResponseWriter, r *http.Request) {
 	tv, err := Incorruptible.DecodeCookieToken(r)
 	if err != nil {
-		emo.Warning("/status: no valid token:", err.Error())
+		logg.Warning("/status: no valid token:", err.Error())
 		w.WriteHeader(http.StatusUnauthorized)
 		return
 	}

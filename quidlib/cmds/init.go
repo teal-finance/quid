@@ -1,5 +1,5 @@
 package cmds
 
-import emolib "github.com/teal-finance/emo"
+import "github.com/teal-finance/emo"
 
-var emo = emolib.NewZone("cmds")
+var logg = emo.NewLogger("cmds")

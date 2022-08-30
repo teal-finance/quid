@@ -12,23 +12,23 @@ import (
 func IsNsAdmin(r *http.Request, nsID int64) bool {
 	tv, ok := incorruptible.FromCtx(r)
 	if !ok {
-		emo.ParamError("VerifyAdminNs: missing Incorruptible token: cannot check Admin nsID=", nsID)
+		logg.ParamError("VerifyAdminNs: missing Incorruptible token: cannot check Admin nsID=", nsID)
 		return false
 	}
 
 	adminType := AdminType(tv.StringIfAny(keyAdminType))
 	if adminType == QuidAdmin {
-		emo.Param("VerifyAdminNs OK: Incorruptible token contains IsNsAdmin=true => Do not check the nsID")
+		logg.Param("VerifyAdminNs OK: Incorruptible token contains IsNsAdmin=true => Do not check the nsID")
 		return true
 	}
 
 	gotID, err := tv.Int64(keyNsID)
 	if err != nil {
-		emo.ParamError("VerifyAdminNs: missing field nsID in Incorruptible token, want nsID=", nsID, err)
+		logg.ParamError("VerifyAdminNs: missing field nsID in Incorruptible token, want nsID=", nsID, err)
 		return false
 	}
 	if gotID != nsID {
-		emo.ParamError("VerifyAdminNs: user is nsAdmin for", gotID, ", but not", nsID)
+		logg.ParamError("VerifyAdminNs: user is nsAdmin for", gotID, ", but not", nsID)
 		return false
 	}
 
@@ -40,7 +40,7 @@ func NsAdminMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		tv, err := Incorruptible.DecodeCookieToken(r)
 		if err != nil {
-			emo.Warning("QuidAdminMiddleware: no valid token:", err.Error())
+			logg.Warning("QuidAdminMiddleware: no valid token:", err.Error())
 			w.WriteHeader(http.StatusUnauthorized)
 			return
 		}
@@ -52,7 +52,7 @@ func NsAdminMiddleware(next http.Handler) http.Handler {
 			tv.KInt64(keyNsID),
 			tv.KString(keyAdminType))
 		if err != nil {
-			emo.Error(err)
+			logg.Error(err)
 			w.WriteHeader(http.StatusInternalServerError)
 			return
 		}
@@ -64,17 +64,17 @@ func NsAdminMiddleware(next http.Handler) http.Handler {
 
 		userType, err := db.GetUserType(namespace, nsID, userID)
 		if err != nil {
-			emo.Error("NsAdminMiddleware:", err)
+			logg.Error("NsAdminMiddleware:", err)
 			w.WriteHeader(http.StatusInternalServerError)
 			return
 		}
 		if userType == db.UserNoAdmin {
-			emo.ParamError("NsAdminMiddleware: u=" + userName + " is admin, but not for ns=" + namespace)
+			logg.ParamError("NsAdminMiddleware: u=" + userName + " is admin, but not for ns=" + namespace)
 			w.WriteHeader(http.StatusUnauthorized)
 			return
 		}
 
-		emo.RequestPost("NsAdminMiddleware OK u="+userName+" (id=", userID, ") ns="+namespace+" (id=", nsID, ")")
+		logg.RequestPost("NsAdminMiddleware OK u="+userName+" (id=", userID, ") ns="+namespace+" (id=", nsID, ")")
 		r = tv.ToCtx(r) // save the token in the request context
 		next.ServeHTTP(w, r)
 	})

@@ -6,17 +6,17 @@ import (
 	// pg import.
 	_ "github.com/lib/pq"
 
-	emolib "github.com/teal-finance/emo"
+	"github.com/teal-finance/emo"
 )
 
 var db *sqlx.DB
 
-var emo = emolib.NewZone("db")
+var logg = emo.NewLogger("db")
 
 // Init : init the db conf.
 func Init(isVerbose, isDev, isCmd bool) {
 	if !isDev && !isCmd {
-		emo.Print = isVerbose
+		logg.Print = isVerbose
 	}
 }
 

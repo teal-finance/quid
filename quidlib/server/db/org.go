@@ -112,7 +112,7 @@ func CreateOrg(name string) (int64, error) {
 
 	rows, err := db.Query(q, name)
 	if err != nil {
-		emo.QueryError(err)
+		log.QueryError(err)
 		return 0, err
 	}
 
@@ -120,13 +120,13 @@ func CreateOrg(name string) (int64, error) {
 		var idi any
 		err := rows.Scan(&idi)
 		if err != nil {
-			emo.QueryError(err)
+			log.QueryError(err)
 			return 0, err
 		}
 		return idi.(int64), nil
 	}
 
-	emo.QueryError("no org", name)
+	log.QueryError("no org", name)
 	return 0, fmt.Errorf("no org %q", name)
 }
 

@@ -12,7 +12,6 @@ import (
 	"encoding/hex"
 	"errors"
 	"fmt"
-	"log"
 	"time"
 
 	"github.com/golang-jwt/jwt/v4"
@@ -31,11 +30,11 @@ func GenRefreshToken(timeout, maxTTL, namespace, user string, secretKey []byte) 
 
 	token, err := t.SignedString(secretKey)
 	if err != nil {
-		emo.EncryptError(err)
+		log.EncryptError(err)
 		return "", err
 	}
 
-	emo.RefreshToken("Issued a refresh token for user '" + user + "' and namespace " + namespace)
+	log.RefreshToken("Issued a refresh token for user '" + user + "' and namespace " + namespace)
 	return token, nil
 }
 
@@ -51,11 +50,11 @@ func GenAdminAccessToken(namespaceName, timeout, maxTTL, userName string, userId
 
 	token, err := t.SignedString(secretKey)
 	if err != nil {
-		emo.EncryptError(err)
+		log.EncryptError(err)
 		return "", err
 	}
 
-	emo.AccessToken("Issued an admin access token for user", userName, "and namespace", namespaceName)
+	log.AccessToken("Issued an admin access token for user", userName, "and namespace", namespaceName)
 	return token, nil
 }
 
@@ -71,11 +70,11 @@ func GenAccessToken(timeout, maxTTL, user string, groups, orgs []string, secretK
 
 	token, err := t.SignedString(secretKey)
 	if err != nil {
-		emo.EncryptError(err)
+		log.EncryptError(err)
 		return "", err
 	}
 
-	emo.AccessToken("Issued an access token for user", user)
+	log.AccessToken("Issued an access token for user", user)
 
 	return token, nil
 }
@@ -92,7 +91,7 @@ func NewAccessToken(timeout, maxTTL, user string, groups, orgs []string, algo st
 	method := jwt.GetSigningMethod(algo)
 	if method == nil {
 		err = fmt.Errorf("unsupported signing algorithm %q, golang-jwt supports: %+v", algo, jwt.GetAlgorithms())
-		emo.ParamError(err)
+		log.ParamError(err)
 		return "", err
 	}
 	t := jwt.NewWithClaims(method, claims)
@@ -104,11 +103,11 @@ func NewAccessToken(timeout, maxTTL, user string, groups, orgs []string, algo st
 
 	token, err := t.SignedString(key)
 	if err != nil {
-		emo.EncryptError(err)
+		log.EncryptError(err)
 		return "", err
 	}
 
-	emo.AccessToken("Issued AccessToken exp="+timeout+" usr="+user+" grp=", groups, "org=", orgs, "Algo="+algo)
+	log.AccessToken("Issued AccessToken exp="+timeout+" usr="+user+" grp=", groups, "org=", orgs, "Algo="+algo)
 
 	return token, nil
 }
@@ -129,7 +128,7 @@ func convertDERToPrivateKey(algo string, der []byte) (any, error) {
 	}
 
 	err := fmt.Errorf("unsupported signing algorithm %q, golang-jwt supports: %+v", algo, jwt.GetAlgorithms())
-	emo.ParamError(err)
+	log.ParamError(err)
 	return nil, err
 }
 
@@ -188,7 +187,7 @@ func PrivateToPublic(algo string, der []byte) (any, error) {
 	}
 
 	err := fmt.Errorf("unsupported signing algorithm %q, golang-jwt supports: %+v", algo, jwt.GetAlgorithms())
-	emo.ParamError(err)
+	log.ParamError(err)
 	return nil, err
 }
 
@@ -250,7 +249,7 @@ func GenerateSigningKey(algo string) ([]byte, error) {
 	}
 
 	err := fmt.Errorf("unsupported signing algorithm %q, golang-jwt supports: %+v", algo, jwt.GetAlgorithms())
-	emo.ParamError(err)
+	log.ParamError(err)
 	return nil, err
 }
 
@@ -320,19 +319,19 @@ func GenerateEdDSAKey() []byte {
 func authorizedExpiry(timeout, maxTTL string) (time.Time, error) {
 	d, err := timex.ParseDuration(timeout)
 	if err != nil {
-		emo.ParamError("timeout", err)
+		log.ParamError("timeout", err)
 		return time.Time{}, err
 	}
 
 	max, err := timex.ParseDuration(maxTTL)
 	if err != nil {
-		emo.ParamError("maxTTL", err)
+		log.ParamError("maxTTL", err)
 		return time.Time{}, err
 	}
 
 	if d > max {
 		err = errors.New("Unauthorized timeout=" + timeout + " > maxTTL=" + maxTTL)
-		emo.ParamError(err.Error())
+		log.ParamError(err.Error())
 		return time.Time{}, err
 	}
 

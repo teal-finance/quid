@@ -2,11 +2,13 @@ package cmds
 
 import (
 	"fmt"
-	"log"
 	"os"
 
+	"github.com/teal-finance/emo"
 	"github.com/teal-finance/quid/quidlib/server/db"
 )
+
+var log = emo.NewZone("cmd")
 
 func WriteDevAdminToken(username string) error {
 	return writeDevAdminToken(username, "quid")
@@ -21,7 +23,7 @@ func writeDevAdminToken(username, namespace string) error {
 	token, err := db.GenNsAdminTokenForUser(username, namespace)
 	if err != nil {
 		msg := "Error generating refresh token"
-		emo.Error(msg, err)
+		log.Error(msg, err)
 		return err
 	}
 
@@ -29,7 +31,7 @@ func writeDevAdminToken(username, namespace string) error {
 
 	dir, err := os.Getwd()
 	if err != nil {
-		emo.Error(err)
+		log.Error(err)
 		return err
 	}
 	relpath := "/ui/.env.development.local"

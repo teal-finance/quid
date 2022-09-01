@@ -21,7 +21,7 @@ const (
 func AdminLogin(w http.ResponseWriter, r *http.Request) {
 	var m passwordRequest
 	if err := garcon.UnmarshalJSONRequest(w, r, &m); err != nil {
-		emo.ParamError("AdminLogin DecodeJSONBody:", err)
+		log.ParamError("AdminLogin DecodeJSONBody:", err)
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
@@ -31,7 +31,7 @@ func AdminLogin(w http.ResponseWriter, r *http.Request) {
 	namespace := m.Namespace
 
 	if p := garcon.Printable(username, password, namespace); p >= 0 {
-		emo.ParamError("AdminLogin: JSON contains a forbidden character at p=", p)
+		log.ParamError("AdminLogin: JSON contains a forbidden character at p=", p)
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
@@ -39,12 +39,12 @@ func AdminLogin(w http.ResponseWriter, r *http.Request) {
 	// get the namespace
 	exists, ns, err := db.SelectNamespaceFromName(namespace)
 	if err != nil {
-		emo.QueryError("AdminLogin SelectNamespaceFromName:", err)
+		log.QueryError("AdminLogin SelectNamespaceFromName:", err)
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 	if !exists {
-		emo.ParamError("AdminLogin: namespace " + namespace + " does not exist")
+		log.ParamError("AdminLogin: namespace " + namespace + " does not exist")
 		gw.WriteErr(w, r, http.StatusBadRequest, "namespace does not exist", "namespace", namespace)
 		return
 	}
@@ -52,24 +52,24 @@ func AdminLogin(w http.ResponseWriter, r *http.Request) {
 	// check the user password
 	isAuthorized, u, err := checkUserPassword(username, password, ns.ID)
 	if err != nil {
-		emo.Error("AdminLogin checkUserPassword:", err)
+		log.Error("AdminLogin checkUserPassword:", err)
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 	if !isAuthorized {
-		emo.ParamError("AdminLogin: Bad password for " + username + " ns=" + namespace)
+		log.ParamError("AdminLogin: Bad password for " + username + " ns=" + namespace)
 		w.WriteHeader(http.StatusUnauthorized)
 		return
 	}
 
 	userType, err := db.GetUserType(ns.Name, ns.ID, u.ID)
 	if err != nil {
-		emo.QueryError("AdminLogin AdminType:", err)
+		log.QueryError("AdminLogin AdminType:", err)
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 	if userType == db.UserNoAdmin {
-		emo.ParamError("AdminLogin: u=" + username + " is not admin")
+		log.ParamError("AdminLogin: u=" + username + " is not admin")
 		w.WriteHeader(http.StatusUnauthorized)
 		return
 	}
@@ -78,7 +78,7 @@ func AdminLogin(w http.ResponseWriter, r *http.Request) {
 	if userType == db.NsAdmin {
 		adminType = NsAdmin
 	}
-	emo.Result("AdminLogin OK u=" + u.Name + " ns=" + namespace + " AdminType=" + string(adminType))
+	log.Result("AdminLogin OK u=" + u.Name + " ns=" + namespace + " AdminType=" + string(adminType))
 
 	// create a new Incorruptible cookie
 	cookie, tv, err := Incorruptible.NewCookie(r,
@@ -89,7 +89,7 @@ func AdminLogin(w http.ResponseWriter, r *http.Request) {
 		incorruptible.String(keyAdminType, string(adminType)),
 	)
 	if err != nil {
-		emo.Error("AdminLogin NewCookie:", err)
+		log.Error("AdminLogin NewCookie:", err)
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
@@ -103,7 +103,7 @@ func AdminLogin(w http.ResponseWriter, r *http.Request) {
 func status(w http.ResponseWriter, r *http.Request) {
 	tv, err := Incorruptible.DecodeCookieToken(r)
 	if err != nil {
-		emo.Warning("/status: no valid token:", err.Error())
+		log.Warning("/status: no valid token:", err.Error())
 		w.WriteHeader(http.StatusUnauthorized)
 		return
 	}
@@ -135,7 +135,7 @@ func AdminLogout(w http.ResponseWriter, r *http.Request) {
 /*func RequestAdminAccessToken(w http.ResponseWriter, r *http.Request) {
 	var m adminAccessTokenRequest
 	if err := garcon.UnmarshalJSONRequest(w, r, &m); err != nil {
-		emo.ParamError("RequestAdminAccessToken DecodeJSONBody:", err)
+		log.ParamError("RequestAdminAccessToken DecodeJSONBody:", err)
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
@@ -144,22 +144,22 @@ func AdminLogout(w http.ResponseWriter, r *http.Request) {
 	nsName := m.Namespace
 
 	if p := garcon.Printable(refreshToken, nsName); p >= 0 {
-		emo.ParamError("RequestAdminAccessToken: JSON contains a forbidden character at p=", p)
+		log.ParamError("RequestAdminAccessToken: JSON contains a forbidden character at p=", p)
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
 
-	emo.RefreshToken(nsName, refreshToken)
+	log.RefreshToken(nsName, refreshToken)
 
 	// get the namespace
 	_, ns, err := db.SelectNamespaceFromName(nsName)
 	if err != nil {
-		emo.QueryError("RequestAdminAccessToken:", err)
+		log.QueryError("RequestAdminAccessToken:", err)
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 
-	emo.State("Verifying refresh token")
+	log.State("Verifying refresh token")
 	// verify the refresh token
 	token, err := jwt.ParseWithClaims(refreshToken, &tokens.RefreshClaims{}, func(token *jwt.Token) (any, error) {
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
@@ -168,36 +168,36 @@ func AdminLogout(w http.ResponseWriter, r *http.Request) {
 		return []byte(ns.RefreshKey), nil
 	})
 	if err != nil {
-		emo.QueryError("RequestAdminAccessToken ParseWithClaims:", err)
+		log.QueryError("RequestAdminAccessToken ParseWithClaims:", err)
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 
 	if !token.Valid {
-		emo.Warning("RequestAdminAccessToken: invalid token")
+		log.Warning("RequestAdminAccessToken: invalid token")
 		w.WriteHeader(http.StatusUnauthorized)
 		return
 	}
 
 	claims, ok := token.Claims.(*tokens.RefreshClaims)
 	if !ok {
-		emo.Warning("RequestAdminAccessToken: cannot convert to RefreshClaims")
+		log.Warning("RequestAdminAccessToken: cannot convert to RefreshClaims")
 		w.WriteHeader(http.StatusUnauthorized)
 		return
 	}
 
-	emo.Result("RequestAdminAccessToken: u="+claims.UserName+" expires=", claims.ExpiresAt)
+	log.Result("RequestAdminAccessToken: u="+claims.UserName+" expires=", claims.ExpiresAt)
 
 	// get the user
 	username := claims.UserName
 	found, u, err := db.SelectNonDisabledUser(username, ns.ID)
 	if err != nil {
-		emo.QueryError("RequestAdminAccessToken SelectNonDisabledUser:", err)
+		log.QueryError("RequestAdminAccessToken SelectNonDisabledUser:", err)
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 	if !found {
-		emo.Data("RequestAdminAccessToken: user not found: " + username)
+		log.Data("RequestAdminAccessToken: user not found: " + username)
 		w.WriteHeader(http.StatusUnauthorized)
 		return
 	}
@@ -205,12 +205,12 @@ func AdminLogout(w http.ResponseWriter, r *http.Request) {
 	// check if the user is in the admin group
 	isUserAdmin, err := db.IsUserAdmin(ns.Name, ns.ID, u.ID)
 	if err != nil {
-		emo.QueryError("RequestAdminAccessToken IsUserAdmin:", err)
+		log.QueryError("RequestAdminAccessToken IsUserAdmin:", err)
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 	if !isUserAdmin {
-		emo.Data("RequestAdminAccessToken: Admin access token request from u="+u.Name+" is not admin for ns=", ns.Name)
+		log.Data("RequestAdminAccessToken: Admin access token request from u="+u.Name+" is not admin for ns=", ns.Name)
 		w.WriteHeader(http.StatusUnauthorized)
 		return
 	}
@@ -226,11 +226,11 @@ func AdminLogout(w http.ResponseWriter, r *http.Request) {
 	// generate the access token
 	t, err := tokens.GenAdminAccessToken(ns.Name, "5m", ns.MaxTokenTTL, u.Name, u.ID, ns.ID, []byte(AdminNsKey), _isAdmin, _isNsAdmin)
 	if err != nil {
-		emo.Error("RequestAdminAccessToken GenAdminAccessToken:", err)
+		log.Error("RequestAdminAccessToken GenAdminAccessToken:", err)
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 
-	emo.AccessToken("Issued an admin access token for user", u.Name, "and namespace", ns.Name)
+	log.AccessToken("Issued an admin access token for user", u.Name, "and namespace", ns.Name)
 	gw.WriteOK(w, "token", t, "namespace", ns)
 }*/

@@ -19,7 +19,7 @@ func SelectAdministratorsInNamespace(namespaceID int64) ([]server.NsAdmin, error
 	var data []server.NsAdmin
 	err := db.Select(&data, q, namespaceID)
 	if err != nil {
-		fmt.Println("ERR", err)
+		log.Error(err)
 		return data, err
 	}
 
@@ -37,15 +37,15 @@ func SearchForNonAdminUsersInNamespace(namespaceID int64, qs string) ([]server.N
 		"LEFT OUTER JOIN usertable on usertable.id = namespaceadmin.user_id " +
 		"LEFT OUTER JOIN namespace on namespace.id =  namespaceadmin.namespace_id" +
 		" )"
-	emo.Query(q, namespaceID)
+	log.Query(q, namespaceID)
 	var data []server.NonNsAdmin
 	err := db.Select(&data, q, namespaceID)
 	if err != nil {
-		fmt.Println("ERR", err)
+		log.Error(err)
 		return data, err
 	}
 
-	emo.Debug("Data", data)
+	log.Debug("Data", data)
 	return data, nil
 }
 
@@ -55,7 +55,7 @@ func CreateAdministrator(namespaceID, userID int64) (int64, error) {
 
 	rows, err := db.Query(q, namespaceID, userID)
 	if err != nil {
-		emo.QueryError(err)
+		log.QueryError(err)
 		return 0, err
 	}
 
@@ -63,13 +63,13 @@ func CreateAdministrator(namespaceID, userID int64) (int64, error) {
 		var idi any
 		err := rows.Scan(&idi)
 		if err != nil {
-			emo.QueryError(err)
+			log.QueryError(err)
 			return 0, err
 		}
 		return idi.(int64), nil
 	}
 
-	emo.QueryError("no nsAdmin for nsID=", namespaceID, "userID=", userID)
+	log.QueryError("no nsAdmin for nsID=", namespaceID, "userID=", userID)
 	return 0, fmt.Errorf("no namespaceadmin")
 }
 

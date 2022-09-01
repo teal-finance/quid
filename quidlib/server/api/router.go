@@ -1,7 +1,6 @@
 package api
 
 import (
-	"log"
 	"net/http"
 
 	color "github.com/acmacalister/skittles"
@@ -21,10 +20,10 @@ func RunServer(port int) {
 	server := newServer(port)
 
 	if conf.IsDevMode {
-		log.Print("INF " + color.BoldRed("Running in development mode"))
+		log.Info("" + color.BoldRed("Running in development mode"))
 	}
 
-	log.Print("INF Server listening on " + color.UnderlineBlue("http://localhost"+server.Addr))
+	log.Info("Server listening on " + color.UnderlineBlue("http://localhost"+server.Addr))
 	log.Fatal(garcon.ListenAndServe(&server))
 }
 

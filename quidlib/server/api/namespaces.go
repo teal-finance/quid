@@ -13,7 +13,7 @@ import (
 func AllNamespaces(w http.ResponseWriter, r *http.Request) {
 	data, err := db.SelectAllNamespaces()
 	if err != nil {
-		emo.QueryError("AllNamespaces: error selecting namespaces:", err)
+		log.QueryError("AllNamespaces: error selecting namespaces:", err)
 		gw.WriteErr(w, r, http.StatusInternalServerError, "error selecting namespaces")
 		return
 	}
@@ -25,7 +25,7 @@ func AllNamespaces(w http.ResponseWriter, r *http.Request) {
 func SetNamespaceRefreshTokenMaxTTL(w http.ResponseWriter, r *http.Request) {
 	var m refreshMaxTTLRequest
 	if err := garcon.UnmarshalJSONRequest(w, r, &m); err != nil {
-		emo.Warning("SetNamespaceRefreshTokenMaxTTL:", err)
+		log.Warning("SetNamespaceRefreshTokenMaxTTL:", err)
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
@@ -34,14 +34,14 @@ func SetNamespaceRefreshTokenMaxTTL(w http.ResponseWriter, r *http.Request) {
 	refreshMxTTL := m.RefreshMaxTTL
 
 	if p := garcon.Printable(refreshMxTTL); p >= 0 {
-		emo.Warning("SetNamespaceRefreshTokenMaxTTL: JSON contains a forbidden character at p=", p)
+		log.Warning("SetNamespaceRefreshTokenMaxTTL: JSON contains a forbidden character at p=", p)
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
 
 	err := db.UpdateNamespaceRefreshTokenMaxTTL(id, refreshMxTTL)
 	if err != nil {
-		emo.QueryError("SetNamespaceRefreshTokenMaxTTL: error updating tokens max TTL in namespace:", err)
+		log.QueryError("SetNamespaceRefreshTokenMaxTTL: error updating tokens max TTL in namespace:", err)
 		gw.WriteErr(w, r, http.StatusInternalServerError, "error updating tokens max TTL in namespace")
 		return
 	}
@@ -53,7 +53,7 @@ func SetNamespaceRefreshTokenMaxTTL(w http.ResponseWriter, r *http.Request) {
 func SetNamespaceTokenMaxTTL(w http.ResponseWriter, r *http.Request) {
 	var m maxTTLRequest
 	if err := garcon.UnmarshalJSONRequest(w, r, &m); err != nil {
-		emo.Warning("SetNamespaceTokenMaxTTL:", err)
+		log.Warning("SetNamespaceTokenMaxTTL:", err)
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
@@ -62,14 +62,14 @@ func SetNamespaceTokenMaxTTL(w http.ResponseWriter, r *http.Request) {
 	ttl := m.MaxTTL
 
 	if p := garcon.Printable(ttl); p >= 0 {
-		emo.Warning("SetNamespaceTokenMaxTTL: JSON contains a forbidden character at p=", p)
+		log.Warning("SetNamespaceTokenMaxTTL: JSON contains a forbidden character at p=", p)
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
 
 	err := db.UpdateNamespaceTokenMaxTTL(id, ttl)
 	if err != nil {
-		emo.QueryError("SetNamespaceTokenMaxTTL: error updating tokens max TTL in namespace:", err)
+		log.QueryError("SetNamespaceTokenMaxTTL: error updating tokens max TTL in namespace:", err)
 		gw.WriteErr(w, r, http.StatusInternalServerError, "error updating tokens max TTL in namespace")
 		return
 	}
@@ -81,7 +81,7 @@ func SetNamespaceTokenMaxTTL(w http.ResponseWriter, r *http.Request) {
 func NamespaceInfo(w http.ResponseWriter, r *http.Request) {
 	var m infoRequest
 	if err := garcon.UnmarshalJSONRequest(w, r, &m); err != nil {
-		emo.Warning("NamespaceInfo:", err)
+		log.Warning("NamespaceInfo:", err)
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
@@ -90,14 +90,14 @@ func NamespaceInfo(w http.ResponseWriter, r *http.Request) {
 
 	nu, err := db.CountUsersForNamespace(id)
 	if err != nil {
-		emo.QueryError("NamespaceInfo: error counting users in namespace:", err)
+		log.QueryError("NamespaceInfo: error counting users in namespace:", err)
 		gw.WriteErr(w, r, http.StatusInternalServerError, "error counting users in namespace")
 		return
 	}
 
 	g, err := db.SelectGroupsForNamespace(id)
 	if err != nil {
-		emo.QueryError("NamespaceInfo: error counting groups in namespace:", err)
+		log.QueryError("NamespaceInfo: error counting groups in namespace:", err)
 		gw.WriteErr(w, r, http.StatusInternalServerError, "error counting groups in namespace")
 		return
 	}
@@ -114,19 +114,19 @@ func NamespaceInfo(w http.ResponseWriter, r *http.Request) {
 func GetNamespaceAccessPublicKey(w http.ResponseWriter, r *http.Request) {
 	var m infoRequest
 	if err := garcon.UnmarshalJSONRequest(w, r, &m); err != nil {
-		emo.Warning("GetNamespaceAccessKey:", err)
+		log.Warning("GetNamespaceAccessKey:", err)
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
 
 	found, algo, key, err := db.SelectNamespaceAccessPublicKey(m.ID)
 	if err != nil {
-		emo.QueryError(err)
+		log.QueryError(err)
 		gw.WriteErr(w, r, http.StatusInternalServerError, "error finding namespace access key", "namespace_id", m.ID)
 		return
 	}
 	if !found {
-		emo.QueryError("GetNamespaceAccessKey: namespace not found")
+		log.QueryError("GetNamespaceAccessKey: namespace not found")
 		gw.WriteErr(w, r, http.StatusBadRequest, "namespace not found", "namespace_id", m.ID)
 		return
 	}
@@ -138,7 +138,7 @@ func GetNamespaceAccessPublicKey(w http.ResponseWriter, r *http.Request) {
 func FindNamespace(w http.ResponseWriter, r *http.Request) {
 	var m nameRequest
 	if err := garcon.UnmarshalJSONRequest(w, r, &m); err != nil {
-		emo.Warning("FindNamespace:", err)
+		log.Warning("FindNamespace:", err)
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
@@ -146,14 +146,14 @@ func FindNamespace(w http.ResponseWriter, r *http.Request) {
 	name := m.Name
 
 	if p := garcon.Printable(name); p >= 0 {
-		emo.Warning("FindNamespace: JSON contains a forbidden character at p=", p)
+		log.Warning("FindNamespace: JSON contains a forbidden character at p=", p)
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
 
 	data, err := db.SelectNamespaceStartsWith(name)
 	if err != nil {
-		emo.QueryError("FindNamespace: error finding namespace:", err)
+		log.QueryError("FindNamespace: error finding namespace:", err)
 		gw.WriteErr(w, r, http.StatusInternalServerError, "error finding namespace")
 		return
 	}
@@ -165,7 +165,7 @@ func FindNamespace(w http.ResponseWriter, r *http.Request) {
 func DeleteNamespace(w http.ResponseWriter, r *http.Request) {
 	var m infoRequest
 	if err := garcon.UnmarshalJSONRequest(w, r, &m); err != nil {
-		emo.Warning("DeleteNamespace:", err)
+		log.Warning("DeleteNamespace:", err)
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
@@ -174,13 +174,13 @@ func DeleteNamespace(w http.ResponseWriter, r *http.Request) {
 
 	qRes := db.DeleteNamespace(id)
 	if qRes.HasError {
-		emo.QueryError(qRes.Error.Message)
+		log.QueryError(qRes.Error.Message)
 		if qRes.Error.HasUserMessage {
-			emo.Warning("DeleteNamespace: error deleting namespace")
+			log.Warning("DeleteNamespace: error deleting namespace")
 			gw.WriteErr(w, r, http.StatusConflict, "error deleting namespace: "+qRes.Error.Message)
 			return
 		}
-		emo.Error("DeleteNamespace")
+		log.Error("DeleteNamespace")
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
@@ -192,7 +192,7 @@ func DeleteNamespace(w http.ResponseWriter, r *http.Request) {
 func SetNamespaceEndpointAvailability(w http.ResponseWriter, r *http.Request) {
 	var m availability
 	if err := garcon.UnmarshalJSONRequest(w, r, &m); err != nil {
-		emo.Warning("SetNamespaceEndpointAvailability:", err)
+		log.Warning("SetNamespaceEndpointAvailability:", err)
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
@@ -202,7 +202,7 @@ func SetNamespaceEndpointAvailability(w http.ResponseWriter, r *http.Request) {
 
 	err := db.SetNamespaceEndpointAvailability(id, enable)
 	if err != nil {
-		emo.Warning("SetNamespaceEndpointAvailability: error updating namespace:", err)
+		log.Warning("SetNamespaceEndpointAvailability: error updating namespace:", err)
 		gw.WriteErr(w, r, http.StatusConflict, "error updating namespace")
 		return
 	}
@@ -214,26 +214,26 @@ func SetNamespaceEndpointAvailability(w http.ResponseWriter, r *http.Request) {
 func CreateNamespace(w http.ResponseWriter, r *http.Request) {
 	var m namespaceCreation
 	if err := garcon.UnmarshalJSONRequest(w, r, &m); err != nil {
-		emo.Warning("CreateNamespace:", err)
+		log.Warning("CreateNamespace:", err)
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
 
 	if p := garcon.Printable(m.Name, m.MaxTTL, m.RefreshMaxTTL); p >= 0 {
-		emo.Warning("CreateNamespace: JSON contains a forbidden character at p=", p)
+		log.Warning("CreateNamespace: JSON contains a forbidden character at p=", p)
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
 
 	if m.Algo == "" {
 		m.Algo = "HS256"
-		emo.Param("No signing algo provided, defaults to " + m.Algo)
+		log.Param("No signing algo provided, defaults to " + m.Algo)
 	}
 
 	refreshKey := tokens.GenerateKeyHMAC(256)
 	accessKey, err := tokens.GenerateSigningKey(m.Algo)
 	if err != nil {
-		emo.Warning("Generate AccessKey algo=" + m.Algo + " err: " + err.Error())
+		log.Warning("Generate AccessKey algo=" + m.Algo + " err: " + err.Error())
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
@@ -255,17 +255,17 @@ func CreateNamespace(w http.ResponseWriter, r *http.Request) {
 func createNamespace(name, ttl, refreshMaxTTL, algo string, accessKey, refreshKey []byte, endpoint bool) (int64, bool, error) {
 	exists, err := db.NamespaceExists(name)
 	if err != nil {
-		emo.QueryError("createNamespace NamespaceExists:", err)
+		log.QueryError("createNamespace NamespaceExists:", err)
 		return 0, false, err
 	}
 	if exists {
-		emo.QueryError("createNamespace: already exist")
+		log.QueryError("createNamespace: already exist")
 		return 0, true, nil
 	}
 
 	nsID, err := db.CreateNamespace(name, ttl, refreshMaxTTL, algo, accessKey, refreshKey, endpoint)
 	if err != nil {
-		emo.QueryError("createNamespace:", err)
+		log.QueryError("createNamespace:", err)
 		return 0, false, err
 	}
 

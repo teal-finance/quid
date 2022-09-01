@@ -69,7 +69,7 @@ func SelectNamespaceFromName(name string) (bool, server.Namespace, error) {
 	var data namespace
 	err := row.StructScan(&data)
 	if err != nil {
-		emo.Error(err)
+		log.Error(err)
 		if errors.Is(err, sql.ErrNoRows) {
 			return false, ns, nil
 		}
@@ -78,13 +78,13 @@ func SelectNamespaceFromName(name string) (bool, server.Namespace, error) {
 
 	accessKey, err := crypt.AesGcmDecryptBin(data.AccessKey)
 	if err != nil {
-		emo.DecryptError(err)
+		log.DecryptError(err)
 		return true, ns, err
 	}
 
 	refreshKey, err := crypt.AesGcmDecryptBin(data.RefreshKey)
 	if err != nil {
-		emo.DecryptError(err)
+		log.DecryptError(err)
 		return true, ns, err
 	}
 
@@ -112,19 +112,19 @@ func SelectNamespaceAccessPublicKey(id int64) (found bool, algo string, der []by
 			return false, "", nil, nil
 		}
 
-		emo.QueryError(err)
+		log.QueryError(err)
 		return false, "", nil, err
 	}
 
 	private, err := crypt.AesGcmDecryptBin(data.AccessKey)
 	if err != nil {
-		emo.DecryptError(err)
+		log.DecryptError(err)
 		return true, "", nil, err
 	}
 
 	public, err := tokens.PrivateToPublicDER(data.SigningAlgo, private)
 	if err != nil {
-		emo.DecryptError(err)
+		log.DecryptError(err)
 		return true, "", nil, err
 	}
 
@@ -165,7 +165,7 @@ func CreateNamespace(name, ttl, refreshTTL, algo string, accessKey, refreshKey [
 
 	rows, err := db.Query(q, name, algo, ak, rk, ttl, refreshTTL, endpoint)
 	if err != nil {
-		emo.QueryError(err)
+		log.QueryError(err)
 		return 0, err
 	}
 
@@ -173,13 +173,13 @@ func CreateNamespace(name, ttl, refreshTTL, algo string, accessKey, refreshKey [
 		var idi any
 		err := rows.Scan(&idi)
 		if err != nil {
-			emo.QueryError(err)
+			log.QueryError(err)
 			return 0, err
 		}
 		return idi.(int64), nil
 	}
 
-	emo.QueryError("no namespace", name)
+	log.QueryError("no namespace", name)
 	return 0, fmt.Errorf("no namespace %q", name)
 }
 

@@ -12,7 +12,7 @@ require (
 	github.com/manifoldco/promptui v0.9.0
 	github.com/spf13/viper v1.12.0
 	github.com/teal-finance/emo v0.0.0-20220902105249-a8ae3d6637a5
-	github.com/teal-finance/garcon v0.27.0
+	github.com/teal-finance/garcon v0.28.0
 	github.com/teal-finance/incorruptible v0.0.0-20220902125346-e41d69280686
 	golang.org/x/crypto v0.0.0-20220829220503-c86fa9a7ed90
 )
@@ -49,7 +49,6 @@ require (
 	github.com/spf13/jwalterweatherman v1.1.0 // indirect
 	github.com/spf13/pflag v1.0.5 // indirect
 	github.com/subosito/gotenv v1.4.1 // indirect
-	github.com/teal-finance/notifier v1.1.1 // indirect
 	golang.org/x/net v0.0.0-20220826154423-83b083e8dc8b // indirect
 	golang.org/x/sys v0.0.0-20220829200755-d48e67d00261 // indirect
 	golang.org/x/text v0.3.7 // indirect

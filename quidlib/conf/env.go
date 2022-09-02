@@ -2,7 +2,6 @@ package conf
 
 import (
 	"encoding/hex"
-	"fmt"
 	"os"
 	"strconv"
 	"strings"

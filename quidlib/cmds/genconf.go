@@ -1,9 +1,6 @@
 package cmds
 
 import (
-	"fmt"
-	"os"
-
 	"github.com/teal-finance/quid/quidlib/conf"
 )
 

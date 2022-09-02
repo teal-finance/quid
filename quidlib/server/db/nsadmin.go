@@ -88,7 +88,7 @@ func AdministratorExists(userID, namespaceID int64) (bool, error) {
 func DeleteAdministrator(userID, namespaceID int64) error {
 	q := "DELETE FROM namespaceadmin WHERE (user_id=$1 AND namespace_id=$2)"
 
-	fmt.Println(q, userID, namespaceID)
+	log.Data(q, userID, namespaceID)
 
 	tx := db.MustBegin()
 	tx.MustExec(q, userID, namespaceID)

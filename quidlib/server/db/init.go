@@ -21,7 +21,7 @@ func InitDbAutoConf(username, password string) {
 
 func initDbConf(prompt bool, username, password string) {
 	if prompt {
-		fmt.Println("Initializing Quid database")
+		log.Info("Initializing Quid database")
 	}
 
 	// check namespace
@@ -38,7 +38,7 @@ func initDbConf(prompt bool, username, password string) {
 			log.Fatal(err)
 		}
 	} else {
-		fmt.Println("Creating the quid namespace")
+		log.Info("Creating the quid namespace")
 
 		algo := "HS256"
 		accessKey := tokens.GenerateKeyHMAC(256)
@@ -65,7 +65,7 @@ func initDbConf(prompt bool, username, password string) {
 		}
 		gid = group.ID
 	} else {
-		fmt.Println("Creating the quid admin group")
+		log.Info("Creating the quid admin group")
 		gid, err = CreateGroup("quid_admin", nsID)
 		if err != nil {
 			log.Fatal(err)
@@ -76,7 +76,7 @@ func initDbConf(prompt bool, username, password string) {
 	if n, _ := CountUsersInGroup(gid); n == 0 {
 		var name string
 		if prompt {
-			fmt.Println("Create a superuser")
+			log.Info("Create The QuidAdmin")
 			name, err = promptForUsername()
 			if err != nil {
 				log.Fatal(err)
@@ -106,12 +106,12 @@ func initDbConf(prompt bool, username, password string) {
 		}
 
 		if prompt {
-			fmt.Println("Superuser", username, "created")
+			log.Result("QuidAdmin", username, "created")
 		}
 	}
 
 	if prompt {
-		fmt.Println("Initialization complete")
+		log.Info("Initialization complete")
 	}
 }
 

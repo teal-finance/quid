@@ -76,8 +76,7 @@ func main() {
 	// gen dev token flag
 	if *genDevToken {
 		if *env {
-			fmt.Println("This command is not allowed when initializing from environment variables")
-			os.Exit(2)
+			log.Fatal("This command is not allowed when initializing from environment variables")
 		}
 
 		username := os.Args[2]

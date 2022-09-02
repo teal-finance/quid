@@ -8,12 +8,11 @@ import (
 )
 
 func GeNConf() {
-	fmt.Println("Generating config file")
+	log.Info("Generating config file")
 
 	if err := conf.Create(); err != nil {
-		fmt.Println("Cannot create config file ", err)
-		os.Exit(3)
+		log.Fatal("Cannot create config file", err)
 	}
 
-	fmt.Println("Config file created: edit config.json to provide your database settings")
+	log.State("Config file created: edit config.json to provide your database settings")
 }

@@ -611,9 +611,9 @@ func easyjsonD2b7633eDecodeGithubComTealFinanceQuidQuidlibServer6(in *jlexer.Lex
 		switch key {
 		case "name":
 			out.Name = string(in.String())
-		case "max_token_ttl":
+		case "max_access_ttl":
 			out.MaxTokenTTL = string(in.String())
-		case "max_refresh_token_ttl":
+		case "max_refresh_ttl":
 			out.MaxRefreshTokenTTL = string(in.String())
 		case "id":
 			out.ID = int64(in.Int64())
@@ -643,12 +643,12 @@ func easyjsonD2b7633eEncodeGithubComTealFinanceQuidQuidlibServer6(out *jwriter.W
 		out.String(string(in.Name))
 	}
 	{
-		const prefix string = ",\"max_token_ttl\":"
+		const prefix string = ",\"max_access_ttl\":"
 		out.RawString(prefix)
 		out.String(string(in.MaxTokenTTL))
 	}
 	{
-		const prefix string = ",\"max_refresh_token_ttl\":"
+		const prefix string = ",\"max_refresh_ttl\":"
 		out.RawString(prefix)
 		out.String(string(in.MaxRefreshTokenTTL))
 	}

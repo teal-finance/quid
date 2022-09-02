@@ -3,7 +3,6 @@ package db
 import (
 	"errors"
 	"fmt"
-	"log"
 
 	"github.com/manifoldco/promptui"
 

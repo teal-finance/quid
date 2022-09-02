@@ -19,7 +19,7 @@ func SelectNonDisabledUserID(username string) (bool, int64, error) {
 	err := row.StructScan(&u)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
-			emo.NotFound("User", username, "not found")
+			log.NotFound("User", username, "not found")
 			return false, 0, nil
 		}
 		return false, 0, err
@@ -42,7 +42,7 @@ func SelectNonDisabledUser(username string, namespaceID int64) (bool, server.Use
 	err := row.StructScan(&u)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
-			emo.NotFound("User", username, "not found for", namespaceID)
+			log.NotFound("User", username, "not found for", namespaceID)
 			return false, ux, nil
 		}
 		return false, ux, err
@@ -157,7 +157,7 @@ func CreateUserFromNameAndPassword(username, passwordHash string, namespaceID in
 	q := "INSERT INTO usertable(username,password,namespace_id) VALUES($1,$2,$3) RETURNING id"
 	rows, err := db.Query(q, username, passwordHash, namespaceID)
 	if err != nil {
-		emo.QueryError(err)
+		log.QueryError(err)
 		return 0, err
 	}
 
@@ -165,13 +165,13 @@ func CreateUserFromNameAndPassword(username, passwordHash string, namespaceID in
 		var idi any
 		err := rows.Scan(&idi)
 		if err != nil {
-			emo.QueryError(err)
+			log.QueryError(err)
 			return 0, err
 		}
 		return idi.(int64), nil
 	}
 
-	emo.QueryError("no user", username)
+	log.QueryError("no user", username)
 	return 0, fmt.Errorf("no user %q", username)
 }
 

@@ -3,15 +3,17 @@ package main
 import (
 	"flag"
 	"fmt"
-	"log"
 	"os"
 
+	"github.com/teal-finance/emo"
 	"github.com/teal-finance/quid/quidlib/cmds"
 	"github.com/teal-finance/quid/quidlib/conf"
 	"github.com/teal-finance/quid/quidlib/server/api"
 	"github.com/teal-finance/quid/quidlib/server/db"
 	"github.com/teal-finance/quid/quidlib/tokens"
 )
+
+var log = emo.NewZone("cli")
 
 func main() {
 	init := flag.Bool("init", false, "initialize and create the QuidAdmin")
@@ -27,8 +29,7 @@ func main() {
 	// key flag
 	if *key != "" {
 		if *env {
-			fmt.Println("The key command is not allowed when initializing from environment variables")
-			os.Exit(1)
+			log.Fatal("The key command is not allowed when initializing from environment variables")
 		}
 
 		fmt.Println(tokens.GenerateSigningKey(*key))
@@ -38,8 +39,7 @@ func main() {
 	// gen conf flag
 	if *genConf {
 		if *env {
-			fmt.Println("This command is not allowed when initializing from environment variables")
-			os.Exit(2)
+			log.Fatal("This command is not allowed when initializing from environment variables")
 		}
 
 		cmds.GeNConf()
@@ -66,11 +66,11 @@ func main() {
 	db.Init(*isVerbose, *isDevMode, isCmd)
 
 	if err := db.Connect(conn); err != nil {
-		log.Fatalln(err)
+		log.Fatal(err)
 	}
 
 	if err := db.ExecSchema(); err != nil {
-		log.Fatalln(err)
+		log.Fatal(err)
 	}
 
 	// gen dev token flag
@@ -85,15 +85,14 @@ func main() {
 		if err != nil {
 			log.Fatal(err)
 		}
-		fmt.Println("Dev token generated in env file")
+		log.Info("Dev token generated in env file")
 		return
 	}
 
 	// gen namespace dev token flag
 	if *genDevNsToken {
 		if *env {
-			fmt.Println("This command is not allowed when initializing from environment variables")
-			os.Exit(2)
+			log.Fatal("This command is not allowed when initializing from environment variables")
 		}
 
 		username := os.Args[2]
@@ -102,15 +101,14 @@ func main() {
 		if err != nil {
 			log.Fatal(err)
 		}
-		fmt.Println("Dev nsadmin token generated in env file for user", username, "and namespace", namespace)
+		log.Info("Dev nsadmin token generated in env file for user", username, "and namespace", namespace)
 		return
 	}
 
 	// flag -init => initialize database
 	if *init {
 		if *env {
-			fmt.Println("The init command is not allowed when initializing from environment variables")
-			os.Exit(5)
+			log.Fatal("The init command is not allowed when initializing from environment variables")
 		}
 
 		db.InitDbConf()
@@ -118,8 +116,13 @@ func main() {
 	}
 
 	if autoConfDb {
-		fmt.Println("Configure automatically the DB")
+		log.Info("Configure automatically the DB")
 		db.InitDbAutoConf(conf.AdminUser, conf.AdminPassword)
+	}
+
+	printOnlyErrors := !*isVerbose && !*isDevMode
+	if printOnlyErrors {
+		emo.GlobalVerbosity(false)
 	}
 
 	api.Init(*isVerbose, *isDevMode)

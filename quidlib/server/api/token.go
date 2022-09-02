@@ -2,7 +2,6 @@ package api
 
 import (
 	"fmt"
-	"log"
 	"net/http"
 
 	"github.com/go-chi/chi/v5"
@@ -17,7 +16,7 @@ import (
 func RequestAccessToken(w http.ResponseWriter, r *http.Request) {
 	var m accessTokenRequest
 	if err := garcon.UnmarshalJSONRequest(w, r, &m); err != nil {
-		emo.ParamError("RequestAccessToken:", err)
+		log.ParamError("RequestAccessToken:", err)
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
@@ -26,7 +25,7 @@ func RequestAccessToken(w http.ResponseWriter, r *http.Request) {
 	namespace := m.Namespace
 
 	if p := garcon.Printable(refreshToken, namespace); p >= 0 {
-		emo.Warning("RequestAccessToken: JSON contains a forbidden character at p=", p)
+		log.Warning("RequestAccessToken: JSON contains a forbidden character at p=", p)
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
@@ -36,19 +35,19 @@ func RequestAccessToken(w http.ResponseWriter, r *http.Request) {
 	// get the namespace
 	exists, ns, err := db.SelectNamespaceFromName(namespace)
 	if err != nil {
-		emo.QueryError("RequestAccessToken SelectNamespaceFromName:", err)
+		log.QueryError("RequestAccessToken SelectNamespaceFromName:", err)
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 	if !exists {
-		emo.Data("RequestAccessToken: the namespace does not exist")
+		log.Data("RequestAccessToken: the namespace does not exist")
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
 
 	// check if the endpoint is available
 	if !ns.PublicEndpointEnabled {
-		emo.Warning("RequestAccessToken: Public endpoint unauthorized")
+		log.Warning("RequestAccessToken: Public endpoint unauthorized")
 		w.WriteHeader(http.StatusUnauthorized)
 		return
 	}
@@ -62,36 +61,36 @@ func RequestAccessToken(w http.ResponseWriter, r *http.Request) {
 		return []byte(ns.RefreshKey), nil
 	})
 	if err != nil {
-		emo.Warning("RequestAccessToken ParseWithClaims:", err)
+		log.Warning("RequestAccessToken ParseWithClaims:", err)
 		w.WriteHeader(http.StatusUnauthorized)
 		return
 	}
 	if !token.Valid {
-		emo.Warning("RequestAccessToken: invalid token")
+		log.Warning("RequestAccessToken: invalid token")
 		w.WriteHeader(http.StatusUnauthorized)
 		return
 	}
 
 	claims, ok := token.Claims.(*tokens.RefreshClaims)
 	if !ok {
-		emo.Error("RequestAccessToken: cannot convert to RefreshClaims")
+		log.Error("RequestAccessToken: cannot convert to RefreshClaims")
 		w.WriteHeader(http.StatusUnauthorized)
 		return
 	}
 
 	username = claims.UserName
-	emo.AccessToken("RequestAccessToken:", claims.UserName, claims.ExpiresAt)
+	log.AccessToken("RequestAccessToken:", claims.UserName, claims.ExpiresAt)
 
 	// get the user
 	found, u, err := db.SelectNonDisabledUser(username, ns.ID)
 	if err != nil {
-		emo.QueryError("RequestAccessToken SelectNonDisabledUser:", err)
+		log.QueryError("RequestAccessToken SelectNonDisabledUser:", err)
 		w.WriteHeader(http.StatusInternalServerError)
 		log.Fatal(err)
 		return
 	}
 	if !found {
-		emo.Warning("RequestAccessToken: user not found: " + username)
+		log.Warning("RequestAccessToken: user not found: " + username)
 		w.WriteHeader(http.StatusUnauthorized)
 		return
 	}
@@ -99,7 +98,7 @@ func RequestAccessToken(w http.ResponseWriter, r *http.Request) {
 	// get the user groups names
 	groupNames, err := db.SelectGroupsNamesForUser(u.ID)
 	if err != nil {
-		emo.QueryError("RequestAccessToken: Groups error:", err)
+		log.QueryError("RequestAccessToken: Groups error:", err)
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
@@ -107,7 +106,7 @@ func RequestAccessToken(w http.ResponseWriter, r *http.Request) {
 	// get the user orgs names
 	orgsNames, err := db.SelectOrgsNamesForUser(u.ID)
 	if err != nil {
-		emo.QueryError("RequestAccessToken: Orgs error:", err)
+		log.QueryError("RequestAccessToken: Orgs error:", err)
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
@@ -121,17 +120,17 @@ func RequestAccessToken(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if err != nil {
-		emo.Error("RequestAccessToken GenAccessToken:", err)
+		log.Error("RequestAccessToken GenAccessToken:", err)
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 	if t == "" {
-		emo.Warning("RequestAccessToken: Timeout unauthorized")
+		log.Warning("RequestAccessToken: Timeout unauthorized")
 		gw.WriteErr(w, r, http.StatusUnauthorized, "error", "unauthorized")
 		return
 	}
 
-	emo.AccessToken("RequestAccessToken: user="+u.Name+" t="+timeout+" TTL="+ns.MaxTokenTTL+" grp=", groupNames, "org=", orgsNames)
+	log.AccessToken("RequestAccessToken: user="+u.Name+" t="+timeout+" TTL="+ns.MaxTokenTTL+" grp=", groupNames, "org=", orgsNames)
 	gw.WriteOK(w, "token", t)
 }
 
@@ -139,7 +138,7 @@ func RequestAccessToken(w http.ResponseWriter, r *http.Request) {
 func RequestRefreshToken(w http.ResponseWriter, r *http.Request) {
 	var m passwordRequest
 	if err := garcon.UnmarshalJSONRequest(w, r, &m); err != nil {
-		emo.ParamError("RequestRefreshToken:", err)
+		log.ParamError("RequestRefreshToken:", err)
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
@@ -149,7 +148,7 @@ func RequestRefreshToken(w http.ResponseWriter, r *http.Request) {
 	namespace := m.Namespace
 
 	if p := garcon.Printable(username, password, namespace); p >= 0 {
-		emo.ParamError("RequestRefreshToken: JSON contains a forbidden character at p=", p)
+		log.ParamError("RequestRefreshToken: JSON contains a forbidden character at p=", p)
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
@@ -160,19 +159,19 @@ func RequestRefreshToken(w http.ResponseWriter, r *http.Request) {
 	// get the namespace
 	exists, ns, err := db.SelectNamespaceFromName(namespace)
 	if err != nil {
-		emo.QueryError("RequestRefreshToken SelectNamespaceFromName:", err)
+		log.QueryError("RequestRefreshToken SelectNamespaceFromName:", err)
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 	if !exists {
-		emo.Data("RequestRefreshToken: namespace does not exist")
+		log.Data("RequestRefreshToken: namespace does not exist")
 		gw.WriteErr(w, r, http.StatusBadRequest, "namespace does not exist")
 		return
 	}
 
 	// check if the endpoint is available
 	if !ns.PublicEndpointEnabled {
-		emo.Data("RequestRefreshToken: public endpoint unauthorized")
+		log.Data("RequestRefreshToken: public endpoint unauthorized")
 		w.WriteHeader(http.StatusUnauthorized)
 		return
 	}
@@ -185,7 +184,7 @@ func RequestRefreshToken(w http.ResponseWriter, r *http.Request) {
 
 	// Respond with unauthorized status
 	if !isAuthorized {
-		emo.Info("RequestRefreshToken: u=" + username + " unauthorized")
+		log.Info("RequestRefreshToken: u=" + username + " unauthorized")
 		w.WriteHeader(http.StatusUnauthorized)
 		return
 	}
@@ -193,16 +192,16 @@ func RequestRefreshToken(w http.ResponseWriter, r *http.Request) {
 	// generate the token
 	t, err := tokens.GenRefreshToken(timeout, ns.MaxRefreshTokenTTL, ns.Name, u.Name, []byte(ns.RefreshKey))
 	if err != nil {
-		emo.Error("RequestRefreshToken GenRefreshToken:", err)
+		log.Error("RequestRefreshToken GenRefreshToken:", err)
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 	if t == "" {
-		emo.Info("RequestRefreshToken: max timeout exceeded")
+		log.Info("RequestRefreshToken: max timeout exceeded")
 		gw.WriteErr(w, r, http.StatusUnauthorized, "max timeout exceeded")
 		return
 	}
 
-	emo.RefreshToken("RequestRefreshToken: user=" + u.Name + " t=" + timeout + " TTL=" + ns.MaxRefreshTokenTTL + " ns=" + ns.Name)
+	log.RefreshToken("RequestRefreshToken: user=" + u.Name + " t=" + timeout + " TTL=" + ns.MaxRefreshTokenTTL + " ns=" + ns.Name)
 	gw.WriteOK(w, "token", t)
 }

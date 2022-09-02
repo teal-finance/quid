@@ -5,11 +5,13 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
-	"log"
 	"os"
 
 	"github.com/spf13/viper"
+	"github.com/teal-finance/emo"
 )
+
+var log = emo.NewZone("cfg")
 
 // EncodingKey : the encoding key.
 var EncodingKey []byte

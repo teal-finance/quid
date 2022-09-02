@@ -3,7 +3,6 @@ package conf
 import (
 	"encoding/hex"
 	"fmt"
-	"log"
 	"os"
 	"strconv"
 	"strings"

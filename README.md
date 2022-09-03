@@ -141,3 +141,30 @@ using a refresh token, and will retry the request with the new access token.
 ### Javascript
 
 [QuidJS](https://github.com/teal-finance/quidjs) : the javascript requests library.
+
+## WebAuthn and FIDO2 features
+
+Quid does not support WebAuthn and FIDO2.
+See the following open-source projects providing these features:
+
+- **Authelia** <https://github.com/authelia/authelia>  
+  Authentication server with 2FA/SSO/OTP/FIDO2
+  already supported by Traefik, Nginx, HAProxy,
+  [Caddy](https://github.com/caddyserver/caddy/pull/4739)
+
+- **Kratos** <https://github.com/ory/kratos>  
+  Identity server in Go: MFA, FIDO2, social sign in, password-less, registration, account recovery…
+
+- **WebAuthn** <https://github.com/duo-labs/webauthn>  
+  WebAuthn/FIDO2 server library in Go
+  (the [Python version](https://github.com/duo-labs/py_webauthn) is more active)
+
+- **WebAuthn Demo** <https://github.com/fido-alliance/webauthn-demo>  
+  WebAuthn demo in HTML and JavaScript
+
+- **Portier** ([see the reference implementation in Rust](https://github.com/portier/portier-broker))  
+  Password-less login server using email/OpenID/OAuth2/JWT,
+  successor to Persona (Portier is simpler than Persona)
+
+- Other Authentication tools in Go:  
+  <https://github.com/avelino/awesome-go#authentication-and-oauth>

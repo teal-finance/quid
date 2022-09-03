@@ -23,7 +23,7 @@ func RunServer(port int) {
 		log.Info("" + color.BoldRed("Running in development mode"))
 	}
 
-	log.Info("Server listening on " + color.UnderlineBlue("http://localhost"+server.Addr))
+	log.Print("Server listening on " + color.UnderlineBlue("http://localhost"+server.Addr))
 	log.Fatal(garcon.ListenAndServe(&server))
 }
 

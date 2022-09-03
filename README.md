@@ -114,18 +114,18 @@ except jwt.ExpiredSignatureError:
     # ...
 ```
 
-Example payload:
+Payload example:
 
-```yaml
+```json
 {
-    'username': 'my_username',
-    'groups': ['my_group1', 'my_group2'],
-    'orgs': ['org1', 'org2']
-    'exp': 1595950745
+  "usr": "jane",
+  "grp": ["group1", "group2"],
+  "org": ["organization1", "organization2"],
+  "exp": 1595950745
 }
 ```
 
-`exp` is the expiration timestamp in [Unix time](https://en.wikipedia.org/wiki/Unix_time) format (seconds since 1970).
+Note: `"exp"` is the expiration timestamp in [Unix time](https://en.wikipedia.org/wiki/Unix_time) format (seconds since 1970).
 
 ### Examples
 

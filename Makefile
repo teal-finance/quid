@@ -7,7 +7,7 @@ help:
 	#
 	# run          Run the backend (serves the frontend static files).
 	# run-dev      Run the backend in dev mode (also serves the frontend).
-	# run-front    Run the frontend in dev mode.
+	# run-front    Run the frontend in dev mode (NodeJS serves the frontend).
 	#
 	# compose-up   Run Quid and Database using podman-compose or docker-compose.
 	# compose-rm   Stop and remove containers.

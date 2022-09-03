@@ -45,6 +45,10 @@ Download the latest [release](https://github.com/teal-finance/quid/releases) to 
 
     ./quid
 
+or simply:
+
+    go run . -dev
+
 See also: [run in dev mode](doc/dev_mode.md)
 
 Quid serves the static web site. Open <http://localhost:8082> to login into the admin interface:

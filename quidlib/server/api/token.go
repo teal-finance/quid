@@ -134,6 +134,45 @@ func RequestAccessToken(w http.ResponseWriter, r *http.Request) {
 	gw.WriteOK(w, "token", t)
 }
 
+func RequestAccessSigningPublicKey(w http.ResponseWriter, r *http.Request) {
+	var m nameRequest
+	if err := garcon.UnmarshalJSONRequest(w, r, &m); err != nil {
+		log.Warn("GetNamespaceAccessKey:", err)
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	// get the namespace
+	exists, ns, err := db.SelectNamespaceFromName(m.Name)
+	if err != nil {
+		log.QueryError(err)
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+	if !exists {
+		log.ParamError("Namespace", garcon.Sanitize(m.Name), "does not exist")
+		gw.WriteErr(w, r, http.StatusBadRequest, "namespace does not exist", "namespace", m.Name)
+		return
+	}
+
+	switch ns.SigningAlgo {
+	case "RS256", "RS384", "RS512": // OK
+	case "PS256", "PS384", "PS512": // OK
+	case "ES256", "ES384", "ES512": // OK
+	case "EdDSA": // OK
+	default: // "HS256", "HS384", "HS512"
+		log.ParamError("Namespace", m.Name, "has algo", ns.SigningAlgo, "without public key")
+		gw.WriteErr(w, r, http.StatusBadRequest, "namespace signing algo has no public key", "algo", ns.SigningAlgo)
+	}
+
+	public, err := tokens.DecryptVerificationKey(ns.SigningAlgo, ns.AccessKey)
+	if err != nil {
+		log.Error(err)
+	}
+
+	gw.WriteOK(w, "alg", ns.SigningAlgo, "key", public)
+}
+
 // RequestRefreshToken : http login handler.
 func RequestRefreshToken(w http.ResponseWriter, r *http.Request) {
 	var m passwordRequest

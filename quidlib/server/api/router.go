@@ -69,6 +69,7 @@ func newRouter(g *garcon.Garcon) http.Handler {
 	// public routes
 	r.Post("/token/refresh/{timeout}", RequestRefreshToken)
 	r.Post("/token/access/{timeout}", RequestAccessToken)
+	r.Post("/token/public", RequestAccessSigningPublicKey)
 	r.Post("/admin_login", AdminLogin)
 	r.Get("/logout", AdminLogout)
 	// r.With(Incorruptible.Chk).Post("/admin_token/access/", RequestAdminAccessToken)

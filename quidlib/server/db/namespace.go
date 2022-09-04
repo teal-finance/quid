@@ -102,8 +102,8 @@ func SelectNamespaceFromName(name string) (bool, server.Namespace, error) {
 	return true, ns, nil
 }
 
-// SelectNamespaceAccessPublicKey : get the AccessToken key for a namespace.
-func SelectNamespaceAccessPublicKey(id int64) (found bool, algo string, der []byte, _ error) {
+// SelectNamespaceAccessVerificationKey get the AccessToken key for a namespace.
+func SelectNamespaceAccessVerificationKey(id int64) (found bool, algo string, der []byte, _ error) {
 	row := db.QueryRowx("SELECT key FROM namespace WHERE id=$1", id)
 
 	var data namespace
@@ -116,19 +116,13 @@ func SelectNamespaceAccessPublicKey(id int64) (found bool, algo string, der []by
 		return false, "", nil, err
 	}
 
-	private, err := crypt.AesGcmDecryptBin(data.AccessKey)
+	key, err := tokens.DecryptVerificationKey(data.SigningAlgo, data.AccessKey)
 	if err != nil {
-		log.DecryptError(err)
+		log.Error(err)
 		return true, "", nil, err
 	}
 
-	public, err := tokens.PrivateToPublicDER(data.SigningAlgo, private)
-	if err != nil {
-		log.DecryptError(err)
-		return true, "", nil, err
-	}
-
-	return true, data.SigningAlgo, public, nil
+	return true, data.SigningAlgo, key, nil
 }
 
 // SelectNamespaceID : get a namespace.

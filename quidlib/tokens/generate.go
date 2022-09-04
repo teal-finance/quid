@@ -16,6 +16,7 @@ import (
 
 	"github.com/golang-jwt/jwt/v4"
 	"github.com/teal-finance/garcon/timex"
+	"github.com/teal-finance/quid/quidlib/crypt"
 )
 
 // GenRefreshToken generates a refresh token for a user in a namespace.
@@ -58,7 +59,7 @@ func GenAdminAccessToken(namespaceName, timeout, maxTTL, userName string, userId
 	return token, nil
 }
 
-// GenAccessToken generates an access token for a user.
+// GenAccessToken generates an access token with HS256 signing algo.
 func GenAccessToken(timeout, maxTTL, user string, groups, orgs []string, secretKey []byte) (string, error) {
 	expiry, err := authorizedExpiry(timeout, maxTTL)
 	if err != nil {
@@ -79,8 +80,8 @@ func GenAccessToken(timeout, maxTTL, user string, groups, orgs []string, secretK
 	return token, nil
 }
 
-// NewAccessToken creates an Access Token with the JSON fields "exp", "usr", "grp" and "org".
-func NewAccessToken(timeout, maxTTL, user string, groups, orgs []string, algo string, secretKey []byte) (string, error) {
+// GenAccessTokenWithAlgo creates an Access Token with the JSON fields "exp", "usr", "grp" and "org".
+func GenAccessTokenWithAlgo(timeout, maxTTL, user string, groups, orgs []string, algo string, secretKey []byte) (string, error) {
 	expiry, err := authorizedExpiry(timeout, maxTTL)
 	if err != nil {
 		return "", err
@@ -146,6 +147,24 @@ func PrivateToPublicDER(algo string, der []byte) ([]byte, error) {
 	}
 
 	return x509.MarshalPKIXPublicKey(public)
+}
+
+// DecryptVerificationKey returns the secret key for symmetric algos (like HMAC),
+// or the public key for asymmetric algos (like RSA, EdDSA).
+func DecryptVerificationKey(algo string, accessKey []byte) ([]byte, error) {
+	private, err := crypt.AesGcmDecryptBin(accessKey)
+	if err != nil {
+		log.DecryptError(err)
+		return nil, err
+	}
+
+	public, err := PrivateToPublicDER(algo, private)
+	if err != nil {
+		log.DecryptError(err)
+		return nil, err
+	}
+
+	return public, nil
 }
 
 // ParsePublicDER converts a public key in DER form into the original public key.

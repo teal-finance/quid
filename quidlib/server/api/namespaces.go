@@ -110,8 +110,8 @@ func NamespaceInfo(w http.ResponseWriter, r *http.Request) {
 	gw.WriteOK(w, data)
 }
 
-// GetNamespaceAccessPublicKey : get the key for a namespace.
-func GetNamespaceAccessPublicKey(w http.ResponseWriter, r *http.Request) {
+// GetNamespaceAccessVerificationKey : get the key for a namespace.
+func GetNamespaceAccessVerificationKey(w http.ResponseWriter, r *http.Request) {
 	var m infoRequest
 	if err := garcon.UnmarshalJSONRequest(w, r, &m); err != nil {
 		log.Warn("GetNamespaceAccessKey:", err)
@@ -119,7 +119,7 @@ func GetNamespaceAccessPublicKey(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	found, algo, key, err := db.SelectNamespaceAccessPublicKey(m.ID)
+	found, algo, key, err := db.SelectNamespaceAccessVerificationKey(m.ID)
 	if err != nil {
 		log.QueryError(err)
 		gw.WriteErr(w, r, http.StatusInternalServerError, "error finding namespace access key", "namespace_id", m.ID)

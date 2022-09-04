@@ -162,7 +162,7 @@ func TestNewAccessToken(t *testing.T) {
 				t.Error("public keys are not equal")
 			}
 
-			tokenStr, err := tokens.NewAccessToken(c.timeout, c.maxTTL, c.user, c.groups, c.orgs, algo, privateKey)
+			tokenStr, err := tokens.GenAccessTokenWithAlgo(c.timeout, c.maxTTL, c.user, c.groups, c.orgs, algo, privateKey)
 			if (err != nil) != c.wantNewErr {
 				t.Errorf("NewAccessToken() error = %v, wantNewErr %v", err, c.wantNewErr)
 				return

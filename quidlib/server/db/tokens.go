@@ -17,6 +17,7 @@ func GenNsAdminTokenForUser(userName, nsName string) (string, error) {
 	if !exists {
 		return "", errors.New("namespace does not exist")
 	}
+
 	exists, uid, err := SelectNonDisabledUserID(userName)
 	if err != nil {
 		return "", err

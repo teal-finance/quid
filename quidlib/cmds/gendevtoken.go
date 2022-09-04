@@ -10,7 +10,7 @@ import (
 
 var log = emo.NewZone("cmd")
 
-func WriteDevAdminToken(username string) error {
+func WriteQuidAdminToken(username string) error {
 	return writeDevAdminToken(username, "quid")
 }
 

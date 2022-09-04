@@ -80,7 +80,7 @@ func main() {
 		}
 
 		username := os.Args[2]
-		err := cmds.WriteDevAdminToken(username)
+		err := cmds.WriteQuidAdminToken(username)
 		if err != nil {
 			log.Fatal(err)
 		}

@@ -12,7 +12,7 @@ import (
 func AllGroupsForNamespace(w http.ResponseWriter, r *http.Request) {
 	var m namespaceIDRequest
 	if err := garcon.UnmarshalJSONRequest(w, r, &m); err != nil {
-		log.Warning("AllGroupsForNamespace:", err)
+		log.Warn("AllGroupsForNamespace:", err)
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
@@ -26,7 +26,7 @@ func AllGroupsForNamespace(w http.ResponseWriter, r *http.Request) {
 
 	data, err := db.SelectGroupsForNamespace(nsID)
 	if err != nil {
-		log.Warning("AllGroupsForNamespace: error selecting groups:", err)
+		log.Warn("AllGroupsForNamespace: error selecting groups:", err)
 		gw.WriteErr(w, r, http.StatusConflict, "error selecting groups")
 		return
 	}
@@ -38,7 +38,7 @@ func AllGroupsForNamespace(w http.ResponseWriter, r *http.Request) {
 func AllGroups(w http.ResponseWriter, r *http.Request) {
 	data, err := db.SelectAllGroups()
 	if err != nil {
-		log.Warning("AllGroups: error selecting groups:", err)
+		log.Warn("AllGroups: error selecting groups:", err)
 		gw.WriteErr(w, r, http.StatusConflict, "error selecting groups")
 	}
 
@@ -49,7 +49,7 @@ func AllGroups(w http.ResponseWriter, r *http.Request) {
 func GroupsInfo(w http.ResponseWriter, r *http.Request) {
 	var m userRequest
 	if err := garcon.UnmarshalJSONRequest(w, r, &m); err != nil {
-		log.Warning("GroupsInfo:", err)
+		log.Warn("GroupsInfo:", err)
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
@@ -64,7 +64,7 @@ func GroupsInfo(w http.ResponseWriter, r *http.Request) {
 
 	n, err := db.CountUsersInGroup(id)
 	if err != nil {
-		log.Warning("GroupsInfo: error counting in group:", err)
+		log.Warn("GroupsInfo: error counting in group:", err)
 		gw.WriteErr(w, r, http.StatusConflict, "error counting in group")
 		return
 	}
@@ -76,7 +76,7 @@ func GroupsInfo(w http.ResponseWriter, r *http.Request) {
 func DeleteGroup(w http.ResponseWriter, r *http.Request) {
 	var m userRequest
 	if err := garcon.UnmarshalJSONRequest(w, r, &m); err != nil {
-		log.Warning("DeleteGroup:", err)
+		log.Warn("DeleteGroup:", err)
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
@@ -90,7 +90,7 @@ func DeleteGroup(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if err := db.DeleteGroup(id); err != nil {
-		log.Warning("DeleteGroup: error deleting group:", err)
+		log.Warn("DeleteGroup: error deleting group:", err)
 		gw.WriteErr(w, r, http.StatusConflict, "error deleting group")
 		return
 	}
@@ -102,7 +102,7 @@ func DeleteGroup(w http.ResponseWriter, r *http.Request) {
 func CreateGroup(w http.ResponseWriter, r *http.Request) {
 	var m groupCreation
 	if err := garcon.UnmarshalJSONRequest(w, r, &m); err != nil {
-		log.Warning("CreateGroup:", err)
+		log.Warn("CreateGroup:", err)
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
@@ -111,7 +111,7 @@ func CreateGroup(w http.ResponseWriter, r *http.Request) {
 	nsID := m.NamespaceID
 
 	if p := garcon.Printable(name); p >= 0 {
-		log.Warning("CreateGroup: JSON contains a forbidden character at p=", p)
+		log.Warn("CreateGroup: JSON contains a forbidden character at p=", p)
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}

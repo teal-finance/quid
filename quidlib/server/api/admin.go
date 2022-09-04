@@ -103,7 +103,7 @@ func AdminLogin(w http.ResponseWriter, r *http.Request) {
 func status(w http.ResponseWriter, r *http.Request) {
 	tv, err := Incorruptible.DecodeCookieToken(r)
 	if err != nil {
-		log.Warning("/status: no valid token:", err.Error())
+		log.Warn("/status: no valid token:", err)
 		w.WriteHeader(http.StatusUnauthorized)
 		return
 	}
@@ -174,14 +174,14 @@ func AdminLogout(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if !token.Valid {
-		log.Warning("RequestAdminAccessToken: invalid token")
+		log.Warn("RequestAdminAccessToken: invalid token")
 		w.WriteHeader(http.StatusUnauthorized)
 		return
 	}
 
 	claims, ok := token.Claims.(*tokens.RefreshClaims)
 	if !ok {
-		log.Warning("RequestAdminAccessToken: cannot convert to RefreshClaims")
+		log.Warn("RequestAdminAccessToken: cannot convert to RefreshClaims")
 		w.WriteHeader(http.StatusUnauthorized)
 		return
 	}

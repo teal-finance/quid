@@ -32,7 +32,7 @@ func FindOrg(w http.ResponseWriter, r *http.Request) {
 	name := m.Name
 
 	if p := garcon.Printable(name); p >= 0 {
-		log.Warning("FindOrg: JSON contains a forbidden character at p=", p)
+		log.Warn("FindOrg: JSON contains a forbidden character at p=", p)
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}

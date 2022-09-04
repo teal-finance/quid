@@ -40,7 +40,7 @@ func NsAdminMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		tv, err := Incorruptible.DecodeCookieToken(r)
 		if err != nil {
-			log.Warning("QuidAdminMiddleware: no valid token:", err.Error())
+			log.Warn("QuidAdminMiddleware: no valid token:", err.Error())
 			w.WriteHeader(http.StatusUnauthorized)
 			return
 		}

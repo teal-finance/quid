@@ -13,7 +13,7 @@ import (
 func AllAdministratorsInNamespace(w http.ResponseWriter, r *http.Request) {
 	var m namespaceIDRequest
 	if err := garcon.UnmarshalJSONRequest(w, r, &m); err != nil {
-		log.Warning("AllAdministratorsInNamespace:", err)
+		log.Warn("AllAdministratorsInNamespace:", err)
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
@@ -34,7 +34,7 @@ func AllAdministratorsInNamespace(w http.ResponseWriter, r *http.Request) {
 func SearchForNonAdminUsersInNamespace(w http.ResponseWriter, r *http.Request) {
 	var m nonAdminUsersRequest
 	if err := garcon.UnmarshalJSONRequest(w, r, &m); err != nil {
-		log.Warning("SearchForNonAdminUsersInNamespace:", err)
+		log.Warn("SearchForNonAdminUsersInNamespace:", err)
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
@@ -43,7 +43,7 @@ func SearchForNonAdminUsersInNamespace(w http.ResponseWriter, r *http.Request) {
 	nsID := m.NamespaceID
 
 	if p := garcon.Printable(username); p >= 0 {
-		log.Warning("SearchForNonAdminUsersInNamespace: JSON contains a forbidden character at p=", p)
+		log.Warn("SearchForNonAdminUsersInNamespace: JSON contains a forbidden character at p=", p)
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
@@ -62,7 +62,7 @@ func SearchForNonAdminUsersInNamespace(w http.ResponseWriter, r *http.Request) {
 func CreateAdministrators(w http.ResponseWriter, r *http.Request) {
 	var m administratorsCreation
 	if err := garcon.UnmarshalJSONRequest(w, r, &m); err != nil {
-		log.Warning("CreateAdministrators:", err)
+		log.Warn("CreateAdministrators:", err)
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}

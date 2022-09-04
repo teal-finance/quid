@@ -25,7 +25,7 @@ func RequestAccessToken(w http.ResponseWriter, r *http.Request) {
 	namespace := m.Namespace
 
 	if p := garcon.Printable(refreshToken, namespace); p >= 0 {
-		log.Warning("RequestAccessToken: JSON contains a forbidden character at p=", p)
+		log.Warn("RequestAccessToken: JSON contains a forbidden character at p=", p)
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
@@ -47,7 +47,7 @@ func RequestAccessToken(w http.ResponseWriter, r *http.Request) {
 
 	// check if the endpoint is available
 	if !ns.PublicEndpointEnabled {
-		log.Warning("RequestAccessToken: Public endpoint unauthorized")
+		log.Warn("RequestAccessToken: Public endpoint unauthorized")
 		w.WriteHeader(http.StatusUnauthorized)
 		return
 	}
@@ -61,12 +61,12 @@ func RequestAccessToken(w http.ResponseWriter, r *http.Request) {
 		return []byte(ns.RefreshKey), nil
 	})
 	if err != nil {
-		log.Warning("RequestAccessToken ParseWithClaims:", err)
+		log.Warn("RequestAccessToken ParseWithClaims:", err)
 		w.WriteHeader(http.StatusUnauthorized)
 		return
 	}
 	if !token.Valid {
-		log.Warning("RequestAccessToken: invalid token")
+		log.Warn("RequestAccessToken: invalid token")
 		w.WriteHeader(http.StatusUnauthorized)
 		return
 	}
@@ -90,7 +90,7 @@ func RequestAccessToken(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	if !found {
-		log.Warning("RequestAccessToken: user not found: " + username)
+		log.Warn("RequestAccessToken: user not found: " + username)
 		w.WriteHeader(http.StatusUnauthorized)
 		return
 	}
@@ -125,7 +125,7 @@ func RequestAccessToken(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	if t == "" {
-		log.Warning("RequestAccessToken: Timeout unauthorized")
+		log.Warn("RequestAccessToken: Timeout unauthorized")
 		gw.WriteErr(w, r, http.StatusUnauthorized, "error", "unauthorized")
 		return
 	}

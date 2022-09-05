@@ -15,6 +15,7 @@ help:
 	# upg-patch    Upgrade dependencies patch version (Go/Node).
 	# upg-minor    Upgrade dependencies minor version (Go/Node).
 	# upg-more     Upgrade dependencies major version (Node only).
+	# vet          Upgrade deps, Format code, Test and Show coverage
 
 .PHONY: all
 all: front quid
@@ -168,3 +169,14 @@ upg-patch-go:
 upg-minor-go:
 	go get -t -u all
 	go mod tidy
+
+.PHONY: vet
+vet:
+	go mod tidy
+	go get -u -t all
+	go mod tidy
+	go generate ./...
+	go run mvdan.cc/gofumpt@latest -w -extra -l -lang 1.19 .
+	go build ./...
+	go test -race -vet all -coverprofile=test-coverage.profile ./...
+	go tool cover -html test-coverage.profile

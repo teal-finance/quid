@@ -111,6 +111,11 @@ type accessTokenRequest struct {
 	Namespace    string
 }
 
+type accessTokenValidationRequest struct {
+	AccessToken string
+	Namespace   string
+}
+
 type namespaceRequest struct {
 	Namespace string
 }

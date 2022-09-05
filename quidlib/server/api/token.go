@@ -179,6 +179,63 @@ func RequestAccessSigningPublicKey(w http.ResponseWriter, r *http.Request) {
 	gw.WriteOK(w, "alg", ns.SigningAlgo, "key", public)
 }
 
+func RequestAccessTokenValidation(w http.ResponseWriter, r *http.Request) {
+	var m accessTokenValidationRequest
+	if err := garcon.UnmarshalJSONRequest(w, r, &m); err != nil {
+		log.ParamError(err)
+		gw.WriteErr(w, r, http.StatusUnauthorized, "cannot decode JSON")
+		return
+	}
+
+	if p := garcon.Printable(m.AccessToken, m.Namespace); p >= 0 {
+		log.Warn("JSON contains a forbidden character at p=", p)
+		gw.WriteErr(w, r, http.StatusUnauthorized, "forbidden character", "position", p)
+		return
+	}
+
+	// get the namespace
+	exists, ns, err := db.SelectNamespaceFromName(m.Namespace)
+	if err != nil {
+		log.QueryError(err)
+		gw.WriteErr(w, r, http.StatusBadRequest, "DB error SELECT namespace", "namespace", m.Namespace)
+		return
+	}
+	if !exists {
+		log.ParamError("Namespace", m.Namespace, "does not exist")
+		gw.WriteErr(w, r, http.StatusBadRequest, "namespace does not exist", "namespace", m.Namespace)
+		return
+	}
+
+	publicKey, err := tokens.DecryptVerificationKey(ns.SigningAlgo, ns.AccessKey)
+	if err != nil {
+		gw.WriteErr(w, r, http.StatusBadRequest, "error decrypting verification key", "namespace", m.Namespace)
+		return
+	}
+
+	var claims tokens.AccessClaims
+	f := func(*jwt.Token) (any, error) { return publicKey, nil }
+	validator := jwt.NewParser(jwt.WithValidMethods([]string{ns.SigningAlgo}))
+	token, err := validator.ParseWithClaims(m.AccessToken, &claims, f)
+	if err != nil {
+		log.Result("Invalid while parsing AccessToken:", err)
+		goto invalid
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	if err := token.Claims.Valid(); err != nil {
+		log.Result("Invalid AccessToken:", err)
+		goto invalid
+	}
+
+	log.Result("Valid AccessToken")
+	w.WriteHeader(http.StatusOK)
+	_, _ = w.Write([]byte(`{"valid":true}`))
+
+invalid:
+	w.WriteHeader(http.StatusConflict)
+	_, _ = w.Write([]byte(`{"valid":false}`))
+}
+
 // RequestRefreshToken : http login handler.
 func RequestRefreshToken(w http.ResponseWriter, r *http.Request) {
 	var m passwordRequest

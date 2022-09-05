@@ -8,8 +8,8 @@ import (
 	"github.com/teal-finance/quid/quidlib/server"
 )
 
-// SelectAdministratorsInNamespace : get the admin users in a namespace.
-func SelectAdministratorsInNamespace(namespaceID int64) ([]server.NsAdmin, error) {
+// SelectNsAdministrators : get the admin users in a namespace.
+func SelectNsAdministrators(namespaceID int64) ([]server.NsAdmin, error) {
 	q := "SELECT namespaceadmin.id,namespaceadmin.user_id,namespaceadmin.namespace_id,usertable.username " +
 		"FROM namespaceadmin " +
 		"LEFT OUTER JOIN usertable on usertable.id=namespaceadmin.user_id " +
@@ -26,8 +26,8 @@ func SelectAdministratorsInNamespace(namespaceID int64) ([]server.NsAdmin, error
 	return data, nil
 }
 
-// SearchForNonAdminUsersInNamespace : find non admin users in a namespace
-func SearchForNonAdminUsersInNamespace(namespaceID int64, qs string) ([]server.NonNsAdmin, error) {
+// SelectNonAdminUsersInNs : find non admin users in a namespace
+func SelectNonAdminUsersInNs(namespaceID int64, qs string) ([]server.NonNsAdmin, error) {
 	q := "SELECT usertable.id as user_id, usertable.username, namespace.id as namespace_id FROM usertable  " +
 		"JOIN namespace ON usertable.namespace_id = namespace.id " +
 		"WHERE (namespace.id = $1 AND usertable.username LIKE E'" + qs + "%') " +
@@ -35,7 +35,7 @@ func SearchForNonAdminUsersInNamespace(namespaceID int64, qs string) ([]server.N
 		"SELECT namespaceadmin.user_id as id " +
 		"FROM namespaceadmin " +
 		"LEFT OUTER JOIN usertable on usertable.id = namespaceadmin.user_id " +
-		"LEFT OUTER JOIN namespace on namespace.id =  namespaceadmin.namespace_id" +
+		"LEFT OUTER JOIN namespace on namespace.id = namespaceadmin.namespace_id" +
 		" )"
 	log.Query(q, namespaceID)
 	var data []server.NonNsAdmin
@@ -73,8 +73,8 @@ func CreateAdministrator(namespaceID, userID int64) (int64, error) {
 	return 0, fmt.Errorf("no namespaceadmin")
 }
 
-// AdministratorExists : check if an admin user exists.
-func AdministratorExists(userID, namespaceID int64) (bool, error) {
+// IsUserAnAdmin : check if an admin user exists.
+func IsUserAnAdmin(userID, namespaceID int64) (bool, error) {
 	q := "SELECT COUNT(id) FROM namespaceadmin WHERE (namespace_id=$1 AND user_id=$2)"
 
 	var n int
@@ -116,7 +116,7 @@ func GetUserType(nsName string, nsID, userID int64) (UserType, error) {
 	}
 
 	// check if the user is namespace administrator
-	exists, err := AdministratorExists(userID, nsID)
+	exists, err := IsUserAnAdmin(userID, nsID)
 	if (err != nil) || !exists {
 		return UserNoAdmin, err
 	}

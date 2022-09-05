@@ -53,8 +53,8 @@ func SelectGroupsNamesForUser(userID int64) ([]string, error) {
 	return names, nil
 }
 
-// SelectGroupsForNamespace : get the groups for a namespace.
-func SelectGroupsForNamespace(namespaceID int64) ([]server.Group, error) {
+// SelectNsGroups : get the groups for a namespace.
+func SelectNsGroups(namespaceID int64) ([]server.Group, error) {
 	q := "SELECT grouptable.id,grouptable.name,namespace.name as namespace" +
 		" FROM grouptable" +
 		" JOIN namespace ON grouptable.namespace_id = namespace.id" +

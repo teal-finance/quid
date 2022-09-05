@@ -8,8 +8,8 @@ import (
 	db "github.com/teal-finance/quid/quidlib/server/db"
 )
 
-// AllGroupsForNamespace : get all groups for a namespace http handler.
-func AllGroupsForNamespace(w http.ResponseWriter, r *http.Request) {
+// AllNsGroups : get all groups for a namespace http handler.
+func AllNsGroups(w http.ResponseWriter, r *http.Request) {
 	var m namespaceIDRequest
 	if err := garcon.UnmarshalJSONRequest(w, r, &m); err != nil {
 		log.Warn("AllGroupsForNamespace:", err)
@@ -24,7 +24,7 @@ func AllGroupsForNamespace(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	data, err := db.SelectGroupsForNamespace(nsID)
+	data, err := db.SelectNsGroups(nsID)
 	if err != nil {
 		log.QueryError("AllGroupsForNamespace: error SELECT groups:", err)
 		gw.WriteErr(w, r, http.StatusConflict, "error SELECT groups")

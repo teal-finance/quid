@@ -69,8 +69,8 @@ func newRouter(g *garcon.Garcon) http.Handler {
 	// public routes
 	r.Post("/token/refresh/{timeout}", RequestRefreshToken)
 	r.Post("/token/access/{timeout}", RequestAccessToken)
-	r.Post("/token/public", RequestAccessSigningPublicKey)
-	r.Post("/token/valid", RequestAccessTokenValidation)
+	r.Post("/token/public", RequestAccessPublicKey)
+	r.Post("/token/valid", RequestAccessTokenValidity)
 	r.Post("/admin_login", AdminLogin)
 	r.Get("/logout", AdminLogout)
 	// r.With(Incorruptible.Chk).Post("/admin_token/access/", RequestAdminAccessToken)
@@ -88,19 +88,19 @@ func newRouter(g *garcon.Garcon) http.Handler {
 			r.Post("/add_user", AddUserInGroup)
 			r.Post("/remove_user", RemoveUserFromGroup)
 			// r.Get("/all", AllGroups) // TODO: remove when old frontend is disabled
-			r.Post("/nsall", AllGroupsForNamespace)
+			r.Post("/nsall", AllNsGroups)
 		})
 
 		// only admin can see the Git version & commit date.
 		r.Get("/version", garcon.ServeVersion())
 
 		r.Route("/users", func(r chi.Router) {
-			r.Post("/add", CreateUserHandler)
+			r.Post("/add", CreateUser)
 			r.Post("/delete", DeleteUser)
 			r.Post("/groups", UserGroupsInfo)
 			r.Post("/orgs", UserOrgsInfo)
 			// r.Get("/all", AllUsers) // TODO: remove when old frontend is disabled
-			r.Post("/nsall", AllUsersInNamespace)
+			r.Post("/nsall", AllNsUsers)
 			// r.Post("/search", SearchForUsersInNamespace)
 		})
 
@@ -109,11 +109,11 @@ func newRouter(g *garcon.Garcon) http.Handler {
 			r.Post("/delete", DeleteNamespace)
 			r.Post("/find", FindNamespace)
 			r.Post("/info", NamespaceInfo)
-			r.Post("/key", GetNamespaceAccessVerificationKey)
-			r.Post("/max-ttl", SetNamespaceTokenMaxTTL)
-			r.Post("/max-refresh-ttl", SetNamespaceRefreshTokenMaxTTL)
-			r.Post("/groups", GroupsForNamespace)
-			r.Post("/endpoint", SetNamespaceEndpointAvailability)
+			r.Post("/key", GetAccessVerificationKey)
+			r.Post("/max-ttl", SetTokenMaxTTL)
+			r.Post("/max-refresh-ttl", SetRefreshMaxTTL)
+			r.Post("/groups", NsGroups)
+			r.Post("/endpoint", EnableNsEndpoint)
 			r.Get("/all", AllNamespaces)
 		})
 
@@ -128,9 +128,9 @@ func newRouter(g *garcon.Garcon) http.Handler {
 
 		r.Route("/nsadmin", func(r chi.Router) {
 			r.Post("/add", CreateAdministrators)
-			r.Post("/nsall", AllAdministratorsInNamespace)
+			r.Post("/nsall", AllNsAdministrators)
 			r.Post("/delete", DeleteAdministrator)
-			r.Post("/search/nonadmins", SearchForNonAdminUsersInNamespace)
+			r.Post("/search/nonadmins", ListNonAdminUsersInNs)
 		})
 	})
 
@@ -140,10 +140,10 @@ func newRouter(g *garcon.Garcon) http.Handler {
 
 		// nsadmin users
 		r.Route("/users", func(r chi.Router) {
-			r.Post("/add", CreateUserHandler)
+			r.Post("/add", CreateUser)
 			r.Post("/delete", DeleteUser)
 			r.Post("/groups", UserGroupsInfo)
-			r.Post("/nsall", AllUsersInNamespace)
+			r.Post("/nsall", AllNsUsers)
 		})
 
 		// nsadmin groups
@@ -153,7 +153,7 @@ func newRouter(g *garcon.Garcon) http.Handler {
 			r.Post("/info", GroupsInfo)
 			r.Post("/add_user", AddUserInGroup)
 			r.Post("/remove_user", RemoveUserFromGroup)
-			r.Post("/nsall", AllGroupsForNamespace)
+			r.Post("/nsall", AllNsGroups)
 		})
 	})
 

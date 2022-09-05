@@ -33,9 +33,9 @@ func RequestAccessToken(w http.ResponseWriter, r *http.Request) {
 	timeout := chi.URLParam(r, "timeout")
 
 	// get the namespace
-	exists, ns, err := db.SelectNamespaceFromName(namespace)
+	exists, ns, err := db.SelectNsFromName(namespace)
 	if err != nil {
-		log.QueryError("RequestAccessToken SelectNamespaceFromName:", err)
+		log.QueryError("RequestAccessToken SelectNsFromName:", err)
 		gw.WriteErr(w, r, http.StatusUnauthorized, "DB error SELECT namespace", "namespace", namespace)
 		return
 	}
@@ -82,9 +82,9 @@ func RequestAccessToken(w http.ResponseWriter, r *http.Request) {
 	log.AccessToken("RequestAccessToken:", claims.UserName, claims.ExpiresAt)
 
 	// get the user
-	found, u, err := db.SelectNonDisabledUser(username, ns.ID)
+	found, u, err := db.SelectEnabledUser(username, ns.ID)
 	if err != nil {
-		log.QueryError("RequestAccessToken SelectNonDisabledUser:", err)
+		log.QueryError(err)
 		w.WriteHeader(http.StatusInternalServerError)
 		log.Fatal(err)
 		return
@@ -134,7 +134,7 @@ func RequestAccessToken(w http.ResponseWriter, r *http.Request) {
 	gw.WriteOK(w, "token", t)
 }
 
-func RequestAccessSigningPublicKey(w http.ResponseWriter, r *http.Request) {
+func RequestAccessPublicKey(w http.ResponseWriter, r *http.Request) {
 	var m nameRequest
 	if err := garcon.UnmarshalJSONRequest(w, r, &m); err != nil {
 		log.Warn("GetNamespaceAccessKey:", err)
@@ -149,7 +149,7 @@ func RequestAccessSigningPublicKey(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// get the namespace
-	exists, ns, err := db.SelectNamespaceFromName(m.Name)
+	exists, ns, err := db.SelectNsFromName(m.Name)
 	if err != nil {
 		log.QueryError(err)
 		gw.WriteErr(w, r, http.StatusBadRequest, "DB error SELECT namespace", "namespace", m.Name)
@@ -171,15 +171,15 @@ func RequestAccessSigningPublicKey(w http.ResponseWriter, r *http.Request) {
 		gw.WriteErr(w, r, http.StatusBadRequest, "namespace signing algo has no public key", "algo", ns.SigningAlgo)
 	}
 
-	public, err := tokens.DecryptVerificationKey(ns.SigningAlgo, ns.AccessKey)
+	publicDER, err := tokens.DecryptVerificationKeyDER(ns.SigningAlgo, ns.AccessKey)
 	if err != nil {
 		log.Error(err)
 	}
 
-	gw.WriteOK(w, "alg", ns.SigningAlgo, "key", public)
+	gw.WriteOK(w, "alg", ns.SigningAlgo, "key", publicDER)
 }
 
-func RequestAccessTokenValidation(w http.ResponseWriter, r *http.Request) {
+func RequestAccessTokenValidity(w http.ResponseWriter, r *http.Request) {
 	var m accessTokenValidationRequest
 	if err := garcon.UnmarshalJSONRequest(w, r, &m); err != nil {
 		log.ParamError(err)
@@ -194,7 +194,7 @@ func RequestAccessTokenValidation(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// get the namespace
-	exists, ns, err := db.SelectNamespaceFromName(m.Namespace)
+	exists, ns, err := db.SelectNsFromName(m.Namespace)
 	if err != nil {
 		log.QueryError(err)
 		gw.WriteErr(w, r, http.StatusBadRequest, "DB error SELECT namespace", "namespace", m.Namespace)
@@ -206,34 +206,24 @@ func RequestAccessTokenValidation(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	publicKey, err := tokens.DecryptVerificationKey(ns.SigningAlgo, ns.AccessKey)
+	verificationKeyDER, err := tokens.DecryptVerificationKeyDER(ns.SigningAlgo, ns.AccessKey)
 	if err != nil {
 		gw.WriteErr(w, r, http.StatusBadRequest, "error decrypting verification key", "namespace", m.Namespace)
 		return
 	}
 
-	var claims tokens.AccessClaims
-	f := func(*jwt.Token) (any, error) { return publicKey, nil }
-	validator := jwt.NewParser(jwt.WithValidMethods([]string{ns.SigningAlgo}))
-	token, err := validator.ParseWithClaims(m.AccessToken, &claims, f)
-	if err != nil {
-		log.Result("Invalid while parsing AccessToken:", err)
-		goto invalid
-	}
-
 	w.Header().Set("Content-Type", "application/json")
-	if err := token.Claims.Valid(); err != nil {
+
+	err = tokens.ValidAccessToken(m.AccessToken, ns.SigningAlgo, verificationKeyDER)
+	if err != nil {
 		log.Result("Invalid AccessToken:", err)
-		goto invalid
+		w.WriteHeader(http.StatusConflict)
+		_, _ = w.Write([]byte(`{"valid":false}`))
+	} else {
+		log.Result("Valid AccessToken")
+		w.WriteHeader(http.StatusOK)
+		_, _ = w.Write([]byte(`{"valid":true}`))
 	}
-
-	log.Result("Valid AccessToken")
-	w.WriteHeader(http.StatusOK)
-	_, _ = w.Write([]byte(`{"valid":true}`))
-
-invalid:
-	w.WriteHeader(http.StatusConflict)
-	_, _ = w.Write([]byte(`{"valid":false}`))
 }
 
 // RequestRefreshToken : http login handler.
@@ -259,9 +249,9 @@ func RequestRefreshToken(w http.ResponseWriter, r *http.Request) {
 	timeout := chi.URLParam(r, "timeout")
 
 	// get the namespace
-	exists, ns, err := db.SelectNamespaceFromName(namespace)
+	exists, ns, err := db.SelectNsFromName(namespace)
 	if err != nil {
-		log.QueryError("RequestRefreshToken SelectNamespaceFromName:", err)
+		log.QueryError("RequestRefreshToken SelectNsFromName:", err)
 		gw.WriteErr(w, r, http.StatusUnauthorized, "DB error SELECT namespace", "namespace", namespace)
 		return
 	}

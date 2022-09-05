@@ -9,8 +9,8 @@ import (
 	"github.com/teal-finance/quid/quidlib/server/db"
 )
 
-// AllAdministratorsInNamespace : select all admin users for a namespace.
-func AllAdministratorsInNamespace(w http.ResponseWriter, r *http.Request) {
+// AllNsAdministrators : select all admin users for a namespace.
+func AllNsAdministrators(w http.ResponseWriter, r *http.Request) {
 	var m namespaceIDRequest
 	if err := garcon.UnmarshalJSONRequest(w, r, &m); err != nil {
 		log.Warn("AllAdministratorsInNamespace:", err)
@@ -20,7 +20,7 @@ func AllAdministratorsInNamespace(w http.ResponseWriter, r *http.Request) {
 
 	nsID := m.NamespaceID
 
-	data, err := db.SelectAdministratorsInNamespace(nsID)
+	data, err := db.SelectNsAdministrators(nsID)
 	if err != nil {
 		log.QueryError("AllAdministratorsInNamespace: error SELECT admin users:", err)
 		gw.WriteErr(w, r, http.StatusInternalServerError, "error SELECT admin users")
@@ -30,8 +30,8 @@ func AllAdministratorsInNamespace(w http.ResponseWriter, r *http.Request) {
 	gw.WriteOK(w, data)
 }
 
-// SearchForNonAdminUsersInNamespace : search from a username in namespace
-func SearchForNonAdminUsersInNamespace(w http.ResponseWriter, r *http.Request) {
+// ListNonAdminUsersInNs : search from a username in namespace
+func ListNonAdminUsersInNs(w http.ResponseWriter, r *http.Request) {
 	var m nonAdminUsersRequest
 	if err := garcon.UnmarshalJSONRequest(w, r, &m); err != nil {
 		log.Warn("SearchForNonAdminUsersInNamespace:", err)
@@ -48,7 +48,7 @@ func SearchForNonAdminUsersInNamespace(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	u, err := db.SearchForNonAdminUsersInNamespace(nsID, username)
+	u, err := db.SelectNonAdminUsersInNs(nsID, username)
 	if err != nil {
 		log.QueryError("SearchForNonAdminUsersInNamespace: error searching for non admin users:", err)
 		gw.WriteErr(w, r, http.StatusInternalServerError, "error searching for non admin users")
@@ -71,17 +71,16 @@ func CreateAdministrators(w http.ResponseWriter, r *http.Request) {
 	nsID := m.NamespaceID
 
 	for _, uID := range uIDs {
-		// check if user exists
-		exists, err := db.AdministratorExists(nsID, uID)
+		// check if user is admin
+		yes, err := db.IsUserAnAdmin(nsID, uID)
 		if err != nil {
 			log.QueryError("CreateAdministrators: error checking admin user:", err)
 			gw.WriteErr(w, r, http.StatusConflict, "error checking admin user")
 			return
 		}
-		if exists {
-			log.QueryError("CreateAdministrators: admin user already exist:", err)
-			gw.WriteErr(w, r, http.StatusConflict, "admin user already exist")
-			return
+		if yes {
+			log.Query("CreateAdministrators: user is already an administrator:", err)
+			continue
 		}
 
 		// create admin user

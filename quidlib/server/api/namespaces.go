@@ -21,8 +21,8 @@ func AllNamespaces(w http.ResponseWriter, r *http.Request) {
 	gw.WriteOK(w, data)
 }
 
-// SetNamespaceRefreshTokenMaxTTL : set a max refresh token ttl for a namespace.
-func SetNamespaceRefreshTokenMaxTTL(w http.ResponseWriter, r *http.Request) {
+// SetRefreshMaxTTL : set a max refresh token ttl for a namespace.
+func SetRefreshMaxTTL(w http.ResponseWriter, r *http.Request) {
 	var m refreshMaxTTLRequest
 	if err := garcon.UnmarshalJSONRequest(w, r, &m); err != nil {
 		log.Warn("SetNamespaceRefreshTokenMaxTTL:", err)
@@ -39,7 +39,7 @@ func SetNamespaceRefreshTokenMaxTTL(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err := db.UpdateNamespaceRefreshTokenMaxTTL(id, refreshMxTTL)
+	err := db.UpdateNsRefreshMaxTTL(id, refreshMxTTL)
 	if err != nil {
 		log.QueryError("SetNamespaceRefreshTokenMaxTTL: error updating tokens max TTL in namespace:", err)
 		gw.WriteErr(w, r, http.StatusInternalServerError, "error updating tokens max TTL in namespace")
@@ -49,8 +49,8 @@ func SetNamespaceRefreshTokenMaxTTL(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 }
 
-// SetNamespaceTokenMaxTTL : set a max access token ttl for a namespace.
-func SetNamespaceTokenMaxTTL(w http.ResponseWriter, r *http.Request) {
+// SetTokenMaxTTL : set a max access token ttl for a namespace.
+func SetTokenMaxTTL(w http.ResponseWriter, r *http.Request) {
 	var m maxTTLRequest
 	if err := garcon.UnmarshalJSONRequest(w, r, &m); err != nil {
 		log.Warn("SetNamespaceTokenMaxTTL:", err)
@@ -67,7 +67,7 @@ func SetNamespaceTokenMaxTTL(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err := db.UpdateNamespaceTokenMaxTTL(id, ttl)
+	err := db.UpdateNsTokenMaxTTL(id, ttl)
 	if err != nil {
 		log.QueryError("SetNamespaceTokenMaxTTL: error updating tokens max TTL in namespace:", err)
 		gw.WriteErr(w, r, http.StatusInternalServerError, "error updating tokens max TTL in namespace")
@@ -95,7 +95,7 @@ func NamespaceInfo(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	g, err := db.SelectGroupsForNamespace(id)
+	g, err := db.SelectNsGroups(id)
 	if err != nil {
 		log.QueryError("NamespaceInfo: error counting groups in namespace:", err)
 		gw.WriteErr(w, r, http.StatusInternalServerError, "error counting groups in namespace")
@@ -110,8 +110,8 @@ func NamespaceInfo(w http.ResponseWriter, r *http.Request) {
 	gw.WriteOK(w, data)
 }
 
-// GetNamespaceAccessVerificationKey : get the key for a namespace.
-func GetNamespaceAccessVerificationKey(w http.ResponseWriter, r *http.Request) {
+// GetAccessVerificationKey : get the key for a namespace.
+func GetAccessVerificationKey(w http.ResponseWriter, r *http.Request) {
 	var m infoRequest
 	if err := garcon.UnmarshalJSONRequest(w, r, &m); err != nil {
 		log.Warn("GetNamespaceAccessKey:", err)
@@ -119,10 +119,10 @@ func GetNamespaceAccessVerificationKey(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	found, algo, key, err := db.SelectNamespaceAccessVerificationKey(m.ID)
+	found, algo, key, err := db.SelectVerificationKeyDER(m.ID)
 	if err != nil {
 		log.QueryError(err)
-		gw.WriteErr(w, r, http.StatusUnauthorized, "error finding namespace access key", "namespace_id", m.ID)
+		gw.WriteErr(w, r, http.StatusUnauthorized, "error SELECT namespace access key", "namespace_id", m.ID)
 		return
 	}
 	if !found {
@@ -151,10 +151,10 @@ func FindNamespace(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	data, err := db.SelectNamespaceStartsWith(name)
+	data, err := db.SelectNsStartsWith(name)
 	if err != nil {
-		log.QueryError("FindNamespace: error finding namespace:", err)
-		gw.WriteErr(w, r, http.StatusInternalServerError, "error finding namespace")
+		log.QueryError("FindNamespace: error SELECT namespace:", err)
+		gw.WriteErr(w, r, http.StatusInternalServerError, "error SELECT namespace")
 		return
 	}
 
@@ -188,8 +188,8 @@ func DeleteNamespace(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 }
 
-// SetNamespaceEndpointAvailability :.
-func SetNamespaceEndpointAvailability(w http.ResponseWriter, r *http.Request) {
+// EnableNsEndpoint :.
+func EnableNsEndpoint(w http.ResponseWriter, r *http.Request) {
 	var m availability
 	if err := garcon.UnmarshalJSONRequest(w, r, &m); err != nil {
 		log.Warn("SetNamespaceEndpointAvailability:", err)
@@ -200,7 +200,7 @@ func SetNamespaceEndpointAvailability(w http.ResponseWriter, r *http.Request) {
 	id := m.ID
 	enable := m.Enable
 
-	err := db.SetNamespaceEndpointAvailability(id, enable)
+	err := db.SetNsEndpointAvailability(id, enable)
 	if err != nil {
 		log.QueryError("SetNamespaceEndpointAvailability: error updating namespace:", err)
 		gw.WriteErr(w, r, http.StatusConflict, "error updating namespace")

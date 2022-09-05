@@ -12,8 +12,8 @@ import (
 	"github.com/teal-finance/quid/quidlib/server"
 )
 
-// SelectNonDisabledUserID : get a user id from it's username.
-func SelectNonDisabledUserID(username string) (bool, int64, error) {
+// SelectEnabledUserID : get a user id from it's username.
+func SelectEnabledUserID(username string) (bool, int64, error) {
 	row := db.QueryRowx("SELECT id,username,password,is_disabled FROM usertable WHERE(username=$1)", username)
 	var u user
 	err := row.StructScan(&u)
@@ -32,8 +32,8 @@ func SelectNonDisabledUserID(username string) (bool, int64, error) {
 	return true, u.ID, nil
 }
 
-// SelectNonDisabledUser : get a user from it's username.
-func SelectNonDisabledUser(username string, namespaceID int64) (bool, server.User, error) {
+// SelectEnabledUser : get a user from it's username.
+func SelectEnabledUser(username string, namespaceID int64) (bool, server.User, error) {
 	var usr server.User
 
 	row := db.QueryRowx("SELECT id,username,password,is_disabled FROM usertable WHERE(username=$1 AND namespace_id=$2)", username, namespaceID)
@@ -84,8 +84,8 @@ func SelectAllUsers() ([]server.User, error) {
 	return users, nil
 }
 
-// SelectUsersInNamespace : get the users in a namespace.
-func SelectUsersInNamespace(namespaceID int64) ([]server.User, error) {
+// SelectNsUsers : get the users in a namespace.
+func SelectNsUsers(namespaceID int64) ([]server.User, error) {
 	var data []user
 	err := db.Select(&data,
 		"SELECT usertable.id,usertable.username,namespace.name as namespace FROM usertable "+
@@ -203,8 +203,8 @@ func CountUsersInGroup(groupID int64) (int, error) {
 	return n, err
 }
 
-// UserNameExists : check if a username exists.
-func UserNameExists(username string, namespaceID int64) (bool, error) {
+// UserExists : check if a username exists.
+func UserExists(username string, namespaceID int64) (bool, error) {
 	q := "SELECT COUNT(id) FROM usertable WHERE (username=$1 AND namespace_id=$2)"
 
 	var n int

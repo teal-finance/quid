@@ -10,8 +10,8 @@ import (
 	db "github.com/teal-finance/quid/quidlib/server/db"
 )
 
-// AllUsersInNamespace : select all users for a namespace.
-func AllUsersInNamespace(w http.ResponseWriter, r *http.Request) {
+// AllNsUsers : select all users for a namespace.
+func AllNsUsers(w http.ResponseWriter, r *http.Request) {
 	var m namespaceIDRequest
 	if err := garcon.UnmarshalJSONRequest(w, r, &m); err != nil {
 		log.ParamError("AllUsersInNamespace:", err)
@@ -26,7 +26,7 @@ func AllUsersInNamespace(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	data, err := db.SelectUsersInNamespace(nsID)
+	data, err := db.SelectNsUsers(nsID)
 	if err != nil {
 		log.QueryError("AllUsersInNamespace: error SELECT users:", err)
 		gw.WriteErr(w, r, http.StatusInternalServerError, "error SELECT users")
@@ -36,8 +36,8 @@ func AllUsersInNamespace(w http.ResponseWriter, r *http.Request) {
 	gw.WriteOK(w, data)
 }
 
-// GroupsForNamespace : get the groups of a user.
-func GroupsForNamespace(w http.ResponseWriter, r *http.Request) {
+// NsGroups : get the groups of a user.
+func NsGroups(w http.ResponseWriter, r *http.Request) {
 	var m namespaceRequest
 	if err := garcon.UnmarshalJSONRequest(w, r, &m); err != nil {
 		log.ParamError("GroupsForNamespace:", err)
@@ -53,14 +53,14 @@ func GroupsForNamespace(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	hasResult, ns, err := db.SelectNamespaceFromName(namespace)
+	hasResult, ns, err := db.SelectNsFromName(namespace)
 	if err != nil || !hasResult {
 		log.QueryError("GroupsForNamespace: error SELECT namespace:", err)
 		gw.WriteErr(w, r, http.StatusInternalServerError, "error SELECT namespace")
 		return
 	}
 
-	g, err := db.SelectGroupsForNamespace(ns.ID)
+	g, err := db.SelectNsGroups(ns.ID)
 	if err != nil {
 		log.QueryError("GroupsForNamespace: error SELECT groups:", err)
 		gw.WriteErr(w, r, http.StatusInternalServerError, "error SELECT groups")
@@ -229,11 +229,11 @@ func DeleteUser(w http.ResponseWriter, r *http.Request) {
 	gw.WriteOK(w, "message", "ok")
 }
 
-// CreateUserHandler : create a user handler.
-func CreateUserHandler(w http.ResponseWriter, r *http.Request) {
+// CreateUser : create a user handler.
+func CreateUser(w http.ResponseWriter, r *http.Request) {
 	var m userHandlerCreation
 	if err := garcon.UnmarshalJSONRequest(w, r, &m); err != nil {
-		log.ParamError("CreateUserHandler:", err)
+		log.ParamError("CreateUser:", err)
 		gw.WriteErr(w, r, http.StatusUnauthorized, "cannot decode JSON")
 		return
 	}
@@ -243,7 +243,7 @@ func CreateUserHandler(w http.ResponseWriter, r *http.Request) {
 	nsID := m.NamespaceID
 
 	if p := garcon.Printable(name, password); p >= 0 {
-		log.ParamError("CreateUserHandler: JSON contains a forbidden character at p=", p)
+		log.ParamError("CreateUser: JSON contains a forbidden character at p=", p)
 		gw.WriteErr(w, r, http.StatusUnauthorized, "forbidden character")
 		return
 	}
@@ -254,14 +254,14 @@ func CreateUserHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// check if user exists
-	exists, err := db.UserNameExists(name, nsID)
+	exists, err := db.UserExists(name, nsID)
 	if err != nil {
-		log.QueryError("CreateUserHandler: error checking user:", err)
+		log.QueryError("CreateUser: error checking user:", err)
 		gw.WriteErr(w, r, http.StatusConflict, "error checking user")
 		return
 	}
 	if exists {
-		log.Data("CreateUserHandler: error user already exist")
+		log.Data("CreateUser: error user already exist")
 		gw.WriteErr(w, r, http.StatusConflict, "error user already exist")
 		return
 	}
@@ -269,17 +269,17 @@ func CreateUserHandler(w http.ResponseWriter, r *http.Request) {
 	// create user
 	u, err := db.CreateUser(name, password, nsID)
 	if err != nil {
-		log.QueryError("CreateUserHandler: error creating user:", err)
+		log.QueryError("CreateUser: error creating user:", err)
 		gw.WriteErr(w, r, http.StatusConflict, "error creating user")
 		return
 	}
 
-	log.Result("CreateUserHandler:", u)
+	log.Result("CreateUser:", u)
 	gw.WriteOK(w, "user_id", u.ID)
 }
 
 func checkUserPassword(username, password string, namespaceID int64) (bool, server.User, error) {
-	found, u, err := db.SelectNonDisabledUser(username, namespaceID)
+	found, u, err := db.SelectEnabledUser(username, namespaceID)
 	if !found || err != nil {
 		return false, u, err
 	}

@@ -10,7 +10,7 @@ import (
 func GenNsAdminTokenForUser(userName, nsName string) (string, error) {
 	log.Info("Generating ns admin token for", userName, nsName)
 	// get the namespace
-	exists, ns, err := SelectNamespaceFromName(nsName)
+	exists, ns, err := SelectNsFromName(nsName)
 	if err != nil {
 		return "", err
 	}
@@ -18,7 +18,7 @@ func GenNsAdminTokenForUser(userName, nsName string) (string, error) {
 		return "", errors.New("namespace does not exist")
 	}
 
-	exists, uid, err := SelectNonDisabledUserID(userName)
+	exists, uid, err := SelectEnabledUserID(userName)
 	if err != nil {
 		return "", err
 	}
@@ -33,7 +33,7 @@ func GenNsAdminTokenForUser(userName, nsName string) (string, error) {
 	}
 	// emo.Debug("USER", userName, uid, "NS", nsName, "NSa", isNsAdmin)
 	if adminType == UserNoAdmin {
-		qid, err := SelectNamespaceID("quid")
+		qid, err := SelectNsID("quid")
 		if err != nil {
 			return "", err
 		}

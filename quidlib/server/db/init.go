@@ -32,7 +32,7 @@ func initDbConf(prompt bool, username, password string) {
 	}
 
 	if nsExists {
-		nsID, err = SelectNamespaceID("quid")
+		nsID, err = SelectNsID("quid")
 		if err != nil {
 			log.Fatal(err)
 		}

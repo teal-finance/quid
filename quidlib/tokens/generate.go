@@ -149,9 +149,10 @@ func PrivateToPublicDER(algo string, der []byte) ([]byte, error) {
 	return x509.MarshalPKIXPublicKey(public)
 }
 
-// DecryptVerificationKey returns the secret key for symmetric algos (like HMAC),
+// DecryptVerificationKeyDER returns the secret key for symmetric algos (like HMAC),
 // or the public key for asymmetric algos (like RSA, EdDSA).
-func DecryptVerificationKey(algo string, accessKey []byte) ([]byte, error) {
+// The returned key is in DER format.
+func DecryptVerificationKeyDER(algo string, accessKey []byte) ([]byte, error) {
 	private, err := crypt.AesGcmDecryptBin(accessKey)
 	if err != nil {
 		log.DecryptError(err)
@@ -356,4 +357,25 @@ func authorizedExpiry(timeout, maxTTL string) (time.Time, error) {
 
 	expiry := time.Now().Add(d).UTC()
 	return expiry, nil
+}
+
+func ValidAccessToken(accessToken, algo string, verificationKeyDER []byte) error {
+	verificationKey, err := ParsePublicDER(algo, verificationKeyDER)
+	if err != nil {
+		return err
+	}
+
+	var claims AccessClaims
+	f := func(*jwt.Token) (any, error) { return verificationKey, nil }
+	validator := jwt.NewParser(jwt.WithValidMethods([]string{algo}))
+	token, err := validator.ParseWithClaims(accessToken, &claims, f)
+	if err != nil {
+		return err
+	}
+
+	if err := token.Claims.Valid(); err != nil {
+		return err
+	}
+
+	return nil
 }

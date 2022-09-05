@@ -37,9 +37,9 @@ func AdminLogin(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// get the namespace
-	exists, ns, err := db.SelectNamespaceFromName(namespace)
+	exists, ns, err := db.SelectNsFromName(namespace)
 	if err != nil {
-		log.QueryError("AdminLogin SelectNamespaceFromName:", err)
+		log.QueryError("AdminLogin SelectNsFromName:", err)
 		gw.WriteErr(w, r, http.StatusUnauthorized, "DB error SELECT namespace", "namespace", namespace)
 		return
 	}
@@ -152,7 +152,7 @@ func AdminLogout(w http.ResponseWriter, r *http.Request) {
 	log.RefreshToken(nsName, refreshToken)
 
 	// get the namespace
-	_, ns, err := db.SelectNamespaceFromName(nsName)
+	_, ns, err := db.SelectNsFromName(nsName)
 	if err != nil {
 		log.QueryError("RequestAdminAccessToken:", err)
 		w.WriteHeader(http.StatusInternalServerError)

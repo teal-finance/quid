@@ -6,6 +6,7 @@ import (
 	"testing"
 
 	"github.com/golang-jwt/jwt/v4"
+	"github.com/teal-finance/emo"
 	"github.com/teal-finance/quid/quidlib/tokens"
 )
 
@@ -124,6 +125,8 @@ var cases = []struct {
 func TestNewAccessToken(t *testing.T) {
 	t.Parallel()
 
+	emo.GlobalColoring(false)
+
 	for _, c := range cases {
 		c := c
 
@@ -181,6 +184,10 @@ func TestNewAccessToken(t *testing.T) {
 
 			if err := token.Claims.Valid(); err != nil {
 				t.Error("token.Claims.Valid:", err)
+			}
+
+			if err := tokens.ValidAccessToken(tokenStr, algo, publicDER); err != nil {
+				t.Error("ValidAccessToken:", err)
 			}
 		})
 	}

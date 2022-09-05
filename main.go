@@ -13,7 +13,7 @@ import (
 	"github.com/teal-finance/quid/quidlib/tokens"
 )
 
-var log = emo.NewZone("cli")
+var log = emo.NewZone("main")
 
 func main() {
 	init := flag.Bool("init", false, "initialize and create the QuidAdmin")

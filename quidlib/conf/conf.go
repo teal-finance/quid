@@ -10,7 +10,7 @@ import (
 	"github.com/teal-finance/emo"
 )
 
-var log = emo.NewZone("cfg")
+var log = emo.NewZone("conf")
 
 // EncodingKey : the encoding key.
 var EncodingKey []byte

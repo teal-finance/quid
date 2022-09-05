@@ -11,7 +11,7 @@ import (
 
 var db *sqlx.DB
 
-var log = emo.NewZone("sql")
+var log = emo.NewZone("db")
 
 // Init : init the db conf.
 func Init(isVerbose, isDev, isCmd bool) {

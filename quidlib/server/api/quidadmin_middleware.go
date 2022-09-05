@@ -43,7 +43,7 @@ func QuidAdminMiddleware(next http.Handler) http.Handler {
 		userType, err := db.GetUserType(namespace, nsID, userID)
 		if err != nil {
 			log.QueryError(err)
-			w.WriteHeader(http.StatusInternalServerError)
+			gw.WriteErr(w, r, http.StatusUnauthorized, "DB error while getting user type", "namespace_id", nsID, "uid", userID)
 			return
 		}
 		if userType != db.QuidAdmin {

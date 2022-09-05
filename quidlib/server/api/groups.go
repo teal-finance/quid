@@ -13,21 +13,21 @@ func AllGroupsForNamespace(w http.ResponseWriter, r *http.Request) {
 	var m namespaceIDRequest
 	if err := garcon.UnmarshalJSONRequest(w, r, &m); err != nil {
 		log.Warn("AllGroupsForNamespace:", err)
-		w.WriteHeader(http.StatusBadRequest)
+		gw.WriteErr(w, r, http.StatusUnauthorized, "cannot decode JSON")
 		return
 	}
 
 	nsID := m.NamespaceID
 
 	if !IsNsAdmin(r, nsID) {
-		w.WriteHeader(http.StatusUnauthorized)
+		gw.WriteErr(w, r, http.StatusUnauthorized, "user is not admin for requested namespace", "namespace_id", nsID)
 		return
 	}
 
 	data, err := db.SelectGroupsForNamespace(nsID)
 	if err != nil {
-		log.Warn("AllGroupsForNamespace: error selecting groups:", err)
-		gw.WriteErr(w, r, http.StatusConflict, "error selecting groups")
+		log.QueryError("AllGroupsForNamespace: error SELECT groups:", err)
+		gw.WriteErr(w, r, http.StatusConflict, "error SELECT groups")
 		return
 	}
 
@@ -38,8 +38,8 @@ func AllGroupsForNamespace(w http.ResponseWriter, r *http.Request) {
 func AllGroups(w http.ResponseWriter, r *http.Request) {
 	data, err := db.SelectAllGroups()
 	if err != nil {
-		log.Warn("AllGroups: error selecting groups:", err)
-		gw.WriteErr(w, r, http.StatusConflict, "error selecting groups")
+		log.QueryError("AllGroups: error SELECT groups:", err)
+		gw.WriteErr(w, r, http.StatusConflict, "error SELECT groups")
 	}
 
 	gw.WriteOK(w, data)
@@ -50,7 +50,7 @@ func GroupsInfo(w http.ResponseWriter, r *http.Request) {
 	var m userRequest
 	if err := garcon.UnmarshalJSONRequest(w, r, &m); err != nil {
 		log.Warn("GroupsInfo:", err)
-		w.WriteHeader(http.StatusBadRequest)
+		gw.WriteErr(w, r, http.StatusUnauthorized, "cannot decode JSON")
 		return
 	}
 
@@ -58,13 +58,13 @@ func GroupsInfo(w http.ResponseWriter, r *http.Request) {
 	nsID := m.NamespaceID
 
 	if !IsNsAdmin(r, nsID) {
-		w.WriteHeader(http.StatusUnauthorized)
+		gw.WriteErr(w, r, http.StatusUnauthorized, "user is not admin for requested namespace", "namespace_id", nsID)
 		return
 	}
 
 	n, err := db.CountUsersInGroup(id)
 	if err != nil {
-		log.Warn("GroupsInfo: error counting in group:", err)
+		log.QueryError("GroupsInfo: error counting in group:", err)
 		gw.WriteErr(w, r, http.StatusConflict, "error counting in group")
 		return
 	}
@@ -77,7 +77,7 @@ func DeleteGroup(w http.ResponseWriter, r *http.Request) {
 	var m userRequest
 	if err := garcon.UnmarshalJSONRequest(w, r, &m); err != nil {
 		log.Warn("DeleteGroup:", err)
-		w.WriteHeader(http.StatusBadRequest)
+		gw.WriteErr(w, r, http.StatusUnauthorized, "cannot decode JSON")
 		return
 	}
 
@@ -85,12 +85,12 @@ func DeleteGroup(w http.ResponseWriter, r *http.Request) {
 	nsID := m.NamespaceID
 
 	if !IsNsAdmin(r, nsID) {
-		w.WriteHeader(http.StatusUnauthorized)
+		gw.WriteErr(w, r, http.StatusUnauthorized, "user is not admin for requested namespace", "namespace_id", nsID)
 		return
 	}
 
 	if err := db.DeleteGroup(id); err != nil {
-		log.Warn("DeleteGroup: error deleting group:", err)
+		log.QueryError("DeleteGroup: error deleting group:", err)
 		gw.WriteErr(w, r, http.StatusConflict, "error deleting group")
 		return
 	}
@@ -103,7 +103,7 @@ func CreateGroup(w http.ResponseWriter, r *http.Request) {
 	var m groupCreation
 	if err := garcon.UnmarshalJSONRequest(w, r, &m); err != nil {
 		log.Warn("CreateGroup:", err)
-		w.WriteHeader(http.StatusBadRequest)
+		gw.WriteErr(w, r, http.StatusUnauthorized, "cannot decode JSON")
 		return
 	}
 
@@ -112,12 +112,12 @@ func CreateGroup(w http.ResponseWriter, r *http.Request) {
 
 	if p := garcon.Printable(name); p >= 0 {
 		log.Warn("CreateGroup: JSON contains a forbidden character at p=", p)
-		w.WriteHeader(http.StatusBadRequest)
+		gw.WriteErr(w, r, http.StatusUnauthorized, "forbidden character", "position", p)
 		return
 	}
 
 	if !IsNsAdmin(r, nsID) {
-		w.WriteHeader(http.StatusUnauthorized)
+		gw.WriteErr(w, r, http.StatusUnauthorized, "user is not admin for requested namespace", "namespace_id", nsID)
 		return
 	}
 

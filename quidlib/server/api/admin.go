@@ -22,7 +22,7 @@ func AdminLogin(w http.ResponseWriter, r *http.Request) {
 	var m passwordRequest
 	if err := garcon.UnmarshalJSONRequest(w, r, &m); err != nil {
 		log.ParamError("AdminLogin DecodeJSONBody:", err)
-		w.WriteHeader(http.StatusBadRequest)
+		gw.WriteErr(w, r, http.StatusUnauthorized, "cannot decode JSON")
 		return
 	}
 
@@ -32,7 +32,7 @@ func AdminLogin(w http.ResponseWriter, r *http.Request) {
 
 	if p := garcon.Printable(username, password, namespace); p >= 0 {
 		log.ParamError("AdminLogin: JSON contains a forbidden character at p=", p)
-		w.WriteHeader(http.StatusBadRequest)
+		gw.WriteErr(w, r, http.StatusUnauthorized, "forbidden character", "position", p)
 		return
 	}
 
@@ -40,7 +40,7 @@ func AdminLogin(w http.ResponseWriter, r *http.Request) {
 	exists, ns, err := db.SelectNamespaceFromName(namespace)
 	if err != nil {
 		log.QueryError("AdminLogin SelectNamespaceFromName:", err)
-		w.WriteHeader(http.StatusInternalServerError)
+		gw.WriteErr(w, r, http.StatusUnauthorized, "DB error SELECT namespace", "namespace", namespace)
 		return
 	}
 	if !exists {
@@ -53,24 +53,24 @@ func AdminLogin(w http.ResponseWriter, r *http.Request) {
 	isAuthorized, u, err := checkUserPassword(username, password, ns.ID)
 	if err != nil {
 		log.Error("AdminLogin checkUserPassword:", err)
-		w.WriteHeader(http.StatusInternalServerError)
+		gw.WriteErr(w, r, http.StatusUnauthorized, "internal error when checking user password", "usr", username, "namespace", namespace)
 		return
 	}
 	if !isAuthorized {
-		log.ParamError("AdminLogin: Bad password for " + username + " ns=" + namespace)
-		w.WriteHeader(http.StatusUnauthorized)
+		log.Info("AdminLogin u=" + username + " ns=" + namespace + ": disabled user or bad password")
+		gw.WriteErr(w, r, http.StatusUnauthorized, "disabled user or bad password", "usr", username, "namespace", namespace)
 		return
 	}
 
 	userType, err := db.GetUserType(ns.Name, ns.ID, u.ID)
 	if err != nil {
 		log.QueryError("AdminLogin AdminType:", err)
-		w.WriteHeader(http.StatusInternalServerError)
+		gw.WriteErr(w, r, http.StatusUnauthorized, "DB error when getting user type", "usr", username, "namespace", namespace)
 		return
 	}
 	if userType == db.UserNoAdmin {
 		log.ParamError("AdminLogin: u=" + username + " is not admin")
-		w.WriteHeader(http.StatusUnauthorized)
+		gw.WriteErr(w, r, http.StatusUnauthorized, "user is not admin", "usr", username, "namespace", namespace)
 		return
 	}
 
@@ -90,7 +90,7 @@ func AdminLogin(w http.ResponseWriter, r *http.Request) {
 	)
 	if err != nil {
 		log.Error("AdminLogin NewCookie:", err)
-		w.WriteHeader(http.StatusInternalServerError)
+		gw.WriteErr(w, r, http.StatusUnauthorized, "internal error when creating a new incorruptible cookie", "usr", username, "namespace", namespace)
 		return
 	}
 
@@ -104,7 +104,7 @@ func status(w http.ResponseWriter, r *http.Request) {
 	tv, err := Incorruptible.DecodeCookieToken(r)
 	if err != nil {
 		log.Warn("/status: no valid token:", err)
-		w.WriteHeader(http.StatusUnauthorized)
+		gw.WriteErr(w, r, http.StatusUnauthorized, "missing or invalid incorruptible cookie")
 		return
 	}
 
@@ -136,7 +136,7 @@ func AdminLogout(w http.ResponseWriter, r *http.Request) {
 	var m adminAccessTokenRequest
 	if err := garcon.UnmarshalJSONRequest(w, r, &m); err != nil {
 		log.ParamError("RequestAdminAccessToken DecodeJSONBody:", err)
-		w.WriteHeader(http.StatusBadRequest)
+		gw.WriteErr(w, r, http.StatusUnauthorized, "cannot decode JSON")
 		return
 	}
 

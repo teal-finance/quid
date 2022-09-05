@@ -23,7 +23,7 @@ func writeDevAdminToken(username, namespace string) error {
 	token, err := db.GenNsAdminTokenForUser(username, namespace)
 	if err != nil {
 		msg := "Error generating refresh token"
-		log.Error(msg, err)
+		log.QueryError(msg, err)
 		return err
 	}
 

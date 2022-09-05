@@ -64,7 +64,7 @@ func NsAdminMiddleware(next http.Handler) http.Handler {
 
 		userType, err := db.GetUserType(namespace, nsID, userID)
 		if err != nil {
-			log.Error("NsAdminMiddleware:", err)
+			log.QueryError("NsAdminMiddleware:", err)
 			w.WriteHeader(http.StatusInternalServerError)
 			return
 		}

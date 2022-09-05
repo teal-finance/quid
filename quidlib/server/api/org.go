@@ -12,8 +12,8 @@ import (
 func AllOrgs(w http.ResponseWriter, r *http.Request) {
 	data, err := db.SelectAllOrgs()
 	if err != nil {
-		log.QueryError("AllOrgs: error selecting orgs:", err)
-		gw.WriteErr(w, r, http.StatusConflict, "error selecting orgs")
+		log.QueryError("AllOrgs: error SELECT orgs:", err)
+		gw.WriteErr(w, r, http.StatusConflict, "error SELECT orgs")
 		return
 	}
 
@@ -25,7 +25,7 @@ func FindOrg(w http.ResponseWriter, r *http.Request) {
 	var m nameRequest
 	if err := garcon.UnmarshalJSONRequest(w, r, &m); err != nil {
 		log.ParamError("FindOrg:", err)
-		w.WriteHeader(http.StatusBadRequest)
+		gw.WriteErr(w, r, http.StatusUnauthorized, "cannot decode JSON")
 		return
 	}
 
@@ -33,7 +33,7 @@ func FindOrg(w http.ResponseWriter, r *http.Request) {
 
 	if p := garcon.Printable(name); p >= 0 {
 		log.Warn("FindOrg: JSON contains a forbidden character at p=", p)
-		w.WriteHeader(http.StatusBadRequest)
+		gw.WriteErr(w, r, http.StatusUnauthorized, "forbidden character", "position", p)
 		return
 	}
 
@@ -52,7 +52,7 @@ func UserOrgsInfo(w http.ResponseWriter, r *http.Request) {
 	var m infoRequest
 	if err := garcon.UnmarshalJSONRequest(w, r, &m); err != nil {
 		log.ParamError("UserOrgsInfo:", err)
-		w.WriteHeader(http.StatusBadRequest)
+		gw.WriteErr(w, r, http.StatusUnauthorized, "cannot decode JSON")
 		return
 	}
 
@@ -60,8 +60,8 @@ func UserOrgsInfo(w http.ResponseWriter, r *http.Request) {
 
 	o, err := db.SelectOrgsForUser(id)
 	if err != nil {
-		log.QueryError("UserOrgsInfo: error selecting orgs:", err)
-		gw.WriteErr(w, r, http.StatusInternalServerError, "error selecting orgs")
+		log.QueryError("UserOrgsInfo: error SELECT orgs:", err)
+		gw.WriteErr(w, r, http.StatusInternalServerError, "error SELECT orgs")
 		return
 	}
 
@@ -73,7 +73,7 @@ func DeleteOrg(w http.ResponseWriter, r *http.Request) {
 	var m infoRequest
 	if err := garcon.UnmarshalJSONRequest(w, r, &m); err != nil {
 		log.ParamError("DeleteOrg:", err)
-		w.WriteHeader(http.StatusBadRequest)
+		gw.WriteErr(w, r, http.StatusUnauthorized, "cannot decode JSON")
 		return
 	}
 
@@ -93,7 +93,7 @@ func CreateOrg(w http.ResponseWriter, r *http.Request) {
 	var m nameRequest
 	if err := garcon.UnmarshalJSONRequest(w, r, &m); err != nil {
 		log.ParamError("CreateOrg:", err)
-		w.WriteHeader(http.StatusBadRequest)
+		gw.WriteErr(w, r, http.StatusUnauthorized, "cannot decode JSON")
 		return
 	}
 
@@ -101,7 +101,7 @@ func CreateOrg(w http.ResponseWriter, r *http.Request) {
 
 	if p := garcon.Printable(name); p >= 0 {
 		log.ParamError("CreateOrg: JSON contains a forbidden character at p=", p)
-		w.WriteHeader(http.StatusBadRequest)
+		gw.WriteErr(w, r, http.StatusUnauthorized, "forbidden character", "position", p)
 		return
 	}
 

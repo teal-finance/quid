@@ -14,7 +14,7 @@ func AllAdministratorsInNamespace(w http.ResponseWriter, r *http.Request) {
 	var m namespaceIDRequest
 	if err := garcon.UnmarshalJSONRequest(w, r, &m); err != nil {
 		log.Warn("AllAdministratorsInNamespace:", err)
-		w.WriteHeader(http.StatusBadRequest)
+		gw.WriteErr(w, r, http.StatusUnauthorized, "cannot decode JSON")
 		return
 	}
 
@@ -22,8 +22,8 @@ func AllAdministratorsInNamespace(w http.ResponseWriter, r *http.Request) {
 
 	data, err := db.SelectAdministratorsInNamespace(nsID)
 	if err != nil {
-		log.QueryError("AllAdministratorsInNamespace: error selecting admin users:", err)
-		gw.WriteErr(w, r, http.StatusInternalServerError, "error selecting admin users")
+		log.QueryError("AllAdministratorsInNamespace: error SELECT admin users:", err)
+		gw.WriteErr(w, r, http.StatusInternalServerError, "error SELECT admin users")
 		return
 	}
 
@@ -35,7 +35,7 @@ func SearchForNonAdminUsersInNamespace(w http.ResponseWriter, r *http.Request) {
 	var m nonAdminUsersRequest
 	if err := garcon.UnmarshalJSONRequest(w, r, &m); err != nil {
 		log.Warn("SearchForNonAdminUsersInNamespace:", err)
-		w.WriteHeader(http.StatusBadRequest)
+		gw.WriteErr(w, r, http.StatusUnauthorized, "cannot decode JSON")
 		return
 	}
 
@@ -44,7 +44,7 @@ func SearchForNonAdminUsersInNamespace(w http.ResponseWriter, r *http.Request) {
 
 	if p := garcon.Printable(username); p >= 0 {
 		log.Warn("SearchForNonAdminUsersInNamespace: JSON contains a forbidden character at p=", p)
-		w.WriteHeader(http.StatusBadRequest)
+		gw.WriteErr(w, r, http.StatusUnauthorized, "forbidden character", "position", p)
 		return
 	}
 
@@ -63,7 +63,7 @@ func CreateAdministrators(w http.ResponseWriter, r *http.Request) {
 	var m administratorsCreation
 	if err := garcon.UnmarshalJSONRequest(w, r, &m); err != nil {
 		log.Warn("CreateAdministrators:", err)
-		w.WriteHeader(http.StatusBadRequest)
+		gw.WriteErr(w, r, http.StatusUnauthorized, "cannot decode JSON")
 		return
 	}
 
@@ -100,7 +100,7 @@ func DeleteAdministrator(w http.ResponseWriter, r *http.Request) {
 	var m administratorDeletion
 	if err := garcon.UnmarshalJSONRequest(w, r, &m); err != nil {
 		log.ParamError("DeleteAdministrator:", err)
-		w.WriteHeader(http.StatusBadRequest)
+		gw.WriteErr(w, r, http.StatusUnauthorized, "cannot decode JSON")
 		return
 	}
 

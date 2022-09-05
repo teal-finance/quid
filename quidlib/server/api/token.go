@@ -17,7 +17,7 @@ func RequestAccessToken(w http.ResponseWriter, r *http.Request) {
 	var m accessTokenRequest
 	if err := garcon.UnmarshalJSONRequest(w, r, &m); err != nil {
 		log.ParamError("RequestAccessToken:", err)
-		w.WriteHeader(http.StatusBadRequest)
+		gw.WriteErr(w, r, http.StatusUnauthorized, "cannot decode JSON")
 		return
 	}
 
@@ -26,7 +26,7 @@ func RequestAccessToken(w http.ResponseWriter, r *http.Request) {
 
 	if p := garcon.Printable(refreshToken, namespace); p >= 0 {
 		log.Warn("RequestAccessToken: JSON contains a forbidden character at p=", p)
-		w.WriteHeader(http.StatusBadRequest)
+		gw.WriteErr(w, r, http.StatusUnauthorized, "forbidden character", "position", p)
 		return
 	}
 
@@ -36,7 +36,7 @@ func RequestAccessToken(w http.ResponseWriter, r *http.Request) {
 	exists, ns, err := db.SelectNamespaceFromName(namespace)
 	if err != nil {
 		log.QueryError("RequestAccessToken SelectNamespaceFromName:", err)
-		w.WriteHeader(http.StatusInternalServerError)
+		gw.WriteErr(w, r, http.StatusUnauthorized, "DB error SELECT namespace", "namespace", namespace)
 		return
 	}
 	if !exists {
@@ -138,7 +138,13 @@ func RequestAccessSigningPublicKey(w http.ResponseWriter, r *http.Request) {
 	var m nameRequest
 	if err := garcon.UnmarshalJSONRequest(w, r, &m); err != nil {
 		log.Warn("GetNamespaceAccessKey:", err)
-		w.WriteHeader(http.StatusBadRequest)
+		gw.WriteErr(w, r, http.StatusBadRequest, "cannot decode JSON")
+		return
+	}
+
+	if p := garcon.Printable(m.Name); p >= 0 {
+		log.Warn(`JSON {"name":....} has forbidden character at p=`, p)
+		gw.WriteErr(w, r, http.StatusBadRequest, "forbidden character", "position", p)
 		return
 	}
 
@@ -146,11 +152,11 @@ func RequestAccessSigningPublicKey(w http.ResponseWriter, r *http.Request) {
 	exists, ns, err := db.SelectNamespaceFromName(m.Name)
 	if err != nil {
 		log.QueryError(err)
-		w.WriteHeader(http.StatusInternalServerError)
+		gw.WriteErr(w, r, http.StatusBadRequest, "DB error SELECT namespace", "namespace", m.Name)
 		return
 	}
 	if !exists {
-		log.ParamError("Namespace", garcon.Sanitize(m.Name), "does not exist")
+		log.ParamError("Namespace", m.Name, "does not exist")
 		gw.WriteErr(w, r, http.StatusBadRequest, "namespace does not exist", "namespace", m.Name)
 		return
 	}
@@ -178,7 +184,7 @@ func RequestRefreshToken(w http.ResponseWriter, r *http.Request) {
 	var m passwordRequest
 	if err := garcon.UnmarshalJSONRequest(w, r, &m); err != nil {
 		log.ParamError("RequestRefreshToken:", err)
-		w.WriteHeader(http.StatusBadRequest)
+		gw.WriteErr(w, r, http.StatusUnauthorized, "cannot decode JSON")
 		return
 	}
 
@@ -188,7 +194,7 @@ func RequestRefreshToken(w http.ResponseWriter, r *http.Request) {
 
 	if p := garcon.Printable(username, password, namespace); p >= 0 {
 		log.ParamError("RequestRefreshToken: JSON contains a forbidden character at p=", p)
-		w.WriteHeader(http.StatusBadRequest)
+		gw.WriteErr(w, r, http.StatusUnauthorized, "forbidden character", "position", p)
 		return
 	}
 
@@ -199,32 +205,31 @@ func RequestRefreshToken(w http.ResponseWriter, r *http.Request) {
 	exists, ns, err := db.SelectNamespaceFromName(namespace)
 	if err != nil {
 		log.QueryError("RequestRefreshToken SelectNamespaceFromName:", err)
-		w.WriteHeader(http.StatusInternalServerError)
+		gw.WriteErr(w, r, http.StatusUnauthorized, "DB error SELECT namespace", "namespace", namespace)
 		return
 	}
 	if !exists {
 		log.Data("RequestRefreshToken: namespace does not exist")
-		gw.WriteErr(w, r, http.StatusBadRequest, "namespace does not exist")
+		gw.WriteErr(w, r, http.StatusUnauthorized, "namespace does not exist")
 		return
 	}
 
 	// check if the endpoint is available
 	if !ns.PublicEndpointEnabled {
 		log.Data("RequestRefreshToken: public endpoint unauthorized")
-		w.WriteHeader(http.StatusUnauthorized)
+		gw.WriteErr(w, r, http.StatusUnauthorized, "endpoint disabled", "namespace", namespace)
 		return
 	}
 
 	// check if the user password matches
 	isAuthorized, u, err := checkUserPassword(username, password, ns.ID)
 	if err != nil {
+		gw.WriteErr(w, r, http.StatusUnauthorized, "error while checking password", "namespace_id", ns.ID, "usr", username)
 		return
 	}
-
-	// Respond with unauthorized status
 	if !isAuthorized {
-		log.Info("RequestRefreshToken: u=" + username + " unauthorized")
-		w.WriteHeader(http.StatusUnauthorized)
+		log.Info("RequestRefreshToken u=" + username + ": disabled user or bad password")
+		gw.WriteErr(w, r, http.StatusUnauthorized, "disabled user or bad password", "namespace_id", ns.ID, "usr", username)
 		return
 	}
 
@@ -232,12 +237,12 @@ func RequestRefreshToken(w http.ResponseWriter, r *http.Request) {
 	t, err := tokens.GenRefreshToken(timeout, ns.MaxRefreshTokenTTL, ns.Name, u.Name, []byte(ns.RefreshKey))
 	if err != nil {
 		log.Error("RequestRefreshToken GenRefreshToken:", err)
-		w.WriteHeader(http.StatusInternalServerError)
+		gw.WriteErr(w, r, http.StatusUnauthorized, "error while generating a new RefreshToken", "namespace", ns.Name, "usr", u.Name)
 		return
 	}
 	if t == "" {
 		log.Info("RequestRefreshToken: max timeout exceeded")
-		gw.WriteErr(w, r, http.StatusUnauthorized, "max timeout exceeded")
+		gw.WriteErr(w, r, http.StatusUnauthorized, "max timeout exceeded", "timeout", timeout, "max", ns.MaxRefreshTokenTTL)
 		return
 	}
 

@@ -15,21 +15,21 @@ func AllUsersInNamespace(w http.ResponseWriter, r *http.Request) {
 	var m namespaceIDRequest
 	if err := garcon.UnmarshalJSONRequest(w, r, &m); err != nil {
 		log.ParamError("AllUsersInNamespace:", err)
-		w.WriteHeader(http.StatusBadRequest)
+		gw.WriteErr(w, r, http.StatusUnauthorized, "cannot decode JSON")
 		return
 	}
 
 	nsID := m.NamespaceID
 
 	if !IsNsAdmin(r, nsID) {
-		w.WriteHeader(http.StatusUnauthorized)
+		gw.WriteErr(w, r, http.StatusUnauthorized, "user is not admin for requested namespace", "namespace_id", nsID)
 		return
 	}
 
 	data, err := db.SelectUsersInNamespace(nsID)
 	if err != nil {
-		log.QueryError("AllUsersInNamespace: error selecting users:", err)
-		gw.WriteErr(w, r, http.StatusInternalServerError, "error selecting users")
+		log.QueryError("AllUsersInNamespace: error SELECT users:", err)
+		gw.WriteErr(w, r, http.StatusInternalServerError, "error SELECT users")
 		return
 	}
 
@@ -41,7 +41,7 @@ func GroupsForNamespace(w http.ResponseWriter, r *http.Request) {
 	var m namespaceRequest
 	if err := garcon.UnmarshalJSONRequest(w, r, &m); err != nil {
 		log.ParamError("GroupsForNamespace:", err)
-		w.WriteHeader(http.StatusBadRequest)
+		gw.WriteErr(w, r, http.StatusUnauthorized, "cannot decode JSON")
 		return
 	}
 
@@ -49,21 +49,21 @@ func GroupsForNamespace(w http.ResponseWriter, r *http.Request) {
 
 	if p := garcon.Printable(namespace); p >= 0 {
 		log.ParamError("GroupsForNamespace: JSON contains a forbidden character at p=", p)
-		w.WriteHeader(http.StatusBadRequest)
+		gw.WriteErr(w, r, http.StatusUnauthorized, "forbidden character", "position", p)
 		return
 	}
 
 	hasResult, ns, err := db.SelectNamespaceFromName(namespace)
 	if err != nil || !hasResult {
-		log.QueryError("GroupsForNamespace: error selecting namespace:", err)
-		gw.WriteErr(w, r, http.StatusInternalServerError, "error selecting namespace")
+		log.QueryError("GroupsForNamespace: error SELECT namespace:", err)
+		gw.WriteErr(w, r, http.StatusInternalServerError, "error SELECT namespace")
 		return
 	}
 
 	g, err := db.SelectGroupsForNamespace(ns.ID)
 	if err != nil {
-		log.QueryError("GroupsForNamespace: error selecting groups:", err)
-		gw.WriteErr(w, r, http.StatusInternalServerError, "error selecting groups")
+		log.QueryError("GroupsForNamespace: error SELECT groups:", err)
+		gw.WriteErr(w, r, http.StatusInternalServerError, "error SELECT groups")
 	}
 
 	log.Result("GroupsForNamespace:", g)
@@ -75,7 +75,7 @@ func AddUserInOrg(w http.ResponseWriter, r *http.Request) {
 	var m userOrgRequest
 	if err := garcon.UnmarshalJSONRequest(w, r, &m); err != nil {
 		log.ParamError("AddUserInOrg:", err)
-		w.WriteHeader(http.StatusBadRequest)
+		gw.WriteErr(w, r, http.StatusUnauthorized, "cannot decode JSON")
 		return
 	}
 
@@ -98,7 +98,7 @@ func RemoveUserFromOrg(w http.ResponseWriter, r *http.Request) {
 	var m userOrgRequest
 	if err := garcon.UnmarshalJSONRequest(w, r, &m); err != nil {
 		log.ParamError("RemoveUserFromOrg:", err)
-		w.WriteHeader(http.StatusBadRequest)
+		gw.WriteErr(w, r, http.StatusUnauthorized, "cannot decode JSON")
 		return
 	}
 
@@ -121,7 +121,7 @@ func AddUserInGroup(w http.ResponseWriter, r *http.Request) {
 	var m userGroupRequest
 	if err := garcon.UnmarshalJSONRequest(w, r, &m); err != nil {
 		log.ParamError("AddUserInGroup:", err)
-		w.WriteHeader(http.StatusBadRequest)
+		gw.WriteErr(w, r, http.StatusUnauthorized, "cannot decode JSON")
 		return
 	}
 
@@ -130,7 +130,7 @@ func AddUserInGroup(w http.ResponseWriter, r *http.Request) {
 	nsID := m.NamespaceID
 
 	if !IsNsAdmin(r, nsID) {
-		w.WriteHeader(http.StatusUnauthorized)
+		gw.WriteErr(w, r, http.StatusUnauthorized, "user is not admin for requested namespace", "namespace_id", nsID)
 		return
 	}
 
@@ -150,7 +150,7 @@ func RemoveUserFromGroup(w http.ResponseWriter, r *http.Request) {
 	var m userGroupRequest
 	if err := garcon.UnmarshalJSONRequest(w, r, &m); err != nil {
 		log.ParamError("RemoveUserFromGroup:", err)
-		w.WriteHeader(http.StatusBadRequest)
+		gw.WriteErr(w, r, http.StatusUnauthorized, "cannot decode JSON")
 		return
 	}
 
@@ -159,7 +159,7 @@ func RemoveUserFromGroup(w http.ResponseWriter, r *http.Request) {
 	nsID := m.NamespaceID
 
 	if !IsNsAdmin(r, nsID) {
-		w.WriteHeader(http.StatusUnauthorized)
+		gw.WriteErr(w, r, http.StatusUnauthorized, "user is not admin for requested namespace", "namespace_id", nsID)
 		return
 	}
 
@@ -179,7 +179,7 @@ func UserGroupsInfo(w http.ResponseWriter, r *http.Request) {
 	var m userRequest
 	if err := garcon.UnmarshalJSONRequest(w, r, &m); err != nil {
 		log.ParamError("UserGroupsInfo:", err)
-		w.WriteHeader(http.StatusBadRequest)
+		gw.WriteErr(w, r, http.StatusUnauthorized, "cannot decode JSON")
 		return
 	}
 
@@ -187,14 +187,14 @@ func UserGroupsInfo(w http.ResponseWriter, r *http.Request) {
 	nsID := m.NamespaceID
 
 	if !IsNsAdmin(r, nsID) {
-		w.WriteHeader(http.StatusUnauthorized)
+		gw.WriteErr(w, r, http.StatusUnauthorized, "user is not admin for requested namespace", "namespace_id", nsID)
 		return
 	}
 
 	g, err := db.SelectGroupsForUser(id)
 	if err != nil {
-		log.QueryError("UserGroupsInfo: error selecting groups:", err)
-		gw.WriteErr(w, r, http.StatusInternalServerError, "error selecting groups")
+		log.QueryError("UserGroupsInfo: error SELECT groups:", err)
+		gw.WriteErr(w, r, http.StatusInternalServerError, "error SELECT groups")
 		return
 	}
 
@@ -207,7 +207,7 @@ func DeleteUser(w http.ResponseWriter, r *http.Request) {
 	var m userRequest
 	if err := garcon.UnmarshalJSONRequest(w, r, &m); err != nil {
 		log.ParamError("DeleteUser:", err)
-		w.WriteHeader(http.StatusBadRequest)
+		gw.WriteErr(w, r, http.StatusUnauthorized, "cannot decode JSON")
 		return
 	}
 
@@ -215,7 +215,7 @@ func DeleteUser(w http.ResponseWriter, r *http.Request) {
 	nsID := m.NamespaceID
 
 	if !IsNsAdmin(r, nsID) {
-		w.WriteHeader(http.StatusUnauthorized)
+		gw.WriteErr(w, r, http.StatusUnauthorized, "user is not admin for requested namespace", "namespace_id", nsID)
 		return
 	}
 
@@ -234,7 +234,7 @@ func CreateUserHandler(w http.ResponseWriter, r *http.Request) {
 	var m userHandlerCreation
 	if err := garcon.UnmarshalJSONRequest(w, r, &m); err != nil {
 		log.ParamError("CreateUserHandler:", err)
-		w.WriteHeader(http.StatusBadRequest)
+		gw.WriteErr(w, r, http.StatusUnauthorized, "cannot decode JSON")
 		return
 	}
 
@@ -244,12 +244,12 @@ func CreateUserHandler(w http.ResponseWriter, r *http.Request) {
 
 	if p := garcon.Printable(name, password); p >= 0 {
 		log.ParamError("CreateUserHandler: JSON contains a forbidden character at p=", p)
-		w.WriteHeader(http.StatusBadRequest)
+		gw.WriteErr(w, r, http.StatusUnauthorized, "forbidden character")
 		return
 	}
 
 	if !IsNsAdmin(r, nsID) {
-		w.WriteHeader(http.StatusUnauthorized)
+		gw.WriteErr(w, r, http.StatusUnauthorized, "user is not admin for requested namespace", "namespace_id", nsID)
 		return
 	}
 
@@ -285,9 +285,8 @@ func checkUserPassword(username, password string, namespaceID int64) (bool, serv
 	}
 
 	err = bcrypt.CompareHashAndPassword([]byte(u.PasswordHash), []byte(password))
-
 	if err != nil {
-		log.Error("|" + err.Error() + "|")
+		log.Error(err)
 		if err.Error() == "crypto/bcrypt: hashedPassword is not the hash of the given password" {
 			return false, u, err
 		}

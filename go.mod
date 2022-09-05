@@ -11,9 +11,9 @@ require (
 	github.com/mailru/easyjson v0.7.7
 	github.com/manifoldco/promptui v0.9.0
 	github.com/spf13/viper v1.12.0
-	github.com/teal-finance/emo v0.0.0-20220902105249-a8ae3d6637a5
-	github.com/teal-finance/garcon v0.28.0
-	github.com/teal-finance/incorruptible v0.0.0-20220902125346-e41d69280686
+	github.com/teal-finance/emo v0.0.0-20220904210933-fc48dfb6bbcb
+	github.com/teal-finance/garcon v0.28.1
+	github.com/teal-finance/incorruptible v0.0.0-20220902213136-fa2d591796b8
 	golang.org/x/crypto v0.0.0-20220829220503-c86fa9a7ed90
 )
 
@@ -22,6 +22,7 @@ require (
 	github.com/PuerkitoBio/goquery v1.8.0 // indirect
 	github.com/andybalholm/cascadia v1.3.1 // indirect
 	github.com/beorn7/perks v1.0.1 // indirect
+	github.com/carlmjohnson/be v0.22.5 // indirect
 	github.com/carlmjohnson/flagx v0.22.2 // indirect
 	github.com/carlmjohnson/versioninfo v0.22.4 // indirect
 	github.com/cespare/xxhash/v2 v2.1.2 // indirect
@@ -32,6 +33,7 @@ require (
 	github.com/josharian/intern v1.0.0 // indirect
 	github.com/klauspost/compress v1.15.9 // indirect
 	github.com/magiconair/properties v1.8.6 // indirect
+	github.com/mattn/go-sqlite3 v1.14.15 // indirect
 	github.com/matttproud/golang_protobuf_extensions v1.0.2-0.20181231171920-c182affec369 // indirect
 	github.com/minio/highwayhash v1.0.2 // indirect
 	github.com/mitchellh/mapstructure v1.5.0 // indirect
@@ -43,7 +45,10 @@ require (
 	github.com/prometheus/client_model v0.2.0 // indirect
 	github.com/prometheus/common v0.37.0 // indirect
 	github.com/prometheus/procfs v0.8.0 // indirect
+	github.com/rogpeppe/go-internal v1.9.0 // indirect
 	github.com/rs/cors v1.8.2 // indirect
+	github.com/sebdah/goldie/v2 v2.5.3 // indirect
+	github.com/sergi/go-diff v1.2.0 // indirect
 	github.com/spf13/afero v1.9.2 // indirect
 	github.com/spf13/cast v1.5.0 // indirect
 	github.com/spf13/jwalterweatherman v1.1.0 // indirect

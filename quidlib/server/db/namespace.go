@@ -111,7 +111,6 @@ func SelectNamespaceAccessVerificationKey(id int64) (found bool, algo string, de
 		if errors.Is(err, sql.ErrNoRows) {
 			return false, "", nil, nil
 		}
-
 		log.QueryError(err)
 		return false, "", nil, err
 	}

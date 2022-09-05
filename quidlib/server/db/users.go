@@ -34,7 +34,7 @@ func SelectNonDisabledUserID(username string) (bool, int64, error) {
 
 // SelectNonDisabledUser : get a user from it's username.
 func SelectNonDisabledUser(username string, namespaceID int64) (bool, server.User, error) {
-	var ux server.User
+	var usr server.User
 
 	row := db.QueryRowx("SELECT id,username,password,is_disabled FROM usertable WHERE(username=$1 AND namespace_id=$2)", username, namespaceID)
 
@@ -43,23 +43,20 @@ func SelectNonDisabledUser(username string, namespaceID int64) (bool, server.Use
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			log.NotFound("User", username, "not found for", namespaceID)
-			return false, ux, nil
+			return false, usr, nil
 		}
-		return false, ux, err
+		return false, usr, err
 	}
-
-	// emo.Found("BASE USER", u.ID, u.UserName)
 
 	if u.IsDisabled {
-		return false, ux, nil
+		return false, usr, nil
 	}
 
-	ux.Name = u.UserName
-	ux.PasswordHash = u.Password
-	ux.Namespace = u.Namespace
-	ux.ID = u.ID
-	// emo.Found("USER", ux.ID, ux.Name)
-	return true, ux, nil
+	usr.Name = u.UserName
+	usr.PasswordHash = u.Password
+	usr.Namespace = u.Namespace
+	usr.ID = u.ID
+	return true, usr, nil
 }
 
 // SelectAllUsers : get the users.

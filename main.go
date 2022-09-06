@@ -38,11 +38,14 @@ func main() {
 
 	// gen conf flag
 	if *genConf {
+		log.Info("Generating config file")
 		if *env {
 			log.Fatal("This command is not allowed when initializing from environment variables")
 		}
-
-		cmds.GeNConf()
+		if err := conf.Create(); err != nil {
+			log.Fatal("Cannot create config file", err)
+		}
+		log.State("Config file created: edit config.json to provide your database settings")
 		return
 	}
 

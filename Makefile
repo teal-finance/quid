@@ -15,8 +15,9 @@ help:
 	# upg-patch    Upgrade dependencies patch version (Go/Node).
 	# upg-minor    Upgrade dependencies minor version (Go/Node).
 	# upg-more     Upgrade dependencies major version (Node only).
-	# vet          Upgrade deps, Format code and Test
-	# cov          Show coverage
+	#
+	# vet          Upgrade deps, Format code, Lint and Test.
+	# cov          Show test coverage results.
 
 .PHONY: all
 all: front quid
@@ -180,6 +181,7 @@ vet:
 	go run mvdan.cc/gofumpt@latest -w -extra -l -lang 1.19 .
 	go build ./...
 	go test -race -vet all -coverprofile=test-coverage.profile ./...
+	go run github.com/golangci/golangci-lint/cmd/golangci-lint@latest run --fix
 
 test-coverage.profile: vet
 

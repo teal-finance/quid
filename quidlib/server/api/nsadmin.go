@@ -9,8 +9,8 @@ import (
 	"github.com/teal-finance/quid/quidlib/server/db"
 )
 
-// AllNsAdministrators : select all admin users for a namespace.
-func AllNsAdministrators(w http.ResponseWriter, r *http.Request) {
+// allNsAdministrators : select all admin users for a namespace.
+func allNsAdministrators(w http.ResponseWriter, r *http.Request) {
 	var m namespaceIDRequest
 	if err := garcon.UnmarshalJSONRequest(w, r, &m); err != nil {
 		log.Warn("AllAdministratorsInNamespace:", err)
@@ -30,8 +30,8 @@ func AllNsAdministrators(w http.ResponseWriter, r *http.Request) {
 	gw.WriteOK(w, data)
 }
 
-// ListNonAdminUsersInNs : search from a username in namespace
-func ListNonAdminUsersInNs(w http.ResponseWriter, r *http.Request) {
+// listNonAdminUsersInNs : search from a username in namespace
+func listNonAdminUsersInNs(w http.ResponseWriter, r *http.Request) {
 	var m nonAdminUsersRequest
 	if err := garcon.UnmarshalJSONRequest(w, r, &m); err != nil {
 		log.Warn("SearchForNonAdminUsersInNamespace:", err)
@@ -59,7 +59,7 @@ func ListNonAdminUsersInNs(w http.ResponseWriter, r *http.Request) {
 }
 
 // CreateUserAdministrators : create admin users handler.
-func CreateAdministrators(w http.ResponseWriter, r *http.Request) {
+func createAdministrators(w http.ResponseWriter, r *http.Request) {
 	var m administratorsCreation
 	if err := garcon.UnmarshalJSONRequest(w, r, &m); err != nil {
 		log.Warn("CreateAdministrators:", err)
@@ -94,8 +94,8 @@ func CreateAdministrators(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 }
 
-// DeleteAdministrator : delete an admin user handler.
-func DeleteAdministrator(w http.ResponseWriter, r *http.Request) {
+// deleteAdministrator : delete an admin user handler.
+func deleteAdministrator(w http.ResponseWriter, r *http.Request) {
 	var m administratorDeletion
 	if err := garcon.UnmarshalJSONRequest(w, r, &m); err != nil {
 		log.ParamError("DeleteAdministrator:", err)

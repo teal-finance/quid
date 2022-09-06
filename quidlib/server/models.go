@@ -45,7 +45,8 @@ type User struct {
 	ID           int64   `json:"id"`
 }
 
-// GroupNames : get the user group names.
+// GroupNames : list the names of all groups.
+// Deprecated because this function is not
 func (user User) GroupNames() []string {
 	names := make([]string, 0, len(user.Groups))
 	for _, g := range user.Groups {

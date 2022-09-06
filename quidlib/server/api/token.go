@@ -12,8 +12,8 @@ import (
 	"github.com/teal-finance/quid/quidlib/tokens"
 )
 
-// RequestAccessToken : request an access token from a refresh token.
-func RequestAccessToken(w http.ResponseWriter, r *http.Request) {
+// requestAccessToken : request an access token from a refresh token.
+func requestAccessToken(w http.ResponseWriter, r *http.Request) {
 	var m accessTokenRequest
 	if err := garcon.UnmarshalJSONRequest(w, r, &m); err != nil {
 		log.ParamError("RequestAccessToken:", err)
@@ -134,7 +134,7 @@ func RequestAccessToken(w http.ResponseWriter, r *http.Request) {
 	gw.WriteOK(w, "token", t)
 }
 
-func RequestAccessPublicKey(w http.ResponseWriter, r *http.Request) {
+func requestAccessPublicKey(w http.ResponseWriter, r *http.Request) {
 	var m nameRequest
 	if err := garcon.UnmarshalJSONRequest(w, r, &m); err != nil {
 		log.Warn("GetNamespaceAccessKey:", err)
@@ -179,7 +179,7 @@ func RequestAccessPublicKey(w http.ResponseWriter, r *http.Request) {
 	gw.WriteOK(w, "alg", ns.SigningAlgo, "key", publicDER)
 }
 
-func RequestAccessTokenValidity(w http.ResponseWriter, r *http.Request) {
+func requestAccessTokenValidity(w http.ResponseWriter, r *http.Request) {
 	var m accessTokenValidationRequest
 	if err := garcon.UnmarshalJSONRequest(w, r, &m); err != nil {
 		log.ParamError(err)
@@ -226,8 +226,8 @@ func RequestAccessTokenValidity(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-// RequestRefreshToken : http login handler.
-func RequestRefreshToken(w http.ResponseWriter, r *http.Request) {
+// requestRefreshToken : http login handler.
+func requestRefreshToken(w http.ResponseWriter, r *http.Request) {
 	var m passwordRequest
 	if err := garcon.UnmarshalJSONRequest(w, r, &m); err != nil {
 		log.ParamError("RequestRefreshToken:", err)

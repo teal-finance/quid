@@ -9,8 +9,8 @@ import (
 	"github.com/teal-finance/quid/quidlib/tokens"
 )
 
-// AllNamespaces : get all namespaces.
-func AllNamespaces(w http.ResponseWriter, r *http.Request) {
+// allNamespaces : get all namespaces.
+func allNamespaces(w http.ResponseWriter, r *http.Request) {
 	data, err := db.SelectAllNamespaces()
 	if err != nil {
 		log.QueryError("AllNamespaces: error SELECT namespaces:", err)
@@ -21,8 +21,8 @@ func AllNamespaces(w http.ResponseWriter, r *http.Request) {
 	gw.WriteOK(w, data)
 }
 
-// SetRefreshMaxTTL : set a max refresh token ttl for a namespace.
-func SetRefreshMaxTTL(w http.ResponseWriter, r *http.Request) {
+// setRefreshMaxTTL : set a max refresh token ttl for a namespace.
+func setRefreshMaxTTL(w http.ResponseWriter, r *http.Request) {
 	var m refreshMaxTTLRequest
 	if err := garcon.UnmarshalJSONRequest(w, r, &m); err != nil {
 		log.Warn("SetNamespaceRefreshTokenMaxTTL:", err)
@@ -49,8 +49,8 @@ func SetRefreshMaxTTL(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 }
 
-// SetTokenMaxTTL : set a max access token ttl for a namespace.
-func SetTokenMaxTTL(w http.ResponseWriter, r *http.Request) {
+// setTokenMaxTTL : set a max access token ttl for a namespace.
+func setTokenMaxTTL(w http.ResponseWriter, r *http.Request) {
 	var m maxTTLRequest
 	if err := garcon.UnmarshalJSONRequest(w, r, &m); err != nil {
 		log.Warn("SetNamespaceTokenMaxTTL:", err)
@@ -77,8 +77,8 @@ func SetTokenMaxTTL(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 }
 
-// NamespaceInfo : info about a namespace.
-func NamespaceInfo(w http.ResponseWriter, r *http.Request) {
+// namespaceInfo : info about a namespace.
+func namespaceInfo(w http.ResponseWriter, r *http.Request) {
 	var m infoRequest
 	if err := garcon.UnmarshalJSONRequest(w, r, &m); err != nil {
 		log.Warn("NamespaceInfo:", err)
@@ -110,8 +110,8 @@ func NamespaceInfo(w http.ResponseWriter, r *http.Request) {
 	gw.WriteOK(w, data)
 }
 
-// GetAccessVerificationKey : get the key for a namespace.
-func GetAccessVerificationKey(w http.ResponseWriter, r *http.Request) {
+// getAccessVerificationKey : get the key for a namespace.
+func getAccessVerificationKey(w http.ResponseWriter, r *http.Request) {
 	var m infoRequest
 	if err := garcon.UnmarshalJSONRequest(w, r, &m); err != nil {
 		log.Warn("GetNamespaceAccessKey:", err)
@@ -134,8 +134,8 @@ func GetAccessVerificationKey(w http.ResponseWriter, r *http.Request) {
 	gw.WriteOK(w, "alg", algo, "key", key)
 }
 
-// FindNamespace : namespace creation http handler.
-func FindNamespace(w http.ResponseWriter, r *http.Request) {
+// findNamespace : namespace creation http handler.
+func findNamespace(w http.ResponseWriter, r *http.Request) {
 	var m nameRequest
 	if err := garcon.UnmarshalJSONRequest(w, r, &m); err != nil {
 		log.Warn("FindNamespace:", err)
@@ -161,8 +161,8 @@ func FindNamespace(w http.ResponseWriter, r *http.Request) {
 	gw.WriteErr(w, r, http.StatusOK, &data)
 }
 
-// DeleteNamespace : namespace creation http handler.
-func DeleteNamespace(w http.ResponseWriter, r *http.Request) {
+// deleteNamespace : namespace creation http handler.
+func deleteNamespace(w http.ResponseWriter, r *http.Request) {
 	var m infoRequest
 	if err := garcon.UnmarshalJSONRequest(w, r, &m); err != nil {
 		log.Warn("DeleteNamespace:", err)
@@ -188,8 +188,8 @@ func DeleteNamespace(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 }
 
-// EnableNsEndpoint :.
-func EnableNsEndpoint(w http.ResponseWriter, r *http.Request) {
+// enableNsEndpoint :.
+func enableNsEndpoint(w http.ResponseWriter, r *http.Request) {
 	var m availability
 	if err := garcon.UnmarshalJSONRequest(w, r, &m); err != nil {
 		log.Warn("SetNamespaceEndpointAvailability:", err)
@@ -200,7 +200,7 @@ func EnableNsEndpoint(w http.ResponseWriter, r *http.Request) {
 	id := m.ID
 	enable := m.Enable
 
-	err := db.SetNsEndpointAvailability(id, enable)
+	err := db.EnableNsEndpoint(id, enable)
 	if err != nil {
 		log.QueryError("SetNamespaceEndpointAvailability: error updating namespace:", err)
 		gw.WriteErr(w, r, http.StatusConflict, "error updating namespace")
@@ -210,8 +210,8 @@ func EnableNsEndpoint(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 }
 
-// CreateNamespace : namespace creation http handler.
-func CreateNamespace(w http.ResponseWriter, r *http.Request) {
+// createNamespace : namespace creation http handler.
+func createNamespace(w http.ResponseWriter, r *http.Request) {
 	var m namespaceCreation
 	if err := garcon.UnmarshalJSONRequest(w, r, &m); err != nil {
 		log.Warn("CreateNamespace:", err)
@@ -238,7 +238,7 @@ func CreateNamespace(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	nsID, exists, err := createNamespace(m.Name, m.MaxTTL, m.RefreshMaxTTL, m.Algo, accessKey, refreshKey, m.EnableEndpoint)
+	nsID, exists, err := db.CreateNamespaceIfExist(m.Name, m.MaxTTL, m.RefreshMaxTTL, m.Algo, accessKey, refreshKey, m.EnableEndpoint)
 	if err != nil {
 		gw.WriteErr(w, r, http.StatusInternalServerError, "error creating namespace", "namespace", m.Name)
 		return
@@ -249,25 +249,4 @@ func CreateNamespace(w http.ResponseWriter, r *http.Request) {
 	}
 
 	gw.WriteOK(w, "namespace_id", nsID)
-}
-
-// createNamespace : create a namespace.
-func createNamespace(name, ttl, refreshMaxTTL, algo string, accessKey, refreshKey []byte, endpoint bool) (int64, bool, error) {
-	exists, err := db.NamespaceExists(name)
-	if err != nil {
-		log.QueryError("createNamespace NamespaceExists:", err)
-		return 0, false, err
-	}
-	if exists {
-		log.QueryError("createNamespace: already exist")
-		return 0, true, nil
-	}
-
-	nsID, err := db.CreateNamespace(name, ttl, refreshMaxTTL, algo, accessKey, refreshKey, endpoint)
-	if err != nil {
-		log.QueryError("createNamespace:", err)
-		return 0, false, err
-	}
-
-	return nsID, false, nil
 }

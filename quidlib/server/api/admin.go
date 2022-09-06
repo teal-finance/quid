@@ -17,8 +17,13 @@ const (
 	keyAdminType
 )
 
-// AdminLogin : http login handler for the admin interface.
-func AdminLogin(w http.ResponseWriter, r *http.Request) {
+// adminLogout : http logout handler for the admin interface.
+func adminLogout(w http.ResponseWriter, r *http.Request) {
+	http.SetCookie(w, Incorruptible.DeadCookie())
+}
+
+// adminLogin : http login handler for the admin interface.
+func adminLogin(w http.ResponseWriter, r *http.Request) {
 	var m passwordRequest
 	if err := garcon.UnmarshalJSONRequest(w, r, &m); err != nil {
 		log.ParamError("AdminLogin DecodeJSONBody:", err)
@@ -123,9 +128,4 @@ func sendStatusResponse(w http.ResponseWriter, tv incorruptible.TValues) {
 			Name: tv.StringIfAny(keyNsName),
 		},
 	})
-}
-
-// AdminLogout : http logout handler for the admin interface.
-func AdminLogout(w http.ResponseWriter, r *http.Request) {
-	http.SetCookie(w, Incorruptible.DeadCookie())
 }

@@ -7,9 +7,9 @@ import (
 	"github.com/teal-finance/quid/quidlib/server/db"
 )
 
-// IsNsAdmin checks that the requested namespace operation
+// isNsAdmin checks that the requested namespace operation
 // matches the request ns admin permissions
-func IsNsAdmin(r *http.Request, nsID int64) bool {
+func isNsAdmin(r *http.Request, nsID int64) bool {
 	tv, ok := incorruptible.FromCtx(r)
 	if !ok {
 		log.ParamError("VerifyAdminNs: missing Incorruptible token: cannot check Admin nsID=", nsID)
@@ -35,8 +35,8 @@ func IsNsAdmin(r *http.Request, nsID int64) bool {
 	return true
 }
 
-// NsAdminMiddleware : check the token claim to see if the user is namespace admin.
-func NsAdminMiddleware(next http.Handler) http.Handler {
+// nsAdminMiddleware : check the token claim to see if the user is namespace admin.
+func nsAdminMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		tv, err := Incorruptible.DecodeCookieToken(r)
 		if err != nil {

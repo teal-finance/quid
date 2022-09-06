@@ -4,12 +4,11 @@ import (
 	"net/http"
 
 	"github.com/teal-finance/garcon"
-	"github.com/teal-finance/quid/quidlib/server"
 	db "github.com/teal-finance/quid/quidlib/server/db"
 )
 
-// AllNsGroups : get all groups for a namespace http handler.
-func AllNsGroups(w http.ResponseWriter, r *http.Request) {
+// allNsGroups : get all groups for a namespace http handler.
+func allNsGroups(w http.ResponseWriter, r *http.Request) {
 	var m namespaceIDRequest
 	if err := garcon.UnmarshalJSONRequest(w, r, &m); err != nil {
 		log.Warn("AllGroupsForNamespace:", err)
@@ -19,7 +18,7 @@ func AllNsGroups(w http.ResponseWriter, r *http.Request) {
 
 	nsID := m.NamespaceID
 
-	if !IsNsAdmin(r, nsID) {
+	if !isNsAdmin(r, nsID) {
 		gw.WriteErr(w, r, http.StatusUnauthorized, "user is not admin for requested namespace", "namespace_id", nsID)
 		return
 	}
@@ -34,7 +33,7 @@ func AllNsGroups(w http.ResponseWriter, r *http.Request) {
 	gw.WriteOK(w, data)
 }
 
-// AllGroups : get all groups for a namespace http handler.
+// allGroups : get all groups for a namespace http handler.
 // Deprecated because this function is not used any longer.
 func AllGroups(w http.ResponseWriter, r *http.Request) {
 	data, err := db.SelectAllGroups()
@@ -46,8 +45,8 @@ func AllGroups(w http.ResponseWriter, r *http.Request) {
 	gw.WriteOK(w, data)
 }
 
-// GroupsInfo : group creation http handler.
-func GroupsInfo(w http.ResponseWriter, r *http.Request) {
+// groupsInfo : group creation http handler.
+func groupsInfo(w http.ResponseWriter, r *http.Request) {
 	var m userRequest
 	if err := garcon.UnmarshalJSONRequest(w, r, &m); err != nil {
 		log.Warn("GroupsInfo:", err)
@@ -58,7 +57,7 @@ func GroupsInfo(w http.ResponseWriter, r *http.Request) {
 	id := m.ID
 	nsID := m.NamespaceID
 
-	if !IsNsAdmin(r, nsID) {
+	if !isNsAdmin(r, nsID) {
 		gw.WriteErr(w, r, http.StatusUnauthorized, "user is not admin for requested namespace", "namespace_id", nsID)
 		return
 	}
@@ -73,8 +72,8 @@ func GroupsInfo(w http.ResponseWriter, r *http.Request) {
 	gw.WriteOK(w, "num_users", n)
 }
 
-// DeleteGroup : group deletion http handler.
-func DeleteGroup(w http.ResponseWriter, r *http.Request) {
+// deleteGroup : group deletion http handler.
+func deleteGroup(w http.ResponseWriter, r *http.Request) {
 	var m userRequest
 	if err := garcon.UnmarshalJSONRequest(w, r, &m); err != nil {
 		log.Warn("DeleteGroup:", err)
@@ -85,7 +84,7 @@ func DeleteGroup(w http.ResponseWriter, r *http.Request) {
 	id := m.ID
 	nsID := m.NamespaceID
 
-	if !IsNsAdmin(r, nsID) {
+	if !isNsAdmin(r, nsID) {
 		gw.WriteErr(w, r, http.StatusUnauthorized, "user is not admin for requested namespace", "namespace_id", nsID)
 		return
 	}
@@ -99,8 +98,8 @@ func DeleteGroup(w http.ResponseWriter, r *http.Request) {
 	gw.WriteOK(w, "message", "ok")
 }
 
-// CreateGroup : group creation http handler.
-func CreateGroup(w http.ResponseWriter, r *http.Request) {
+// createGroup : group creation http handler.
+func createGroup(w http.ResponseWriter, r *http.Request) {
 	var m groupCreation
 	if err := garcon.UnmarshalJSONRequest(w, r, &m); err != nil {
 		log.Warn("CreateGroup:", err)
@@ -117,12 +116,12 @@ func CreateGroup(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if !IsNsAdmin(r, nsID) {
+	if !isNsAdmin(r, nsID) {
 		gw.WriteErr(w, r, http.StatusUnauthorized, "user is not admin for requested namespace", "namespace_id", nsID)
 		return
 	}
 
-	ns, exists, err := createGroup(name, nsID)
+	ns, exists, err := db.CreateGroupIfExist(name, nsID)
 	if err != nil {
 		gw.WriteErr(w, r, http.StatusConflict, "error creating group")
 		return
@@ -133,29 +132,4 @@ func CreateGroup(w http.ResponseWriter, r *http.Request) {
 	}
 
 	gw.WriteOK(w, "org_id", ns.ID)
-}
-
-// createGroup : create a group.
-func createGroup(name string, namespaceID int64) (server.Group, bool, error) {
-	var ns server.Group
-
-	exists, err := db.GroupExists(name, namespaceID)
-	if err != nil {
-		log.QueryError("createGroup GroupExists:", err)
-		return ns, false, err
-	}
-	if exists {
-		log.QueryError("createGroup: group already exists")
-		return ns, true, nil
-	}
-
-	uid, err := db.CreateGroup(name, namespaceID)
-	if err != nil {
-		log.QueryError("createGroup:", err)
-		return ns, false, err
-	}
-
-	ns.ID = uid
-	ns.Name = name
-	return ns, false, nil
 }

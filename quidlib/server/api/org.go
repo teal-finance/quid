@@ -4,12 +4,11 @@ import (
 	"net/http"
 
 	"github.com/teal-finance/garcon"
-	"github.com/teal-finance/quid/quidlib/server"
 	db "github.com/teal-finance/quid/quidlib/server/db"
 )
 
-// AllOrgs : get all orgs http handler.
-func AllOrgs(w http.ResponseWriter, r *http.Request) {
+// allOrgs : get all orgs http handler.
+func allOrgs(w http.ResponseWriter, r *http.Request) {
 	data, err := db.SelectAllOrgs()
 	if err != nil {
 		log.QueryError("AllOrgs: error SELECT orgs:", err)
@@ -20,8 +19,8 @@ func AllOrgs(w http.ResponseWriter, r *http.Request) {
 	gw.WriteOK(w, data)
 }
 
-// FindOrg : find an org from name.
-func FindOrg(w http.ResponseWriter, r *http.Request) {
+// findOrg : find an org from name.
+func findOrg(w http.ResponseWriter, r *http.Request) {
 	var m nameRequest
 	if err := garcon.UnmarshalJSONRequest(w, r, &m); err != nil {
 		log.ParamError("FindOrg:", err)
@@ -47,8 +46,8 @@ func FindOrg(w http.ResponseWriter, r *http.Request) {
 	gw.WriteOK(w, data)
 }
 
-// UserOrgsInfo : get orgs info for a user.
-func UserOrgsInfo(w http.ResponseWriter, r *http.Request) {
+// userOrgsInfo : get orgs info for a user.
+func userOrgsInfo(w http.ResponseWriter, r *http.Request) {
 	var m infoRequest
 	if err := garcon.UnmarshalJSONRequest(w, r, &m); err != nil {
 		log.ParamError("UserOrgsInfo:", err)
@@ -68,8 +67,8 @@ func UserOrgsInfo(w http.ResponseWriter, r *http.Request) {
 	gw.WriteOK(w, "orgs", o)
 }
 
-// DeleteOrg : org deletion http handler.
-func DeleteOrg(w http.ResponseWriter, r *http.Request) {
+// deleteOrg : org deletion http handler.
+func deleteOrg(w http.ResponseWriter, r *http.Request) {
 	var m infoRequest
 	if err := garcon.UnmarshalJSONRequest(w, r, &m); err != nil {
 		log.ParamError("DeleteOrg:", err)
@@ -88,8 +87,8 @@ func DeleteOrg(w http.ResponseWriter, r *http.Request) {
 	gw.WriteOK(w, "message", "ok")
 }
 
-// CreateOrg : org creation http handler.
-func CreateOrg(w http.ResponseWriter, r *http.Request) {
+// createOrg : org creation http handler.
+func createOrg(w http.ResponseWriter, r *http.Request) {
 	var m nameRequest
 	if err := garcon.UnmarshalJSONRequest(w, r, &m); err != nil {
 		log.ParamError("CreateOrg:", err)
@@ -105,7 +104,7 @@ func CreateOrg(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	org, exists, err := createOrg(name)
+	org, exists, err := db.CreateOrgIfExist(name)
 	if err != nil {
 		gw.WriteErr(w, r, http.StatusConflict, "error creating org")
 		return
@@ -116,29 +115,4 @@ func CreateOrg(w http.ResponseWriter, r *http.Request) {
 	}
 
 	gw.WriteOK(w, "org_id", org.ID)
-}
-
-// createOrg : create an org.
-func createOrg(name string) (server.Org, bool, error) {
-	var org server.Org
-
-	exists, err := db.OrgExists(name)
-	if err != nil {
-		log.QueryError("createOrg OrgExists:", err)
-		return org, false, err
-	}
-	if exists {
-		log.QueryError("createOrg: already exist:", name)
-		return org, true, nil
-	}
-
-	id, err := db.CreateOrg(name)
-	if err != nil {
-		log.QueryError("createOrg:", err)
-		return org, false, err
-	}
-
-	org.ID = id
-	org.Name = name
-	return org, false, nil
 }

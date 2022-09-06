@@ -10,8 +10,8 @@ import (
 	db "github.com/teal-finance/quid/quidlib/server/db"
 )
 
-// AllNsUsers : select all users for a namespace.
-func AllNsUsers(w http.ResponseWriter, r *http.Request) {
+// allNsUsers : select all users for a namespace.
+func allNsUsers(w http.ResponseWriter, r *http.Request) {
 	var m namespaceIDRequest
 	if err := garcon.UnmarshalJSONRequest(w, r, &m); err != nil {
 		log.ParamError("AllUsersInNamespace:", err)
@@ -21,7 +21,7 @@ func AllNsUsers(w http.ResponseWriter, r *http.Request) {
 
 	nsID := m.NamespaceID
 
-	if !IsNsAdmin(r, nsID) {
+	if !isNsAdmin(r, nsID) {
 		gw.WriteErr(w, r, http.StatusUnauthorized, "user is not admin for requested namespace", "namespace_id", nsID)
 		return
 	}
@@ -36,8 +36,8 @@ func AllNsUsers(w http.ResponseWriter, r *http.Request) {
 	gw.WriteOK(w, data)
 }
 
-// NsGroups : get the groups of a user.
-func NsGroups(w http.ResponseWriter, r *http.Request) {
+// nsGroups : get the groups of a user.
+func nsGroups(w http.ResponseWriter, r *http.Request) {
 	var m namespaceRequest
 	if err := garcon.UnmarshalJSONRequest(w, r, &m); err != nil {
 		log.ParamError("GroupsForNamespace:", err)
@@ -70,8 +70,8 @@ func NsGroups(w http.ResponseWriter, r *http.Request) {
 	gw.WriteOK(w, "groups", g)
 }
 
-// AddUserInOrg : add a user in an org.
-func AddUserInOrg(w http.ResponseWriter, r *http.Request) {
+// addUserInOrg : add a user in an org.
+func addUserInOrg(w http.ResponseWriter, r *http.Request) {
 	var m userOrgRequest
 	if err := garcon.UnmarshalJSONRequest(w, r, &m); err != nil {
 		log.ParamError("AddUserInOrg:", err)
@@ -93,8 +93,8 @@ func AddUserInOrg(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 }
 
-// RemoveUserFromOrg : add a user in an org.
-func RemoveUserFromOrg(w http.ResponseWriter, r *http.Request) {
+// removeUserFromOrg : add a user in an org.
+func removeUserFromOrg(w http.ResponseWriter, r *http.Request) {
 	var m userOrgRequest
 	if err := garcon.UnmarshalJSONRequest(w, r, &m); err != nil {
 		log.ParamError("RemoveUserFromOrg:", err)
@@ -116,8 +116,8 @@ func RemoveUserFromOrg(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 }
 
-// AddUserInGroup : add a user in a group.
-func AddUserInGroup(w http.ResponseWriter, r *http.Request) {
+// addUserInGroup : add a user in a group.
+func addUserInGroup(w http.ResponseWriter, r *http.Request) {
 	var m userGroupRequest
 	if err := garcon.UnmarshalJSONRequest(w, r, &m); err != nil {
 		log.ParamError("AddUserInGroup:", err)
@@ -129,7 +129,7 @@ func AddUserInGroup(w http.ResponseWriter, r *http.Request) {
 	gID := m.GroupID
 	nsID := m.NamespaceID
 
-	if !IsNsAdmin(r, nsID) {
+	if !isNsAdmin(r, nsID) {
 		gw.WriteErr(w, r, http.StatusUnauthorized, "user is not admin for requested namespace", "namespace_id", nsID)
 		return
 	}
@@ -145,8 +145,8 @@ func AddUserInGroup(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 }
 
-// RemoveUserFromGroup : add a user in a group.
-func RemoveUserFromGroup(w http.ResponseWriter, r *http.Request) {
+// removeUserFromGroup : add a user in a group.
+func removeUserFromGroup(w http.ResponseWriter, r *http.Request) {
 	var m userGroupRequest
 	if err := garcon.UnmarshalJSONRequest(w, r, &m); err != nil {
 		log.ParamError("RemoveUserFromGroup:", err)
@@ -158,7 +158,7 @@ func RemoveUserFromGroup(w http.ResponseWriter, r *http.Request) {
 	gID := m.GroupID
 	nsID := m.NamespaceID
 
-	if !IsNsAdmin(r, nsID) {
+	if !isNsAdmin(r, nsID) {
 		gw.WriteErr(w, r, http.StatusUnauthorized, "user is not admin for requested namespace", "namespace_id", nsID)
 		return
 	}
@@ -174,8 +174,8 @@ func RemoveUserFromGroup(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 }
 
-// UserGroupsInfo : get info for a user.
-func UserGroupsInfo(w http.ResponseWriter, r *http.Request) {
+// userGroupsInfo : get info for a user.
+func userGroupsInfo(w http.ResponseWriter, r *http.Request) {
 	var m userRequest
 	if err := garcon.UnmarshalJSONRequest(w, r, &m); err != nil {
 		log.ParamError("UserGroupsInfo:", err)
@@ -186,7 +186,7 @@ func UserGroupsInfo(w http.ResponseWriter, r *http.Request) {
 	id := m.ID
 	nsID := m.NamespaceID
 
-	if !IsNsAdmin(r, nsID) {
+	if !isNsAdmin(r, nsID) {
 		gw.WriteErr(w, r, http.StatusUnauthorized, "user is not admin for requested namespace", "namespace_id", nsID)
 		return
 	}
@@ -202,8 +202,8 @@ func UserGroupsInfo(w http.ResponseWriter, r *http.Request) {
 	gw.WriteOK(w, "groups", g)
 }
 
-// DeleteUser : delete a user handler.
-func DeleteUser(w http.ResponseWriter, r *http.Request) {
+// deleteUser : delete a user handler.
+func deleteUser(w http.ResponseWriter, r *http.Request) {
 	var m userRequest
 	if err := garcon.UnmarshalJSONRequest(w, r, &m); err != nil {
 		log.ParamError("DeleteUser:", err)
@@ -214,7 +214,7 @@ func DeleteUser(w http.ResponseWriter, r *http.Request) {
 	id := m.ID
 	nsID := m.NamespaceID
 
-	if !IsNsAdmin(r, nsID) {
+	if !isNsAdmin(r, nsID) {
 		gw.WriteErr(w, r, http.StatusUnauthorized, "user is not admin for requested namespace", "namespace_id", nsID)
 		return
 	}
@@ -229,8 +229,8 @@ func DeleteUser(w http.ResponseWriter, r *http.Request) {
 	gw.WriteOK(w, "message", "ok")
 }
 
-// CreateUser : create a user handler.
-func CreateUser(w http.ResponseWriter, r *http.Request) {
+// createUser : create a user handler.
+func createUser(w http.ResponseWriter, r *http.Request) {
 	var m userHandlerCreation
 	if err := garcon.UnmarshalJSONRequest(w, r, &m); err != nil {
 		log.ParamError("CreateUser:", err)
@@ -248,7 +248,7 @@ func CreateUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if !IsNsAdmin(r, nsID) {
+	if !isNsAdmin(r, nsID) {
 		gw.WriteErr(w, r, http.StatusUnauthorized, "user is not admin for requested namespace", "namespace_id", nsID)
 		return
 	}

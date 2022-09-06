@@ -67,91 +67,91 @@ func newRouter(g *garcon.Garcon) http.Handler {
 
 	// HTTP Routes
 	// public routes
-	r.Post("/token/refresh/{timeout}", RequestRefreshToken)
-	r.Post("/token/access/{timeout}", RequestAccessToken)
-	r.Post("/token/public", RequestAccessPublicKey)
-	r.Post("/token/valid", RequestAccessTokenValidity)
-	r.Post("/admin_login", AdminLogin)
-	r.Get("/logout", AdminLogout)
+	r.Post("/token/refresh/{timeout}", requestRefreshToken)
+	r.Post("/token/access/{timeout}", requestAccessToken)
+	r.Post("/token/public", requestAccessPublicKey)
+	r.Post("/token/valid", requestAccessTokenValidity)
+	r.Post("/admin_login", adminLogin)
+	r.Get("/logout", adminLogout)
 	// r.With(Incorruptible.Chk).Post("/admin_token/access/", RequestAdminAccessToken)
 	r.Get("/status", status)
 
 	// admin routes
 	r.Route("/admin", func(r chi.Router) {
-		r.Use(QuidAdminMiddleware)
+		r.Use(quidAdminMiddleware)
 
 		// HTTP API
 		r.Route("/groups", func(r chi.Router) {
-			r.Post("/add", CreateGroup)
-			r.Post("/delete", DeleteGroup)
-			r.Post("/info", GroupsInfo)
-			r.Post("/add_user", AddUserInGroup)
-			r.Post("/remove_user", RemoveUserFromGroup)
-			r.Post("/nsall", AllNsGroups)
+			r.Post("/add", createGroup)
+			r.Post("/delete", deleteGroup)
+			r.Post("/info", groupsInfo)
+			r.Post("/add_user", addUserInGroup)
+			r.Post("/remove_user", removeUserFromGroup)
+			r.Post("/nsall", allNsGroups)
 		})
 
 		// only admin can see the Git version & commit date.
 		r.Get("/version", garcon.ServeVersion())
 
 		r.Route("/users", func(r chi.Router) {
-			r.Post("/add", CreateUser)
-			r.Post("/delete", DeleteUser)
-			r.Post("/groups", UserGroupsInfo)
-			r.Post("/orgs", UserOrgsInfo)
-			r.Post("/nsall", AllNsUsers)
+			r.Post("/add", createUser)
+			r.Post("/delete", deleteUser)
+			r.Post("/groups", userGroupsInfo)
+			r.Post("/orgs", userOrgsInfo)
+			r.Post("/nsall", allNsUsers)
 			// r.Post("/search", SearchForUsersInNamespace)
 		})
 
 		r.Route("/namespaces", func(r chi.Router) {
-			r.Post("/add", CreateNamespace)
-			r.Post("/delete", DeleteNamespace)
-			r.Post("/find", FindNamespace)
-			r.Post("/info", NamespaceInfo)
-			r.Post("/key", GetAccessVerificationKey)
-			r.Post("/max-ttl", SetTokenMaxTTL)
-			r.Post("/max-refresh-ttl", SetRefreshMaxTTL)
-			r.Post("/groups", NsGroups)
-			r.Post("/endpoint", EnableNsEndpoint)
-			r.Get("/all", AllNamespaces)
+			r.Post("/add", createNamespace)
+			r.Post("/delete", deleteNamespace)
+			r.Post("/find", findNamespace)
+			r.Post("/info", namespaceInfo)
+			r.Post("/key", getAccessVerificationKey)
+			r.Post("/max-ttl", setTokenMaxTTL)
+			r.Post("/max-refresh-ttl", setRefreshMaxTTL)
+			r.Post("/groups", nsGroups)
+			r.Post("/endpoint", enableNsEndpoint)
+			r.Get("/all", allNamespaces)
 		})
 
 		r.Route("/orgs", func(r chi.Router) {
-			r.Get("/all", AllOrgs)
-			r.Post("/add", CreateOrg)
-			r.Post("/delete", DeleteOrg)
-			r.Post("/find", FindOrg)
-			r.Post("/add_user", AddUserInOrg)
-			r.Post("/remove_user", RemoveUserFromOrg)
+			r.Get("/all", allOrgs)
+			r.Post("/add", createOrg)
+			r.Post("/delete", deleteOrg)
+			r.Post("/find", findOrg)
+			r.Post("/add_user", addUserInOrg)
+			r.Post("/remove_user", removeUserFromOrg)
 		})
 
 		r.Route("/nsadmin", func(r chi.Router) {
-			r.Post("/add", CreateAdministrators)
-			r.Post("/nsall", AllNsAdministrators)
-			r.Post("/delete", DeleteAdministrator)
-			r.Post("/search/nonadmins", ListNonAdminUsersInNs)
+			r.Post("/add", createAdministrators)
+			r.Post("/nsall", allNsAdministrators)
+			r.Post("/delete", deleteAdministrator)
+			r.Post("/search/nonadmins", listNonAdminUsersInNs)
 		})
 	})
 
 	// Namespace admin endpoints
 	r.Route("/ns", func(r chi.Router) {
-		r.Use(NsAdminMiddleware)
+		r.Use(nsAdminMiddleware)
 
 		// nsadmin users
 		r.Route("/users", func(r chi.Router) {
-			r.Post("/add", CreateUser)
-			r.Post("/delete", DeleteUser)
-			r.Post("/groups", UserGroupsInfo)
-			r.Post("/nsall", AllNsUsers)
+			r.Post("/add", createUser)
+			r.Post("/delete", deleteUser)
+			r.Post("/groups", userGroupsInfo)
+			r.Post("/nsall", allNsUsers)
 		})
 
 		// nsadmin groups
 		r.Route("/groups", func(r chi.Router) {
-			r.Post("/add", CreateGroup)
-			r.Post("/delete", DeleteGroup)
-			r.Post("/info", GroupsInfo)
-			r.Post("/add_user", AddUserInGroup)
-			r.Post("/remove_user", RemoveUserFromGroup)
-			r.Post("/nsall", AllNsGroups)
+			r.Post("/add", createGroup)
+			r.Post("/delete", deleteGroup)
+			r.Post("/info", groupsInfo)
+			r.Post("/add_user", addUserInGroup)
+			r.Post("/remove_user", removeUserFromGroup)
+			r.Post("/nsall", allNsGroups)
 		})
 	})
 

@@ -134,8 +134,8 @@ func SelectNsID(name string) (int64, error) {
 	return data[0].ID, nil
 }
 
-// SetNsEndpointAvailability : enable or disable public endpoint.
-func SetNsEndpointAvailability(id int64, enable bool) error {
+// EnableNsEndpoint : enable or disable public endpoint.
+func EnableNsEndpoint(id int64, enable bool) error {
 	q := "UPDATE namespace SET public_endpoint_enabled=$2 WHERE id=$1"
 	_, err := db.Query(q, id, enable)
 	return err
@@ -174,6 +174,27 @@ func CreateNamespace(name, ttl, refreshTTL, algo string, accessKey, refreshKey [
 
 	log.QueryError("no namespace", name)
 	return 0, fmt.Errorf("no namespace %q", name)
+}
+
+// CreateNamespaceIfExist : create a namespace.
+func CreateNamespaceIfExist(name, ttl, refreshMaxTTL, algo string, accessKey, refreshKey []byte, endpoint bool) (int64, bool, error) {
+	exists, err := NamespaceExists(name)
+	if err != nil {
+		log.QueryError("createNamespace NamespaceExists:", err)
+		return 0, false, err
+	}
+	if exists {
+		log.QueryError("createNamespace: already exist")
+		return 0, true, nil
+	}
+
+	nsID, err := CreateNamespace(name, ttl, refreshMaxTTL, algo, accessKey, refreshKey, endpoint)
+	if err != nil {
+		log.QueryError("createNamespace:", err)
+		return 0, false, err
+	}
+
+	return nsID, false, nil
 }
 
 // UpdateNsTokenMaxTTL : update a max access token ttl for a namespace.

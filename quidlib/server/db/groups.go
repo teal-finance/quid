@@ -105,6 +105,31 @@ func CreateGroup(name string, namespaceID int64) (int64, error) {
 	return 0, err
 }
 
+// createGroup : create a group.
+func CreateGroupIfExist(name string, namespaceID int64) (server.Group, bool, error) {
+	var ns server.Group
+
+	exists, err := GroupExists(name, namespaceID)
+	if err != nil {
+		log.QueryError("createGroup GroupExists:", err)
+		return ns, false, err
+	}
+	if exists {
+		log.QueryError("createGroup: group already exists")
+		return ns, true, nil
+	}
+
+	uid, err := CreateGroup(name, namespaceID)
+	if err != nil {
+		log.QueryError("createGroup:", err)
+		return ns, false, err
+	}
+
+	ns.ID = uid
+	ns.Name = name
+	return ns, false, nil
+}
+
 // DeleteGroup : delete a group.
 func DeleteGroup(id int64) error {
 	q := "DELETE FROM grouptable WHERE id=$1"

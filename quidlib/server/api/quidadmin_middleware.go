@@ -6,8 +6,8 @@ import (
 	"github.com/teal-finance/quid/quidlib/server/db"
 )
 
-// QuidAdminMiddleware : check the token claim to see if the user is admin.
-func QuidAdminMiddleware(next http.Handler) http.Handler {
+// quidAdminMiddleware : check the token claim to see if the user is admin.
+func quidAdminMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		tv, err := Incorruptible.DecodeCookieToken(r)
 		if err != nil {

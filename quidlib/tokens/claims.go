@@ -16,34 +16,11 @@ type AccessClaims struct {
 	jwt.RegisteredClaims
 }
 
-type AdminAccessClaim struct {
-	Namespace string `json:"namespace,omitempty"`
-	UserName  string `json:"username,omitempty"`
-	UserID    int64  `json:"user_id,omitempty"`
-	NsID      int64  `json:"ns_id,omitempty"`
-	IsAdmin   bool   `json:"is_admin"`
-	IsNsAdmin bool   `json:"is_ns_admin"`
-	jwt.RegisteredClaims
-}
-
 // RefreshClaims is the standard claims for a user refresh token.
 type RefreshClaims struct {
 	Namespace string `json:"namespace,omitempty"`
 	UserName  string `json:"username,omitempty"`
 	jwt.RegisteredClaims
-}
-
-// newAdminAccessClaims creates a standard claim for an admin user access token.
-func newAdminAccessClaims(namespaceName, username string, userID, nsID int64, expiry time.Time, isAdmin, isNsAdmin bool) AdminAccessClaim {
-	return AdminAccessClaim{
-		namespaceName,
-		username,
-		userID,
-		nsID,
-		isAdmin,
-		isNsAdmin,
-		jwt.RegisteredClaims{ExpiresAt: jwt.NewNumericDate(expiry)},
-	}
 }
 
 // newAccessClaims creates a standard claim for a user access token.

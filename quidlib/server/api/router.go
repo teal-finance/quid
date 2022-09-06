@@ -87,7 +87,6 @@ func newRouter(g *garcon.Garcon) http.Handler {
 			r.Post("/info", GroupsInfo)
 			r.Post("/add_user", AddUserInGroup)
 			r.Post("/remove_user", RemoveUserFromGroup)
-			// r.Get("/all", AllGroups) // TODO: remove when old frontend is disabled
 			r.Post("/nsall", AllNsGroups)
 		})
 
@@ -99,7 +98,6 @@ func newRouter(g *garcon.Garcon) http.Handler {
 			r.Post("/delete", DeleteUser)
 			r.Post("/groups", UserGroupsInfo)
 			r.Post("/orgs", UserOrgsInfo)
-			// r.Get("/all", AllUsers) // TODO: remove when old frontend is disabled
 			r.Post("/nsall", AllNsUsers)
 			// r.Post("/search", SearchForUsersInNamespace)
 		})

@@ -217,214 +217,7 @@ func (v *RefreshClaims) UnmarshalJSON(data []byte) error {
 func (v *RefreshClaims) UnmarshalEasyJSON(l *jlexer.Lexer) {
 	easyjsonB448b467DecodeGithubComTealFinanceQuidQuidlibTokens(l, v)
 }
-func easyjsonB448b467DecodeGithubComTealFinanceQuidQuidlibTokens1(in *jlexer.Lexer, out *AdminAccessClaim) {
-	isTopLevel := in.IsStart()
-	if in.IsNull() {
-		if isTopLevel {
-			in.Consumed()
-		}
-		in.Skip()
-		return
-	}
-	in.Delim('{')
-	for !in.IsDelim('}') {
-		key := in.UnsafeFieldName(true)
-		in.WantColon()
-		if in.IsNull() {
-			in.Skip()
-			in.WantComma()
-			continue
-		}
-		switch key {
-		case "namespace":
-			out.Namespace = string(in.String())
-		case "username":
-			out.UserName = string(in.String())
-		case "user_id":
-			out.UserID = int64(in.Int64())
-		case "ns_id":
-			out.NsID = int64(in.Int64())
-		case "is_admin":
-			out.IsAdmin = bool(in.Bool())
-		case "is_ns_admin":
-			out.IsNsAdmin = bool(in.Bool())
-		case "iss":
-			out.Issuer = string(in.String())
-		case "sub":
-			out.Subject = string(in.String())
-		case "aud":
-			if data := in.Raw(); in.Ok() {
-				in.AddError((out.Audience).UnmarshalJSON(data))
-			}
-		case "exp":
-			if in.IsNull() {
-				in.Skip()
-				out.ExpiresAt = nil
-			} else {
-				if out.ExpiresAt == nil {
-					out.ExpiresAt = new(_v4.NumericDate)
-				}
-				if data := in.Raw(); in.Ok() {
-					in.AddError((*out.ExpiresAt).UnmarshalJSON(data))
-				}
-			}
-		case "nbf":
-			if in.IsNull() {
-				in.Skip()
-				out.NotBefore = nil
-			} else {
-				if out.NotBefore == nil {
-					out.NotBefore = new(_v4.NumericDate)
-				}
-				if data := in.Raw(); in.Ok() {
-					in.AddError((*out.NotBefore).UnmarshalJSON(data))
-				}
-			}
-		case "iat":
-			if in.IsNull() {
-				in.Skip()
-				out.IssuedAt = nil
-			} else {
-				if out.IssuedAt == nil {
-					out.IssuedAt = new(_v4.NumericDate)
-				}
-				if data := in.Raw(); in.Ok() {
-					in.AddError((*out.IssuedAt).UnmarshalJSON(data))
-				}
-			}
-		case "jti":
-			out.ID = string(in.String())
-		default:
-			in.AddError(&jlexer.LexerError{
-				Offset: in.GetPos(),
-				Reason: "unknown field",
-				Data:   key,
-			})
-		}
-		in.WantComma()
-	}
-	in.Delim('}')
-	if isTopLevel {
-		in.Consumed()
-	}
-}
-func easyjsonB448b467EncodeGithubComTealFinanceQuidQuidlibTokens1(out *jwriter.Writer, in AdminAccessClaim) {
-	out.RawByte('{')
-	first := true
-	_ = first
-	if in.Namespace != "" {
-		const prefix string = ",\"namespace\":"
-		first = false
-		out.RawString(prefix[1:])
-		out.String(string(in.Namespace))
-	}
-	if in.UserName != "" {
-		const prefix string = ",\"username\":"
-		if first {
-			first = false
-			out.RawString(prefix[1:])
-		} else {
-			out.RawString(prefix)
-		}
-		out.String(string(in.UserName))
-	}
-	if in.UserID != 0 {
-		const prefix string = ",\"user_id\":"
-		if first {
-			first = false
-			out.RawString(prefix[1:])
-		} else {
-			out.RawString(prefix)
-		}
-		out.Int64(int64(in.UserID))
-	}
-	if in.NsID != 0 {
-		const prefix string = ",\"ns_id\":"
-		if first {
-			first = false
-			out.RawString(prefix[1:])
-		} else {
-			out.RawString(prefix)
-		}
-		out.Int64(int64(in.NsID))
-	}
-	{
-		const prefix string = ",\"is_admin\":"
-		if first {
-			first = false
-			out.RawString(prefix[1:])
-		} else {
-			out.RawString(prefix)
-		}
-		out.Bool(bool(in.IsAdmin))
-	}
-	{
-		const prefix string = ",\"is_ns_admin\":"
-		out.RawString(prefix)
-		out.Bool(bool(in.IsNsAdmin))
-	}
-	if in.Issuer != "" {
-		const prefix string = ",\"iss\":"
-		out.RawString(prefix)
-		out.String(string(in.Issuer))
-	}
-	if in.Subject != "" {
-		const prefix string = ",\"sub\":"
-		out.RawString(prefix)
-		out.String(string(in.Subject))
-	}
-	if len(in.Audience) != 0 {
-		const prefix string = ",\"aud\":"
-		out.RawString(prefix)
-		out.Raw((in.Audience).MarshalJSON())
-	}
-	if in.ExpiresAt != nil {
-		const prefix string = ",\"exp\":"
-		out.RawString(prefix)
-		out.Raw((*in.ExpiresAt).MarshalJSON())
-	}
-	if in.NotBefore != nil {
-		const prefix string = ",\"nbf\":"
-		out.RawString(prefix)
-		out.Raw((*in.NotBefore).MarshalJSON())
-	}
-	if in.IssuedAt != nil {
-		const prefix string = ",\"iat\":"
-		out.RawString(prefix)
-		out.Raw((*in.IssuedAt).MarshalJSON())
-	}
-	if in.ID != "" {
-		const prefix string = ",\"jti\":"
-		out.RawString(prefix)
-		out.String(string(in.ID))
-	}
-	out.RawByte('}')
-}
-
-// MarshalJSON supports json.Marshaler interface
-func (v AdminAccessClaim) MarshalJSON() ([]byte, error) {
-	w := jwriter.Writer{}
-	easyjsonB448b467EncodeGithubComTealFinanceQuidQuidlibTokens1(&w, v)
-	return w.Buffer.BuildBytes(), w.Error
-}
-
-// MarshalEasyJSON supports easyjson.Marshaler interface
-func (v AdminAccessClaim) MarshalEasyJSON(w *jwriter.Writer) {
-	easyjsonB448b467EncodeGithubComTealFinanceQuidQuidlibTokens1(w, v)
-}
-
-// UnmarshalJSON supports json.Unmarshaler interface
-func (v *AdminAccessClaim) UnmarshalJSON(data []byte) error {
-	r := jlexer.Lexer{Data: data}
-	easyjsonB448b467DecodeGithubComTealFinanceQuidQuidlibTokens1(&r, v)
-	return r.Error()
-}
-
-// UnmarshalEasyJSON supports easyjson.Unmarshaler interface
-func (v *AdminAccessClaim) UnmarshalEasyJSON(l *jlexer.Lexer) {
-	easyjsonB448b467DecodeGithubComTealFinanceQuidQuidlibTokens1(l, v)
-}
-func easyjsonB448b467DecodeGithubComTealFinanceQuidQuidlibTokens2(in *jlexer.Lexer, out *AccessClaims) {
+func easyjsonB448b467DecodeGithubComTealFinanceQuidQuidlibTokens1(in *jlexer.Lexer, out *AccessClaims) {
 	isTopLevel := in.IsStart()
 	if in.IsNull() {
 		if isTopLevel {
@@ -551,7 +344,7 @@ func easyjsonB448b467DecodeGithubComTealFinanceQuidQuidlibTokens2(in *jlexer.Lex
 		in.Consumed()
 	}
 }
-func easyjsonB448b467EncodeGithubComTealFinanceQuidQuidlibTokens2(out *jwriter.Writer, in AccessClaims) {
+func easyjsonB448b467EncodeGithubComTealFinanceQuidQuidlibTokens1(out *jwriter.Writer, in AccessClaims) {
 	out.RawByte('{')
 	first := true
 	_ = first
@@ -675,23 +468,23 @@ func easyjsonB448b467EncodeGithubComTealFinanceQuidQuidlibTokens2(out *jwriter.W
 // MarshalJSON supports json.Marshaler interface
 func (v AccessClaims) MarshalJSON() ([]byte, error) {
 	w := jwriter.Writer{}
-	easyjsonB448b467EncodeGithubComTealFinanceQuidQuidlibTokens2(&w, v)
+	easyjsonB448b467EncodeGithubComTealFinanceQuidQuidlibTokens1(&w, v)
 	return w.Buffer.BuildBytes(), w.Error
 }
 
 // MarshalEasyJSON supports easyjson.Marshaler interface
 func (v AccessClaims) MarshalEasyJSON(w *jwriter.Writer) {
-	easyjsonB448b467EncodeGithubComTealFinanceQuidQuidlibTokens2(w, v)
+	easyjsonB448b467EncodeGithubComTealFinanceQuidQuidlibTokens1(w, v)
 }
 
 // UnmarshalJSON supports json.Unmarshaler interface
 func (v *AccessClaims) UnmarshalJSON(data []byte) error {
 	r := jlexer.Lexer{Data: data}
-	easyjsonB448b467DecodeGithubComTealFinanceQuidQuidlibTokens2(&r, v)
+	easyjsonB448b467DecodeGithubComTealFinanceQuidQuidlibTokens1(&r, v)
 	return r.Error()
 }
 
 // UnmarshalEasyJSON supports easyjson.Unmarshaler interface
 func (v *AccessClaims) UnmarshalEasyJSON(l *jlexer.Lexer) {
-	easyjsonB448b467DecodeGithubComTealFinanceQuidQuidlibTokens2(l, v)
+	easyjsonB448b467DecodeGithubComTealFinanceQuidQuidlibTokens1(l, v)
 }

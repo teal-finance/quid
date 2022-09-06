@@ -39,26 +39,6 @@ func GenRefreshToken(timeout, maxTTL, namespace, user string, secretKey []byte) 
 	return token, nil
 }
 
-// GenAdminAccessToken generates an admin access token for a user.
-func GenAdminAccessToken(namespaceName, timeout, maxTTL, userName string, userId, nsId int64, secretKey []byte, isAdmin, isNsAdmin bool) (string, error) {
-	expiry, err := authorizedExpiry(timeout, maxTTL)
-	if err != nil {
-		return "", err
-	}
-
-	claims := newAdminAccessClaims(namespaceName, userName, userId, nsId, expiry, isAdmin, isNsAdmin)
-	t := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-
-	token, err := t.SignedString(secretKey)
-	if err != nil {
-		log.EncryptError(err)
-		return "", err
-	}
-
-	log.AccessToken("Issued an admin access token for user", userName, "and namespace", namespaceName)
-	return token, nil
-}
-
 // GenAccessToken generates an access token with HS256 signing algo.
 func GenAccessToken(timeout, maxTTL, user string, groups, orgs []string, secretKey []byte) (string, error) {
 	expiry, err := authorizedExpiry(timeout, maxTTL)

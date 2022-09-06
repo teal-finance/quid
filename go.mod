@@ -11,9 +11,9 @@ require (
 	github.com/mailru/easyjson v0.7.7
 	github.com/manifoldco/promptui v0.9.0
 	github.com/spf13/viper v1.12.0
-	github.com/teal-finance/emo v0.0.0-20220904210933-fc48dfb6bbcb
-	github.com/teal-finance/garcon v0.28.1
-	github.com/teal-finance/incorruptible v0.0.0-20220902213136-fa2d591796b8
+	github.com/teal-finance/emo v0.0.0-20220905200537-3c6b871b5d10
+	github.com/teal-finance/garcon v0.28.2
+	github.com/teal-finance/incorruptible v0.0.0-20220905202129-2764bbcba352
 	golang.org/x/crypto v0.0.0-20220829220503-c86fa9a7ed90
 )
 

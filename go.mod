@@ -7,12 +7,12 @@ require (
 	github.com/go-chi/chi/v5 v5.0.7
 	github.com/golang-jwt/jwt/v4 v4.4.2
 	github.com/jmoiron/sqlx v1.3.5
-	github.com/lib/pq v1.10.6
+	github.com/lib/pq v1.10.7
 	github.com/mailru/easyjson v0.7.7
 	github.com/manifoldco/promptui v0.9.0
-	github.com/spf13/viper v1.12.0
-	github.com/teal-finance/emo v0.0.0-20220905200537-3c6b871b5d10
-	github.com/teal-finance/garcon v0.28.2
+	github.com/spf13/viper v1.13.0
+	github.com/teal-finance/emo v0.0.0-20220908102640-66d9abfb8bac
+	github.com/teal-finance/garcon v0.29.0
 	github.com/teal-finance/incorruptible v0.0.0-20220905202129-2764bbcba352
 	golang.org/x/crypto v0.0.0-20220829220503-c86fa9a7ed90
 )
@@ -54,8 +54,8 @@ require (
 	github.com/spf13/jwalterweatherman v1.1.0 // indirect
 	github.com/spf13/pflag v1.0.5 // indirect
 	github.com/subosito/gotenv v1.4.1 // indirect
-	golang.org/x/net v0.0.0-20220826154423-83b083e8dc8b // indirect
-	golang.org/x/sys v0.0.0-20220829200755-d48e67d00261 // indirect
+	golang.org/x/net v0.0.0-20220907135653-1e95f45603a7 // indirect
+	golang.org/x/sys v0.0.0-20220908164124-27713097b956 // indirect
 	golang.org/x/text v0.3.7 // indirect
 	golang.org/x/time v0.0.0-20220722155302-e5dcc9cfc0b9 // indirect
 	google.golang.org/protobuf v1.28.1 // indirect

@@ -4,7 +4,7 @@ import (
 	"net/http"
 
 	"github.com/teal-finance/garcon"
-	db "github.com/teal-finance/quid/pkg/server/db"
+	db "github.com/teal-finance/quid/server/db"
 )
 
 // allNsGroups : get all groups for a namespace http handler.

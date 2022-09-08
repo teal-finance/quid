@@ -8,7 +8,7 @@ import (
 
 	"github.com/teal-finance/garcon"
 	"github.com/teal-finance/incorruptible"
-	"github.com/teal-finance/quid/pkg/conf"
+	"github.com/teal-finance/quid/conf"
 )
 
 var Incorruptible *incorruptible.Incorruptible

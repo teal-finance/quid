@@ -5,7 +5,7 @@ import (
 	"os"
 
 	"github.com/teal-finance/emo"
-	"github.com/teal-finance/quid/pkg/server/db"
+	"github.com/teal-finance/quid/server/db"
 )
 
 var log = emo.NewZone("cmd")

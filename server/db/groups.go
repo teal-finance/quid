@@ -6,7 +6,7 @@ import (
 
 	_ "github.com/lib/pq"
 
-	"github.com/teal-finance/quid/pkg/server"
+	"github.com/teal-finance/quid/server"
 )
 
 // SelectAllGroups : get all the groups.

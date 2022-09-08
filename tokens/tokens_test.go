@@ -7,7 +7,7 @@ import (
 
 	"github.com/golang-jwt/jwt/v4"
 	"github.com/teal-finance/emo"
-	"github.com/teal-finance/quid/pkg/tokens"
+	"github.com/teal-finance/quid/tokens"
 )
 
 var cases = []struct {

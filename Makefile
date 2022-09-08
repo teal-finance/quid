@@ -39,7 +39,7 @@ ui/yarn.lock: ui/package.json
 	yarn    install --cwd ui --link-duplicates || \
 	yarnpkg install --cwd ui --link-duplicates
 
-quid: cmd/quid/main.go go.sum pkg/*/*.go pkg/*/*/*.go
+quid: cmd/quid/main.go go.sum */*.go */*/*.go
 	# go build -o $@
 	CGO_ENABLED=0 GOFLAGS="-trimpath -modcacherw" GOLDFLAGS="-d -s -w -extldflags=-static" go build -a -tags osusergo,netgo -installsuffix netgo -o $@ $^
 

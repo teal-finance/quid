@@ -9,7 +9,7 @@ import (
 	_ "github.com/lib/pq"
 	"golang.org/x/crypto/bcrypt"
 
-	"github.com/teal-finance/quid/pkg/server"
+	"github.com/teal-finance/quid/server"
 )
 
 // SelectEnabledUserID : get a user id from it's username.

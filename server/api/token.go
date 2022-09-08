@@ -8,8 +8,8 @@ import (
 	"github.com/golang-jwt/jwt/v4"
 
 	"github.com/teal-finance/garcon"
-	db "github.com/teal-finance/quid/pkg/server/db"
-	"github.com/teal-finance/quid/pkg/tokens"
+	db "github.com/teal-finance/quid/server/db"
+	"github.com/teal-finance/quid/tokens"
 )
 
 // requestAccessToken : request an access token from a refresh token.

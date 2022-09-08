@@ -61,10 +61,14 @@ RUN set -ex           ;\
     go mod download   ;\
     go mod verify
 
-COPY main.go main.go
-COPY pkg pkg
+COPY cmd    cmd
+COPY cmds   cmds
+COPY conf   conf
+COPY crypt  crypt
+COPY server server
+COPY tokens tokens
 
-# Go build flags "-s -w" removes all debug symbols: https://pkg.go.dev/cmd/link
+# Go build flags "-s -w" removes all debug symbols, see: https://pkg.go.dev/cmd/link
 RUN set -ex                                                ;\
     ls -lA                                                 ;\
     CGO_ENABLED=0                                           \

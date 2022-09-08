@@ -4,7 +4,7 @@ import (
 	"net/http"
 
 	"github.com/teal-finance/incorruptible"
-	"github.com/teal-finance/quid/pkg/server/db"
+	"github.com/teal-finance/quid/server/db"
 )
 
 // isNsAdmin checks that the requested namespace operation

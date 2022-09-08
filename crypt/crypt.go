@@ -7,7 +7,7 @@ import (
 	"encoding/hex"
 	"fmt"
 
-	"github.com/teal-finance/quid/pkg/conf"
+	"github.com/teal-finance/quid/conf"
 )
 
 const (

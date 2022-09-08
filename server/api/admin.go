@@ -5,7 +5,7 @@ import (
 
 	"github.com/teal-finance/garcon"
 	"github.com/teal-finance/incorruptible"
-	"github.com/teal-finance/quid/pkg/server/db"
+	"github.com/teal-finance/quid/server/db"
 )
 
 // Key IDs for the Incorruptible TValues

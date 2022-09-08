@@ -17,7 +17,7 @@ import (
 	"github.com/golang-jwt/jwt/v4"
 	"github.com/teal-finance/emo"
 	"github.com/teal-finance/garcon/timex"
-	"github.com/teal-finance/quid/pkg/crypt"
+	"github.com/teal-finance/quid/crypt"
 )
 
 var log = emo.NewZone("tokens")

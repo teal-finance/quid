@@ -5,7 +5,7 @@ import (
 
 	_ "github.com/lib/pq"
 
-	"github.com/teal-finance/quid/pkg/server"
+	"github.com/teal-finance/quid/server"
 )
 
 // SelectNsAdministrators : get the admin users in a namespace.

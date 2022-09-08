@@ -3,7 +3,7 @@ package crypt
 import (
 	"testing"
 
-	"github.com/teal-finance/quid/pkg/conf"
+	"github.com/teal-finance/quid/conf"
 )
 
 func TestAesGcm(t *testing.T) {

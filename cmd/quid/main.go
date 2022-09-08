@@ -6,11 +6,11 @@ import (
 	"os"
 
 	"github.com/teal-finance/emo"
-	"github.com/teal-finance/quid/pkg/cmds"
-	"github.com/teal-finance/quid/pkg/conf"
-	"github.com/teal-finance/quid/pkg/server/api"
-	"github.com/teal-finance/quid/pkg/server/db"
-	"github.com/teal-finance/quid/pkg/tokens"
+	"github.com/teal-finance/quid/cmds"
+	"github.com/teal-finance/quid/conf"
+	"github.com/teal-finance/quid/server/api"
+	"github.com/teal-finance/quid/server/db"
+	"github.com/teal-finance/quid/tokens"
 )
 
 var log = emo.NewZone("main")

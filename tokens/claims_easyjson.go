@@ -18,7 +18,7 @@ var (
 	_ easyjson.Marshaler
 )
 
-func easyjsonB448b467DecodeGithubComTealFinanceQuidPkgTokens(in *jlexer.Lexer, out *RefreshClaims) {
+func easyjsonB448b467DecodeGithubComTealFinanceQuidTokens(in *jlexer.Lexer, out *RefreshClaims) {
 	isTopLevel := in.IsStart()
 	if in.IsNull() {
 		if isTopLevel {
@@ -101,7 +101,7 @@ func easyjsonB448b467DecodeGithubComTealFinanceQuidPkgTokens(in *jlexer.Lexer, o
 		in.Consumed()
 	}
 }
-func easyjsonB448b467EncodeGithubComTealFinanceQuidPkgTokens(out *jwriter.Writer, in RefreshClaims) {
+func easyjsonB448b467EncodeGithubComTealFinanceQuidTokens(out *jwriter.Writer, in RefreshClaims) {
 	out.RawByte('{')
 	first := true
 	_ = first
@@ -197,27 +197,27 @@ func easyjsonB448b467EncodeGithubComTealFinanceQuidPkgTokens(out *jwriter.Writer
 // MarshalJSON supports json.Marshaler interface
 func (v RefreshClaims) MarshalJSON() ([]byte, error) {
 	w := jwriter.Writer{}
-	easyjsonB448b467EncodeGithubComTealFinanceQuidPkgTokens(&w, v)
+	easyjsonB448b467EncodeGithubComTealFinanceQuidTokens(&w, v)
 	return w.Buffer.BuildBytes(), w.Error
 }
 
 // MarshalEasyJSON supports easyjson.Marshaler interface
 func (v RefreshClaims) MarshalEasyJSON(w *jwriter.Writer) {
-	easyjsonB448b467EncodeGithubComTealFinanceQuidPkgTokens(w, v)
+	easyjsonB448b467EncodeGithubComTealFinanceQuidTokens(w, v)
 }
 
 // UnmarshalJSON supports json.Unmarshaler interface
 func (v *RefreshClaims) UnmarshalJSON(data []byte) error {
 	r := jlexer.Lexer{Data: data}
-	easyjsonB448b467DecodeGithubComTealFinanceQuidPkgTokens(&r, v)
+	easyjsonB448b467DecodeGithubComTealFinanceQuidTokens(&r, v)
 	return r.Error()
 }
 
 // UnmarshalEasyJSON supports easyjson.Unmarshaler interface
 func (v *RefreshClaims) UnmarshalEasyJSON(l *jlexer.Lexer) {
-	easyjsonB448b467DecodeGithubComTealFinanceQuidPkgTokens(l, v)
+	easyjsonB448b467DecodeGithubComTealFinanceQuidTokens(l, v)
 }
-func easyjsonB448b467DecodeGithubComTealFinanceQuidPkgTokens1(in *jlexer.Lexer, out *AccessClaims) {
+func easyjsonB448b467DecodeGithubComTealFinanceQuidTokens1(in *jlexer.Lexer, out *AccessClaims) {
 	isTopLevel := in.IsStart()
 	if in.IsNull() {
 		if isTopLevel {
@@ -344,7 +344,7 @@ func easyjsonB448b467DecodeGithubComTealFinanceQuidPkgTokens1(in *jlexer.Lexer, 
 		in.Consumed()
 	}
 }
-func easyjsonB448b467EncodeGithubComTealFinanceQuidPkgTokens1(out *jwriter.Writer, in AccessClaims) {
+func easyjsonB448b467EncodeGithubComTealFinanceQuidTokens1(out *jwriter.Writer, in AccessClaims) {
 	out.RawByte('{')
 	first := true
 	_ = first
@@ -468,23 +468,23 @@ func easyjsonB448b467EncodeGithubComTealFinanceQuidPkgTokens1(out *jwriter.Write
 // MarshalJSON supports json.Marshaler interface
 func (v AccessClaims) MarshalJSON() ([]byte, error) {
 	w := jwriter.Writer{}
-	easyjsonB448b467EncodeGithubComTealFinanceQuidPkgTokens1(&w, v)
+	easyjsonB448b467EncodeGithubComTealFinanceQuidTokens1(&w, v)
 	return w.Buffer.BuildBytes(), w.Error
 }
 
 // MarshalEasyJSON supports easyjson.Marshaler interface
 func (v AccessClaims) MarshalEasyJSON(w *jwriter.Writer) {
-	easyjsonB448b467EncodeGithubComTealFinanceQuidPkgTokens1(w, v)
+	easyjsonB448b467EncodeGithubComTealFinanceQuidTokens1(w, v)
 }
 
 // UnmarshalJSON supports json.Unmarshaler interface
 func (v *AccessClaims) UnmarshalJSON(data []byte) error {
 	r := jlexer.Lexer{Data: data}
-	easyjsonB448b467DecodeGithubComTealFinanceQuidPkgTokens1(&r, v)
+	easyjsonB448b467DecodeGithubComTealFinanceQuidTokens1(&r, v)
 	return r.Error()
 }
 
 // UnmarshalEasyJSON supports easyjson.Unmarshaler interface
 func (v *AccessClaims) UnmarshalEasyJSON(l *jlexer.Lexer) {
-	easyjsonB448b467DecodeGithubComTealFinanceQuidPkgTokens1(l, v)
+	easyjsonB448b467DecodeGithubComTealFinanceQuidTokens1(l, v)
 }

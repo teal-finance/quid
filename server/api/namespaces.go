@@ -4,9 +4,9 @@ import (
 	"net/http"
 
 	"github.com/teal-finance/garcon"
-	"github.com/teal-finance/quid/pkg/server"
-	db "github.com/teal-finance/quid/pkg/server/db"
-	"github.com/teal-finance/quid/pkg/tokens"
+	"github.com/teal-finance/quid/server"
+	db "github.com/teal-finance/quid/server/db"
+	"github.com/teal-finance/quid/tokens"
 )
 
 // allNamespaces : get all namespaces.

@@ -6,7 +6,7 @@ import (
 	_ "github.com/lib/pq"
 
 	"github.com/teal-finance/garcon"
-	"github.com/teal-finance/quid/pkg/server/db"
+	"github.com/teal-finance/quid/server/db"
 )
 
 // allNsAdministrators : select all admin users for a namespace.

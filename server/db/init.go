@@ -5,7 +5,7 @@ import (
 
 	"github.com/manifoldco/promptui"
 
-	"github.com/teal-finance/quid/pkg/tokens"
+	"github.com/teal-finance/quid/tokens"
 )
 
 // InitDbConf : initialize the database content.

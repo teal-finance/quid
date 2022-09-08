@@ -39,9 +39,9 @@ ui/yarn.lock: ui/package.json
 	yarn    install --cwd ui --link-duplicates || \
 	yarnpkg install --cwd ui --link-duplicates
 
-quid: go.sum main.go quidlib/*.go quidlib/*/*.go quidlib/*/*/*.go
+quid: cmd/quid/main.go go.sum pkg/*/*.go pkg/*/*/*.go
 	# go build -o $@
-	CGO_ENABLED=0 GOFLAGS="-trimpath -modcacherw" GOLDFLAGS="-d -s -w -extldflags=-static" go build -a -tags osusergo,netgo -installsuffix netgo -o $@
+	CGO_ENABLED=0 GOFLAGS="-trimpath -modcacherw" GOLDFLAGS="-d -s -w -extldflags=-static" go build -a -tags osusergo,netgo -installsuffix netgo -o $@ $^
 
 go.sum: go.mod
 
@@ -50,12 +50,12 @@ go.mod:
 	go mod verify
 
 .PHONY: run
-run: go.sum config.json
-	go run main.go
+run: cmd/quid/main.go go.sum config.json
+	go run $^ -dev -v
 
-.PHONY: run-dev
-run-dev: go.sum config.json
-	go run main.go -dev -v
+.PHONY: run-prod
+run-dev: cmd/quid/main.go go.sum config.json
+	go run $^
 
 config.json:
 	# Create an empty config.json file and customize it:
@@ -180,11 +180,11 @@ vet:
 	go generate ./...
 	go run mvdan.cc/gofumpt@latest -w -extra -l -lang 1.19 .
 	go build ./...
-	go test -race -vet all -coverprofile=test-coverage.profile ./...
+	go test -race -vet all -coverprofile=code-coverage.out ./...
 	go run github.com/golangci/golangci-lint/cmd/golangci-lint@latest run --fix
 
-test-coverage.profile: vet
+code-coverage.out: vet
 
 .PHONY: cov
-cov: test-coverage.profile
-	go tool cover -html test-coverage.profile
+cov: code-coverage.out
+	go tool cover -html code-coverage.out

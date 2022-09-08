@@ -74,7 +74,7 @@ Download the latest [release](https://github.com/teal-finance/quid/releases) to 
 
 or simply:
 
-    go run . -dev
+    go run ./cmd/quid -dev
 
 See also: [run in dev mode](doc/dev_mode.md)
 

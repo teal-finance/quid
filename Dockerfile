@@ -62,7 +62,7 @@ RUN set -ex           ;\
     go mod verify
 
 COPY main.go main.go
-COPY quidlib quidlib
+COPY pkg pkg
 
 # Go build flags "-s -w" removes all debug symbols: https://pkg.go.dev/cmd/link
 RUN set -ex                                                ;\

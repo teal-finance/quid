@@ -73,7 +73,6 @@ func newRouter(g *garcon.Garcon) http.Handler {
 	r.Post("/token/valid", requestAccessTokenValidity)
 	r.Post("/admin_login", adminLogin)
 	r.Get("/logout", adminLogout)
-	// r.With(Incorruptible.Chk).Post("/admin_token/access/", RequestAdminAccessToken)
 	r.Get("/status", status)
 
 	// admin routes
@@ -99,7 +98,6 @@ func newRouter(g *garcon.Garcon) http.Handler {
 			r.Post("/groups", userGroupsInfo)
 			r.Post("/orgs", userOrgsInfo)
 			r.Post("/nsall", allNsUsers)
-			// r.Post("/search", SearchForUsersInNamespace)
 		})
 
 		r.Route("/namespaces", func(r chi.Router) {

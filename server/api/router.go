@@ -8,7 +8,7 @@ import (
 
 	"github.com/teal-finance/garcon"
 	"github.com/teal-finance/incorruptible"
-	"github.com/teal-finance/quid/conf"
+	"github.com/teal-finance/quid/crypt"
 )
 
 var Incorruptible *incorruptible.Incorruptible
@@ -16,10 +16,10 @@ var Incorruptible *incorruptible.Incorruptible
 var gw garcon.Writer
 
 // RunServer : configure and run the server.
-func RunServer(port int) {
-	server := newServer(port)
+func RunServer(port int, devMode bool) {
+	server := newServer(port, devMode)
 
-	if conf.IsDevMode {
+	if devMode {
 		log.Info("" + color.BoldRed("Running in development mode"))
 	}
 
@@ -27,18 +27,18 @@ func RunServer(port int) {
 	log.Fatal(garcon.ListenAndServe(&server))
 }
 
-func newServer(port int) http.Server {
+func newServer(port int, devMode bool) http.Server {
 	g := garcon.New(
 		garcon.WithServerName("Quid"),
-		garcon.WithDev(conf.IsDevMode))
+		garcon.WithDev(devMode))
 
 	gw = g.Writer
 
 	maxAge := 3600 * 3 // three hours
-	if conf.IsDevMode {
+	if devMode {
 		maxAge = 3600 * 24 * 365 // one year
 	}
-	Incorruptible = g.IncorruptibleCheckerBin(conf.EncodingKey[:16], maxAge, true)
+	Incorruptible = g.IncorruptibleCheckerBin(crypt.EncodingKey[:16], maxAge, true)
 
 	middleware := garcon.NewChain(
 		g.MiddlewareRejectUnprintableURI(),

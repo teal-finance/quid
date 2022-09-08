@@ -6,9 +6,10 @@ import (
 	"crypto/rand"
 	"encoding/hex"
 	"fmt"
-
-	"github.com/teal-finance/quid/conf"
 )
+
+// EncodingKey is used to encode each JWT secret key in the DB.
+var EncodingKey []byte
 
 const (
 	// nonceSize= 12 // AES-128 nonce is 12 bytes
@@ -23,7 +24,7 @@ func AesGcmEncryptHex(plaintext string) (string, error) {
 
 // AesGcmEncrypt : encrypt content.
 func AesGcmEncryptBin(plaintext []byte) ([]byte, error) {
-	block, err := aes.NewCipher(conf.EncodingKey)
+	block, err := aes.NewCipher(EncodingKey)
 	if err != nil {
 		return nil, err
 	}
@@ -56,7 +57,7 @@ func AesGcmDecryptHex(encryptedString string) (string, error) {
 }
 
 func AesGcmDecryptBin(bytes []byte) ([]byte, error) {
-	block, err := aes.NewCipher(conf.EncodingKey)
+	block, err := aes.NewCipher(EncodingKey)
 	if err != nil {
 		return nil, err
 	}

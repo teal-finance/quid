@@ -62,8 +62,6 @@ RUN set -ex           ;\
     go mod verify
 
 COPY cmd    cmd
-COPY cmds   cmds
-COPY conf   conf
 COPY crypt  crypt
 COPY server server
 COPY tokens tokens

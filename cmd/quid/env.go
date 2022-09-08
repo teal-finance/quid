@@ -1,20 +1,22 @@
-package conf
+package main
 
 import (
 	"encoding/hex"
 	"os"
 	"strconv"
 	"strings"
+
+	"github.com/teal-finance/quid/crypt"
 )
 
 // AdminUser :.
-var AdminUser string
+var adminUser string
 
 // AdminPassword ;.
-var AdminPassword string
+var adminPassword string
 
 // InitFromEnv : get the config from environment variables.
-func InitFromEnv(isDevMode bool) (conn string, port int) {
+func initFromEnv(isDevMode bool) (conn string, port int) {
 	log.Info("Initializing from env")
 
 	if isDevMode {
@@ -22,14 +24,18 @@ func InitFromEnv(isDevMode bool) (conn string, port int) {
 	}
 
 	hexKey := os.Getenv("QUID_KEY")
+	if len(hexKey) < 32 {
+		log.Panic("Want AES-128 key composed by 32 hexadecimal digits, but got", len(hexKey))
+	}
+
 	var err error
-	EncodingKey, err = hex.DecodeString(hexKey)
+	crypt.EncodingKey, err = hex.DecodeString(hexKey[:32])
 	if err != nil {
 		log.Fatal("The key in config must be in hexadecimal format err=", err)
 	}
 
-	AdminUser = os.Getenv("QUID_ADMIN_USER")
-	AdminPassword = os.Getenv("QUID_ADMIN_PWD")
+	adminUser = os.Getenv("QUID_ADMIN_USER")
+	adminPassword = os.Getenv("QUID_ADMIN_PWD")
 
 	conn = os.Getenv("DATABASE_URL")
 	conn = strings.Replace(conn, "postgresql://", "postgres://", 1)

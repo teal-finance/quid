@@ -6,14 +6,12 @@ import (
 	"os"
 
 	"github.com/teal-finance/emo"
-	"github.com/teal-finance/quid/cmds"
-	"github.com/teal-finance/quid/conf"
 	"github.com/teal-finance/quid/server/api"
 	"github.com/teal-finance/quid/server/db"
 	"github.com/teal-finance/quid/tokens"
 )
 
-var log = emo.NewZone("main")
+var log = emo.NewZone("quid")
 
 func main() {
 	init := flag.Bool("init", false, "initialize and create the QuidAdmin")
@@ -22,8 +20,8 @@ func main() {
 	isDevMode := flag.Bool("dev", false, "development mode")
 	isVerbose := flag.Bool("v", false, "verbose (info and debug logs)")
 	genConf := flag.Bool("conf", false, "generate a config file")
-	genDevToken := flag.Bool("devtoken", false, "generate a quid admin dev token for frontend")
-	genDevNsToken := flag.Bool("devnstoken", false, "generate a namespace admin dev token for frontend")
+	genDevQuidToken := flag.Bool("dev-quid-token", false, "generate a QuidAdmin JWT (was required to test the frontend)")
+	genDevNsToken := flag.Bool("dev-ns-token", false, "generate a NamespaceAdmin JWT (was required to test the frontend)")
 	flag.Parse()
 
 	// key flag
@@ -42,7 +40,7 @@ func main() {
 		if *env {
 			log.Fatal("This command is not allowed when initializing from environment variables")
 		}
-		if err := conf.Create(); err != nil {
+		if err := create(); err != nil {
 			log.Fatal("Cannot create config file", err)
 		}
 		log.State("Config file created: edit config.json to provide your database settings")
@@ -57,13 +55,13 @@ func main() {
 	)
 	if *env {
 		// env flag
-		conn, port = conf.InitFromEnv(*isDevMode)
-		autoConfDb = (conf.AdminUser != "") && (conf.AdminPassword != "")
+		conn, port = initFromEnv(*isDevMode)
+		autoConfDb = (adminUser != "") && (adminPassword != "")
 	} else {
 		// init conf flag
-		conn, port = conf.InitFromFile(*isDevMode)
+		conn, port = initFromFile(*isDevMode)
 	}
-	isCmd := *genDevToken || *genDevNsToken
+	isCmd := *genDevQuidToken || *genDevNsToken
 
 	// Database
 	db.Init(*isVerbose, *isDevMode, isCmd)
@@ -77,13 +75,13 @@ func main() {
 	}
 
 	// gen dev token flag
-	if *genDevToken {
+	if *genDevQuidToken {
 		if *env {
 			log.Fatal("This command is not allowed when initializing from environment variables")
 		}
 
 		username := os.Args[2]
-		err := cmds.WriteQuidAdminToken(username)
+		err := writeQuidAdminToken(username)
 		if err != nil {
 			log.Fatal(err)
 		}
@@ -99,7 +97,7 @@ func main() {
 
 		username := os.Args[2]
 		namespace := os.Args[3]
-		err := cmds.WriteNsAdminToken(username, namespace)
+		err := writeNsAdminToken(username, namespace)
 		if err != nil {
 			log.Fatal(err)
 		}
@@ -119,7 +117,7 @@ func main() {
 
 	if autoConfDb {
 		log.Info("Configure automatically the DB")
-		db.InitDbAutoConf(conf.AdminUser, conf.AdminPassword)
+		db.InitDbAutoConf(adminUser, adminPassword)
 	}
 
 	printOnlyErrors := !*isVerbose && !*isDevMode
@@ -131,5 +129,5 @@ func main() {
 	tokens.Init(*isVerbose, *isDevMode, isCmd)
 
 	// http server
-	api.RunServer(port)
+	api.RunServer(port, *isDevMode)
 }

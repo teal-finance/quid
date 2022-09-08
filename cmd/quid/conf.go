@@ -1,4 +1,4 @@
-package conf
+package main
 
 import (
 	"crypto/rand"
@@ -7,19 +7,14 @@ import (
 	"os"
 
 	"github.com/spf13/viper"
-	"github.com/teal-finance/emo"
+	"github.com/teal-finance/quid/crypt"
 )
-
-var log = emo.NewZone("conf")
-
-// EncodingKey : the encoding key.
-var EncodingKey []byte
 
 // IsDevMode : enable development mode.
 var IsDevMode = false
 
-// Create : create a config file.
-func Create() error {
+// create : create a config file.
+func create() error {
 	data := map[string]any{
 		"db_name":         "quid",
 		"db_user":         "pguser",
@@ -38,7 +33,7 @@ func Create() error {
 
 // InitFromFile : get the config
 // returns the postgres connection string.
-func InitFromFile(isDevMode bool) (conn string, port int) {
+func initFromFile(isDevMode bool) (conn string, port int) {
 	viper.SetConfigName("config")
 	viper.AddConfigPath(".")
 	viper.SetDefault("db_name", "quid")
@@ -66,7 +61,8 @@ func InitFromFile(isDevMode bool) (conn string, port int) {
 	if len(hexKey) < 32 {
 		log.Panic("Want AES-128 key composed by 32 hexadecimal digits, but got", len(hexKey))
 	}
-	EncodingKey, err = hex.DecodeString(hexKey[:32])
+
+	crypt.EncodingKey, err = hex.DecodeString(hexKey[:32])
 	if err != nil {
 		log.Fatal("The key in config must be in hexadecimal format err=", err)
 	}

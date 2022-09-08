@@ -1,20 +1,17 @@
-package cmds
+package main
 
 import (
 	"fmt"
 	"os"
 
-	"github.com/teal-finance/emo"
 	"github.com/teal-finance/quid/server/db"
 )
 
-var log = emo.NewZone("cmd")
-
-func WriteQuidAdminToken(username string) error {
+func writeQuidAdminToken(username string) error {
 	return writeDevAdminToken(username, "quid")
 }
 
-func WriteNsAdminToken(username, namespace string) error {
+func writeNsAdminToken(username, namespace string) error {
 	return writeDevAdminToken(username, namespace)
 }
 

@@ -1,21 +1,21 @@
-package crypt
+package crypt_test
 
 import (
 	"testing"
 
-	"github.com/teal-finance/quid/conf"
+	"github.com/teal-finance/quid/crypt"
 )
 
 func TestAesGcm(t *testing.T) {
-	conf.EncodingKey = []byte("eb037d66a3d07cc90c393a9bb04c172c")
+	crypt.EncodingKey = []byte("eb037d66a3d07cc90c393a9bb04c172c")
 
 	data := "some plaintext"
-	out, err := AesGcmEncryptHex(data)
+	out, err := crypt.AesGcmEncryptHex(data)
 	if err != nil {
 		t.Fatalf("encryption failed: %v", err)
 	}
 
-	in, err := AesGcmDecryptHex(out)
+	in, err := crypt.AesGcmDecryptHex(out)
 	if err != nil {
 		t.Fatalf("decryption failed: %v", err)
 	}

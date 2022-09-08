@@ -85,7 +85,7 @@ func main() {
 		if err != nil {
 			log.Fatal(err)
 		}
-		log.Info("Dev token generated in env file")
+		log.Info("QuidAdmin JWT generated in env file")
 		return
 	}
 
@@ -101,7 +101,7 @@ func main() {
 		if err != nil {
 			log.Fatal(err)
 		}
-		log.Info("Dev nsadmin token generated in env file for user", username, "and namespace", namespace)
+		log.Info("NamespaceAdmin JWT generated in env file for user", username, "and namespace", namespace)
 		return
 	}
 

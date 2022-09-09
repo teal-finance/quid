@@ -134,7 +134,7 @@ func requestAccessToken(w http.ResponseWriter, r *http.Request) {
 	gw.WriteOK(w, "token", t)
 }
 
-func requestAccessPublicKey(w http.ResponseWriter, r *http.Request) {
+func getAccessPublicKey(w http.ResponseWriter, r *http.Request) {
 	var m nameRequest
 	if err := garcon.UnmarshalJSONRequest(w, r, &m); err != nil {
 		log.Warn("GetNamespaceAccessKey:", err)
@@ -179,7 +179,7 @@ func requestAccessPublicKey(w http.ResponseWriter, r *http.Request) {
 	gw.WriteOK(w, "alg", ns.SigningAlgo, "key", publicDER)
 }
 
-func requestAccessTokenValidity(w http.ResponseWriter, r *http.Request) {
+func validAccessToken(w http.ResponseWriter, r *http.Request) {
 	var m accessTokenValidationRequest
 	if err := garcon.UnmarshalJSONRequest(w, r, &m); err != nil {
 		log.ParamError(err)

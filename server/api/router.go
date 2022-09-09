@@ -65,17 +65,15 @@ func newRouter(g *garcon.Garcon) http.Handler {
 	r.Get("/js/*", ws.ServeDir("text/javascript; charset=utf-8"))
 	r.Get("/assets/*", ws.ServeAssets())
 
-	// HTTP Routes
-	// public routes
+	// public routes: not protected by login cookie
 	r.Post("/token/refresh/{timeout}", requestRefreshToken)
 	r.Post("/token/access/{timeout}", requestAccessToken)
-	r.Post("/token/public", requestAccessPublicKey)
-	r.Post("/token/valid", requestAccessTokenValidity)
+	r.Post("/token/public", getAccessPublicKey)
 	r.Post("/admin_login", adminLogin)
 	r.Get("/logout", adminLogout)
 	r.Get("/status", status)
 
-	// admin routes
+	// Quid admin routes
 	r.Route("/admin", func(r chi.Router) {
 		r.Use(quidAdminMiddleware)
 
@@ -133,6 +131,8 @@ func newRouter(g *garcon.Garcon) http.Handler {
 	// Namespace admin endpoints
 	r.Route("/ns", func(r chi.Router) {
 		r.Use(nsAdminMiddleware)
+
+		r.Post("/valid", validAccessToken)
 
 		// nsadmin users
 		r.Route("/users", func(r chi.Router) {

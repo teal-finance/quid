@@ -1,6 +1,6 @@
-# Quid &emsp; &emsp; &emsp; [![Go Reference](https://pkg.go.dev/badge/github.com/teal-finance/quid.svg "Go documentation for Quid")](https://pkg.go.dev/github.com/teal-finance/quid) [![Go Report Card](https://goreportcard.com/badge/github.com/teal-finance/quid "Go Report Card for Quid")](https://goreportcard.com/report/github.com/teal-finance/quid)
+# ![Quid logo](ui/public/logo-quid.svg) &emsp; &emsp; &emsp; [![Go Reference](https://pkg.go.dev/badge/github.com/teal-finance/quid.svg "Go documentation for Quid")](https://pkg.go.dev/github.com/teal-finance/quid) [![Go Report Card](https://goreportcard.com/badge/github.com/teal-finance/quid "Go Report Card for Quid")](https://goreportcard.com/report/github.com/teal-finance/quid)
 
-![Quid logo](ui/public/logo-quid.svg)
+![Quid preview](ui/public/quid-preview.jpg)
 
 **Quid** is a [JWT][jwt] server (frontend + backend + client libraries)
 to manage Administrators, Users, **Refresh Tokens** and **Access Tokens**
@@ -54,17 +54,17 @@ Download the latest [release](https://github.com/teal-finance/quid/releases) to 
 
 ## Configure
 
-1. Create the default config file:
+1.  Create the default config file:
 
         ./quid -conf
 
-2. Create the `quid` database: [instructions](doc/setup_db.md)
+2.  Create the `quid` database: [instructions](doc/setup_db.md)
 
-3. Edit the configuration file to set your PostgreSQL credentials:
+3.  Edit the configuration file to set your PostgreSQL credentials:
 
         vim config.json
 
-4. Initialize the `quid` database and create the administrator user:
+4.  Initialize the `quid` database and create the administrator user:
 
         ./quid -init
 
@@ -201,5 +201,3 @@ See the following open-source projects providing these features:
 
 - Other Authentication tools in Go:  
   <https://github.com/avelino/awesome-go#authentication-and-oauth>
-
-![Quid preview](ui/public/quid-preview.jpg)

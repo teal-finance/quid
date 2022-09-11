@@ -13,23 +13,24 @@ import (
 )
 
 var (
-	ErrThreeParts   = errors.New("JWT must be composed of three parts separated by periods")
-	ErrJWTSignature = errors.New("JWT signature mismatch")
-	ErrNoBase64JWT  = errors.New("the token claims (second part of the JWT) is not base64-valid")
+	ErrThreeParts    = errors.New("JWT must be composed of three parts separated by periods")
+	ErrJWTSignature  = errors.New("JWT signature mismatch")
+	ErrNoBase64JWT   = errors.New("the token claims (second part of the JWT) is not base64-valid")
+	ErrHMACKey       = errors.New("cannot decode the HMAC key, please provide a key in hexadecimal or Base64 form (64, 96 or 128 hexadecimal digits ; 43, 64 or 86 Base64 characters)")
+	ErrHS256Key      = errors.New("cannot decode the HMAC-SHA256 key, please provide 64 hexadecimal digits or a Base64 string containing about 43 characters")
+	ErrHS384Key      = errors.New("cannot decode the HMAC-SHA384 key, please provide 96 hexadecimal digits or a Base64 string containing 64 characters")
+	ErrHS512Key      = errors.New("cannot decode the HMAC-SHA512 key, please provide 128 hexadecimal digits or a Base64 string containing about 86 characters")
+	ErrAlgoKeyScheme = errors.New("Unexpected AlgoKey scheme")
 )
 
-type Generator interface {
+type Tokenizer interface {
 	GenAccessToken(timeout, maxTTL, user string, groups, orgs []string) (string, error)
+	Sign(headerPayload []byte) []byte
+	Verifier
 }
 
 type Verifier interface {
 	Claims(accessToken string) (*AccessClaims, error)
-	Sign(headerPayload []byte) []byte
-}
-
-type GenVerifier interface {
-	Generator
-	Verifier
 }
 
 // NewVerifier creates a new Verifier to speed up the verification
@@ -50,13 +51,13 @@ type GenVerifier interface {
 // NewVerifier converts the verification key into binary DER form
 // depending on the key string length and the optional algo name.
 // The algo name is case insensitive.
-func NewVerifier(algoKey string) Verifier {
+func NewVerifier(algoKey string) (Verifier, error) {
 	slice := strings.SplitN(algoKey, ":", 2)
 	switch len(slice) {
 	case 0:
 		log.Panic("NewVerifier parameter must not be empty")
 	case 1:
-		return NewHMACVerifier(algoKey) // here: algoKey is just the secret-key
+		return NewHMAC(algoKey) // here algoKey is just the secret-key
 	}
 
 	algo := strings.ToUpper(slice[0])
@@ -64,76 +65,77 @@ func NewVerifier(algoKey string) Verifier {
 
 	switch algo {
 	case "HTTP", "HTTPS":
-		return RequestAlgoKey(algoKey) // here: algoKey is an URL
+		return RequestAlgoKey(algoKey) // here algoKey is an URL
 	case "HMAC":
-		return NewHMACVerifier(keyStr)
+		return NewHMAC(keyStr)
 	case "HS256":
-		return NewHS256Verifier(keyStr)
+		return NewHS256(keyStr)
 	case "HS384":
-		return NewHS384Verifier(keyStr)
+		return NewHS384(keyStr)
 	case "HS512":
-		return NewHS512Verifier(keyStr)
+		return NewHS512(keyStr)
 	case "RS256", "RS384", "RS512":
-		return NewRSAVerifier(algo, keyStr)
+		return NewRSA(algo, keyStr)
 	case "PS256", "PS384", "PS512":
 		log.Panic(algo + notSupportedNotice)
 	case "ES256":
-		return NewES256Verifier(keyStr)
+		return NewES256(keyStr)
 	case "ES384":
-		return NewES384Verifier(keyStr)
+		return NewES384(keyStr)
 	case "ES512":
-		return NewES512Verifier(keyStr)
+		return NewES512(keyStr)
 	case "EDDSA":
-		return NewEdDSAVerifier(keyStr)
+		return NewEdDSA(keyStr)
 	}
 
-	log.Panicf("Unexpected scheme %q in algoKey=%q", slice[0], algoKey)
-	return nil
+	log.Errorf("Unexpected scheme %q in algoKey=%q", slice[0], algoKey)
+	return nil, ErrAlgoKeyScheme
 }
 
-func RequestAlgoKey(url string) Verifier            { return nil }
-func NewHMACVerifier(keyStr string) GenVerifier     { return NewHS256Verifier(keyStr) }
-func NewHS384Verifier(keyStr string) *HS384Verifier { return &HS384Verifier{} }
-func NewHS512Verifier(keyStr string) *HS512Verifier { return &HS512Verifier{} }
-func NewRSAVerifier(algo, keyStr string) Verifier   { return nil }
-func NewES256Verifier(keyStr string) Verifier       { return nil }
-func NewES384Verifier(keyStr string) Verifier       { return nil }
-func NewES512Verifier(keyStr string) Verifier       { return nil }
-func NewEdDSAVerifier(keyStr string) Verifier       { return nil }
+func RequestAlgoKey(url string) (Verifier, error)  { return nil, nil }
+func NewRSA(algo, keyStr string) (Verifier, error) { return nil, nil }
+func NewES256(keyStr string) (Verifier, error)     { return nil, nil }
+func NewES384(keyStr string) (Verifier, error)     { return nil, nil }
+func NewES512(keyStr string) (Verifier, error)     { return nil, nil }
+func NewEdDSA(keyStr string) (Verifier, error)     { return nil, nil }
 
 type (
-	// HS256Verifier requires a 32-bytes secret key.
-	HS256Verifier struct{ Key []byte }
-	HS384Verifier struct{ Key []byte }
-	HS512Verifier struct{ Key []byte }
+	// HS256 requires a 32-bytes secret key.
+	HS256 struct{ Key []byte }
+	HS384 struct{ Key []byte }
+	HS512 struct{ Key []byte }
 )
 
-func (v *HS256Verifier) GenAccessToken(timeout, maxTTL, user string, groups, orgs []string) (string, error) {
-	return GenAccessToken(timeout, maxTTL, user, groups, orgs, v.Key)
+func NewHMAC(keyStr string) (Tokenizer, error) {
+	if tokenizer, err := NewHS256(keyStr); err == nil {
+		return tokenizer, nil
+	}
+
+	if tokenizer, err := NewHS384(keyStr); err == nil {
+		return tokenizer, nil
+	}
+
+	if tokenizer, err := NewHS512(keyStr); err == nil {
+		return tokenizer, nil
+	}
+
+	return nil, ErrHMACKey
 }
 
-func (v *HS384Verifier) GenAccessToken(timeout, maxTTL, user string, groups, orgs []string) (string, error) {
-	return GenAccessToken(timeout, maxTTL, user, groups, orgs, v.Key)
-}
-
-func (v *HS512Verifier) GenAccessToken(timeout, maxTTL, user string, groups, orgs []string) (string, error) {
-	return GenAccessToken(timeout, maxTTL, user, groups, orgs, v.Key)
-}
-
-const hs256Constraint = "Cannot decode the HMAC-SHA256 key, please provide 64 hexadecimal digits or a Base64 string containing about 43 characters"
-
-func NewHS256Verifier(secretKeyStr string) *HS256Verifier {
+func NewHS256(secretKeyStr string) (*HS256, error) {
 	if len(secretKeyStr) == 64 {
 		key, err := hex.DecodeString(secretKeyStr)
 		if err != nil {
-			log.Panic(hs256Constraint, err)
+			log.Warn(err)
+			return nil, ErrHS256Key
 		}
-		return &HS256Verifier{key}
+		return &HS256{key}, nil
 	}
 
 	key, err := base64.RawURLEncoding.DecodeString(secretKeyStr)
 	if err != nil {
-		log.Panic(hs256Constraint, err)
+		log.Warn(err)
+		return nil, ErrHS256Key
 	}
 
 	switch len(key) {
@@ -144,82 +146,102 @@ func NewHS256Verifier(secretKeyStr string) *HS256Verifier {
 	case 33:
 		key = key[:32]
 	default:
-		log.Panic(hs256Constraint)
+		log.Warn("Got", len(key), "bytes, want 32")
+		return nil, ErrHS256Key
 	}
 
-	return &HS256Verifier{key}
+	return &HS256{key}, nil
 }
 
-func (v *HS256Verifier) Claims(accessToken string) (*AccessClaims, error) {
+func NewHS384(secretKeyStr string) (*HS384, error) {
+	if len(secretKeyStr) == 48 {
+		key, err := hex.DecodeString(secretKeyStr)
+		if err != nil {
+			log.Warn(err)
+			return nil, ErrHS384Key
+		}
+		return &HS384{key}, nil
+	}
+
+	key, err := base64.RawURLEncoding.DecodeString(secretKeyStr)
+	if err != nil {
+		log.Warn(err)
+		return nil, ErrHS384Key
+	}
+
+	if len(key) != 48 {
+		log.Warn("Got", len(key), "bytes, want 48")
+		return nil, ErrHS384Key
+	}
+
+	return &HS384{key}, nil
+}
+
+func NewHS512(secretKeyStr string) (*HS512, error) {
+	if len(secretKeyStr) == 128 {
+		key, err := hex.DecodeString(secretKeyStr)
+		if err != nil {
+			log.Warn(err)
+			return nil, ErrHS512Key
+		}
+		return &HS512{key}, nil
+	}
+
+	key, err := base64.RawURLEncoding.DecodeString(secretKeyStr)
+	if err != nil {
+		log.Warn(err)
+		return nil, ErrHS512Key
+	}
+
+	switch len(key) {
+	case 63:
+		key = append(key, 0)
+	case 64:
+		// perfect
+	case 65:
+		key = key[:64]
+	default:
+		log.Warn("Got", len(key), "bytes, want 64.")
+		return nil, ErrHS512Key
+	}
+
+	return &HS512{key}, nil
+}
+
+func (v *HS256) GenAccessToken(timeout, maxTTL, user string, groups, orgs []string) (string, error) {
+	return GenAccessToken(timeout, maxTTL, user, groups, orgs, v.Key)
+}
+
+func (v *HS384) GenAccessToken(timeout, maxTTL, user string, groups, orgs []string) (string, error) {
+	return GenAccessToken(timeout, maxTTL, user, groups, orgs, v.Key)
+}
+
+func (v *HS512) GenAccessToken(timeout, maxTTL, user string, groups, orgs []string) (string, error) {
+	return GenAccessToken(timeout, maxTTL, user, groups, orgs, v.Key)
+}
+
+func (v *HS256) Claims(JWT string) (*AccessClaims, error) { return SignedClaims(v, []byte(JWT)) }
+func (v *HS384) Claims(JWT string) (*AccessClaims, error) { return SignedClaims(v, []byte(JWT)) }
+func (v *HS512) Claims(JWT string) (*AccessClaims, error) { return SignedClaims(v, []byte(JWT)) }
+
+func SignedClaims[T Tokenizer](v T, accessToken []byte) (*AccessClaims, error) {
 	p1, p2, err := SplitThreeParts(accessToken)
 	if err != nil {
 		return nil, err
 	}
 
-	accessBytes := []byte(accessToken)
-	headerPayload := accessBytes[:p2]
-	signature := accessBytes[p2+1:]
-
-	ourSignature := v.Sign(headerPayload)
-	if !bytes.Equal(signature, ourSignature) {
+	ourSignature := v.Sign(accessToken[:p2]) // pass header.payload
+	if !bytes.Equal(ourSignature, accessToken[p2+1:]) {
 		return nil, ErrJWTSignature
 	}
 
-	payload := accessBytes[p1+1 : p2]
+	payload := accessToken[p1+1 : p2]
 	return AccessClaimsFromBase64(payload)
-}
-
-func (v *HS384Verifier) Claims(accessToken string) (*AccessClaims, error) {
-	p1, p2, err := SplitThreeParts(accessToken)
-	if err != nil {
-		return nil, err
-	}
-
-	accessBytes := []byte(accessToken)
-	headerPayload := accessBytes[:p2]
-	signature := accessBytes[p2+1:]
-
-	ourSignature := v.Sign(headerPayload)
-	if !bytes.Equal(signature, ourSignature) {
-		return nil, ErrJWTSignature
-	}
-
-	payload := accessBytes[p1+1 : p2]
-	return AccessClaimsFromBase64(payload)
-}
-
-func (v *HS512Verifier) Claims(accessToken string) (*AccessClaims, error) {
-	p1, p2, err := SplitThreeParts(accessToken)
-	if err != nil {
-		return nil, err
-	}
-
-	accessBytes := []byte(accessToken)
-	headerPayload := accessBytes[:p2]
-	signature := accessBytes[p2+1:]
-
-	ourSignature := v.Sign(headerPayload)
-	if !bytes.Equal(signature, ourSignature) {
-		return nil, ErrJWTSignature
-	}
-
-	payload := accessBytes[p1+1 : p2]
-	return AccessClaimsFromBase64(payload)
-}
-
-// SplitThreeParts returns the period position decompose the JWT in three parts
-func SplitThreeParts(JWT string) (p1, p2 int, _ error) {
-	p1 = strings.IndexByte(JWT, '.')
-	p2 = strings.LastIndexByte(JWT, '.')
-	if p1 < 0 || p1 >= p2 {
-		return 0, 0, ErrThreeParts
-	}
-	return p1, p2, nil
 }
 
 // Sign return the signature of the first two parts.
 // It allocates hmac.New() each time to avoid race condition.
-func (v *HS256Verifier) Sign(headerPayload []byte) []byte {
+func (v *HS256) Sign(headerPayload []byte) []byte {
 	h := hmac.New(sha256.New, v.Key)
 	_, _ = h.Write(headerPayload)
 	signatureBin := h.Sum(nil)
@@ -228,7 +250,7 @@ func (v *HS256Verifier) Sign(headerPayload []byte) []byte {
 	return signatureB64
 }
 
-func (v *HS384Verifier) Sign(headerPayload []byte) []byte {
+func (v *HS384) Sign(headerPayload []byte) []byte {
 	h := hmac.New(sha512.New384, v.Key)
 	_, _ = h.Write(headerPayload)
 	signatureBin := h.Sum(nil)
@@ -237,13 +259,23 @@ func (v *HS384Verifier) Sign(headerPayload []byte) []byte {
 	return signatureB64
 }
 
-func (v *HS512Verifier) Sign(headerPayload []byte) []byte {
+func (v *HS512) Sign(headerPayload []byte) []byte {
 	h := hmac.New(sha512.New, v.Key)
 	_, _ = h.Write(headerPayload)
 	signatureBin := h.Sum(nil)
 	signatureB64 := make([]byte, len(signatureBin)*4/3+1)
 	base64.RawURLEncoding.Encode(signatureB64, signatureBin)
 	return signatureB64
+}
+
+// SplitThreeParts returns the period position decompose the JWT in three parts
+func SplitThreeParts(JWT []byte) (p1, p2 int, _ error) {
+	p1 = bytes.IndexByte(JWT, '.')
+	p2 = bytes.LastIndexByte(JWT, '.')
+	if p1 < 0 || p1 >= p2 {
+		return 0, 0, ErrThreeParts
+	}
+	return p1, p2, nil
 }
 
 func AccessClaimsFromBase64(b64 []byte) (*AccessClaims, error) {

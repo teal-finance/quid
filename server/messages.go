@@ -1,4 +1,4 @@
-package api
+package server
 
 //go:generate go run github.com/mailru/easyjson/... -all -byte -disable_members_unescape -disallow_unknown_fields -snake_case ${GOFILE}
 
@@ -39,51 +39,51 @@ Usage of /tmp/go-build1862268821/b001/exe/easyjson:
         only generate stubs for marshaler/unmarshaler funcs
 */
 
-type passwordRequest struct {
+type PasswordRequest struct {
 	Username  string
 	Password  string
 	Namespace string
 }
 
-type userHandlerCreation struct {
+type UserHandlerCreation struct {
 	Name        string
 	Password    string
 	NamespaceID int64
 }
 
-type groupCreation struct {
+type GroupCreation struct {
 	Name        string
 	NamespaceID int64
 }
 
-type namespaceIDRequest struct {
+type NamespaceIDRequest struct {
 	NamespaceID int64
 }
 
-type refreshMaxTTLRequest struct {
+type RefreshMaxTTLRequest struct {
 	ID            int64
 	RefreshMaxTTL string
 }
 
-type maxTTLRequest struct {
+type MaxTTLRequest struct {
 	ID     int64
 	MaxTTL string
 }
 
-type infoRequest struct {
+type InfoRequest struct {
 	ID int64
 }
 
-type nameRequest struct {
+type NameRequest struct {
 	Name string
 }
 
-type availability struct {
+type Availability struct {
 	ID     int64
 	Enable bool
 }
 
-type namespaceCreation struct {
+type NamespaceCreation struct {
 	Name           string
 	Algo           string
 	MaxTTL         string
@@ -91,65 +91,77 @@ type namespaceCreation struct {
 	EnableEndpoint bool
 }
 
-type nonAdminUsersRequest struct {
+type NonAdminUsersRequest struct {
 	Username    string
 	NamespaceID int64
 }
 
-type administratorsCreation struct {
+type AdministratorsCreation struct {
 	UserIDs     []int64
 	NamespaceID int64
 }
 
-type administratorDeletion struct {
+type AdministratorDeletion struct {
 	UserID      int64
 	NamespaceID int64
 }
 
-type accessTokenRequest struct {
+type AccessTokenRequest struct {
 	RefreshToken string
 	Namespace    string
 }
 
-type accessTokenValidationRequest struct {
+type AccessTokenValidationRequest struct {
 	AccessToken string
 	Namespace   string
 }
 
-type namespaceRequest struct {
+type NamespaceRequest struct {
 	Namespace string
 }
 
-type userOrgRequest struct {
+type UserOrgRequest struct {
 	UserID int64
 	OrgID  int64
 }
 
-type userGroupRequest struct {
+type UserGroupRequest struct {
 	UserID      int64
 	GroupID     int64
 	NamespaceID int64
 }
 
-type userRequest struct {
+type UserRequest struct {
 	ID          int64
 	NamespaceID int64
 }
 
-type AdminType string
+type AdminType bool
 
 const (
-	QuidAdmin AdminType = "QuidAdmin"
-	NsAdmin   AdminType = "NsAdmin"
+	QuidAdmin AdminType = false
+	NsAdmin   AdminType = true
 )
 
-type statusResponse struct {
-	AdminType AdminType
-	Username  string
-	Ns        nsInfo
+func (t AdminType) String() string {
+	if t == QuidAdmin {
+		return "QuidAdmin"
+	}
+	return "NsAdmin"
 }
 
-type nsInfo struct {
+type StatusResponse struct {
+	AdminType AdminType
+	Username  string
+	Ns        NSInfo
+}
+
+type NSInfo struct {
 	ID   int64
 	Name string
+}
+
+type PublicKeyResponse struct {
+	Alg string
+	Key string
 }

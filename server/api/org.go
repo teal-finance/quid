@@ -4,6 +4,7 @@ import (
 	"net/http"
 
 	"github.com/teal-finance/garcon/gg"
+	"github.com/teal-finance/quid/server"
 	db "github.com/teal-finance/quid/server/db"
 )
 
@@ -21,7 +22,7 @@ func allOrgs(w http.ResponseWriter, r *http.Request) {
 
 // findOrg : find an org from name.
 func findOrg(w http.ResponseWriter, r *http.Request) {
-	var m nameRequest
+	var m server.NameRequest
 	if err := gg.UnmarshalJSONRequest(w, r, &m); err != nil {
 		log.ParamError("FindOrg:", err)
 		gw.WriteErr(w, r, http.StatusUnauthorized, "cannot decode JSON")
@@ -48,7 +49,7 @@ func findOrg(w http.ResponseWriter, r *http.Request) {
 
 // userOrgsInfo : get orgs info for a user.
 func userOrgsInfo(w http.ResponseWriter, r *http.Request) {
-	var m infoRequest
+	var m server.InfoRequest
 	if err := gg.UnmarshalJSONRequest(w, r, &m); err != nil {
 		log.ParamError("UserOrgsInfo:", err)
 		gw.WriteErr(w, r, http.StatusUnauthorized, "cannot decode JSON")
@@ -69,7 +70,7 @@ func userOrgsInfo(w http.ResponseWriter, r *http.Request) {
 
 // deleteOrg : org deletion http handler.
 func deleteOrg(w http.ResponseWriter, r *http.Request) {
-	var m infoRequest
+	var m server.InfoRequest
 	if err := gg.UnmarshalJSONRequest(w, r, &m); err != nil {
 		log.ParamError("DeleteOrg:", err)
 		gw.WriteErr(w, r, http.StatusUnauthorized, "cannot decode JSON")
@@ -89,7 +90,7 @@ func deleteOrg(w http.ResponseWriter, r *http.Request) {
 
 // createOrg : org creation http handler.
 func createOrg(w http.ResponseWriter, r *http.Request) {
-	var m nameRequest
+	var m server.NameRequest
 	if err := gg.UnmarshalJSONRequest(w, r, &m); err != nil {
 		log.ParamError("CreateOrg:", err)
 		gw.WriteErr(w, r, http.StatusUnauthorized, "cannot decode JSON")

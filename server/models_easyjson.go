@@ -306,98 +306,7 @@ func (v *Org) UnmarshalJSON(data []byte) error {
 func (v *Org) UnmarshalEasyJSON(l *jlexer.Lexer) {
 	easyjsonD2b7633eDecodeGithubComTealFinanceQuidServer2(l, v)
 }
-func easyjsonD2b7633eDecodeGithubComTealFinanceQuidServer3(in *jlexer.Lexer, out *NsAdmin) {
-	isTopLevel := in.IsStart()
-	if in.IsNull() {
-		if isTopLevel {
-			in.Consumed()
-		}
-		in.Skip()
-		return
-	}
-	in.Delim('{')
-	for !in.IsDelim('}') {
-		key := in.UnsafeFieldName(true)
-		in.WantColon()
-		if in.IsNull() {
-			in.Skip()
-			in.WantComma()
-			continue
-		}
-		switch key {
-		case "username":
-			out.UserName = string(in.String())
-		case "id":
-			out.ID = int64(in.Int64())
-		case "user_id":
-			out.UserID = int64(in.Int64())
-		case "namespace_id":
-			out.NamespaceID = int64(in.Int64())
-		default:
-			in.AddError(&jlexer.LexerError{
-				Offset: in.GetPos(),
-				Reason: "unknown field",
-				Data:   key,
-			})
-		}
-		in.WantComma()
-	}
-	in.Delim('}')
-	if isTopLevel {
-		in.Consumed()
-	}
-}
-func easyjsonD2b7633eEncodeGithubComTealFinanceQuidServer3(out *jwriter.Writer, in NsAdmin) {
-	out.RawByte('{')
-	first := true
-	_ = first
-	{
-		const prefix string = ",\"username\":"
-		out.RawString(prefix[1:])
-		out.String(string(in.UserName))
-	}
-	{
-		const prefix string = ",\"id\":"
-		out.RawString(prefix)
-		out.Int64(int64(in.ID))
-	}
-	{
-		const prefix string = ",\"user_id\":"
-		out.RawString(prefix)
-		out.Int64(int64(in.UserID))
-	}
-	{
-		const prefix string = ",\"namespace_id\":"
-		out.RawString(prefix)
-		out.Int64(int64(in.NamespaceID))
-	}
-	out.RawByte('}')
-}
-
-// MarshalJSON supports json.Marshaler interface
-func (v NsAdmin) MarshalJSON() ([]byte, error) {
-	w := jwriter.Writer{}
-	easyjsonD2b7633eEncodeGithubComTealFinanceQuidServer3(&w, v)
-	return w.Buffer.BuildBytes(), w.Error
-}
-
-// MarshalEasyJSON supports easyjson.Marshaler interface
-func (v NsAdmin) MarshalEasyJSON(w *jwriter.Writer) {
-	easyjsonD2b7633eEncodeGithubComTealFinanceQuidServer3(w, v)
-}
-
-// UnmarshalJSON supports json.Unmarshaler interface
-func (v *NsAdmin) UnmarshalJSON(data []byte) error {
-	r := jlexer.Lexer{Data: data}
-	easyjsonD2b7633eDecodeGithubComTealFinanceQuidServer3(&r, v)
-	return r.Error()
-}
-
-// UnmarshalEasyJSON supports easyjson.Unmarshaler interface
-func (v *NsAdmin) UnmarshalEasyJSON(l *jlexer.Lexer) {
-	easyjsonD2b7633eDecodeGithubComTealFinanceQuidServer3(l, v)
-}
-func easyjsonD2b7633eDecodeGithubComTealFinanceQuidServer4(in *jlexer.Lexer, out *NonNsAdmin) {
+func easyjsonD2b7633eDecodeGithubComTealFinanceQuidServer3(in *jlexer.Lexer, out *NonNsAdmin) {
 	isTopLevel := in.IsStart()
 	if in.IsNull() {
 		if isTopLevel {
@@ -436,7 +345,7 @@ func easyjsonD2b7633eDecodeGithubComTealFinanceQuidServer4(in *jlexer.Lexer, out
 		in.Consumed()
 	}
 }
-func easyjsonD2b7633eEncodeGithubComTealFinanceQuidServer4(out *jwriter.Writer, in NonNsAdmin) {
+func easyjsonD2b7633eEncodeGithubComTealFinanceQuidServer3(out *jwriter.Writer, in NonNsAdmin) {
 	out.RawByte('{')
 	first := true
 	_ = first
@@ -461,27 +370,27 @@ func easyjsonD2b7633eEncodeGithubComTealFinanceQuidServer4(out *jwriter.Writer, 
 // MarshalJSON supports json.Marshaler interface
 func (v NonNsAdmin) MarshalJSON() ([]byte, error) {
 	w := jwriter.Writer{}
-	easyjsonD2b7633eEncodeGithubComTealFinanceQuidServer4(&w, v)
+	easyjsonD2b7633eEncodeGithubComTealFinanceQuidServer3(&w, v)
 	return w.Buffer.BuildBytes(), w.Error
 }
 
 // MarshalEasyJSON supports easyjson.Marshaler interface
 func (v NonNsAdmin) MarshalEasyJSON(w *jwriter.Writer) {
-	easyjsonD2b7633eEncodeGithubComTealFinanceQuidServer4(w, v)
+	easyjsonD2b7633eEncodeGithubComTealFinanceQuidServer3(w, v)
 }
 
 // UnmarshalJSON supports json.Unmarshaler interface
 func (v *NonNsAdmin) UnmarshalJSON(data []byte) error {
 	r := jlexer.Lexer{Data: data}
-	easyjsonD2b7633eDecodeGithubComTealFinanceQuidServer4(&r, v)
+	easyjsonD2b7633eDecodeGithubComTealFinanceQuidServer3(&r, v)
 	return r.Error()
 }
 
 // UnmarshalEasyJSON supports easyjson.Unmarshaler interface
 func (v *NonNsAdmin) UnmarshalEasyJSON(l *jlexer.Lexer) {
-	easyjsonD2b7633eDecodeGithubComTealFinanceQuidServer4(l, v)
+	easyjsonD2b7633eDecodeGithubComTealFinanceQuidServer3(l, v)
 }
-func easyjsonD2b7633eDecodeGithubComTealFinanceQuidServer5(in *jlexer.Lexer, out *NamespaceInfo) {
+func easyjsonD2b7633eDecodeGithubComTealFinanceQuidServer4(in *jlexer.Lexer, out *NamespaceInfo) {
 	isTopLevel := in.IsStart()
 	if in.IsNull() {
 		if isTopLevel {
@@ -539,7 +448,7 @@ func easyjsonD2b7633eDecodeGithubComTealFinanceQuidServer5(in *jlexer.Lexer, out
 		in.Consumed()
 	}
 }
-func easyjsonD2b7633eEncodeGithubComTealFinanceQuidServer5(out *jwriter.Writer, in NamespaceInfo) {
+func easyjsonD2b7633eEncodeGithubComTealFinanceQuidServer4(out *jwriter.Writer, in NamespaceInfo) {
 	out.RawByte('{')
 	first := true
 	_ = first
@@ -570,24 +479,115 @@ func easyjsonD2b7633eEncodeGithubComTealFinanceQuidServer5(out *jwriter.Writer, 
 // MarshalJSON supports json.Marshaler interface
 func (v NamespaceInfo) MarshalJSON() ([]byte, error) {
 	w := jwriter.Writer{}
-	easyjsonD2b7633eEncodeGithubComTealFinanceQuidServer5(&w, v)
+	easyjsonD2b7633eEncodeGithubComTealFinanceQuidServer4(&w, v)
 	return w.Buffer.BuildBytes(), w.Error
 }
 
 // MarshalEasyJSON supports easyjson.Marshaler interface
 func (v NamespaceInfo) MarshalEasyJSON(w *jwriter.Writer) {
-	easyjsonD2b7633eEncodeGithubComTealFinanceQuidServer5(w, v)
+	easyjsonD2b7633eEncodeGithubComTealFinanceQuidServer4(w, v)
 }
 
 // UnmarshalJSON supports json.Unmarshaler interface
 func (v *NamespaceInfo) UnmarshalJSON(data []byte) error {
+	r := jlexer.Lexer{Data: data}
+	easyjsonD2b7633eDecodeGithubComTealFinanceQuidServer4(&r, v)
+	return r.Error()
+}
+
+// UnmarshalEasyJSON supports easyjson.Unmarshaler interface
+func (v *NamespaceInfo) UnmarshalEasyJSON(l *jlexer.Lexer) {
+	easyjsonD2b7633eDecodeGithubComTealFinanceQuidServer4(l, v)
+}
+func easyjsonD2b7633eDecodeGithubComTealFinanceQuidServer5(in *jlexer.Lexer, out *NamespaceAdmin) {
+	isTopLevel := in.IsStart()
+	if in.IsNull() {
+		if isTopLevel {
+			in.Consumed()
+		}
+		in.Skip()
+		return
+	}
+	in.Delim('{')
+	for !in.IsDelim('}') {
+		key := in.UnsafeFieldName(true)
+		in.WantColon()
+		if in.IsNull() {
+			in.Skip()
+			in.WantComma()
+			continue
+		}
+		switch key {
+		case "username":
+			out.UserName = string(in.String())
+		case "id":
+			out.ID = int64(in.Int64())
+		case "user_id":
+			out.UserID = int64(in.Int64())
+		case "namespace_id":
+			out.NamespaceID = int64(in.Int64())
+		default:
+			in.AddError(&jlexer.LexerError{
+				Offset: in.GetPos(),
+				Reason: "unknown field",
+				Data:   key,
+			})
+		}
+		in.WantComma()
+	}
+	in.Delim('}')
+	if isTopLevel {
+		in.Consumed()
+	}
+}
+func easyjsonD2b7633eEncodeGithubComTealFinanceQuidServer5(out *jwriter.Writer, in NamespaceAdmin) {
+	out.RawByte('{')
+	first := true
+	_ = first
+	{
+		const prefix string = ",\"username\":"
+		out.RawString(prefix[1:])
+		out.String(string(in.UserName))
+	}
+	{
+		const prefix string = ",\"id\":"
+		out.RawString(prefix)
+		out.Int64(int64(in.ID))
+	}
+	{
+		const prefix string = ",\"user_id\":"
+		out.RawString(prefix)
+		out.Int64(int64(in.UserID))
+	}
+	{
+		const prefix string = ",\"namespace_id\":"
+		out.RawString(prefix)
+		out.Int64(int64(in.NamespaceID))
+	}
+	out.RawByte('}')
+}
+
+// MarshalJSON supports json.Marshaler interface
+func (v NamespaceAdmin) MarshalJSON() ([]byte, error) {
+	w := jwriter.Writer{}
+	easyjsonD2b7633eEncodeGithubComTealFinanceQuidServer5(&w, v)
+	return w.Buffer.BuildBytes(), w.Error
+}
+
+// MarshalEasyJSON supports easyjson.Marshaler interface
+func (v NamespaceAdmin) MarshalEasyJSON(w *jwriter.Writer) {
+	easyjsonD2b7633eEncodeGithubComTealFinanceQuidServer5(w, v)
+}
+
+// UnmarshalJSON supports json.Unmarshaler interface
+func (v *NamespaceAdmin) UnmarshalJSON(data []byte) error {
 	r := jlexer.Lexer{Data: data}
 	easyjsonD2b7633eDecodeGithubComTealFinanceQuidServer5(&r, v)
 	return r.Error()
 }
 
 // UnmarshalEasyJSON supports easyjson.Unmarshaler interface
-func (v *NamespaceInfo) UnmarshalEasyJSON(l *jlexer.Lexer) {
+func (v *NamespaceAdmin) UnmarshalEasyJSON(l *jlexer.Lexer) {
 	easyjsonD2b7633eDecodeGithubComTealFinanceQuidServer5(l, v)
 }
 func easyjsonD2b7633eDecodeGithubComTealFinanceQuidServer6(in *jlexer.Lexer, out *Namespace) {

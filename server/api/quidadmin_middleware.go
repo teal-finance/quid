@@ -3,6 +3,7 @@ package api
 import (
 	"net/http"
 
+	"github.com/teal-finance/quid/server"
 	"github.com/teal-finance/quid/server/db"
 )
 
@@ -32,9 +33,9 @@ func quidAdminMiddleware(next http.Handler) http.Handler {
 		userID := values[1].Int64()
 		namespace := values[2].String()
 		nsID := values[3].Int64()
-		adminType := values[4].String()
+		adminType := values[4].Bool()
 
-		if AdminType(adminType) != QuidAdmin {
+		if server.AdminType(adminType) != server.QuidAdmin {
 			log.ParamError("User '" + userName + "' is not QuidAdmin")
 			w.WriteHeader(http.StatusUnauthorized)
 			return

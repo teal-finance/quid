@@ -1,6 +1,7 @@
 package api
 
 import (
+	"encoding/base64"
 	"net/http"
 
 	"github.com/teal-finance/garcon/gg"
@@ -23,7 +24,7 @@ func allNamespaces(w http.ResponseWriter, r *http.Request) {
 
 // setRefreshMaxTTL : set a max refresh token ttl for a namespace.
 func setRefreshMaxTTL(w http.ResponseWriter, r *http.Request) {
-	var m refreshMaxTTLRequest
+	var m server.RefreshMaxTTLRequest
 	if err := gg.UnmarshalJSONRequest(w, r, &m); err != nil {
 		log.Warn("SetNamespaceRefreshTokenMaxTTL:", err)
 		gw.WriteErr(w, r, http.StatusUnauthorized, "cannot decode JSON")
@@ -51,7 +52,7 @@ func setRefreshMaxTTL(w http.ResponseWriter, r *http.Request) {
 
 // setTokenMaxTTL : set a max access token ttl for a namespace.
 func setTokenMaxTTL(w http.ResponseWriter, r *http.Request) {
-	var m maxTTLRequest
+	var m server.MaxTTLRequest
 	if err := gg.UnmarshalJSONRequest(w, r, &m); err != nil {
 		log.Warn("SetNamespaceTokenMaxTTL:", err)
 		gw.WriteErr(w, r, http.StatusUnauthorized, "cannot decode JSON")
@@ -79,7 +80,7 @@ func setTokenMaxTTL(w http.ResponseWriter, r *http.Request) {
 
 // namespaceInfo : info about a namespace.
 func namespaceInfo(w http.ResponseWriter, r *http.Request) {
-	var m infoRequest
+	var m server.InfoRequest
 	if err := gg.UnmarshalJSONRequest(w, r, &m); err != nil {
 		log.Warn("NamespaceInfo:", err)
 		gw.WriteErr(w, r, http.StatusUnauthorized, "cannot decode JSON")
@@ -112,7 +113,7 @@ func namespaceInfo(w http.ResponseWriter, r *http.Request) {
 
 // getAccessVerificationKey : get the key for a namespace.
 func getAccessVerificationKey(w http.ResponseWriter, r *http.Request) {
-	var m infoRequest
+	var m server.InfoRequest
 	if err := gg.UnmarshalJSONRequest(w, r, &m); err != nil {
 		log.Warn("GetNamespaceAccessKey:", err)
 		gw.WriteErr(w, r, http.StatusUnauthorized, "cannot decode JSON")
@@ -131,12 +132,13 @@ func getAccessVerificationKey(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	gw.WriteOK(w, "alg", algo, "key", key)
+	keyB64 := base64.RawURLEncoding.EncodeToString([]byte(key))
+	gw.WriteOK(w, server.PublicKeyResponse{Alg: algo, Key: keyB64})
 }
 
 // findNamespace : namespace creation http handler.
 func findNamespace(w http.ResponseWriter, r *http.Request) {
-	var m nameRequest
+	var m server.NameRequest
 	if err := gg.UnmarshalJSONRequest(w, r, &m); err != nil {
 		log.Warn("FindNamespace:", err)
 		gw.WriteErr(w, r, http.StatusUnauthorized, "cannot decode JSON")
@@ -163,7 +165,7 @@ func findNamespace(w http.ResponseWriter, r *http.Request) {
 
 // deleteNamespace : namespace creation http handler.
 func deleteNamespace(w http.ResponseWriter, r *http.Request) {
-	var m infoRequest
+	var m server.InfoRequest
 	if err := gg.UnmarshalJSONRequest(w, r, &m); err != nil {
 		log.Warn("DeleteNamespace:", err)
 		gw.WriteErr(w, r, http.StatusUnauthorized, "cannot decode JSON")
@@ -190,7 +192,7 @@ func deleteNamespace(w http.ResponseWriter, r *http.Request) {
 
 // enableNsEndpoint :.
 func enableNsEndpoint(w http.ResponseWriter, r *http.Request) {
-	var m availability
+	var m server.Availability
 	if err := gg.UnmarshalJSONRequest(w, r, &m); err != nil {
 		log.Warn("SetNamespaceEndpointAvailability:", err)
 		gw.WriteErr(w, r, http.StatusUnauthorized, "cannot decode JSON")
@@ -212,7 +214,7 @@ func enableNsEndpoint(w http.ResponseWriter, r *http.Request) {
 
 // createNamespace : namespace creation http handler.
 func createNamespace(w http.ResponseWriter, r *http.Request) {
-	var m namespaceCreation
+	var m server.NamespaceCreation
 	if err := gg.UnmarshalJSONRequest(w, r, &m); err != nil {
 		log.Warn("CreateNamespace:", err)
 		gw.WriteErr(w, r, http.StatusUnauthorized, "cannot decode JSON")

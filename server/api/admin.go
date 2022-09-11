@@ -5,6 +5,7 @@ import (
 
 	"github.com/teal-finance/garcon/gg"
 	"github.com/teal-finance/incorruptible"
+	"github.com/teal-finance/quid/server"
 	"github.com/teal-finance/quid/server/db"
 )
 
@@ -24,7 +25,7 @@ func adminLogout(w http.ResponseWriter, r *http.Request) {
 
 // adminLogin : http login handler for the admin interface.
 func adminLogin(w http.ResponseWriter, r *http.Request) {
-	var m passwordRequest
+	var m server.PasswordRequest
 	if err := gg.UnmarshalJSONRequest(w, r, &m); err != nil {
 		log.ParamError("AdminLogin DecodeJSONBody:", err)
 		gw.WriteErr(w, r, http.StatusUnauthorized, "cannot decode JSON")
@@ -79,11 +80,11 @@ func adminLogin(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	adminType := QuidAdmin
+	adminType := server.QuidAdmin
 	if userType == db.NsAdmin {
-		adminType = NsAdmin
+		adminType = server.NsAdmin
 	}
-	log.Result("AdminLogin OK u=" + u.Name + " ns=" + namespace + " AdminType=" + string(adminType))
+	log.Result("AdminLogin OK u=" + u.Name + " ns=" + namespace + " AdminType=" + adminType.String())
 
 	// create a new Incorruptible cookie
 	cookie, tv, err := Incorruptible.NewCookie(r,
@@ -91,7 +92,7 @@ func adminLogin(w http.ResponseWriter, r *http.Request) {
 		incorruptible.Int64(KeyUserID, u.ID),
 		incorruptible.String(keyNsName, ns.Name),
 		incorruptible.Int64(keyNsID, ns.ID),
-		incorruptible.String(keyAdminType, string(adminType)),
+		incorruptible.Bool(keyAdminType, bool(adminType)),
 	)
 	if err != nil {
 		log.Error("AdminLogin NewCookie:", err)
@@ -118,12 +119,12 @@ func status(w http.ResponseWriter, r *http.Request) {
 
 // status returns 200 if user is admin.
 func sendStatusResponse(w http.ResponseWriter, tv incorruptible.TValues) {
-	adminType := tv.StringIfAny(keyAdminType)
+	adminType := tv.BoolIfAny(keyAdminType)
 
-	gw.WriteOK(w, statusResponse{
-		AdminType: AdminType(adminType),
+	gw.WriteOK(w, server.StatusResponse{
+		AdminType: server.AdminType(adminType),
 		Username:  tv.StringIfAny(keyUsername),
-		Ns: nsInfo{
+		Ns: server.NSInfo{
 			ID:   tv.Int64IfAny(keyNsID),
 			Name: tv.StringIfAny(keyNsName),
 		},

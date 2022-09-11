@@ -9,14 +9,14 @@ import (
 )
 
 // SelectNsAdministrators : get the admin users in a namespace.
-func SelectNsAdministrators(namespaceID int64) ([]server.NsAdmin, error) {
+func SelectNsAdministrators(namespaceID int64) ([]server.NamespaceAdmin, error) {
 	q := "SELECT namespaceadmin.id,namespaceadmin.user_id,namespaceadmin.namespace_id,usertable.username " +
 		"FROM namespaceadmin " +
 		"LEFT OUTER JOIN usertable on usertable.id=namespaceadmin.user_id " +
 		"LEFT OUTER JOIN namespace on namespace.id=namespaceadmin.namespace_id " +
 		"WHERE namespace.id=$1"
 
-	var data []server.NsAdmin
+	var data []server.NamespaceAdmin
 	err := db.Select(&data, q, namespaceID)
 	if err != nil {
 		log.Error(err)

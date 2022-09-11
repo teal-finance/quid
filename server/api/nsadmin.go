@@ -6,12 +6,13 @@ import (
 	_ "github.com/lib/pq"
 
 	"github.com/teal-finance/garcon/gg"
+	"github.com/teal-finance/quid/server"
 	"github.com/teal-finance/quid/server/db"
 )
 
 // allNsAdministrators : select all admin users for a namespace.
 func allNsAdministrators(w http.ResponseWriter, r *http.Request) {
-	var m namespaceIDRequest
+	var m server.NamespaceIDRequest
 	if err := gg.UnmarshalJSONRequest(w, r, &m); err != nil {
 		log.Warn("AllAdministratorsInNamespace:", err)
 		gw.WriteErr(w, r, http.StatusUnauthorized, "cannot decode JSON")
@@ -32,7 +33,7 @@ func allNsAdministrators(w http.ResponseWriter, r *http.Request) {
 
 // listNonAdminUsersInNs : search from a username in namespace
 func listNonAdminUsersInNs(w http.ResponseWriter, r *http.Request) {
-	var m nonAdminUsersRequest
+	var m server.NonAdminUsersRequest
 	if err := gg.UnmarshalJSONRequest(w, r, &m); err != nil {
 		log.Warn("SearchForNonAdminUsersInNamespace:", err)
 		gw.WriteErr(w, r, http.StatusUnauthorized, "cannot decode JSON")
@@ -60,7 +61,7 @@ func listNonAdminUsersInNs(w http.ResponseWriter, r *http.Request) {
 
 // CreateUserAdministrators : create admin users handler.
 func createAdministrators(w http.ResponseWriter, r *http.Request) {
-	var m administratorsCreation
+	var m server.AdministratorsCreation
 	if err := gg.UnmarshalJSONRequest(w, r, &m); err != nil {
 		log.Warn("CreateAdministrators:", err)
 		gw.WriteErr(w, r, http.StatusUnauthorized, "cannot decode JSON")
@@ -96,7 +97,7 @@ func createAdministrators(w http.ResponseWriter, r *http.Request) {
 
 // deleteAdministrator : delete an admin user handler.
 func deleteAdministrator(w http.ResponseWriter, r *http.Request) {
-	var m administratorDeletion
+	var m server.AdministratorDeletion
 	if err := gg.UnmarshalJSONRequest(w, r, &m); err != nil {
 		log.ParamError("DeleteAdministrator:", err)
 		gw.WriteErr(w, r, http.StatusUnauthorized, "cannot decode JSON")

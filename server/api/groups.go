@@ -4,12 +4,13 @@ import (
 	"net/http"
 
 	"github.com/teal-finance/garcon/gg"
+	"github.com/teal-finance/quid/server"
 	db "github.com/teal-finance/quid/server/db"
 )
 
 // allNsGroups : get all groups for a namespace http handler.
 func allNsGroups(w http.ResponseWriter, r *http.Request) {
-	var m namespaceIDRequest
+	var m server.NamespaceIDRequest
 	if err := gg.UnmarshalJSONRequest(w, r, &m); err != nil {
 		log.Warn("AllGroupsForNamespace:", err)
 		gw.WriteErr(w, r, http.StatusUnauthorized, "cannot decode JSON")
@@ -47,7 +48,7 @@ func AllGroups(w http.ResponseWriter, r *http.Request) {
 
 // groupsInfo : group creation http handler.
 func groupsInfo(w http.ResponseWriter, r *http.Request) {
-	var m userRequest
+	var m server.UserRequest
 	if err := gg.UnmarshalJSONRequest(w, r, &m); err != nil {
 		log.Warn("GroupsInfo:", err)
 		gw.WriteErr(w, r, http.StatusUnauthorized, "cannot decode JSON")
@@ -74,7 +75,7 @@ func groupsInfo(w http.ResponseWriter, r *http.Request) {
 
 // deleteGroup : group deletion http handler.
 func deleteGroup(w http.ResponseWriter, r *http.Request) {
-	var m userRequest
+	var m server.UserRequest
 	if err := gg.UnmarshalJSONRequest(w, r, &m); err != nil {
 		log.Warn("DeleteGroup:", err)
 		gw.WriteErr(w, r, http.StatusUnauthorized, "cannot decode JSON")
@@ -100,7 +101,7 @@ func deleteGroup(w http.ResponseWriter, r *http.Request) {
 
 // createGroup : group creation http handler.
 func createGroup(w http.ResponseWriter, r *http.Request) {
-	var m groupCreation
+	var m server.GroupCreation
 	if err := gg.UnmarshalJSONRequest(w, r, &m); err != nil {
 		log.Warn("CreateGroup:", err)
 		gw.WriteErr(w, r, http.StatusUnauthorized, "cannot decode JSON")

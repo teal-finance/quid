@@ -20,8 +20,8 @@ type NamespaceInfo struct {
 	NumUsers int     `json:"num_users"`
 }
 
-// NsAdmin : base model.
-type NsAdmin struct {
+// NamespaceAdmin : base model.
+type NamespaceAdmin struct {
 	UserName    string `db:"username" json:"username"`
 	ID          int64  `db:"id" json:"id"`
 	UserID      int64  `db:"user_id" json:"user_id"`

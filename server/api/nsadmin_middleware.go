@@ -4,6 +4,7 @@ import (
 	"net/http"
 
 	"github.com/teal-finance/incorruptible"
+	"github.com/teal-finance/quid/server"
 	"github.com/teal-finance/quid/server/db"
 )
 
@@ -16,8 +17,8 @@ func isNsAdmin(r *http.Request, nsID int64) bool {
 		return false
 	}
 
-	adminType := AdminType(tv.StringIfAny(keyAdminType))
-	if adminType == QuidAdmin {
+	adminType := server.AdminType(tv.BoolIfAny(keyAdminType))
+	if adminType == server.QuidAdmin {
 		log.Param("VerifyAdminNs OK: Incorruptible token contains IsNsAdmin=true => Do not check the nsID")
 		return true
 	}

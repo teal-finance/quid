@@ -1,6 +1,7 @@
 package api
 
 import (
+	"encoding/base64"
 	"fmt"
 	"net/http"
 
@@ -8,13 +9,14 @@ import (
 	"github.com/golang-jwt/jwt/v4"
 
 	"github.com/teal-finance/garcon/gg"
+	"github.com/teal-finance/quid/server"
 	db "github.com/teal-finance/quid/server/db"
 	"github.com/teal-finance/quid/tokens"
 )
 
 // requestAccessToken : request an access token from a refresh token.
 func requestAccessToken(w http.ResponseWriter, r *http.Request) {
-	var m accessTokenRequest
+	var m server.AccessTokenRequest
 	if err := gg.UnmarshalJSONRequest(w, r, &m); err != nil {
 		log.ParamError("RequestAccessToken:", err)
 		gw.WriteErr(w, r, http.StatusUnauthorized, "cannot decode JSON")
@@ -135,29 +137,29 @@ func requestAccessToken(w http.ResponseWriter, r *http.Request) {
 }
 
 func getAccessPublicKey(w http.ResponseWriter, r *http.Request) {
-	var m nameRequest
+	var m server.NamespaceRequest
 	if err := gg.UnmarshalJSONRequest(w, r, &m); err != nil {
-		log.Warn("GetNamespaceAccessKey:", err)
+		log.Warn(err)
 		gw.WriteErr(w, r, http.StatusBadRequest, "cannot decode JSON")
 		return
 	}
 
-	if p := gg.Printable(m.Name); p >= 0 {
+	if p := gg.Printable(m.Namespace); p >= 0 {
 		log.Warn(`JSON {"name":....} has forbidden character at p=`, p)
 		gw.WriteErr(w, r, http.StatusBadRequest, "forbidden character", "position", p)
 		return
 	}
 
 	// get the namespace
-	exists, ns, err := db.SelectNsFromName(m.Name)
+	exists, ns, err := db.SelectNsFromName(m.Namespace)
 	if err != nil {
 		log.QueryError(err)
-		gw.WriteErr(w, r, http.StatusBadRequest, "DB error SELECT namespace", "namespace", m.Name)
+		gw.WriteErr(w, r, http.StatusBadRequest, "DB error SELECT namespace", "namespace", m.Namespace)
 		return
 	}
 	if !exists {
-		log.ParamError("Namespace", m.Name, "does not exist")
-		gw.WriteErr(w, r, http.StatusBadRequest, "namespace does not exist", "namespace", m.Name)
+		log.ParamError("Namespace", m.Namespace, "does not exist")
+		gw.WriteErr(w, r, http.StatusBadRequest, "namespace does not exist", "namespace", m.Namespace)
 		return
 	}
 
@@ -167,7 +169,7 @@ func getAccessPublicKey(w http.ResponseWriter, r *http.Request) {
 	case "ES256", "ES384", "ES512": // OK
 	case "EdDSA": // OK
 	default: // "HS256", "HS384", "HS512"
-		log.ParamError("Namespace", m.Name, "has algo", ns.SigningAlgo, "without public key")
+		log.ParamError("Namespace", m.Namespace, "has algo", ns.SigningAlgo, "without public key")
 		gw.WriteErr(w, r, http.StatusBadRequest, "namespace signing algo has no public key", "algo", ns.SigningAlgo)
 	}
 
@@ -176,11 +178,12 @@ func getAccessPublicKey(w http.ResponseWriter, r *http.Request) {
 		log.Error(err)
 	}
 
-	gw.WriteOK(w, "alg", ns.SigningAlgo, "key", publicDER)
+	keyB64 := base64.RawURLEncoding.EncodeToString(publicDER)
+	gw.WriteOK(w, server.PublicKeyResponse{Alg: ns.SigningAlgo, Key: keyB64})
 }
 
 func validAccessToken(w http.ResponseWriter, r *http.Request) {
-	var m accessTokenValidationRequest
+	var m server.AccessTokenValidationRequest
 	if err := gg.UnmarshalJSONRequest(w, r, &m); err != nil {
 		log.ParamError(err)
 		gw.WriteErr(w, r, http.StatusUnauthorized, "cannot decode JSON")
@@ -228,7 +231,7 @@ func validAccessToken(w http.ResponseWriter, r *http.Request) {
 
 // requestRefreshToken : http login handler.
 func requestRefreshToken(w http.ResponseWriter, r *http.Request) {
-	var m passwordRequest
+	var m server.PasswordRequest
 	if err := gg.UnmarshalJSONRequest(w, r, &m); err != nil {
 		log.ParamError("RequestRefreshToken:", err)
 		gw.WriteErr(w, r, http.StatusUnauthorized, "cannot decode JSON")

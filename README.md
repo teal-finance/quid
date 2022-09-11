@@ -54,17 +54,17 @@ Download the latest [release](https://github.com/teal-finance/quid/releases) to 
 
 ## Configure
 
-1.  Create the default config file:
+1. Create the default config file:
 
         ./quid -conf
 
-2.  Create the `quid` database: [instructions](doc/setup_db.md)
+2. Create the `quid` database: [instructions](doc/setup_db.md)
 
-3.  Edit the configuration file to set your PostgreSQL credentials:
+3. Edit the configuration file to set your PostgreSQL credentials:
 
         vim config.json
 
-4.  Initialize the `quid` database and create the administrator user:
+4. Initialize the `quid` database and create the administrator user:
 
         ./quid -init
 

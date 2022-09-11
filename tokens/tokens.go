@@ -22,6 +22,10 @@ import (
 
 var log = emo.NewZone("tokens")
 
+const notSupportedNotice = " not yet supported. " +
+	"Please contact teal.finance@pm.me or " +
+	"open an issue at https://github.com/teal-finance/quid"
+
 // Init : init the token zone.
 func Init(isVerbose, isDev, isCmd bool) {
 	if !isDev && !isCmd {
@@ -111,7 +115,7 @@ func convertDERToPrivateKey(algo string, der []byte) (any, error) {
 	case "RS256", "RS384", "RS512":
 		return x509.ParsePKCS1PrivateKey(der)
 	case "PS256", "PS384", "PS512":
-		return nil, errors.New(algo + " not yet implemented")
+		return nil, errors.New(algo + notSupportedNotice)
 	case "ES256", "ES384", "ES512":
 		return x509.ParseECPrivateKey(der)
 	case "EdDSA":
@@ -182,7 +186,7 @@ func PrivateToPublic(algo string, der []byte) (any, error) {
 		return private.Public(), nil
 
 	case "PS256", "PS384", "PS512": // RSA + salt
-		return nil, errors.New(algo + " not yet implemented")
+		return nil, errors.New(algo + notSupportedNotice)
 
 	case "ES256", "ES384", "ES512": // ESDSA
 		private, err := x509.ParseECPrivateKey(der)
@@ -239,11 +243,11 @@ func GenerateSigningKey(algo string) ([]byte, error) {
 	// RSA + salt
 
 	case "PS256":
-		return nil, errors.New("PS256 not yet implemented")
+		return nil, errors.New("PS256" + notSupportedNotice)
 	case "PS384":
-		return nil, errors.New("PS384 not yet implemented")
+		return nil, errors.New("PS384" + notSupportedNotice)
 	case "PS512":
-		return nil, errors.New("PS512 not yet implemented")
+		return nil, errors.New("PS512" + notSupportedNotice)
 
 	// ESDSA
 

@@ -4,6 +4,7 @@ go 1.18
 
 require (
 	github.com/acmacalister/skittles v0.0.0-20160609003031-7423546701e1
+	github.com/cristalhq/base64 v0.1.2
 	github.com/go-chi/chi/v5 v5.0.7
 	github.com/golang-jwt/jwt/v4 v4.4.2
 	github.com/jmoiron/sqlx v1.3.5
@@ -18,7 +19,7 @@ require (
 )
 
 require (
-	github.com/JohannesKaufmann/html-to-markdown v1.3.5 // indirect
+	github.com/JohannesKaufmann/html-to-markdown v1.3.6 // indirect
 	github.com/PuerkitoBio/goquery v1.8.0 // indirect
 	github.com/andybalholm/cascadia v1.3.1 // indirect
 	github.com/beorn7/perks v1.0.1 // indirect
@@ -47,15 +48,13 @@ require (
 	github.com/prometheus/procfs v0.8.0 // indirect
 	github.com/rogpeppe/go-internal v1.9.0 // indirect
 	github.com/rs/cors v1.8.2 // indirect
-	github.com/sebdah/goldie/v2 v2.5.3 // indirect
-	github.com/sergi/go-diff v1.2.0 // indirect
 	github.com/spf13/afero v1.9.2 // indirect
 	github.com/spf13/cast v1.5.0 // indirect
 	github.com/spf13/jwalterweatherman v1.1.0 // indirect
 	github.com/spf13/pflag v1.0.5 // indirect
 	github.com/subosito/gotenv v1.4.1 // indirect
-	golang.org/x/net v0.0.0-20220907135653-1e95f45603a7 // indirect
-	golang.org/x/sys v0.0.0-20220908164124-27713097b956 // indirect
+	golang.org/x/net v0.0.0-20220909164309-bea034e7d591 // indirect
+	golang.org/x/sys v0.0.0-20220909162455-aba9fc2a8ff2 // indirect
 	golang.org/x/text v0.3.7 // indirect
 	golang.org/x/time v0.0.0-20220722155302-e5dcc9cfc0b9 // indirect
 	google.golang.org/protobuf v1.28.1 // indirect

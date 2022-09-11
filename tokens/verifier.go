@@ -7,9 +7,14 @@ import (
 	"crypto/sha512"
 	"encoding/hex"
 	"errors"
+	"fmt"
+	"net/http"
+	"net/url"
 	"strings"
 
 	"github.com/cristalhq/base64"
+	"github.com/teal-finance/garcon/gg"
+	"github.com/teal-finance/quid/server"
 )
 
 var (
@@ -92,7 +97,51 @@ func NewVerifier(algoKey string) (Verifier, error) {
 	return nil, ErrAlgoKeyScheme
 }
 
-func RequestAlgoKey(url string) (Verifier, error)  { return nil, nil }
+func RequestAlgoKey(uri string) (Verifier, error) {
+	if p := gg.Printable(uri); p >= 0 {
+		return nil, fmt.Errorf("Unprintable character at position %d in sanitized URL=%q", p, uri)
+	}
+
+	u, err := url.Parse(uri)
+	if err != nil {
+		return nil, err
+	}
+
+	err = fmt.Errorf(`missing valid query parameter 'namespace' in URL: %s`, uri)
+
+	for param, values := range u.Query() {
+		switch param {
+		case "ns", "namespace":
+			for _, ns := range values {
+				var json []byte
+				json, err = server.NamespaceRequest{Namespace: ns}.MarshalJSON()
+				if err != nil {
+					continue
+				}
+
+				u.RawQuery = ""
+				endpoint := u.String()
+				var resp *http.Response
+				resp, err = http.DefaultClient.Post(endpoint, "application/json", bytes.NewReader(json))
+				if err != nil {
+					continue
+				}
+
+				var m server.PublicKeyResponse
+				err = gg.UnmarshalJSONResponse(resp, &m, 1000)
+				if err != nil {
+					continue
+				}
+
+				algoKey := m.Alg + ":" + m.Key
+				return NewVerifier(algoKey)
+			}
+		}
+	}
+
+	return nil, err
+}
+
 func NewRSA(algo, keyStr string) (Verifier, error) { return nil, nil }
 func NewES256(keyStr string) (Verifier, error)     { return nil, nil }
 func NewES384(keyStr string) (Verifier, error)     { return nil, nil }

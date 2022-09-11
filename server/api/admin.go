@@ -3,7 +3,7 @@ package api
 import (
 	"net/http"
 
-	"github.com/teal-finance/garcon"
+	"github.com/teal-finance/garcon/gg"
 	"github.com/teal-finance/incorruptible"
 	"github.com/teal-finance/quid/server/db"
 )
@@ -25,7 +25,7 @@ func adminLogout(w http.ResponseWriter, r *http.Request) {
 // adminLogin : http login handler for the admin interface.
 func adminLogin(w http.ResponseWriter, r *http.Request) {
 	var m passwordRequest
-	if err := garcon.UnmarshalJSONRequest(w, r, &m); err != nil {
+	if err := gg.UnmarshalJSONRequest(w, r, &m); err != nil {
 		log.ParamError("AdminLogin DecodeJSONBody:", err)
 		gw.WriteErr(w, r, http.StatusUnauthorized, "cannot decode JSON")
 		return
@@ -35,7 +35,7 @@ func adminLogin(w http.ResponseWriter, r *http.Request) {
 	password := m.Password
 	namespace := m.Namespace
 
-	if p := garcon.Printable(username, password, namespace); p >= 0 {
+	if p := gg.Printable(username, password, namespace); p >= 0 {
 		log.ParamError("AdminLogin: JSON contains a forbidden character at p=", p)
 		gw.WriteErr(w, r, http.StatusUnauthorized, "forbidden character", "position", p)
 		return

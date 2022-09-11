@@ -5,7 +5,7 @@ import (
 
 	"golang.org/x/crypto/bcrypt"
 
-	"github.com/teal-finance/garcon"
+	"github.com/teal-finance/garcon/gg"
 	"github.com/teal-finance/quid/server"
 	db "github.com/teal-finance/quid/server/db"
 )
@@ -13,7 +13,7 @@ import (
 // allNsUsers : select all users for a namespace.
 func allNsUsers(w http.ResponseWriter, r *http.Request) {
 	var m namespaceIDRequest
-	if err := garcon.UnmarshalJSONRequest(w, r, &m); err != nil {
+	if err := gg.UnmarshalJSONRequest(w, r, &m); err != nil {
 		log.ParamError("AllUsersInNamespace:", err)
 		gw.WriteErr(w, r, http.StatusUnauthorized, "cannot decode JSON")
 		return
@@ -39,7 +39,7 @@ func allNsUsers(w http.ResponseWriter, r *http.Request) {
 // nsGroups : get the groups of a user.
 func nsGroups(w http.ResponseWriter, r *http.Request) {
 	var m namespaceRequest
-	if err := garcon.UnmarshalJSONRequest(w, r, &m); err != nil {
+	if err := gg.UnmarshalJSONRequest(w, r, &m); err != nil {
 		log.ParamError("GroupsForNamespace:", err)
 		gw.WriteErr(w, r, http.StatusUnauthorized, "cannot decode JSON")
 		return
@@ -47,7 +47,7 @@ func nsGroups(w http.ResponseWriter, r *http.Request) {
 
 	namespace := m.Namespace
 
-	if p := garcon.Printable(namespace); p >= 0 {
+	if p := gg.Printable(namespace); p >= 0 {
 		log.ParamError("GroupsForNamespace: JSON contains a forbidden character at p=", p)
 		gw.WriteErr(w, r, http.StatusUnauthorized, "forbidden character", "position", p)
 		return
@@ -73,7 +73,7 @@ func nsGroups(w http.ResponseWriter, r *http.Request) {
 // addUserInOrg : add a user in an org.
 func addUserInOrg(w http.ResponseWriter, r *http.Request) {
 	var m userOrgRequest
-	if err := garcon.UnmarshalJSONRequest(w, r, &m); err != nil {
+	if err := gg.UnmarshalJSONRequest(w, r, &m); err != nil {
 		log.ParamError("AddUserInOrg:", err)
 		gw.WriteErr(w, r, http.StatusUnauthorized, "cannot decode JSON")
 		return
@@ -96,7 +96,7 @@ func addUserInOrg(w http.ResponseWriter, r *http.Request) {
 // removeUserFromOrg : add a user in an org.
 func removeUserFromOrg(w http.ResponseWriter, r *http.Request) {
 	var m userOrgRequest
-	if err := garcon.UnmarshalJSONRequest(w, r, &m); err != nil {
+	if err := gg.UnmarshalJSONRequest(w, r, &m); err != nil {
 		log.ParamError("RemoveUserFromOrg:", err)
 		gw.WriteErr(w, r, http.StatusUnauthorized, "cannot decode JSON")
 		return
@@ -119,7 +119,7 @@ func removeUserFromOrg(w http.ResponseWriter, r *http.Request) {
 // addUserInGroup : add a user in a group.
 func addUserInGroup(w http.ResponseWriter, r *http.Request) {
 	var m userGroupRequest
-	if err := garcon.UnmarshalJSONRequest(w, r, &m); err != nil {
+	if err := gg.UnmarshalJSONRequest(w, r, &m); err != nil {
 		log.ParamError("AddUserInGroup:", err)
 		gw.WriteErr(w, r, http.StatusUnauthorized, "cannot decode JSON")
 		return
@@ -148,7 +148,7 @@ func addUserInGroup(w http.ResponseWriter, r *http.Request) {
 // removeUserFromGroup : add a user in a group.
 func removeUserFromGroup(w http.ResponseWriter, r *http.Request) {
 	var m userGroupRequest
-	if err := garcon.UnmarshalJSONRequest(w, r, &m); err != nil {
+	if err := gg.UnmarshalJSONRequest(w, r, &m); err != nil {
 		log.ParamError("RemoveUserFromGroup:", err)
 		gw.WriteErr(w, r, http.StatusUnauthorized, "cannot decode JSON")
 		return
@@ -177,7 +177,7 @@ func removeUserFromGroup(w http.ResponseWriter, r *http.Request) {
 // userGroupsInfo : get info for a user.
 func userGroupsInfo(w http.ResponseWriter, r *http.Request) {
 	var m userRequest
-	if err := garcon.UnmarshalJSONRequest(w, r, &m); err != nil {
+	if err := gg.UnmarshalJSONRequest(w, r, &m); err != nil {
 		log.ParamError("UserGroupsInfo:", err)
 		gw.WriteErr(w, r, http.StatusUnauthorized, "cannot decode JSON")
 		return
@@ -205,7 +205,7 @@ func userGroupsInfo(w http.ResponseWriter, r *http.Request) {
 // deleteUser : delete a user handler.
 func deleteUser(w http.ResponseWriter, r *http.Request) {
 	var m userRequest
-	if err := garcon.UnmarshalJSONRequest(w, r, &m); err != nil {
+	if err := gg.UnmarshalJSONRequest(w, r, &m); err != nil {
 		log.ParamError("DeleteUser:", err)
 		gw.WriteErr(w, r, http.StatusUnauthorized, "cannot decode JSON")
 		return
@@ -232,7 +232,7 @@ func deleteUser(w http.ResponseWriter, r *http.Request) {
 // createUser : create a user handler.
 func createUser(w http.ResponseWriter, r *http.Request) {
 	var m userHandlerCreation
-	if err := garcon.UnmarshalJSONRequest(w, r, &m); err != nil {
+	if err := gg.UnmarshalJSONRequest(w, r, &m); err != nil {
 		log.ParamError("CreateUser:", err)
 		gw.WriteErr(w, r, http.StatusUnauthorized, "cannot decode JSON")
 		return
@@ -242,7 +242,7 @@ func createUser(w http.ResponseWriter, r *http.Request) {
 	password := m.Password
 	nsID := m.NamespaceID
 
-	if p := garcon.Printable(name, password); p >= 0 {
+	if p := gg.Printable(name, password); p >= 0 {
 		log.ParamError("CreateUser: JSON contains a forbidden character at p=", p)
 		gw.WriteErr(w, r, http.StatusUnauthorized, "forbidden character")
 		return

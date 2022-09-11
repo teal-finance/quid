@@ -7,6 +7,7 @@ import (
 	"github.com/go-chi/chi/v5"
 
 	"github.com/teal-finance/garcon"
+	"github.com/teal-finance/garcon/gg"
 	"github.com/teal-finance/incorruptible"
 	"github.com/teal-finance/quid/crypt"
 )
@@ -40,7 +41,7 @@ func newServer(port int, devMode bool) http.Server {
 	}
 	Incorruptible = g.IncorruptibleCheckerBin(crypt.EncodingKey[:16], maxAge, true)
 
-	middleware := garcon.NewChain(
+	middleware := gg.NewChain(
 		g.MiddlewareRejectUnprintableURI(),
 		g.MiddlewareLogRequest(),
 		g.MiddlewareRateLimiter(10, 30),

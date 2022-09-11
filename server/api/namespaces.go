@@ -3,7 +3,7 @@ package api
 import (
 	"net/http"
 
-	"github.com/teal-finance/garcon"
+	"github.com/teal-finance/garcon/gg"
 	"github.com/teal-finance/quid/server"
 	db "github.com/teal-finance/quid/server/db"
 	"github.com/teal-finance/quid/tokens"
@@ -24,7 +24,7 @@ func allNamespaces(w http.ResponseWriter, r *http.Request) {
 // setRefreshMaxTTL : set a max refresh token ttl for a namespace.
 func setRefreshMaxTTL(w http.ResponseWriter, r *http.Request) {
 	var m refreshMaxTTLRequest
-	if err := garcon.UnmarshalJSONRequest(w, r, &m); err != nil {
+	if err := gg.UnmarshalJSONRequest(w, r, &m); err != nil {
 		log.Warn("SetNamespaceRefreshTokenMaxTTL:", err)
 		gw.WriteErr(w, r, http.StatusUnauthorized, "cannot decode JSON")
 		return
@@ -33,7 +33,7 @@ func setRefreshMaxTTL(w http.ResponseWriter, r *http.Request) {
 	id := m.ID
 	refreshMxTTL := m.RefreshMaxTTL
 
-	if p := garcon.Printable(refreshMxTTL); p >= 0 {
+	if p := gg.Printable(refreshMxTTL); p >= 0 {
 		log.Warn("SetNamespaceRefreshTokenMaxTTL: JSON contains a forbidden character at p=", p)
 		gw.WriteErr(w, r, http.StatusUnauthorized, "forbidden character", "position", p)
 		return
@@ -52,7 +52,7 @@ func setRefreshMaxTTL(w http.ResponseWriter, r *http.Request) {
 // setTokenMaxTTL : set a max access token ttl for a namespace.
 func setTokenMaxTTL(w http.ResponseWriter, r *http.Request) {
 	var m maxTTLRequest
-	if err := garcon.UnmarshalJSONRequest(w, r, &m); err != nil {
+	if err := gg.UnmarshalJSONRequest(w, r, &m); err != nil {
 		log.Warn("SetNamespaceTokenMaxTTL:", err)
 		gw.WriteErr(w, r, http.StatusUnauthorized, "cannot decode JSON")
 		return
@@ -61,7 +61,7 @@ func setTokenMaxTTL(w http.ResponseWriter, r *http.Request) {
 	id := m.ID
 	ttl := m.MaxTTL
 
-	if p := garcon.Printable(ttl); p >= 0 {
+	if p := gg.Printable(ttl); p >= 0 {
 		log.Warn("SetNamespaceTokenMaxTTL: JSON contains a forbidden character at p=", p)
 		gw.WriteErr(w, r, http.StatusUnauthorized, "forbidden character", "position", p)
 		return
@@ -80,7 +80,7 @@ func setTokenMaxTTL(w http.ResponseWriter, r *http.Request) {
 // namespaceInfo : info about a namespace.
 func namespaceInfo(w http.ResponseWriter, r *http.Request) {
 	var m infoRequest
-	if err := garcon.UnmarshalJSONRequest(w, r, &m); err != nil {
+	if err := gg.UnmarshalJSONRequest(w, r, &m); err != nil {
 		log.Warn("NamespaceInfo:", err)
 		gw.WriteErr(w, r, http.StatusUnauthorized, "cannot decode JSON")
 		return
@@ -113,7 +113,7 @@ func namespaceInfo(w http.ResponseWriter, r *http.Request) {
 // getAccessVerificationKey : get the key for a namespace.
 func getAccessVerificationKey(w http.ResponseWriter, r *http.Request) {
 	var m infoRequest
-	if err := garcon.UnmarshalJSONRequest(w, r, &m); err != nil {
+	if err := gg.UnmarshalJSONRequest(w, r, &m); err != nil {
 		log.Warn("GetNamespaceAccessKey:", err)
 		gw.WriteErr(w, r, http.StatusUnauthorized, "cannot decode JSON")
 		return
@@ -137,7 +137,7 @@ func getAccessVerificationKey(w http.ResponseWriter, r *http.Request) {
 // findNamespace : namespace creation http handler.
 func findNamespace(w http.ResponseWriter, r *http.Request) {
 	var m nameRequest
-	if err := garcon.UnmarshalJSONRequest(w, r, &m); err != nil {
+	if err := gg.UnmarshalJSONRequest(w, r, &m); err != nil {
 		log.Warn("FindNamespace:", err)
 		gw.WriteErr(w, r, http.StatusUnauthorized, "cannot decode JSON")
 		return
@@ -145,7 +145,7 @@ func findNamespace(w http.ResponseWriter, r *http.Request) {
 
 	name := m.Name
 
-	if p := garcon.Printable(name); p >= 0 {
+	if p := gg.Printable(name); p >= 0 {
 		log.Warn("FindNamespace: JSON contains a forbidden character at p=", p)
 		gw.WriteErr(w, r, http.StatusUnauthorized, "forbidden character", "position", p)
 		return
@@ -164,7 +164,7 @@ func findNamespace(w http.ResponseWriter, r *http.Request) {
 // deleteNamespace : namespace creation http handler.
 func deleteNamespace(w http.ResponseWriter, r *http.Request) {
 	var m infoRequest
-	if err := garcon.UnmarshalJSONRequest(w, r, &m); err != nil {
+	if err := gg.UnmarshalJSONRequest(w, r, &m); err != nil {
 		log.Warn("DeleteNamespace:", err)
 		gw.WriteErr(w, r, http.StatusUnauthorized, "cannot decode JSON")
 		return
@@ -191,7 +191,7 @@ func deleteNamespace(w http.ResponseWriter, r *http.Request) {
 // enableNsEndpoint :.
 func enableNsEndpoint(w http.ResponseWriter, r *http.Request) {
 	var m availability
-	if err := garcon.UnmarshalJSONRequest(w, r, &m); err != nil {
+	if err := gg.UnmarshalJSONRequest(w, r, &m); err != nil {
 		log.Warn("SetNamespaceEndpointAvailability:", err)
 		gw.WriteErr(w, r, http.StatusUnauthorized, "cannot decode JSON")
 		return
@@ -213,13 +213,13 @@ func enableNsEndpoint(w http.ResponseWriter, r *http.Request) {
 // createNamespace : namespace creation http handler.
 func createNamespace(w http.ResponseWriter, r *http.Request) {
 	var m namespaceCreation
-	if err := garcon.UnmarshalJSONRequest(w, r, &m); err != nil {
+	if err := gg.UnmarshalJSONRequest(w, r, &m); err != nil {
 		log.Warn("CreateNamespace:", err)
 		gw.WriteErr(w, r, http.StatusUnauthorized, "cannot decode JSON")
 		return
 	}
 
-	if p := garcon.Printable(m.Name, m.MaxTTL, m.RefreshMaxTTL); p >= 0 {
+	if p := gg.Printable(m.Name, m.MaxTTL, m.RefreshMaxTTL); p >= 0 {
 		log.Warn("CreateNamespace: JSON contains a forbidden character at p=", p)
 		gw.WriteErr(w, r, http.StatusUnauthorized, "forbidden character", "position", p)
 		return

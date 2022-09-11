@@ -5,14 +5,14 @@ import (
 
 	_ "github.com/lib/pq"
 
-	"github.com/teal-finance/garcon"
+	"github.com/teal-finance/garcon/gg"
 	"github.com/teal-finance/quid/server/db"
 )
 
 // allNsAdministrators : select all admin users for a namespace.
 func allNsAdministrators(w http.ResponseWriter, r *http.Request) {
 	var m namespaceIDRequest
-	if err := garcon.UnmarshalJSONRequest(w, r, &m); err != nil {
+	if err := gg.UnmarshalJSONRequest(w, r, &m); err != nil {
 		log.Warn("AllAdministratorsInNamespace:", err)
 		gw.WriteErr(w, r, http.StatusUnauthorized, "cannot decode JSON")
 		return
@@ -33,7 +33,7 @@ func allNsAdministrators(w http.ResponseWriter, r *http.Request) {
 // listNonAdminUsersInNs : search from a username in namespace
 func listNonAdminUsersInNs(w http.ResponseWriter, r *http.Request) {
 	var m nonAdminUsersRequest
-	if err := garcon.UnmarshalJSONRequest(w, r, &m); err != nil {
+	if err := gg.UnmarshalJSONRequest(w, r, &m); err != nil {
 		log.Warn("SearchForNonAdminUsersInNamespace:", err)
 		gw.WriteErr(w, r, http.StatusUnauthorized, "cannot decode JSON")
 		return
@@ -42,7 +42,7 @@ func listNonAdminUsersInNs(w http.ResponseWriter, r *http.Request) {
 	username := m.Username
 	nsID := m.NamespaceID
 
-	if p := garcon.Printable(username); p >= 0 {
+	if p := gg.Printable(username); p >= 0 {
 		log.Warn("SearchForNonAdminUsersInNamespace: JSON contains a forbidden character at p=", p)
 		gw.WriteErr(w, r, http.StatusUnauthorized, "forbidden character", "position", p)
 		return
@@ -61,7 +61,7 @@ func listNonAdminUsersInNs(w http.ResponseWriter, r *http.Request) {
 // CreateUserAdministrators : create admin users handler.
 func createAdministrators(w http.ResponseWriter, r *http.Request) {
 	var m administratorsCreation
-	if err := garcon.UnmarshalJSONRequest(w, r, &m); err != nil {
+	if err := gg.UnmarshalJSONRequest(w, r, &m); err != nil {
 		log.Warn("CreateAdministrators:", err)
 		gw.WriteErr(w, r, http.StatusUnauthorized, "cannot decode JSON")
 		return
@@ -97,7 +97,7 @@ func createAdministrators(w http.ResponseWriter, r *http.Request) {
 // deleteAdministrator : delete an admin user handler.
 func deleteAdministrator(w http.ResponseWriter, r *http.Request) {
 	var m administratorDeletion
-	if err := garcon.UnmarshalJSONRequest(w, r, &m); err != nil {
+	if err := gg.UnmarshalJSONRequest(w, r, &m); err != nil {
 		log.ParamError("DeleteAdministrator:", err)
 		gw.WriteErr(w, r, http.StatusUnauthorized, "cannot decode JSON")
 		return

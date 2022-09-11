@@ -3,14 +3,14 @@ package api
 import (
 	"net/http"
 
-	"github.com/teal-finance/garcon"
+	"github.com/teal-finance/garcon/gg"
 	db "github.com/teal-finance/quid/server/db"
 )
 
 // allNsGroups : get all groups for a namespace http handler.
 func allNsGroups(w http.ResponseWriter, r *http.Request) {
 	var m namespaceIDRequest
-	if err := garcon.UnmarshalJSONRequest(w, r, &m); err != nil {
+	if err := gg.UnmarshalJSONRequest(w, r, &m); err != nil {
 		log.Warn("AllGroupsForNamespace:", err)
 		gw.WriteErr(w, r, http.StatusUnauthorized, "cannot decode JSON")
 		return
@@ -48,7 +48,7 @@ func AllGroups(w http.ResponseWriter, r *http.Request) {
 // groupsInfo : group creation http handler.
 func groupsInfo(w http.ResponseWriter, r *http.Request) {
 	var m userRequest
-	if err := garcon.UnmarshalJSONRequest(w, r, &m); err != nil {
+	if err := gg.UnmarshalJSONRequest(w, r, &m); err != nil {
 		log.Warn("GroupsInfo:", err)
 		gw.WriteErr(w, r, http.StatusUnauthorized, "cannot decode JSON")
 		return
@@ -75,7 +75,7 @@ func groupsInfo(w http.ResponseWriter, r *http.Request) {
 // deleteGroup : group deletion http handler.
 func deleteGroup(w http.ResponseWriter, r *http.Request) {
 	var m userRequest
-	if err := garcon.UnmarshalJSONRequest(w, r, &m); err != nil {
+	if err := gg.UnmarshalJSONRequest(w, r, &m); err != nil {
 		log.Warn("DeleteGroup:", err)
 		gw.WriteErr(w, r, http.StatusUnauthorized, "cannot decode JSON")
 		return
@@ -101,7 +101,7 @@ func deleteGroup(w http.ResponseWriter, r *http.Request) {
 // createGroup : group creation http handler.
 func createGroup(w http.ResponseWriter, r *http.Request) {
 	var m groupCreation
-	if err := garcon.UnmarshalJSONRequest(w, r, &m); err != nil {
+	if err := gg.UnmarshalJSONRequest(w, r, &m); err != nil {
 		log.Warn("CreateGroup:", err)
 		gw.WriteErr(w, r, http.StatusUnauthorized, "cannot decode JSON")
 		return
@@ -110,7 +110,7 @@ func createGroup(w http.ResponseWriter, r *http.Request) {
 	name := m.Name
 	nsID := m.NamespaceID
 
-	if p := garcon.Printable(name); p >= 0 {
+	if p := gg.Printable(name); p >= 0 {
 		log.Warn("CreateGroup: JSON contains a forbidden character at p=", p)
 		gw.WriteErr(w, r, http.StatusUnauthorized, "forbidden character", "position", p)
 		return

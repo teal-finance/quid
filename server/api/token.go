@@ -7,7 +7,7 @@ import (
 	"github.com/go-chi/chi/v5"
 	"github.com/golang-jwt/jwt/v4"
 
-	"github.com/teal-finance/garcon"
+	"github.com/teal-finance/garcon/gg"
 	db "github.com/teal-finance/quid/server/db"
 	"github.com/teal-finance/quid/tokens"
 )
@@ -15,7 +15,7 @@ import (
 // requestAccessToken : request an access token from a refresh token.
 func requestAccessToken(w http.ResponseWriter, r *http.Request) {
 	var m accessTokenRequest
-	if err := garcon.UnmarshalJSONRequest(w, r, &m); err != nil {
+	if err := gg.UnmarshalJSONRequest(w, r, &m); err != nil {
 		log.ParamError("RequestAccessToken:", err)
 		gw.WriteErr(w, r, http.StatusUnauthorized, "cannot decode JSON")
 		return
@@ -24,7 +24,7 @@ func requestAccessToken(w http.ResponseWriter, r *http.Request) {
 	refreshToken := m.RefreshToken
 	namespace := m.Namespace
 
-	if p := garcon.Printable(refreshToken, namespace); p >= 0 {
+	if p := gg.Printable(refreshToken, namespace); p >= 0 {
 		log.Warn("RequestAccessToken: JSON contains a forbidden character at p=", p)
 		gw.WriteErr(w, r, http.StatusUnauthorized, "forbidden character", "position", p)
 		return
@@ -136,13 +136,13 @@ func requestAccessToken(w http.ResponseWriter, r *http.Request) {
 
 func getAccessPublicKey(w http.ResponseWriter, r *http.Request) {
 	var m nameRequest
-	if err := garcon.UnmarshalJSONRequest(w, r, &m); err != nil {
+	if err := gg.UnmarshalJSONRequest(w, r, &m); err != nil {
 		log.Warn("GetNamespaceAccessKey:", err)
 		gw.WriteErr(w, r, http.StatusBadRequest, "cannot decode JSON")
 		return
 	}
 
-	if p := garcon.Printable(m.Name); p >= 0 {
+	if p := gg.Printable(m.Name); p >= 0 {
 		log.Warn(`JSON {"name":....} has forbidden character at p=`, p)
 		gw.WriteErr(w, r, http.StatusBadRequest, "forbidden character", "position", p)
 		return
@@ -181,13 +181,13 @@ func getAccessPublicKey(w http.ResponseWriter, r *http.Request) {
 
 func validAccessToken(w http.ResponseWriter, r *http.Request) {
 	var m accessTokenValidationRequest
-	if err := garcon.UnmarshalJSONRequest(w, r, &m); err != nil {
+	if err := gg.UnmarshalJSONRequest(w, r, &m); err != nil {
 		log.ParamError(err)
 		gw.WriteErr(w, r, http.StatusUnauthorized, "cannot decode JSON")
 		return
 	}
 
-	if p := garcon.Printable(m.AccessToken, m.Namespace); p >= 0 {
+	if p := gg.Printable(m.AccessToken, m.Namespace); p >= 0 {
 		log.Warn("JSON contains a forbidden character at p=", p)
 		gw.WriteErr(w, r, http.StatusUnauthorized, "forbidden character", "position", p)
 		return
@@ -229,7 +229,7 @@ func validAccessToken(w http.ResponseWriter, r *http.Request) {
 // requestRefreshToken : http login handler.
 func requestRefreshToken(w http.ResponseWriter, r *http.Request) {
 	var m passwordRequest
-	if err := garcon.UnmarshalJSONRequest(w, r, &m); err != nil {
+	if err := gg.UnmarshalJSONRequest(w, r, &m); err != nil {
 		log.ParamError("RequestRefreshToken:", err)
 		gw.WriteErr(w, r, http.StatusUnauthorized, "cannot decode JSON")
 		return
@@ -239,7 +239,7 @@ func requestRefreshToken(w http.ResponseWriter, r *http.Request) {
 	password := m.Password
 	namespace := m.Namespace
 
-	if p := garcon.Printable(username, password, namespace); p >= 0 {
+	if p := gg.Printable(username, password, namespace); p >= 0 {
 		log.ParamError("RequestRefreshToken: JSON contains a forbidden character at p=", p)
 		gw.WriteErr(w, r, http.StatusUnauthorized, "forbidden character", "position", p)
 		return

@@ -13,8 +13,8 @@ require (
 	github.com/manifoldco/promptui v0.9.0
 	github.com/spf13/viper v1.13.0
 	github.com/teal-finance/emo v0.0.0-20220908102640-66d9abfb8bac
-	github.com/teal-finance/garcon v0.29.0
-	github.com/teal-finance/incorruptible v0.0.0-20220905202129-2764bbcba352
+	github.com/teal-finance/garcon v0.30.0-beta1
+	github.com/teal-finance/incorruptible v0.0.0-20220911120629-83c603e0c8b9
 	golang.org/x/crypto v0.0.0-20220829220503-c86fa9a7ed90
 )
 

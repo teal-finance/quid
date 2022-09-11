@@ -1,23 +1,27 @@
 help:
-	# Use 'make <target>' where <target> is one of:
+	# make all          Build both frontend and backend.
+	# make front        Build the frontend UI.
+	# make quid         Build the backend.
 	#
-	# all          Build both frontend and backend.
-	# front        Build the frontend UI.
-	# quid         Build the backend.
+	# make run          Run the backend (serves the frontend static files).
+	# make run-dev      Run the backend in dev mode (also serves the frontend).
+	# make run-front    Run the frontend in dev mode (NodeJS serves the frontend).
 	#
-	# run          Run the backend (serves the frontend static files).
-	# run-dev      Run the backend in dev mode (also serves the frontend).
-	# run-front    Run the frontend in dev mode (NodeJS serves the frontend).
+	# make compose-up   Run Quid and Database using podman-compose or docker-compose.
+	# make compose-rm   Stop and remove containers.
 	#
-	# compose-up   Run Quid and Database using podman-compose or docker-compose.
-	# compose-rm   Stop and remove containers.
+	# make up           Upgrade dependencies patch version (Go/Node).
+	# make up+          Upgrade dependencies minor version (Go/Node).
+	# make up++         Upgrade dependencies major version (Node only).
 	#
-	# upg-patch    Upgrade dependencies patch version (Go/Node).
-	# upg-minor    Upgrade dependencies minor version (Go/Node).
-	# upg-more     Upgrade dependencies major version (Node only).
+	# make fmt      Go: Generate code and Format code
+	# make test     Go: Check build and Test
+	# make cov      Go: Browse test coverage
+	# make vet      Go: Lint
 	#
-	# vet          Upgrade deps, Format code, Lint and Test.
-	# cov          Show test coverage results.
+	# Before "git push" concerning the backend:
+	#
+	#     make up+go fmt test vet
 
 .PHONY: all
 all: front quid
@@ -138,53 +142,61 @@ compose-rm:
 	{ command -v docker-compose                         && set -x && docker-compose -f compose.yml down                    ;} || \
 	{ command -v docker && docker help|grep -wq compose && set -x && docker compose -f compose.yml down                    ;}
 
-.PHONY: upg-patch upg-minor
-upg-patch: upg-patch-ui upg-patch-go
-upg-minor: upg-minor-ui upg-minor-go
+.PHONY: up up+
+up: up-ui up-go
+up+: up+ui up+go
 
-.PHONY: upg-patch-ui
-upg-patch-ui:
+.PHONY: up-ui
+up-ui:
 	cd ui && \
 	{ yarn    --link-duplicates && yarn    upgrade-interactive --link-duplicates; } || \
 	{ yarnpkg --link-duplicates && yarnpkg upgrade-interactive --link-duplicates; }
 
-.PHONY: upg-minor-ui
-upg-minor-ui:
+.PHONY: up+ui
+up+ui:
 	cd ui && \
-	{ yarn --link-duplicates && yarn upg-minor; } || \
-	{ yarn --link-duplicates && yarn upg-minor; }
+	{ yarn --link-duplicates && yarn up+; } || \
+	{ yarn --link-duplicates && yarn up+; }
 
-.PHONY: upg-more
-upg-more: upg-minor-go
+.PHONY: up++
+up++: up+go
 	cd ui && \
 	{ yarn    --link-duplicates && yarn    upgrade-interactive --link-duplicates --latest --tilde; } || \
 	{ yarnpkg --link-duplicates && yarnpkg upgrade-interactive --link-duplicates --latest --tilde; }
     # flag --tilde prepends the new version with "~" that limits vanilla upgrade to patch only
     # flag --caret prepends the new version with "^" allowing upgrading the minor number
 
-.PHONY: upg-patch-go
-upg-patch-go:
+.PHONY: up-go
+up-go: go.sum
 	GOPROXY=direct go get -t -u=patch all
 	go mod tidy
 
-.PHONY: upg-minor-go
-upg-minor-go:
+.PHONY: up+go
+up+go: go.sum
 	go get -t -u all
 	go mod tidy
 
-.PHONY: vet
-vet:
+go.sum: go.mod
 	go mod tidy
-	go get -u -t all
-	go mod tidy
+
+.PHONY: fmt
+fmt:
 	go generate ./...
 	go run mvdan.cc/gofumpt@latest -w -extra -l -lang 1.19 .
-	go build ./...
-	go test -race -vet all -coverprofile=code-coverage.out ./...
-	go run github.com/golangci/golangci-lint/cmd/golangci-lint@latest run --fix
 
-code-coverage.out: vet
+.PHONY: test
+test:
+	go build ./...
+	go test -race -vet all -tags=quid -coverprofile=code-coverage.out ./...
+
+code-coverage.out: go.sum */*/*.go */*/*/*.go
+	go test -race -vet all -tags=quid -coverprofile=code-coverage.out ./...
 
 .PHONY: cov
 cov: code-coverage.out
 	go tool cover -html code-coverage.out
+
+.PHONY: vet
+vet:
+	go run github.com/golangci/golangci-lint/cmd/golangci-lint@latest run --fix || true
+	go run ./cmd/quid -dev

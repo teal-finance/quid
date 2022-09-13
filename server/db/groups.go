@@ -87,47 +87,52 @@ func CreateGroup(name string, namespaceID int64) (int64, error) {
 		return 0, err
 	}
 
-	for rows.Next() {
-		var idi any
-		err = rows.Scan(&idi)
-		if err != nil {
-			log.QueryError(err)
-			return 0, err
-		}
-		return idi.(int64), nil
+	if !rows.Next() {
+		return 0, log.QueryErrorf("no group %q", name).Err()
 	}
 
-	err = fmt.Errorf("no group %q", name)
+	var gid any
+	err = rows.Scan(&gid)
 	if err != nil {
 		log.QueryError(err)
+		return 0, err
 	}
 
-	return 0, err
+	id, ok := gid.(int64)
+	if !ok {
+		log.QueryError("Cannot convert gid into int64")
+		return 0, err
+	}
+
+	return id, nil
 }
 
 // createGroup : create a group.
 func CreateGroupIfExist(name string, namespaceID int64) (server.Group, bool, error) {
-	var ns server.Group
+	var grp server.Group
 
 	exists, err := GroupExists(name, namespaceID)
 	if err != nil {
 		log.QueryError("createGroup GroupExists:", err)
-		return ns, false, err
+		return grp, false, err
 	}
 	if exists {
 		log.QueryError("createGroup: group already exists")
-		return ns, true, nil
+		return grp, true, nil
 	}
 
-	uid, err := CreateGroup(name, namespaceID)
+	gid, err := CreateGroup(name, namespaceID)
 	if err != nil {
 		log.QueryError("createGroup:", err)
-		return ns, false, err
+		return grp, false, err
 	}
 
-	ns.ID = uid
-	ns.Name = name
-	return ns, false, nil
+	grp = server.Group{
+		Name:      name,
+		Namespace: "",
+		ID:        gid,
+	}
+	return grp, false, nil
 }
 
 // DeleteGroup : delete a group.

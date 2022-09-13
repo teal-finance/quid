@@ -122,7 +122,7 @@ func createGroup(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	ns, exists, err := db.CreateGroupIfExist(name, nsID)
+	grp, exists, err := db.CreateGroupIfExist(name, nsID)
 	if err != nil {
 		gw.WriteErr(w, r, http.StatusConflict, "error creating group")
 		return
@@ -132,5 +132,5 @@ func createGroup(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	gw.WriteOK(w, "org_id", ns.ID)
+	gw.WriteOK(w, "grp_id", grp.ID)
 }

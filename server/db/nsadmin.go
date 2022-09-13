@@ -1,8 +1,6 @@
 package db
 
 import (
-	"fmt"
-
 	_ "github.com/lib/pq"
 
 	"github.com/teal-finance/quid/server"
@@ -60,7 +58,7 @@ func CreateAdministrator(namespaceID, userID int64) error {
 	}
 
 	if !rows.Next() {
-		return log.QueryErrorf("no nsAdmin for nsID=", namespaceID, "userID=", userID).Err()
+		return log.QueryError("no nsAdmin for nsID=", namespaceID, "userID=", userID).Err()
 	}
 
 	var id any

@@ -5,113 +5,83 @@ import (
 
 	"github.com/manifoldco/promptui"
 
+	"github.com/teal-finance/quid/server"
 	"github.com/teal-finance/quid/tokens"
 )
 
-// InitDbConf : initialize the database content.
-func InitDbConf() {
-	initDbConf(true, "", "")
-}
+func CreateQuidAdmin(username, password string) error {
+	log.Data("Initializing Quid database")
 
-// InitDbAutoConf : initialize the database content.
-func InitDbAutoConf(username, password string) {
-	initDbConf(false, username, password)
-}
-
-func initDbConf(prompt bool, username, password string) {
-	if prompt {
-		log.Info("Initializing Quid database")
-	}
-
-	// check namespace
-	var nsID int64
-
-	nsExists, err := NamespaceExists("quid")
+	found, err := NamespaceExists("quid")
 	if err != nil {
-		log.Fatal(err)
+		return err
 	}
 
-	if nsExists {
+	var nsID int64
+	if found {
 		nsID, err = SelectNsID("quid")
-		if err != nil {
-			log.Fatal(err)
-		}
 	} else {
-		log.Info("Creating the quid namespace")
-
+		log.Data(`Creating the "quid" namespace`)
 		algo := "HS256"
 		accessKey := tokens.GenerateKeyHMAC(256)
 		refreshKey := tokens.GenerateKeyHMAC(256)
-
 		nsID, err = CreateNamespace("quid", "6m", "24h", algo, accessKey, refreshKey, false)
-		if err != nil {
-			log.Fatal(err)
-		}
 	}
-
-	// check base admin group
-	var gid int64
-
-	exists, err := GroupExists("quid_admin", nsID)
 	if err != nil {
-		log.Fatal(err)
+		return err
 	}
 
-	if exists {
-		group, er := SelectGroup("quid_admin", nsID)
-		if er != nil {
-			log.Fatal(er)
-		}
-		gid = group.ID
+	found, err = GroupExists("quid_admin", nsID)
+	if err != nil {
+		return err
+	}
+
+	var gid int64
+	if found {
+		var g server.Group
+		g, err = SelectGroup("quid_admin", nsID)
+		gid = g.ID
 	} else {
-		log.Info("Creating the quid admin group")
+		log.Data(`Creating the "quid_admin" group`)
 		gid, err = CreateGroup("quid_admin", nsID)
+	}
+	if err != nil {
+		return err
+	}
+
+	n, err := CountUsersInGroup(gid)
+	if err != nil {
+		return err
+	}
+
+	if n > 0 {
+		log.Data(`There are already %d users in "quid_admin" group => Do not create the Quid Admin user`)
+		return nil
+	}
+
+	if username == "" {
+		username, err = promptForUsername()
 		if err != nil {
-			log.Fatal(err)
+			log.ParamError(err)
+			return err
 		}
 	}
 
-	// check superuser
-	if n, _ := CountUsersInGroup(gid); n == 0 {
-		var name string
-		if prompt {
-			log.Info("Create The QuidAdmin")
-			name, err = promptForUsername()
-			if err != nil {
-				log.Fatal(err)
-			}
-		} else {
-			name = username
-		}
-
-		var pwd string
-		if prompt {
-			pwd, err = promptForPassword()
-			if err != nil {
-				log.Fatal(err)
-			}
-		} else {
-			pwd = password
-		}
-
-		u, err := CreateUser(name, pwd, nsID)
+	if password == "" {
+		password, err = promptForPassword()
 		if err != nil {
-			log.Fatal(err)
-		}
-
-		err = AddUserInGroup(u.ID, gid)
-		if err != nil {
-			log.Fatal(err)
-		}
-
-		if prompt {
-			log.Result("QuidAdmin", username, "created")
+			log.ParamError(err)
+			return err
 		}
 	}
 
-	if prompt {
-		log.Info("Initialization complete")
+	log.Dataf("Create the Quid Admin user usr=%q pwdLen=%d", username, len(password))
+	u, err := CreateUser(username, password, nsID)
+	if err != nil {
+		return err
 	}
+
+	return AddUserInGroup(u.ID, gid)
 }
 
 func promptForUsername() (string, error) {

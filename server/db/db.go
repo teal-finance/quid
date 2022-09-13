@@ -1,6 +1,8 @@
 package db
 
 import (
+	"strings"
+
 	"github.com/jmoiron/sqlx"
 
 	// pg import.
@@ -13,16 +15,11 @@ var db *sqlx.DB
 
 var log = emo.NewZone("db")
 
-// Init : init the db conf.
-func Init(isVerbose, isDev, isCmd bool) {
-	if !isVerbose && !isDev && !isCmd {
-		log.Verbose = emo.No
-	}
-}
-
 // Connect : connect to the db.
-func Connect(dataSourceName string) error {
-	_db, err := sqlx.Connect("postgres", dataSourceName)
+func Connect(dbURL string) error {
+	dbURL = strings.Replace(dbURL, "postgresql://", "postgres://", 1)
+
+	_db, err := sqlx.Connect("postgres", dbURL)
 	if err != nil {
 		return err
 	}
@@ -32,6 +29,6 @@ func Connect(dataSourceName string) error {
 
 // ExecSchema : execute the schema.
 func ExecSchema() error {
-	db.MustExec(schema)
-	return nil
+	_, err := db.Exec(schema)
+	return err
 }

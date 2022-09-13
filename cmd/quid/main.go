@@ -2,10 +2,10 @@ package main
 
 import (
 	"flag"
-	"fmt"
-	"os"
 
 	"github.com/teal-finance/emo"
+	"github.com/teal-finance/garcon/gg"
+	"github.com/teal-finance/quid/crypt"
 	"github.com/teal-finance/quid/server/api"
 	"github.com/teal-finance/quid/server/db"
 	"github.com/teal-finance/quid/tokens"
@@ -13,60 +13,85 @@ import (
 
 var log = emo.NewZone("quid")
 
+const (
+	defaultDBHost = "localhost"
+	defaultDBPort = "5432"
+	defaultDBName = "quid"
+	defaultDBUser = "pguser"
+	defaultDBPass = "my_password"
+	defaultDBurl  = "postgres://" + defaultDBUser + ":" + defaultDBPass + "@" + defaultDBHost + ":" + defaultDBPort + "/" + defaultDBName + "?sslmode=disable"
+
+	// defaultKey is AES-128-bits (16 bytes) in hexadecimal form (32 digits).
+	defaultKey = "00112233445566778899aabbccddeeff"
+	defaultUsr = "quid"
+	defaultPwd = "my_password"
+
+	defaultPort = 8090
+)
+
 func main() {
-	init := flag.Bool("init", false, "initialize and create the QuidAdmin")
-	key := flag.String("key", "", "create a random key among HS256, HS384, HS512, RS256, RS384, RS512, ES256, ES384, ES512 and Ed25519")
-	env := flag.Bool("env", false, "init from environment variables not config file")
-	isDevMode := flag.Bool("dev", false, "development mode")
-	isVerbose := flag.Bool("v", false, "verbose (info and debug logs)")
-	genConf := flag.Bool("conf", false, "generate a config file")
-	genDevQuidToken := flag.Bool("dev-quid-token", false, "generate a QuidAdmin JWT (was required to test the frontend)")
-	genDevNsToken := flag.Bool("dev-ns-token", false, "generate a NamespaceAdmin JWT (was required to test the frontend)")
+	dev := flag.Bool("dev", false, "Development mode")
+	verbose := flag.Bool("v", false, "Verbose (enables the info and debug logs)")
+
+	genConf := flag.Bool("conf", false, `Generate a "config.json" file with a random key`)
+	dbHost := flag.String("db-host", gg.EnvStr("DB_HOST", defaultDBHost), "Network location of the Postgres server. Env. var: DB_HOST")
+	dbPort := flag.String("db-port", gg.EnvStr("DB_PORT", defaultDBPort), "TCP port of the Postgres server. Env. var: DB_PORT")
+	dbName := flag.String("db-name", gg.EnvStr("DB_NAME", defaultDBName), "Name of the Postgres database. Env. var: DB_NAME")
+	dbUser := flag.String("db-usr", gg.EnvStr("DB_USR", defaultDBUser), "Username to read/write the database. Env. var: DB_USR")
+	dbPass := flag.String("db-pwd", gg.EnvStr("DB_PWD", defaultDBPass), "Password of the database user. Env. var: DB_PWD")
+	wwwDir := flag.String("www", gg.EnvStr("WWW_DIR", "ui/dist"), "Folder of the web static files. Env. var: WWW_DIR")
+	key := flag.String("key", gg.EnvStr("QUID_KEY", defaultKey), "Key to encrypt the private keys of the refresh/access tokens in the database. "+
+		"Accept 32 hexadecimal digits or 22 Base64 characters. Env. var: QUID_KEY")
+	adminUser := flag.String("admin", gg.EnvStr("QUID_ADMIN_USER", defaultUsr), "The username of the Quid Administrator. Env. var: QUID_ADMIN_USER")
+	adminPassword := flag.String("pwd", gg.EnvStr("QUID_ADMIN_PWD", defaultPwd), "The password of the Quid Administrator. Env. var: QUID_ADMIN_PWD")
+	dbURL := flag.String("db", gg.EnvStr("DATABASE_URL", defaultDBurl), "The endpoint of the PostgreSQL server. Env. var: DATABASE_URL")
+	port := flag.Int("port", gg.EnvInt("PORT", defaultPort), "Listening port of the Quid server")
 	flag.Parse()
 
-	// key flag
-	if *key != "" {
-		if *env {
-			log.Fatal("The key command is not allowed when initializing from environment variables")
-		}
-
-		fmt.Println(tokens.GenerateSigningKey(*key))
-		return
+	cfgName, cfgUsr, cfgPwd, cfgKey := readConfigFile()
+	if cfgName != "" && *dbName == defaultDBName {
+		*dbName = cfgName
+	}
+	if cfgUsr != "" && *dbUser == defaultDBUser {
+		*dbUser = cfgUsr
+	}
+	if cfgPwd != "" && *dbPass == defaultDBPass {
+		*dbPass = cfgPwd
+	}
+	if cfgKey != "" && *key == defaultKey {
+		*key = cfgKey
 	}
 
-	// gen conf flag
+	if *dbURL == defaultDBurl {
+		*dbURL = "postgres://" + *dbUser + ":" + *dbPass + "@" + *dbHost + ":" + *dbPort + "/" + *dbName + "?sslmode=disable"
+	}
+
+	if (!*dev) && (*key == defaultKey) && (*dbURL == defaultDBurl) {
+		if !*verbose {
+			log.Print("Default values for -dev, -key QUID_KEY and -db DATABASE_URL => Enable -v verbose mode")
+			*verbose = true
+		}
+		log.Print("Default values for -key QUID_KEY and -db DATABASE_URL => Enable -dev mode")
+		*dev = true
+	}
+
+	emo.GlobalVerbosity(*verbose)
+
 	if *genConf {
-		log.Info("Generating config file")
-		if *env {
-			log.Fatal("This command is not allowed when initializing from environment variables")
+		log.Info(`Generating "config.json" file with random key`)
+		if err := createConfigFile(*dbName, *dbUser, *dbPass); err != nil {
+			log.Fatal(`Cannot create "config.json" file`, err)
 		}
-		if err := create(); err != nil {
-			log.Fatal("Cannot create config file", err)
-		}
-		log.State("Config file created: edit config.json to provide your database settings")
+		log.State(`Config file created: edit "config.json" to provide your database settings`)
 		return
 	}
 
-	// Read configuration
-	var (
-		conn       string
-		port       int
-		autoConfDb bool
-	)
-	if *env {
-		// env flag
-		conn, port = initFromEnv(*isDevMode)
-		autoConfDb = (adminUser != "") && (adminPassword != "")
-	} else {
-		// init conf flag
-		conn, port = initFromFile(*isDevMode)
+	crypt.EncodingKey = tokens.DecodeHexOrB64(*key, 16)
+	if crypt.EncodingKey == nil {
+		log.Panic("Want AES-128 key in hexadecimal (32 digits) or Base64 (unpadded 22 characters RFC 4648 §5), but got", len(*key), "bytes:", *key)
 	}
-	isCmd := *genDevQuidToken || *genDevNsToken
 
-	// Database
-	db.Init(*isVerbose, *isDevMode, isCmd)
-
-	if err := db.Connect(conn); err != nil {
+	if err := db.Connect(*dbURL); err != nil {
 		log.Fatal(err)
 	}
 
@@ -74,60 +99,10 @@ func main() {
 		log.Fatal(err)
 	}
 
-	// gen dev token flag
-	if *genDevQuidToken {
-		if *env {
-			log.Fatal("This command is not allowed when initializing from environment variables")
-		}
-
-		username := os.Args[2]
-		err := writeQuidAdminToken(username)
-		if err != nil {
-			log.Fatal(err)
-		}
-		log.Info("QuidAdmin JWT generated in env file")
-		return
+	err := db.CreateQuidAdmin(*adminUser, *adminPassword)
+	if err != nil {
+		log.Fatal(err)
 	}
 
-	// gen namespace dev token flag
-	if *genDevNsToken {
-		if *env {
-			log.Fatal("This command is not allowed when initializing from environment variables")
-		}
-
-		username := os.Args[2]
-		namespace := os.Args[3]
-		err := writeNsAdminToken(username, namespace)
-		if err != nil {
-			log.Fatal(err)
-		}
-		log.Info("NamespaceAdmin JWT generated in env file for user", username, "and namespace", namespace)
-		return
-	}
-
-	// flag -init => initialize database
-	if *init {
-		if *env {
-			log.Fatal("The init command is not allowed when initializing from environment variables")
-		}
-
-		db.InitDbConf()
-		return
-	}
-
-	if autoConfDb {
-		log.Info("Configure automatically the DB")
-		db.InitDbAutoConf(adminUser, adminPassword)
-	}
-
-	printOnlyErrors := !*isVerbose && !*isDevMode
-	if printOnlyErrors {
-		emo.GlobalVerbosity(false)
-	}
-
-	api.Init(*isVerbose, *isDevMode)
-	tokens.Init(*isVerbose, *isDevMode, isCmd)
-
-	// http server
-	api.RunServer(port, *isDevMode)
+	api.RunServer(*port, *dev, *wwwDir)
 }

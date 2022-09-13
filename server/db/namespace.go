@@ -3,7 +3,6 @@ package db
 import (
 	"database/sql"
 	"errors"
-	"fmt"
 
 	// pg import.
 	_ "github.com/lib/pq"
@@ -178,9 +177,8 @@ func CreateNamespace(name, ttl, refreshTTL, algo string, accessKey, refreshKey [
 		log.QueryError("Cannot convert nsID into int64")
 		return 0, err
 	}
-	
-	return id, nil
 
+	return id, nil
 }
 
 // CreateNamespaceIfExist : create a namespace.

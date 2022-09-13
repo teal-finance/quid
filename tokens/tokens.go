@@ -29,13 +29,6 @@ const notSupportedNotice = " not yet supported. " +
 	"Please contact teal.finance@pm.me or " +
 	"open an issue at https://github.com/teal-finance/quid"
 
-// Init : init the token zone.
-func Init(isVerbose, isDev, isCmd bool) {
-	if !isDev && !isCmd {
-		log.Verbose = emo.Yes
-	}
-}
-
 // GenRefreshToken generates a refresh token for a user in a namespace.
 func GenRefreshToken(timeout, maxTTL, namespace, user string, secretKey []byte) (string, error) {
 	expiry, err := authorizedExpiry(timeout, maxTTL)

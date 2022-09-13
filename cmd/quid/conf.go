@@ -7,20 +7,15 @@ import (
 	"os"
 
 	"github.com/spf13/viper"
-	"github.com/teal-finance/quid/crypt"
 )
 
-// IsDevMode : enable development mode.
-var IsDevMode = false
-
-// create : create a config file.
-func create() error {
+// createConfigFile : createConfigFile a config file.
+func createConfigFile(dbName, dbUser, dbPass string) error {
 	data := map[string]any{
-		"db_name":         "quid",
-		"db_user":         "pguser",
-		"db_password":     "my_password",
-		"key":             generateRandomKey(),
-		"enable_dev_mode": false,
+		"db_name":     dbName,
+		"db_user":     dbUser,
+		"db_password": dbPass,
+		"key":         randomAES128KeyHex(),
 	}
 
 	jsonString, err := json.MarshalIndent(data, "", "    ")
@@ -31,55 +26,37 @@ func create() error {
 	return os.WriteFile("config.json", jsonString, os.ModePerm)
 }
 
-// InitFromFile : get the config
-// returns the postgres connection string.
-func initFromFile(isDevMode bool) (conn string, port int) {
+// readConfigFile : get the config.
+func readConfigFile() (name, usr, pwd, key string) {
 	viper.SetConfigName("config")
 	viper.AddConfigPath(".")
-	viper.SetDefault("db_name", "quid")
-	viper.SetDefault("db_user", "pguser")
+	viper.SetDefault("db_name", nil)
+	viper.SetDefault("db_user", nil)
 	viper.SetDefault("db_password", nil)
 	viper.SetDefault("key", nil)
-	viper.SetDefault("enable_dev_mode", false)
 
 	err := viper.ReadInConfig()
 	if err != nil {
 		if _, ok := err.(viper.ConfigFileNotFoundError); ok {
-			log.Fatal("No config file found. Use the -conf option to generate one")
-		}
-		log.Fatal(err)
-	}
-
-	if isDevMode {
-		IsDevMode = true
-		if viper.Get("enable_dev_mode") == false {
-			log.Fatal("Set enable_dev_mode to true in config in order to run in dev mode")
+			log.Info(`No "config.json" file found. You may use the -conf flag to generate the "config.json" file with a random key.`)
+		} else {
+			log.Fatal(err)
 		}
 	}
 
-	hexKey := viper.Get("key").(string)
-	if len(hexKey) < 32 {
-		log.Panic("Want AES-128 key composed by 32 hexadecimal digits, but got", len(hexKey))
-	}
+	name = viper.Get("db_name").(string)
+	usr = viper.Get("db_user").(string)
+	pwd = viper.Get("db_password").(string)
+	key = viper.Get("key").(string)
 
-	crypt.EncodingKey, err = hex.DecodeString(hexKey[:32])
-	if err != nil {
-		log.Fatal("The key in config must be in hexadecimal format err=", err)
-	}
-
-	db := viper.Get("db_name").(string)
-	usr := viper.Get("db_user").(string)
-	pwd := viper.Get("db_password").(string)
-
-	conn = "dbname=" + db + " user=" + usr + " password=" + pwd + " sslmode=disable"
-	port = 8082
-	return conn, port
+	// conn = "dbname=" + name + " user=" + usr + " password=" + pwd + " sslmode=disable"
+	return name, usr, pwd, key
 }
 
-func generateRandomKey() string {
-	bytes := make([]byte, 32)
+func randomAES128KeyHex() string {
+	bytes := make([]byte, 16)
 	if _, err := rand.Read(bytes); err != nil {
-		panic(err)
+		log.Panic(err)
 	}
 	return hex.EncodeToString(bytes)
 }

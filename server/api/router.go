@@ -6,19 +6,22 @@ import (
 	color "github.com/acmacalister/skittles"
 	"github.com/go-chi/chi/v5"
 
+	"github.com/teal-finance/emo"
 	"github.com/teal-finance/garcon"
 	"github.com/teal-finance/garcon/gg"
 	"github.com/teal-finance/incorruptible"
 	"github.com/teal-finance/quid/crypt"
 )
 
+var log = emo.NewZone("api")
+
 var Incorruptible *incorruptible.Incorruptible
 
 var gw garcon.Writer
 
 // RunServer : configure and run the server.
-func RunServer(port int, devMode bool) {
-	server := newServer(port, devMode)
+func RunServer(port int, devMode bool, wwwDir string) {
+	server := newServer(port, devMode, wwwDir)
 
 	if devMode {
 		log.Info("" + color.BoldRed("Running in development mode"))
@@ -28,7 +31,7 @@ func RunServer(port int, devMode bool) {
 	log.Fatal(garcon.ListenAndServe(&server))
 }
 
-func newServer(port int, devMode bool) http.Server {
+func newServer(port int, devMode bool, wwwDir string) http.Server {
 	g := garcon.New(
 		garcon.WithServerName("Quid"),
 		garcon.WithDev(devMode))
@@ -50,17 +53,17 @@ func newServer(port int, devMode bool) http.Server {
 			[]string{"Origin", "Content-Type", "Authorization"},
 		))
 
-	router := newRouter(g)
+	router := newRouter(g, wwwDir)
 	handler := middleware.Then(router)
 
 	return garcon.Server(handler, port, nil)
 }
 
-func newRouter(g *garcon.Garcon) http.Handler {
+func newRouter(g *garcon.Garcon, wwwDir string) http.Handler {
 	r := chi.NewRouter()
 
 	// Static website: set the Incorruptible cookie only when visiting index.html
-	ws := g.NewStaticWebServer("ui/dist")
+	ws := g.NewStaticWebServer(wwwDir)
 	r.NotFound(ws.ServeFile("index.html", "text/html; charset=utf-8"))
 	r.Get("/favicon.ico", ws.ServeFile("favicon.ico", "image/x-icon"))
 	r.Get("/js/*", ws.ServeDir("text/javascript; charset=utf-8"))

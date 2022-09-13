@@ -2,7 +2,6 @@ package db
 
 import (
 	// pg import.
-	"fmt"
 
 	_ "github.com/lib/pq"
 

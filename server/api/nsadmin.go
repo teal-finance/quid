@@ -85,7 +85,7 @@ func createAdministrators(w http.ResponseWriter, r *http.Request) {
 		}
 
 		// create admin user
-		if _, err = db.CreateAdministrator(nsID, uID); err != nil {
+		if err = db.CreateAdministrator(nsID, uID); err != nil {
 			log.QueryError("CreateAdministrators: error creating admin user:", err)
 			gw.WriteErr(w, r, http.StatusConflict, "error creating admin user")
 			return

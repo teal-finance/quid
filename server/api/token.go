@@ -118,7 +118,7 @@ func requestAccessToken(w http.ResponseWriter, r *http.Request) {
 	if ns.SigningAlgo == "HS256" {
 		t, err = tokens.GenAccessToken(timeout, ns.MaxTokenTTL, u.Name, groupNames, orgsNames, []byte(ns.AccessKey))
 	} else {
-		t, err = tokens.GenAccessTokenWithAlgo(timeout, ns.MaxTokenTTL, u.Name, groupNames, orgsNames, ns.SigningAlgo, ns.AccessKey)
+		t, err = tokens.GenAccessTokenWithAlgo(ns.SigningAlgo, timeout, ns.MaxTokenTTL, u.Name, groupNames, orgsNames, ns.AccessKey)
 	}
 
 	if err != nil {

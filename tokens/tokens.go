@@ -75,7 +75,7 @@ func GenAccessToken(timeout, maxTTL, user string, groups, orgs []string, secretK
 }
 
 // GenAccessTokenWithAlgo creates an Access Token with the JSON fields "exp", "usr", "grp" and "org".
-func GenAccessTokenWithAlgo(timeout, maxTTL, user string, groups, orgs []string, algo string, secretKey []byte) (string, error) {
+func GenAccessTokenWithAlgo(algo, timeout, maxTTL, user string, groups, orgs []string, secretKey []byte) (string, error) {
 	expiry, err := authorizedExpiry(timeout, maxTTL)
 	if err != nil {
 		return "", err

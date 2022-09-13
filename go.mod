@@ -12,7 +12,7 @@ require (
 	github.com/mailru/easyjson v0.7.7
 	github.com/manifoldco/promptui v0.9.0
 	github.com/spf13/viper v1.13.0
-	github.com/teal-finance/emo v0.0.0-20220908102640-66d9abfb8bac
+	github.com/teal-finance/emo v0.0.0-20220911224233-8a59de6c9132
 	github.com/teal-finance/garcon v0.30.0-beta1
 	github.com/teal-finance/incorruptible v0.0.0-20220911120629-83c603e0c8b9
 	golang.org/x/crypto v0.0.0-20220829220503-c86fa9a7ed90
@@ -54,7 +54,7 @@ require (
 	github.com/spf13/pflag v1.0.5 // indirect
 	github.com/subosito/gotenv v1.4.1 // indirect
 	golang.org/x/net v0.0.0-20220909164309-bea034e7d591 // indirect
-	golang.org/x/sys v0.0.0-20220909162455-aba9fc2a8ff2 // indirect
+	golang.org/x/sys v0.0.0-20220913120320-3275c407cedc // indirect
 	golang.org/x/text v0.3.7 // indirect
 	golang.org/x/time v0.0.0-20220722155302-e5dcc9cfc0b9 // indirect
 	google.golang.org/protobuf v1.28.1 // indirect

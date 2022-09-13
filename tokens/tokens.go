@@ -8,10 +8,12 @@ import (
 	"crypto/rand"
 	"crypto/rsa"
 	"crypto/sha256"
+	"crypto/sha512"
 	"crypto/x509"
 	"encoding/hex"
 	"errors"
 	"fmt"
+	"hash"
 	"time"
 
 	"github.com/golang-jwt/jwt/v4"
@@ -269,18 +271,36 @@ func GenerateSigningKey(algo string) ([]byte, error) {
 
 // GenerateKeyHMAC generates a random HMAC-SHA256 key.
 func GenerateKeyHMAC(bits int) []byte {
-	switch bits {
-	case 256, 384, 512: // ok
-	default:
-		log.Panic("accept 256, 384 and 512 bits, but got bits=", bits)
+	check := false
+	if bits < 0 {
+		bits = -bits
+		check = true
 	}
 
-	b := genRandomBytes(bits / 8)
-	h := hmac.New(sha256.New, b)
-	return h.Sum(nil)
+	randomBytes := GenerateRandomBytes(bits / 8)
+
+	if check {
+		var digest hash.Hash
+		switch bits {
+		case 256:
+			digest = hmac.New(sha256.New, randomBytes)
+		case 384:
+			digest = hmac.New(sha512.New384, randomBytes)
+		case 512:
+			digest = hmac.New(sha512.New, randomBytes)
+		default:
+			log.Panic("accept 256, 384 and 512 bits, but got bits=", bits)
+		}
+		hashed := digest.Sum(nil)
+		if len(randomBytes) != len(hashed) {
+			log.Panicf("Unexpected key size: got=%d bytes want=%d bytes input=%d bit", len(hashed), len(randomBytes), bits)
+		}
+	}
+
+	return randomBytes
 }
 
-func genRandomBytes(n int) []byte {
+func GenerateRandomBytes(n int) []byte {
 	b := make([]byte, n)
 	if _, err := rand.Read(b); err != nil {
 		log.Panic(err)

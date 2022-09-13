@@ -176,7 +176,7 @@ func TestNewAccessToken(t *testing.T) {
 				t.Errorf("NewAccessToken() error = %v, wantNewErr %v", err, c.wantNewErr)
 				return
 			}
-			t.Log(algo+" TokenString len=", len(tokenStr), tokenStr)
+			t.Log(algo+" AccessToken len=", len(tokenStr), tokenStr)
 
 			validator := jwt.NewParser(jwt.WithValidMethods([]string{algo}))
 
@@ -210,7 +210,7 @@ func TestNewAccessToken(t *testing.T) {
 			}
 
 			algoPubKey := algo + ":" + publicDERStr
-			v, err := tokens.NewVerifier(algoPubKey)
+			v, err := tokens.NewVerifier(algoPubKey, true)
 			if err != nil {
 				t.Error("tokens.NewVerifier error:", err)
 				return
@@ -261,69 +261,84 @@ const jwtSample = `{"usr":"jane","grp":["group1","group2"],"org":["organization1
 
 func BenchmarkBase64Encode(b *testing.B) {
 	srcTxt := []byte(jwtSample)
-	b64BytesSame := make([]byte, len(srcTxt)*4/3+1)
+	B64size := base64.RawURLEncoding.EncodedLen(len(srcTxt))
+	b64BytesSame := make([]byte, B64size)
 	base64.RawURLEncoding.Encode(b64BytesSame, []byte(srcTxt))
-	b64BytesDiff := make([]byte, len(srcTxt)*4/3+1)
+	b64BytesDiff := make([]byte, B64size)
 	rand.Read(b64BytesDiff)
 
 	b.ResetTimer()
-	for n := 0; n < b.N; n++ {
-		dstBase64Bytes := make([]byte, len(srcTxt)*4/3+1)
+	for i := 0; i < b.N; i++ {
+		dstBase64Bytes := make([]byte, B64size)
 		base64.RawURLEncoding.Encode(dstBase64Bytes, srcTxt)
 		_ = dstBase64Bytes
 
+		same := i%2 == 0
 		var ok bool
-		if n%2 == 0 {
+		if same {
 			ok = bytes.Equal(dstBase64Bytes, b64BytesSame)
 		} else {
 			ok = bytes.Equal(dstBase64Bytes, b64BytesDiff)
 		}
-		_ = ok
+
+		if ok != same {
+			b.Errorf("#%d same=%v ok=%v", i, same, ok)
+		}
 	}
 }
 
 func BenchmarkBase64EncodeTurbo(b *testing.B) {
 	srcTxt := []byte(jwtSample)
-	b64BytesSame := make([]byte, len(srcTxt)*4/3+1)
+	B64size := base64.RawURLEncoding.EncodedLen(len(srcTxt))
+	b64BytesSame := make([]byte, B64size)
 	base64.RawURLEncoding.Encode(b64BytesSame, []byte(srcTxt))
-	b64BytesDiff := make([]byte, len(srcTxt)*4/3+1)
+	b64BytesDiff := make([]byte, B64size)
 	rand.Read(b64BytesDiff)
 
 	b.ResetTimer()
-	for n := 0; n < b.N; n++ {
-		dstBase64Bytes := make([]byte, len(srcTxt)*4/3+1)
+	for i := 0; i < b.N; i++ {
+		dstBase64Bytes := make([]byte, B64size)
 		turbo64.RawURLEncoding.Encode(dstBase64Bytes, srcTxt)
 		_ = dstBase64Bytes
 
+		same := i%2 == 0
 		var ok bool
-		if n%2 == 0 {
+		if same {
 			ok = bytes.Equal(dstBase64Bytes, b64BytesSame)
 		} else {
 			ok = bytes.Equal(dstBase64Bytes, b64BytesDiff)
 		}
-		_ = ok
+
+		if ok != same {
+			b.Errorf("#%d same=%v ok=%v", i, same, ok)
+		}
 	}
 }
 
 func BenchmarkBase64EncodeString(b *testing.B) {
 	srcTxt := []byte(jwtSample)
-	b64BytesSame := make([]byte, len(srcTxt)*4/3+1)
+	B64size := base64.RawURLEncoding.EncodedLen(len(srcTxt))
+	b64BytesSame := make([]byte, B64size)
 	base64.RawURLEncoding.Encode(b64BytesSame, []byte(srcTxt))
-	b64BytesDiff := make([]byte, len(srcTxt)*4/3+1)
+	b64BytesDiff := make([]byte, B64size)
 	rand.Read(b64BytesDiff)
 
 	b.ResetTimer()
-	for n := 0; n < b.N; n++ {
-		dstBase64Bytes := make([]byte, len(srcTxt)*4/3+1)
+	for i := 0; i < b.N; i++ {
+		dstBase64Bytes := make([]byte, B64size)
 		base64.RawURLEncoding.Encode(dstBase64Bytes, []byte(srcTxt))
 
+		same := i%2 == 0
 		var ok bool
-		if n%2 == 0 {
+		if same {
 			ok = bytes.Equal(dstBase64Bytes, b64BytesSame)
 		} else {
 			ok = bytes.Equal(dstBase64Bytes, b64BytesDiff)
 		}
-		_ = ok
+
+		if ok != same {
+			b.Errorf("#%d same=%v ok=%v", i, same, ok)
+		}
 	}
 }
 
@@ -332,24 +347,30 @@ func BenchmarkBase64Decode(b *testing.B) {
 	txtDiff := make([]byte, len(txtSame))
 	rand.Read(txtDiff)
 
-	b64 := make([]byte, len(txtSame)*4/3+1)
+	B64size := base64.RawURLEncoding.EncodedLen(len(txtSame))
+	b64 := make([]byte, B64size)
 	base64.RawURLEncoding.Encode(b64, txtSame)
 
 	b.ResetTimer()
-	for n := 0; n < b.N; n++ {
+	for i := 0; i < b.N; i++ {
 		dstTxt := make([]byte, len(txtSame))
-		_, err := base64.RawURLEncoding.Decode(dstTxt, b64)
+		n, err := base64.RawURLEncoding.Decode(dstTxt, b64)
 		if err != nil {
 			panic(err)
 		}
+		dstTxt = dstTxt[:n]
 
+		same := i%2 == 0
 		var ok bool
-		if n%2 == 0 {
+		if same {
 			ok = bytes.Equal(dstTxt, txtSame)
 		} else {
 			ok = bytes.Equal(dstTxt, txtDiff)
 		}
-		_ = ok
+
+		if ok != same {
+			b.Errorf("#%d same=%v ok=%v", i, same, ok)
+		}
 	}
 }
 
@@ -358,24 +379,29 @@ func BenchmarkBase64DecodeTurbo(b *testing.B) {
 	txtDiff := make([]byte, len(txtSame))
 	rand.Read(txtDiff)
 
-	b64 := make([]byte, len(txtSame)*4/3+1)
+	B64size := base64.RawURLEncoding.EncodedLen(len(txtSame))
+	b64 := make([]byte, B64size)
 	base64.RawURLEncoding.Encode(b64, txtSame)
 
 	b.ResetTimer()
-	for n := 0; n < b.N; n++ {
+	for i := 0; i < b.N; i++ {
 		dstTxt := make([]byte, len(txtSame))
 		_, err := turbo64.RawURLEncoding.Decode(dstTxt, b64)
 		if err != nil {
 			panic(err)
 		}
 
+		same := i%2 == 0
 		var ok bool
-		if n%2 == 0 {
+		if same {
 			ok = bytes.Equal(dstTxt, txtSame)
 		} else {
 			ok = bytes.Equal(dstTxt, txtDiff)
 		}
-		_ = ok
+
+		if ok != same {
+			b.Errorf("#%d same=%v ok=%v", i, same, ok)
+		}
 	}
 }
 
@@ -384,23 +410,28 @@ func BenchmarkBase64DecodeString(b *testing.B) {
 	txtDiff := make([]byte, len(txtSame))
 	rand.Read(txtDiff)
 
-	b64Bytes := make([]byte, len(txtSame)*4/3+1)
+	B64size := base64.RawURLEncoding.EncodedLen(len(txtSame))
+	b64Bytes := make([]byte, B64size)
 	base64.RawURLEncoding.Encode(b64Bytes, txtSame)
 	b64String := string(b64Bytes)
 
 	b.ResetTimer()
-	for n := 0; n < b.N; n++ {
+	for i := 0; i < b.N; i++ {
 		dstTxt, err := base64.RawURLEncoding.DecodeString(b64String)
 		if err != nil {
 			panic(err)
 		}
 
+		same := i%2 == 0
 		var ok bool
-		if n%2 == 0 {
+		if same {
 			ok = bytes.Equal(dstTxt, txtSame)
 		} else {
 			ok = bytes.Equal(dstTxt, txtDiff)
 		}
-		_ = ok
+
+		if ok != same {
+			b.Errorf("#%d same=%v ok=%v", i, same, ok)
+		}
 	}
 }

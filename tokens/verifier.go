@@ -39,6 +39,7 @@ type Tokenizer interface {
 type Verifier interface {
 	Claims(accessToken []byte) (*AccessClaims, error)
 	Verify(headerPayload, signature []byte) bool
+	Reuse() bool
 }
 
 // NewVerifier creates a new Verifier to speed up the verification
@@ -59,13 +60,13 @@ type Verifier interface {
 // NewVerifier converts the verification key into binary DER form
 // depending on the key string length and the optional algo name.
 // The algo name is case insensitive.
-func NewVerifier(algoKey string) (Verifier, error) {
+func NewVerifier(algoKey string, reuse bool) (Verifier, error) {
 	slice := strings.SplitN(algoKey, ":", 2)
 	switch len(slice) {
 	case 0:
 		log.Panic("NewVerifier parameter must not be empty")
 	case 1:
-		return NewHMAC(algoKey) // here algoKey is just the secret-key
+		return NewHMAC(algoKey, reuse) // here algoKey is just the secret-key
 	}
 
 	algo := strings.ToUpper(slice[0])
@@ -73,34 +74,34 @@ func NewVerifier(algoKey string) (Verifier, error) {
 
 	switch algo {
 	case "HTTP", "HTTPS":
-		return RequestAlgoKey(algoKey) // here algoKey is an URL
+		return RequestAlgoKey(algoKey, reuse) // here algoKey is an URL
 	case "HMAC":
-		return NewHMAC(keyStr)
+		return NewHMAC(keyStr, reuse)
 	case "HS256":
-		return NewHS256(keyStr)
+		return NewHS256(keyStr, reuse)
 	case "HS384":
-		return NewHS384(keyStr)
+		return NewHS384(keyStr, reuse)
 	case "HS512":
-		return NewHS512(keyStr)
+		return NewHS512(keyStr, reuse)
 	case "RS256", "RS384", "RS512":
-		return NewRSA(algo, keyStr)
+		log.Panic(algo + notSupportedNotice)
 	case "PS256", "PS384", "PS512":
 		log.Panic(algo + notSupportedNotice)
 	case "ES256":
-		return NewES256(keyStr)
+		return NewES256(keyStr, reuse)
 	case "ES384":
-		return NewES384(keyStr)
+		return NewES384(keyStr, reuse)
 	case "ES512":
-		return NewES512(keyStr)
+		return NewES512(keyStr, reuse)
 	case "EDDSA":
-		return NewEdDSA(keyStr)
+		return NewEdDSA(keyStr, reuse)
 	}
 
 	log.Errorf("Unexpected scheme %q in algoKey=%q", slice[0], algoKey)
 	return nil, ErrAlgoKeyScheme
 }
 
-func RequestAlgoKey(uri string) (Verifier, error) {
+func RequestAlgoKey(uri string, reuse bool) (Verifier, error) {
 	if p := gg.Printable(uri); p >= 0 {
 		return nil, fmt.Errorf("Unprintable character at position %d in sanitized URL=%q", p, uri)
 	}
@@ -137,7 +138,7 @@ func RequestAlgoKey(uri string) (Verifier, error) {
 				}
 
 				algoKey := m.Alg + ":" + m.Key
-				return NewVerifier(algoKey)
+				return NewVerifier(algoKey, reuse)
 			}
 		}
 	}
@@ -146,15 +147,31 @@ func RequestAlgoKey(uri string) (Verifier, error) {
 }
 
 type (
-	// HS256 requires a 32-bytes secret key.
-	HS256 struct{ Key []byte }
-	HS384 struct{ Key []byte }
-	HS512 struct{ Key []byte }
-	EdDSA struct{ Key []byte }
-	ES256 struct{ Key *ecdsa.PublicKey }
-	ES384 struct{ Key *ecdsa.PublicKey }
-	ES512 struct{ Key *ecdsa.PublicKey }
+	Base struct {
+		reuse bool
+	}
+
+	BytesKey struct {
+		Base
+		key []byte
+	}
+
+	ECDSA struct {
+		Base
+		key *ecdsa.PublicKey
+	}
+
+	HS256 struct{ BytesKey }
+	HS384 struct{ BytesKey }
+	HS512 struct{ BytesKey }
+	EdDSA struct{ BytesKey }
+
+	ES256 struct{ ECDSA }
+	ES384 struct{ ECDSA }
+	ES512 struct{ ECDSA }
 )
+
+func (b Base) Reuse() bool { return b.reuse }
 
 /*
 $ go test -v ./tokens/... | grep -w Public
@@ -171,6 +188,7 @@ $ go test -v ./tokens/... | grep -w Public
 */
 
 var (
+	ErrColumnInKey = errors.New("fount a column symbol in the key string but tokens.NemHMAC(keyStr) does not support AlgoKey scheme => use tokens.NewVerifier(algoKey)")
 	ErrHMACKey     = errors.New("cannot decode the HMAC key, please provide a key in hexadecimal or Base64 form (64, 96 or 128 hexadecimal digits ; 43, 64 or 86 Base64 characters)")
 	ErrHS256PubKey = errors.New("cannot decode the HMAC-SHA256 key, please provide 64 hexadecimal digits or a Base64 string containing about 43 characters")
 	ErrHS384PubKey = errors.New("cannot decode the HMAC-SHA384 key, please provide 96 hexadecimal digits or a Base64 string containing 64 characters")
@@ -182,31 +200,48 @@ var (
 	ErrECDSAPubKey = errors.New("cannot parse the DER bytes as a valid ECDSA public key")
 )
 
-func NewHS256(keyStr string) (*HS256, error) {
+// NewHMAC creates an asymmetric-key Tokenizer based on HMAC algorithms.
+func NewHMAC(keyStr string, reuse bool) (Tokenizer, error) {
+	if strings.ContainsRune(keyStr, ':') {
+		return nil, ErrColumnInKey
+	}
+	if tokenizer, err := NewHS256(keyStr, reuse); err == nil {
+		return tokenizer, nil
+	}
+	if tokenizer, err := NewHS384(keyStr, reuse); err == nil {
+		return tokenizer, nil
+	}
+	if tokenizer, err := NewHS512(keyStr, reuse); err == nil {
+		return tokenizer, nil
+	}
+	return nil, ErrHMACKey
+}
+
+func NewHS256(keyStr string, reuse bool) (*HS256, error) {
 	key := decodeKeyInHexOrB64(keyStr, 32)
 	if key == nil {
 		return nil, ErrHS256PubKey
 	}
-	return &HS256{key}, nil
+	return &HS256{BytesKey{Base{reuse}, key}}, nil
 }
 
-func NewHS384(keyStr string) (*HS384, error) {
+func NewHS384(keyStr string, reuse bool) (*HS384, error) {
 	key := decodeKeyInHexOrB64(keyStr, 48)
 	if key == nil {
 		return nil, ErrHS384PubKey
 	}
-	return &HS384{key}, nil
+	return &HS384{BytesKey{Base{reuse}, key}}, nil
 }
 
-func NewHS512(keyStr string) (*HS512, error) {
+func NewHS512(keyStr string, reuse bool) (*HS512, error) {
 	key := decodeKeyInHexOrB64(keyStr, 64)
 	if key == nil {
 		return nil, ErrHS512PubKey
 	}
-	return &HS512{key}, nil
+	return &HS512{BytesKey{Base{reuse}, key}}, nil
 }
 
-func NewEdDSA(keyStr string) (*EdDSA, error) {
+func NewEdDSA(keyStr string, reuse bool) (*EdDSA, error) {
 	der := decodeKeyInHexOrB64(keyStr, 44)
 	if der == nil {
 		return nil, ErrEdDSAPubKey
@@ -219,10 +254,10 @@ func NewEdDSA(keyStr string) (*EdDSA, error) {
 	if !ok {
 		return nil, ErrECDSAPubKey
 	}
-	return &EdDSA{edPubKey}, nil
+	return &EdDSA{BytesKey{Base{reuse}, edPubKey}}, nil
 }
 
-func NewES256(keyStr string) (*ES256, error) {
+func NewES256(keyStr string, reuse bool) (*ES256, error) {
 	key := decodeKeyInHexOrB64(keyStr, 91)
 	if key == nil {
 		return nil, ErrES256PubKey
@@ -235,10 +270,10 @@ func NewES256(keyStr string) (*ES256, error) {
 	if !ok {
 		return nil, ErrECDSAPubKey
 	}
-	return &ES256{ecPubKey}, nil
+	return &ES256{ECDSA{Base{reuse}, ecPubKey}}, nil
 }
 
-func NewES384(keyStr string) (*ES384, error) {
+func NewES384(keyStr string, reuse bool) (*ES384, error) {
 	key := decodeKeyInHexOrB64(keyStr, 120)
 	if key == nil {
 		return nil, ErrES384PubKey
@@ -251,10 +286,10 @@ func NewES384(keyStr string) (*ES384, error) {
 	if !ok {
 		return nil, ErrECDSAPubKey
 	}
-	return &ES384{ecPubKey}, nil
+	return &ES384{ECDSA{Base{reuse}, ecPubKey}}, nil
 }
 
-func NewES512(keyStr string) (*ES512, error) {
+func NewES512(keyStr string, reuse bool) (*ES512, error) {
 	key := decodeKeyInHexOrB64(keyStr, 158)
 	if key == nil {
 		return nil, ErrES512PubKey
@@ -267,25 +302,7 @@ func NewES512(keyStr string) (*ES512, error) {
 	if !ok {
 		return nil, ErrECDSAPubKey
 	}
-	return &ES512{ecPubKey}, nil
-}
-
-func NewRSA(algo, keyStr string) (Verifier, error) { return nil, nil } // TODO
-
-func NewHMAC(keyStr string) (Tokenizer, error) {
-	if tokenizer, err := NewHS256(keyStr); err == nil {
-		return tokenizer, nil
-	}
-
-	if tokenizer, err := NewHS384(keyStr); err == nil {
-		return tokenizer, nil
-	}
-
-	if tokenizer, err := NewHS512(keyStr); err == nil {
-		return tokenizer, nil
-	}
-
-	return nil, ErrHMACKey
+	return &ES512{ECDSA{Base{reuse}, ecPubKey}}, nil
 }
 
 func decodeKeyInHexOrB64(keyStr string, wantLen int) (key []byte) {
@@ -324,40 +341,86 @@ func decodeKeyInHexOrB64(keyStr string, wantLen int) (key []byte) {
 }
 
 func (v *HS256) GenAccessToken(timeout, maxTTL, user string, groups, orgs []string) (string, error) {
-	return GenAccessToken(timeout, maxTTL, user, groups, orgs, v.Key)
+	return GenAccessToken(timeout, maxTTL, user, groups, orgs, v.key)
 }
 
 func (v *HS384) GenAccessToken(timeout, maxTTL, user string, groups, orgs []string) (string, error) {
-	return GenAccessTokenWithAlgo("HS384", timeout, maxTTL, user, groups, orgs, v.Key)
+	return GenAccessTokenWithAlgo("HS384", timeout, maxTTL, user, groups, orgs, v.key)
 }
 
 func (v *HS512) GenAccessToken(timeout, maxTTL, user string, groups, orgs []string) (string, error) {
-	return GenAccessTokenWithAlgo("HS512", timeout, maxTTL, user, groups, orgs, v.Key)
+	return GenAccessTokenWithAlgo("HS512", timeout, maxTTL, user, groups, orgs, v.key)
 }
 
 func (v *HS256) Verify(hp, sig []byte) bool { return verify(v, hp, sig) }
 func (v *HS384) Verify(hp, sig []byte) bool { return verify(v, hp, sig) }
 func (v *HS512) Verify(hp, sig []byte) bool { return verify(v, hp, sig) }
-func (v *ES256) Verify(hp, sig []byte) bool { return ecdsaVerify(crypto.SHA256.New(), v.Key, hp, sig) }
-func (v *ES384) Verify(hp, sig []byte) bool { return ecdsaVerify(crypto.SHA384.New(), v.Key, hp, sig) }
-func (v *ES512) Verify(hp, sig []byte) bool { return ecdsaVerify(crypto.SHA512.New(), v.Key, hp, sig) }
-func (v *EdDSA) Verify(hp, sig []byte) bool { return ed25519.Verify(v.Key, hp, sig) }
+func (v *ES256) Verify(hp, sig []byte) bool { return v.verify(crypto.SHA256.New(), hp, sig) }
+func (v *ES384) Verify(hp, sig []byte) bool { return v.verify(crypto.SHA384.New(), hp, sig) }
+func (v *ES512) Verify(hp, sig []byte) bool { return v.verify(crypto.SHA512.New(), hp, sig) }
+func (v *EdDSA) Verify(hp, sig []byte) bool { return v.verify(hp, sig) }
 
-func verify[T Tokenizer](v T, headerPayload, signature []byte) bool {
-	ourSignature := v.Sign(headerPayload)
-	return bytes.Equal(ourSignature, signature)
+// Sign return the signature of the first two parts.
+// It allocates hmac.New() each time to avoid race condition.
+func (v *HS256) Sign(hp []byte) []byte { return sign(hmac.New(sha256.New, v.key), hp) }
+func (v *HS384) Sign(hp []byte) []byte { return sign(hmac.New(sha512.New384, v.key), hp) }
+func (v *HS512) Sign(hp []byte) []byte { return sign(hmac.New(sha512.New, v.key), hp) }
+
+func sign(digest hash.Hash, headerPayload []byte) []byte {
+	digest.Write(headerPayload)
+	sigBin := digest.Sum(nil)
+	b64Len := base64.RawURLEncoding.EncodedLen(len(sigBin))
+	sigB64 := make([]byte, b64Len)
+	base64.RawURLEncoding.Encode(sigB64, sigBin)
+	return sigB64
 }
 
-func ecdsaVerify(digest hash.Hash, pub *ecdsa.PublicKey, headerPayload, sig []byte) bool {
+func verify(v Tokenizer, headerPayload, jwtSignature []byte) bool {
+	ourSignature := v.Sign(headerPayload)
+	return bytes.Equal(ourSignature, jwtSignature)
+}
+
+func (v *ECDSA) verify(digest hash.Hash, headerPayload, sig []byte) bool {
+	sig, err := B64Decode(sig, v.Reuse())
+	if err != nil {
+		return false
+	}
 	digest.Write(headerPayload)
 	r := big.NewInt(0).SetBytes(sig[:len(sig)/2])
 	s := big.NewInt(0).SetBytes(sig[len(sig)/2:])
-	return ecdsa.Verify(pub, digest.Sum(nil), r, s)
+	return ecdsa.Verify(v.key, digest.Sum(nil), r, s)
 }
 
-func ecdsaVerify2(digest hash.Hash, pub *ecdsa.PublicKey, headerPayload, sig []byte) bool {
+func (v *EdDSA) verify(headerPayload, sig []byte) bool {
+	sig, err := B64Decode(sig, v.Reuse())
+	if err != nil {
+		return false
+	}
+	return ed25519.Verify(v.key, headerPayload, sig)
+}
+
+func (v *ECDSA) verifySlower(digest hash.Hash, headerPayload, sig []byte) bool {
+	sig, err := B64Decode(sig, v.Reuse())
+	if err != nil {
+		return false
+	}
 	digest.Write(headerPayload)
-	return ecdsa.VerifyASN1(pub, digest.Sum(nil), sig)
+	return ecdsa.VerifyASN1(v.key, digest.Sum(nil), sig)
+}
+
+// B64Decode avoid allocating memory when reuse=true
+// by reusing the input buffer to return the base64-decoded result.
+func B64Decode(b64 []byte, reuse bool) ([]byte, error) {
+	out := b64
+	if !reuse {
+		size := base64.RawURLEncoding.DecodedLen(len(b64))
+		out = make([]byte, size)
+	}
+	n, err := base64.RawURLEncoding.Decode(out, b64)
+	if err != nil {
+		return nil, err
+	}
+	return out[:n], nil
 }
 
 func (v *HS256) Claims(JWT []byte) (*AccessClaims, error) { return claims(v, JWT) }
@@ -374,48 +437,19 @@ func claims[T Verifier](v T, accessToken []byte) (*AccessClaims, error) {
 		return nil, err
 	}
 
-	payload := accessToken[p1+1 : p2]
-	ac, err := AccessClaimsFromBase64(payload)
-	if err != nil {
-		return nil, err
-	}
-
 	headerPayload := accessToken[:p2]
 	signature := accessToken[p2+1:]
 	if !v.Verify(headerPayload, signature) {
 		return nil, ErrJWTSignature
 	}
 
+	payload := accessToken[p1+1 : p2]
+	ac, err := AccessClaimsFromBase64(payload, v.Reuse())
+	if err != nil {
+		return nil, err
+	}
+
 	return ac, nil
-}
-
-// Sign return the signature of the first two parts.
-// It allocates hmac.New() each time to avoid race condition.
-func (v *HS256) Sign(headerPayload []byte) []byte {
-	digest := hmac.New(sha256.New, v.Key)
-	digest.Write(headerPayload)
-	signatureBin := digest.Sum(nil)
-	signatureB64 := make([]byte, len(signatureBin)*4/3+1)
-	base64.RawURLEncoding.Encode(signatureB64, signatureBin)
-	return signatureB64
-}
-
-func (v *HS384) Sign(headerPayload []byte) []byte {
-	digest := hmac.New(sha512.New384, v.Key)
-	digest.Write(headerPayload)
-	signatureBin := digest.Sum(nil)
-	signatureB64 := make([]byte, len(signatureBin)*4/3+1)
-	base64.RawURLEncoding.Encode(signatureB64, signatureBin)
-	return signatureB64
-}
-
-func (v *HS512) Sign(headerPayload []byte) []byte {
-	digest := hmac.New(sha512.New, v.Key)
-	digest.Write(headerPayload)
-	signatureBin := digest.Sum(nil)
-	signatureB64 := make([]byte, len(signatureBin)*4/3+1)
-	base64.RawURLEncoding.Encode(signatureB64, signatureBin)
-	return signatureB64
 }
 
 // SplitThreeParts returns the period position decompose the JWT in three parts
@@ -428,20 +462,31 @@ func SplitThreeParts(JWT []byte) (p1, p2 int, _ error) {
 	return p1, p2, nil
 }
 
-func AccessClaimsFromBase64(b64 []byte) (*AccessClaims, error) {
-	claimsTxt := make([]byte, len(b64)*3/4)
-	_, err := base64.RawURLEncoding.Decode(claimsTxt, b64)
+func AccessClaimsFromBase64(payload []byte, reuse bool) (*AccessClaims, error) {
+	payload, err := B64Decode(payload, reuse)
 	if err != nil {
 		return nil, ErrNoBase64JWT
 	}
 
 	var claims AccessClaims
-	if err := claims.UnmarshalJSON(claimsTxt); err != nil {
-		return nil, &claimError{err, claimsTxt}
+	if err := claims.UnmarshalJSON(payload); err != nil {
+		return nil, &claimError{err, payload}
 	}
 
 	err = claims.Valid() // error can be: expired or invalid access token
 	return &claims, err
+}
+
+// trimRightNull drops potential ending null bytes
+func trimRightNull(b []byte) []byte {
+	i := len(b)
+	for i > 0 {
+		if b[i-1] != 0 {
+			break
+		}
+		i--
+	}
+	return b[:i]
 }
 
 type claimError struct {

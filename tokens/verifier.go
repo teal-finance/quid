@@ -23,13 +23,6 @@ import (
 	"github.com/teal-finance/quid/server"
 )
 
-var (
-	ErrThreeParts    = errors.New("JWT must be composed of three parts separated by periods")
-	ErrJWTSignature  = errors.New("JWT signature mismatch")
-	ErrNoBase64JWT   = errors.New("the token claims (second part of the JWT) is not base64-valid")
-	ErrAlgoKeyScheme = errors.New("Unexpected AlgoKey scheme")
-)
-
 type Tokenizer interface {
 	GenAccessToken(timeout, maxTTL, user string, groups, orgs []string) (string, error)
 	Sign(headerPayload []byte) []byte
@@ -84,9 +77,9 @@ func NewVerifier(algoKey string, reuse bool) (Verifier, error) {
 	case "HS512":
 		return NewHS512(keyStr, reuse)
 	case "RS256", "RS384", "RS512":
-		log.Panic(algo + notSupportedNotice)
+		return nil, log.ParamError(algo + notSupportedNotice).Err()
 	case "PS256", "PS384", "PS512":
-		log.Panic(algo + notSupportedNotice)
+		return nil, log.ParamError(algo + notSupportedNotice).Err()
 	case "ES256":
 		return NewES256(keyStr, reuse)
 	case "ES384":
@@ -97,8 +90,7 @@ func NewVerifier(algoKey string, reuse bool) (Verifier, error) {
 		return NewEdDSA(keyStr, reuse)
 	}
 
-	log.Errorf("Unexpected scheme %q in algoKey=%q", slice[0], algoKey)
-	return nil, ErrAlgoKeyScheme
+	return nil, log.ParamErrorf("Unexpected AlgoKey scheme %q in algoKey=%q", slice[0], algoKey).Err()
 }
 
 func RequestAlgoKey(uri string, reuse bool) (Verifier, error) {
@@ -146,32 +138,47 @@ func RequestAlgoKey(uri string, reuse bool) (Verifier, error) {
 	return nil, err
 }
 
+type Base struct {
+	reuse bool
+}
+
+func (b Base) Reuse() bool { return b.reuse }
+
+type BytesKey struct {
+	Base
+	key []byte
+}
+
+type ECDSA struct {
+	Base
+	key *ecdsa.PublicKey
+}
+
 type (
-	Base struct {
-		reuse bool
-	}
-
-	BytesKey struct {
-		Base
-		key []byte
-	}
-
-	ECDSA struct {
-		Base
-		key *ecdsa.PublicKey
-	}
-
 	HS256 struct{ BytesKey }
 	HS384 struct{ BytesKey }
 	HS512 struct{ BytesKey }
 	EdDSA struct{ BytesKey }
-
 	ES256 struct{ ECDSA }
 	ES384 struct{ ECDSA }
 	ES512 struct{ ECDSA }
 )
 
-func (b Base) Reuse() bool { return b.reuse }
+var (
+	ErrThreeParts   = errors.New("JWT must be composed of three parts separated by periods")
+	ErrJWTSignature = errors.New("JWT signature mismatch")
+	ErrNoBase64JWT  = errors.New("the token claims (second part of the JWT) is not base64-valid")
+	ErrColumnInKey  = errors.New("fount a column symbol in the key string but tokens.NemHMAC(keyStr) does not support AlgoKey scheme => use tokens.NewVerifier(algoKey)")
+	ErrHMACKey      = errors.New("cannot decode the HMAC key, please provide a key in hexadecimal or Base64 form (64, 96 or 128 hexadecimal digits ; 43, 64 or 86 Base64 characters)")
+	ErrHS256PubKey  = errors.New("cannot decode the HMAC-SHA256 key, please provide 64 hexadecimal digits or a Base64 string containing about 43 characters")
+	ErrHS384PubKey  = errors.New("cannot decode the HMAC-SHA384 key, please provide 96 hexadecimal digits or a Base64 string containing 64 characters")
+	ErrHS512PubKey  = errors.New("cannot decode the HMAC-SHA512 key, please provide 128 hexadecimal digits or a Base64 string containing about 86 characters")
+	ErrEdDSAPubKey  = errors.New("cannot decode the EdDSA public key, please provide 88 hexadecimal digits or a Base64 string containing about 59 characters")
+	ErrES256PubKey  = errors.New("cannot decode the ECDSA-P256-SHA256 public key, please provide 182 hexadecimal digits or a Base64 string containing about 122 characters")
+	ErrES384PubKey  = errors.New("cannot decode the ECDSA-P384-SHA384 public key, please provide 240 hexadecimal digits or a Base64 string containing 160 characters")
+	ErrES512PubKey  = errors.New("cannot decode the ECDSA-P512-SHA512 public key, please provide 316 hexadecimal digits or a Base64 string containing about 211 characters")
+	ErrECDSAPubKey  = errors.New("cannot parse the DER bytes as a valid ECDSA public key")
+)
 
 /*
 $ go test -v ./tokens/... | grep -w Public
@@ -186,19 +193,6 @@ $ go test -v ./tokens/... | grep -w Public
     tokens_test.go:155: RS512 Public  key len= 294
     tokens_test.go:155: RS256 Public  key len= 294
 */
-
-var (
-	ErrColumnInKey = errors.New("fount a column symbol in the key string but tokens.NemHMAC(keyStr) does not support AlgoKey scheme => use tokens.NewVerifier(algoKey)")
-	ErrHMACKey     = errors.New("cannot decode the HMAC key, please provide a key in hexadecimal or Base64 form (64, 96 or 128 hexadecimal digits ; 43, 64 or 86 Base64 characters)")
-	ErrHS256PubKey = errors.New("cannot decode the HMAC-SHA256 key, please provide 64 hexadecimal digits or a Base64 string containing about 43 characters")
-	ErrHS384PubKey = errors.New("cannot decode the HMAC-SHA384 key, please provide 96 hexadecimal digits or a Base64 string containing 64 characters")
-	ErrHS512PubKey = errors.New("cannot decode the HMAC-SHA512 key, please provide 128 hexadecimal digits or a Base64 string containing about 86 characters")
-	ErrEdDSAPubKey = errors.New("cannot decode the EdDSA public key, please provide 88 hexadecimal digits or a Base64 string containing about 59 characters")
-	ErrES256PubKey = errors.New("cannot decode the ECDSA-P256-SHA256 public key, please provide 182 hexadecimal digits or a Base64 string containing about 122 characters")
-	ErrES384PubKey = errors.New("cannot decode the ECDSA-P384-SHA384 public key, please provide 240 hexadecimal digits or a Base64 string containing 160 characters")
-	ErrES512PubKey = errors.New("cannot decode the ECDSA-P512-SHA512 public key, please provide 316 hexadecimal digits or a Base64 string containing about 211 characters")
-	ErrECDSAPubKey = errors.New("cannot parse the DER bytes as a valid ECDSA public key")
-)
 
 // NewHMAC creates an asymmetric-key Tokenizer based on HMAC algorithms.
 func NewHMAC(keyStr string, reuse bool) (Tokenizer, error) {
@@ -218,7 +212,7 @@ func NewHMAC(keyStr string, reuse bool) (Tokenizer, error) {
 }
 
 func NewHS256(keyStr string, reuse bool) (*HS256, error) {
-	key := decodeKeyInHexOrB64(keyStr, 32)
+	key := DecodeHexOrB64(keyStr, 32)
 	if key == nil {
 		return nil, ErrHS256PubKey
 	}
@@ -226,7 +220,7 @@ func NewHS256(keyStr string, reuse bool) (*HS256, error) {
 }
 
 func NewHS384(keyStr string, reuse bool) (*HS384, error) {
-	key := decodeKeyInHexOrB64(keyStr, 48)
+	key := DecodeHexOrB64(keyStr, 48)
 	if key == nil {
 		return nil, ErrHS384PubKey
 	}
@@ -234,7 +228,7 @@ func NewHS384(keyStr string, reuse bool) (*HS384, error) {
 }
 
 func NewHS512(keyStr string, reuse bool) (*HS512, error) {
-	key := decodeKeyInHexOrB64(keyStr, 64)
+	key := DecodeHexOrB64(keyStr, 64)
 	if key == nil {
 		return nil, ErrHS512PubKey
 	}
@@ -242,7 +236,7 @@ func NewHS512(keyStr string, reuse bool) (*HS512, error) {
 }
 
 func NewEdDSA(keyStr string, reuse bool) (*EdDSA, error) {
-	der := decodeKeyInHexOrB64(keyStr, 44)
+	der := DecodeHexOrB64(keyStr, 44)
 	if der == nil {
 		return nil, ErrEdDSAPubKey
 	}
@@ -258,7 +252,7 @@ func NewEdDSA(keyStr string, reuse bool) (*EdDSA, error) {
 }
 
 func NewES256(keyStr string, reuse bool) (*ES256, error) {
-	key := decodeKeyInHexOrB64(keyStr, 91)
+	key := DecodeHexOrB64(keyStr, 91)
 	if key == nil {
 		return nil, ErrES256PubKey
 	}
@@ -274,7 +268,7 @@ func NewES256(keyStr string, reuse bool) (*ES256, error) {
 }
 
 func NewES384(keyStr string, reuse bool) (*ES384, error) {
-	key := decodeKeyInHexOrB64(keyStr, 120)
+	key := DecodeHexOrB64(keyStr, 120)
 	if key == nil {
 		return nil, ErrES384PubKey
 	}
@@ -290,7 +284,7 @@ func NewES384(keyStr string, reuse bool) (*ES384, error) {
 }
 
 func NewES512(keyStr string, reuse bool) (*ES512, error) {
-	key := decodeKeyInHexOrB64(keyStr, 158)
+	key := DecodeHexOrB64(keyStr, 158)
 	if key == nil {
 		return nil, ErrES512PubKey
 	}
@@ -305,39 +299,40 @@ func NewES512(keyStr string, reuse bool) (*ES512, error) {
 	return &ES512{ECDSA{Base{reuse}, ecPubKey}}, nil
 }
 
-func decodeKeyInHexOrB64(keyStr string, wantLen int) (key []byte) {
-	wantHex := wantLen * 2
-	wantB64 := wantLen * 4 / 3
+func DecodeHexOrB64(keyStr string, binLen int) (keyBin []byte) {
+	strLen := len(keyStr)
+	hexLen := binLen * 2
+	b64Len := base64.RawURLEncoding.EncodedLen(binLen)
 
 	var err error
 
-	if len(keyStr) == wantHex {
-		key, err = hex.DecodeString(keyStr)
+	if strLen == hexLen {
+		keyBin, err = hex.DecodeString(keyStr)
 		if err != nil {
 			log.Warn(err)
 			return nil
 		}
-	} else if wantB64-1 <= len(keyStr) && len(keyStr) <= wantB64+1 {
-		key, err = base64.RawURLEncoding.DecodeString(keyStr)
+	} else if b64Len-1 <= strLen && strLen <= b64Len+1 {
+		keyBin, err = base64.RawURLEncoding.DecodeString(keyStr)
 		if err != nil {
 			log.Warn(err)
 			return nil
 		}
-		switch len(key) {
-		case wantLen - 1:
-			key = append(key, 0)
-		case wantLen + 1:
-			key = key[:wantLen]
+		switch len(keyBin) {
+		case binLen - 1:
+			keyBin = append(keyBin, 0)
+		case binLen + 1:
+			keyBin = keyBin[:binLen]
 		}
 	} else {
 		return nil
 	}
 
-	if len(key) != wantLen {
-		log.Panic("want=", wantLen, "got=", len(key))
+	if len(keyBin) != binLen {
+		log.Panic("want=", binLen, "got=", len(keyBin))
 	}
 
-	return key
+	return keyBin
 }
 
 func (v *HS256) GenAccessToken(timeout, maxTTL, user string, groups, orgs []string) (string, error) {

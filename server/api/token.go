@@ -221,11 +221,11 @@ func validAccessToken(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		log.Result("Invalid AccessToken:", err)
 		w.WriteHeader(http.StatusConflict)
-		_, _ = w.Write([]byte(`{"valid":false}`))
+		w.Write([]byte(`{"valid":false}`))
 	} else {
 		log.Result("Valid AccessToken")
 		w.WriteHeader(http.StatusOK)
-		_, _ = w.Write([]byte(`{"valid":true}`))
+		w.Write([]byte(`{"valid":true}`))
 	}
 }
 

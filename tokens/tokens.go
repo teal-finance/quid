@@ -18,6 +18,7 @@ import (
 
 	"github.com/golang-jwt/jwt/v4"
 	"github.com/teal-finance/emo"
+	"github.com/teal-finance/garcon/gg"
 	"github.com/teal-finance/garcon/timex"
 	"github.com/teal-finance/quid/crypt"
 )
@@ -277,7 +278,7 @@ func GenerateKeyHMAC(bits int) []byte {
 		check = true
 	}
 
-	randomBytes := GenerateRandomBytes(bits / 8)
+	randomBytes := gg.RandomBytes(bits / 8)
 
 	if check {
 		var digest hash.Hash
@@ -298,14 +299,6 @@ func GenerateKeyHMAC(bits int) []byte {
 	}
 
 	return randomBytes
-}
-
-func GenerateRandomBytes(n int) []byte {
-	b := make([]byte, n)
-	if _, err := rand.Read(b); err != nil {
-		log.Panic(err)
-	}
-	return b
 }
 
 // GenerateKeyRSA generates a random RSA private key in DER format.

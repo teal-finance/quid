@@ -4,11 +4,12 @@ import (
 	"bytes"
 	"crypto/rand"
 	"encoding/base64"
+	"encoding/hex"
 	"reflect"
 	"strings"
 	"testing"
 
-	turbobase64 "github.com/cristalhq/base64"
+	turbo64 "github.com/cristalhq/base64"
 	"github.com/golang-jwt/jwt/v4"
 
 	"github.com/teal-finance/emo"
@@ -132,7 +133,7 @@ func TestNewAccessToken(t *testing.T) {
 
 	emo.GlobalColoring(false)
 
-	for _, c := range cases {
+	for i, c := range cases {
 		c := c
 
 		t.Run(c.name, func(t *testing.T) {
@@ -170,7 +171,7 @@ func TestNewAccessToken(t *testing.T) {
 				t.Error("public keys are not equal")
 			}
 
-			tokenStr, err := tokens.GenAccessTokenWithAlgo(c.timeout, c.maxTTL, c.user, c.groups, c.orgs, algo, privateKey)
+			tokenStr, err := tokens.GenAccessTokenWithAlgo(algo, c.timeout, c.maxTTL, c.user, c.groups, c.orgs, privateKey)
 			if (err != nil) != c.wantNewErr {
 				t.Errorf("NewAccessToken() error = %v, wantNewErr %v", err, c.wantNewErr)
 				return
@@ -189,10 +190,46 @@ func TestNewAccessToken(t *testing.T) {
 
 			if err := token.Claims.Valid(); err != nil {
 				t.Error("token.Claims.Valid:", err)
+				return
+			}
+			if err := claims.Valid(); err != nil {
+				t.Error("claims.Valid:", err)
+				return
 			}
 
 			if err := tokens.ValidAccessToken(tokenStr, algo, publicDER); err != nil {
 				t.Error("ValidAccessToken:", err)
+				return
+			}
+
+			var publicDERStr string
+			if i%2 == 0 {
+				publicDERStr = hex.EncodeToString(publicDER)
+			} else {
+				publicDERStr = base64.RawURLEncoding.EncodeToString(publicDER)
+			}
+
+			algoPubKey := algo + ":" + publicDERStr
+			v, err := tokens.NewVerifier(algoPubKey)
+			if err != nil {
+				t.Error("tokens.NewVerifier error:", err)
+				return
+			}
+
+			if v == nil {
+				return
+			}
+
+			ac, err := v.Claims([]byte(tokenStr))
+			if err != nil {
+				t.Error("Verifier.Claims error:", err)
+				return
+			}
+
+			if !reflect.DeepEqual(ac, &claims) {
+				t.Error("Different Claims")
+				t.Error("claims=", claims)
+				t.Error("ac    =", ac)
 			}
 		})
 	}
@@ -220,12 +257,14 @@ PASS
 ok      github.com/teal-finance/quid/tokens     6.254s
 */
 
+const jwtSample = `{"usr":"jane","grp":["group1","group2"],"org":["organization1","organization2"],"exp":1595950745}`
+
 func BenchmarkBase64Encode(b *testing.B) {
-	srcTxt := []byte(`{"usr": "jane","grp": ["group1", "group2"],"org": ["organization1", "organization2"],"exp": 1595950745}`)
+	srcTxt := []byte(jwtSample)
 	b64BytesSame := make([]byte, len(srcTxt)*4/3+1)
 	base64.RawURLEncoding.Encode(b64BytesSame, []byte(srcTxt))
 	b64BytesDiff := make([]byte, len(srcTxt)*4/3+1)
-	_, _ = rand.Read(b64BytesDiff)
+	rand.Read(b64BytesDiff)
 
 	b.ResetTimer()
 	for n := 0; n < b.N; n++ {
@@ -244,16 +283,16 @@ func BenchmarkBase64Encode(b *testing.B) {
 }
 
 func BenchmarkBase64EncodeTurbo(b *testing.B) {
-	srcTxt := []byte(`{"usr": "jane","grp": ["group1", "group2"],"org": ["organization1", "organization2"],"exp": 1595950745}`)
+	srcTxt := []byte(jwtSample)
 	b64BytesSame := make([]byte, len(srcTxt)*4/3+1)
 	base64.RawURLEncoding.Encode(b64BytesSame, []byte(srcTxt))
 	b64BytesDiff := make([]byte, len(srcTxt)*4/3+1)
-	_, _ = rand.Read(b64BytesDiff)
+	rand.Read(b64BytesDiff)
 
 	b.ResetTimer()
 	for n := 0; n < b.N; n++ {
 		dstBase64Bytes := make([]byte, len(srcTxt)*4/3+1)
-		turbobase64.RawURLEncoding.Encode(dstBase64Bytes, srcTxt)
+		turbo64.RawURLEncoding.Encode(dstBase64Bytes, srcTxt)
 		_ = dstBase64Bytes
 
 		var ok bool
@@ -267,11 +306,11 @@ func BenchmarkBase64EncodeTurbo(b *testing.B) {
 }
 
 func BenchmarkBase64EncodeString(b *testing.B) {
-	srcTxt := `{"usr": "jane","grp": ["group1", "group2"],"org": ["organization1", "organization2"],"exp": 1595950745}`
+	srcTxt := []byte(jwtSample)
 	b64BytesSame := make([]byte, len(srcTxt)*4/3+1)
 	base64.RawURLEncoding.Encode(b64BytesSame, []byte(srcTxt))
 	b64BytesDiff := make([]byte, len(srcTxt)*4/3+1)
-	_, _ = rand.Read(b64BytesDiff)
+	rand.Read(b64BytesDiff)
 
 	b.ResetTimer()
 	for n := 0; n < b.N; n++ {
@@ -289,9 +328,9 @@ func BenchmarkBase64EncodeString(b *testing.B) {
 }
 
 func BenchmarkBase64Decode(b *testing.B) {
-	txtSame := []byte(`{"usr": "jane","grp": ["group1", "group2"],"org": ["organization1", "organization2"],"exp": 1595950745}`)
+	txtSame := []byte(jwtSample)
 	txtDiff := make([]byte, len(txtSame))
-	_, _ = rand.Read(txtDiff)
+	rand.Read(txtDiff)
 
 	b64 := make([]byte, len(txtSame)*4/3+1)
 	base64.RawURLEncoding.Encode(b64, txtSame)
@@ -315,9 +354,9 @@ func BenchmarkBase64Decode(b *testing.B) {
 }
 
 func BenchmarkBase64DecodeTurbo(b *testing.B) {
-	txtSame := []byte(`{"usr": "jane","grp": ["group1", "group2"],"org": ["organization1", "organization2"],"exp": 1595950745}`)
+	txtSame := []byte(jwtSample)
 	txtDiff := make([]byte, len(txtSame))
-	_, _ = rand.Read(txtDiff)
+	rand.Read(txtDiff)
 
 	b64 := make([]byte, len(txtSame)*4/3+1)
 	base64.RawURLEncoding.Encode(b64, txtSame)
@@ -325,7 +364,7 @@ func BenchmarkBase64DecodeTurbo(b *testing.B) {
 	b.ResetTimer()
 	for n := 0; n < b.N; n++ {
 		dstTxt := make([]byte, len(txtSame))
-		_, err := turbobase64.RawURLEncoding.Decode(dstTxt, b64)
+		_, err := turbo64.RawURLEncoding.Decode(dstTxt, b64)
 		if err != nil {
 			panic(err)
 		}
@@ -341,9 +380,9 @@ func BenchmarkBase64DecodeTurbo(b *testing.B) {
 }
 
 func BenchmarkBase64DecodeString(b *testing.B) {
-	txtSame := []byte(`{"usr": "jane","grp": ["group1", "group2"],"org": ["organization1", "organization2"],"exp": 1595950745}`)
+	txtSame := []byte(jwtSample)
 	txtDiff := make([]byte, len(txtSame))
-	_, _ = rand.Read(txtDiff)
+	rand.Read(txtDiff)
 
 	b64Bytes := make([]byte, len(txtSame)*4/3+1)
 	base64.RawURLEncoding.Encode(b64Bytes, txtSame)

@@ -10,8 +10,6 @@ import (
 )
 
 func CreateQuidAdmin(username, password string) error {
-	log.Data("Initializing Quid database")
-
 	found, err := NamespaceExists("quid")
 	if err != nil {
 		return err
@@ -21,7 +19,7 @@ func CreateQuidAdmin(username, password string) error {
 	if found {
 		nsID, err = SelectNsID("quid")
 	} else {
-		log.Data(`Creating the "quid" namespace`)
+		log.V().Data(`Creating the "quid" namespace`)
 		algo := "HS256"
 		accessKey := tokens.GenerateKeyHMAC(256)
 		refreshKey := tokens.GenerateKeyHMAC(256)
@@ -42,7 +40,7 @@ func CreateQuidAdmin(username, password string) error {
 		g, err = SelectGroup("quid_admin", nsID)
 		gid = g.ID
 	} else {
-		log.Data(`Creating the "quid_admin" group`)
+		log.V().Data(`Creating the "quid_admin" group`)
 		gid, err = CreateGroup("quid_admin", nsID)
 	}
 	if err != nil {
@@ -53,13 +51,13 @@ func CreateQuidAdmin(username, password string) error {
 	if err != nil {
 		return err
 	}
-
 	if n > 0 {
-		log.Data(`There are already %d users in "quid_admin" group => Do not create the Quid Admin user`)
+		log.Dataf(`Quid Admin already created (%d user in "quid_admin" group)`, n)
 		return nil
 	}
 
 	if username == "" {
+		log.V().Input("Enter the Quid Admin username")
 		username, err = promptForUsername()
 		if err != nil {
 			log.ParamError(err)
@@ -68,6 +66,7 @@ func CreateQuidAdmin(username, password string) error {
 	}
 
 	if password == "" {
+		log.V().Input("Enter the Quid Admin password")
 		password, err = promptForPassword()
 		if err != nil {
 			log.ParamError(err)
@@ -75,7 +74,7 @@ func CreateQuidAdmin(username, password string) error {
 		}
 	}
 
-	log.Dataf("Create the Quid Admin user usr=%q pwdLen=%d", username, len(password))
+	log.V().Dataf("Create the Quid Admin user usr=%q pwdLen=%d", username, len(password))
 	u, err := CreateUser(username, password, nsID)
 	if err != nil {
 		return err

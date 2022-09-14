@@ -4,7 +4,6 @@ help:
 	# make quid         Build the backend.
 	#
 	# make run          Run the backend (serves the frontend static files).
-	# make run-dev      Run the backend in dev mode (also serves the frontend).
 	# make run-front    Run the frontend in dev mode (NodeJS serves the frontend).
 	#
 	# make compose-up   Run Quid and Database using podman-compose or docker-compose.
@@ -29,54 +28,32 @@ all: front quid
 .PHONY: front
 front: ui/dist
 
-ui/dist: ui/node_modules ui/node_modules/* ui/node_modules/*/* $(shell find ui/src -type f)
-	yarn    --cwd ui build || \
-	yarnpkg --cwd ui build
+ui/dist: ui/yarn.lock $(shell find ui/src -type f) $(shell find ui/node_modules -iname '*test*' -prune -o -name *.[jt]s -type f -print)
+	cd ui && { yarn build || yarnpkg build ; }
 
 ui/node_modules/*/*: ui/yarn.lock
 ui/node_modules/*:   ui/yarn.lock
 ui/node_modules:     ui/yarn.lock
-	yarn    install --cwd ui --link-duplicates || \
-	yarnpkg install --cwd ui --link-duplicates
-
-ui/yarn.lock: ui/package.json
-	yarn    install --cwd ui --link-duplicates || \
-	yarnpkg install --cwd ui --link-duplicates
-
-quid: cmd/quid/main.go go.sum */*.go */*/*.go
-	# go build -o $@
-	CGO_ENABLED=0 GOFLAGS="-trimpath -modcacherw" GOLDFLAGS="-d -s -w -extldflags=-static" go build -a -tags osusergo,netgo -installsuffix netgo -o $@ $^
-
-go.sum: go.mod
-
-go.mod:
-	go mod tidy
-	go mod verify
-
-.PHONY: run
-run: cmd/quid/main.go go.sum config.json
-	go run $^ -dev -v
-
-.PHONY: run-prod
-run-dev: cmd/quid/main.go go.sum config.json
-	go run $^
-
-config.json:
-	# Create an empty config.json file and customize it:
-	#
-	#    ./quid -conf
-	#    vim config.json
-	#
-	# Initialize the PostreSQL database:
-	#
-	#    ./quid -init
-	#
+ui/yarn.lock:        ui/package.json
+ui/node_modules ui/yarn.lock:
+	cd ui && { yarn install --link-duplicates || yarnpkg install --link-duplicates ; }
 
 .PHONY: run-front
 run-front:
 	cd ui && \
 	{ yarn    --link-duplicates && yarn    dev; } || \
 	{ yarnpkg --link-duplicates && yarnpkg dev; }
+
+.PHONY: run
+run: quid
+	./quid -dev -v
+
+quid: go.sum $(shell find -name *.go)
+	CGO_ENABLED=0 GOFLAGS="-trimpath -modcacherw" GOLDFLAGS="-d -s -w -extldflags=-static" go build -a -tags osusergo,netgo -installsuffix netgo -o $@ ./cmd/quid
+
+go.sum: go.mod
+	go mod tidy
+	go mod verify
 
 define help
 
@@ -176,9 +153,6 @@ up+go: go.sum
 	go get -t -u all
 	go mod tidy
 
-go.sum: go.mod
-	go mod tidy
-
 .PHONY: fmt
 fmt:
 	go generate ./...
@@ -189,7 +163,7 @@ test:
 	go build ./...
 	go test -race -vet all -run=. -bench=. -benchmem -benchtime 10ms -tags=quid -coverprofile=code-coverage.out ./...
 
-code-coverage.out: go.sum */*/*.go */*/*/*.go
+code-coverage.out: go.sum $(shell find -name *.go)
 	go test -race -vet all -run=. -bench=. -benchmem -benchtime 10ms -tags=quid -coverprofile=code-coverage.out ./...
 
 .PHONY: cov
@@ -199,4 +173,4 @@ cov: code-coverage.out
 .PHONY: vet
 vet:
 	go run github.com/golangci/golangci-lint/cmd/golangci-lint@latest run --fix || true
-	go run ./cmd/quid -dev
+	go run -race ./cmd/quid -dev -v

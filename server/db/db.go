@@ -16,10 +16,10 @@ var db *sqlx.DB
 var log = emo.NewZone("db")
 
 // Connect : connect to the db.
-func Connect(dbURL string) error {
-	dbURL = strings.Replace(dbURL, "postgresql://", "postgres://", 1)
+func Connect(url string) error {
+	url = strings.Replace(url, "postgresql://", "postgres://", 1)
 
-	_db, err := sqlx.Connect("postgres", dbURL)
+	_db, err := sqlx.Connect("postgres", url)
 	if err != nil {
 		return err
 	}

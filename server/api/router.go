@@ -24,7 +24,7 @@ func RunServer(port int, devMode bool, wwwDir string) {
 	server := newServer(port, devMode, wwwDir)
 
 	if devMode {
-		log.Info("" + color.BoldRed("Running in development mode"))
+		log.Print(color.BoldRed("Running in development mode"))
 	}
 
 	log.Print("Server listening on " + color.UnderlineBlue("http://localhost"+server.Addr))

@@ -1,28 +1,73 @@
 {
-    "name": "Quid",
-    "description": "A json web tokens server",
-    "repository": "https://github.com/teal-finance/quid",
-    "keywords": [
-        "jwt",
-        "json web tokens"
-    ],
-    "addons": [
-        {
-            "plan": "heroku-postgresql"
-        }
-    ],
-    "env": {
-        "QUID_KEY": {
-            "description": "A secret key for the app",
-            "generator": "secret"
-        },
-        "QUID_ADMIN_USER": {
-            "description": "The admin username",
-            "required": true
-        },
-        "QUID_ADMIN_PWD": {
-            "description": "The admin password",
-            "required": true
-        }
+  "name": "Quid",
+  "description": "JWT server providing Refresh/Access tokens supporting HMAC, RSA, ECDSA and EdDSA",
+  "repository": "https://github.com/teal-finance/quid",
+  "keywords": [
+    "JWT",
+    "JSON Web Token",
+    "Refresh token",
+    "Access token",
+    "HMAC",
+    "RSA",
+    "ECDSA",
+    "EdDSA"
+  ],
+  "addons": [
+    {
+      "plan": "heroku-postgresql"
     }
+  ],
+  "env": {
+    "QUID_KEY": {
+      "description": "A secret key for the Quid server",
+      "generator": "secret"
+    },
+    "QUID_ADMIN_USR": {
+      "description": "The admin username",
+      "required": false,
+      "value": "admin"
+    },
+    "QUID_ADMIN_PWD": {
+      "description": "The admin password",
+      "required": true
+    },
+    "DB_USR": {
+      "description": "The database username",
+      "required": false,
+      "value": "pguser"
+    },
+    "DB_PWD": {
+      "description": "The database user password",
+      "required": true
+    },
+    "DB_HOST": {
+      "description": "The network location of the Postgres server",
+      "required": false,
+      "value": "localhost"
+    },
+    "DB_PORT": {
+      "description": "The TCP port to send the requests to the Postgres server",
+      "required": false,
+      "value": "5432"
+    },
+    "DB_NAME": {
+      "description": "The database name of the Quid server",
+      "required": false,
+      "value": "quid"
+    },
+    "DB_URL": {
+      "description": "The info to connect to the Postgres server",
+      "required": false
+    },
+    "WWW_DIR": {
+      "description": "Folder of the web static files",
+      "required": false,
+      "value": "ui/dist"
+    },
+    "PORT": {
+      "description": "Listening port of the Quid server",
+      "required": true,
+      "value": "8090"
+    }
+  }
 }

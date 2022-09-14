@@ -30,9 +30,9 @@ services:
     user: "6606:6606" # group_id:user_id to run quid in non-root mode.
     environment:
       - QUID_KEY=4f10515b3488a2485a32cf68092b66f195c14b86ac89362e8246661bd2c05c3b
-      - QUID_ADMIN_USER=admin
+      - QUID_ADMIN_USR=admin
       - QUID_ADMIN_PWD=my_API_administrator_password
-    command: -env
+    command: -v
     # Quid listens on port 8082 by default.
     # To connect from the machine (outside the compose),
     # we bind 8082 to an available host port (here the same port number).
@@ -51,12 +51,12 @@ services:
     # doc: https://github.com/docker-library/docs/blob/master/postgres/README.md
     image: docker.io/postgres:14-alpine
     # Quid waits for DB being ready using the following healthcheck
-    # see: https://github.com/peter-evans/docker-compose-healthcheck
+    # see: https://github.com/peter-evans/docker-compose-healthcheck/issues/16#issuecomment-1073039761
     healthcheck:
-      test: [ "CMD-SHELL", "pg_isready" ]
-      interval: 1s
+      test: [ "CMD-SHELL", "pg_isready -d $${POSTGRES_DB} -U $${POSTGRES_USER}" ]
+      interval: 2s
       timeout: 1s
-      retries: 5
+      retries: 3
     # Postgres listens on port 5432 by default.
     # This port must be exposed to allow connection from another service (inside the same network).
     expose:

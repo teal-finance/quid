@@ -67,13 +67,13 @@ COPY server server
 COPY tokens tokens
 
 # Go build flags "-s -w" removes all debug symbols, see: https://pkg.go.dev/cmd/link
-RUN set -ex                                                ;\
-    ls -lA                                                 ;\
-    CGO_ENABLED=0                                           \
-    GOFLAGS="-trimpath -modcacherw"                         \
-    GOLDFLAGS="-d -s -w -extldflags=-static"                \
-    go build -a -tags osusergo,netgo -installsuffix netgo  ;\
-    ls -sh quid                                            ;\
+RUN set -ex                                                          ;\
+    ls -lA                                                           ;\
+    CGO_ENABLED=0                                                     \
+    GOFLAGS="-trimpath -modcacherw"                                   \
+    GOLDFLAGS="-d -s -w -extldflags=-static"                          \
+    go build -a -tags osusergo,netgo -installsuffix netgo ./cmd/quid ;\
+    ls -sh quid                                                      ;\
     ./quid -help  # smoke test
 
 # --------------------------------------------------------------------
@@ -113,16 +113,16 @@ ARG DB_USR=pguser       \
     DB_PWD=my_password  \
     DB_HOST=""
 
-# DATABASE_URL format: postgresql://[user[:password]@][netloc][:port][/dbname][?param1=value1&...]
+# DB_URL format: postgres://[user[:password]@][host][:port][/dbname][?param1=value1&...]
 # See https://stackoverflow.com/a/20722229
-ENV DATABASE_URL="postgres://${DB_USR}:${DB_PWD}@${DB_HOST}:5432/quid?sslmode=disable"
+ENV DB_URL="postgres://${DB_USR}:${DB_PWD}@${DB_HOST}:5432/quid?sslmode=disable"
 
 # QUID_ADMIN_* and QUID_KEY are used to initialize the Database.
-ARG QUID_ADMIN_USER=admin                         \
-    QUID_ADMIN_PWD=my_API_administrator_password  \
-    QUID_KEY=4f10515b3488a2485a32cf68092b66f195c14b86ac89362e8246661bd2c05c3b
+ARG QUID_ADMIN_USR=quid-admin           \
+    QUID_ADMIN_PWD=quid-admin-password  \
+    QUID_KEY=95c14b86ac89362e8246661bd2c05c3b
 
-ENV QUID_ADMIN_USER=$QUID_ADMIN_USER  \
+ENV QUID_ADMIN_USR=$QUID_ADMIN_USR    \
     QUID_ADMIN_PWD=$QUID_ADMIN_PWD    \
     QUID_KEY=$QUID_KEY
 

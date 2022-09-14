@@ -9,7 +9,6 @@ import (
 	"crypto/sha256"
 	"crypto/sha512"
 	"crypto/x509"
-	"encoding/hex"
 	"errors"
 	"fmt"
 	"hash"
@@ -212,33 +211,33 @@ func NewHMAC(keyStr string, reuse bool) (Tokenizer, error) {
 }
 
 func NewHS256(keyStr string, reuse bool) (*HS256, error) {
-	key := DecodeHexOrB64(keyStr, 32)
-	if key == nil {
-		return nil, ErrHS256PubKey
+	key, err := gg.DecodeHexOrB64(keyStr, 32)
+	if err != nil {
+		return nil, err
 	}
 	return &HS256{BytesKey{Base{reuse}, key}}, nil
 }
 
 func NewHS384(keyStr string, reuse bool) (*HS384, error) {
-	key := DecodeHexOrB64(keyStr, 48)
-	if key == nil {
-		return nil, ErrHS384PubKey
+	key, err := gg.DecodeHexOrB64(keyStr, 48)
+	if err != nil {
+		return nil, err
 	}
 	return &HS384{BytesKey{Base{reuse}, key}}, nil
 }
 
 func NewHS512(keyStr string, reuse bool) (*HS512, error) {
-	key := DecodeHexOrB64(keyStr, 64)
-	if key == nil {
-		return nil, ErrHS512PubKey
+	key, err := gg.DecodeHexOrB64(keyStr, 64)
+	if err != nil {
+		return nil, err
 	}
 	return &HS512{BytesKey{Base{reuse}, key}}, nil
 }
 
 func NewEdDSA(keyStr string, reuse bool) (*EdDSA, error) {
-	der := DecodeHexOrB64(keyStr, 44)
-	if der == nil {
-		return nil, ErrEdDSAPubKey
+	der, err := gg.DecodeHexOrB64(keyStr, 44)
+	if err != nil {
+		return nil, err
 	}
 	pub, err := x509.ParsePKIXPublicKey(der)
 	if err != nil {
@@ -252,9 +251,9 @@ func NewEdDSA(keyStr string, reuse bool) (*EdDSA, error) {
 }
 
 func NewES256(keyStr string, reuse bool) (*ES256, error) {
-	key := DecodeHexOrB64(keyStr, 91)
-	if key == nil {
-		return nil, ErrES256PubKey
+	key, err := gg.DecodeHexOrB64(keyStr, 91)
+	if err != nil {
+		return nil, err
 	}
 	pub, err := x509.ParsePKIXPublicKey(key)
 	if err != nil {
@@ -268,9 +267,9 @@ func NewES256(keyStr string, reuse bool) (*ES256, error) {
 }
 
 func NewES384(keyStr string, reuse bool) (*ES384, error) {
-	key := DecodeHexOrB64(keyStr, 120)
-	if key == nil {
-		return nil, ErrES384PubKey
+	key, err := gg.DecodeHexOrB64(keyStr, 120)
+	if err != nil {
+		return nil, err
 	}
 	pub, err := x509.ParsePKIXPublicKey(key)
 	if err != nil {
@@ -284,9 +283,9 @@ func NewES384(keyStr string, reuse bool) (*ES384, error) {
 }
 
 func NewES512(keyStr string, reuse bool) (*ES512, error) {
-	key := DecodeHexOrB64(keyStr, 158)
-	if key == nil {
-		return nil, ErrES512PubKey
+	key, err := gg.DecodeHexOrB64(keyStr, 158)
+	if err != nil {
+		return nil, err
 	}
 	pub, err := x509.ParsePKIXPublicKey(key)
 	if err != nil {
@@ -297,42 +296,6 @@ func NewES512(keyStr string, reuse bool) (*ES512, error) {
 		return nil, ErrECDSAPubKey
 	}
 	return &ES512{ECDSA{Base{reuse}, ecPubKey}}, nil
-}
-
-func DecodeHexOrB64(keyStr string, binLen int) (keyBin []byte) {
-	strLen := len(keyStr)
-	hexLen := binLen * 2
-	b64Len := base64.RawURLEncoding.EncodedLen(binLen)
-
-	var err error
-
-	if strLen == hexLen {
-		keyBin, err = hex.DecodeString(keyStr)
-		if err != nil {
-			log.Warn(err)
-			return nil
-		}
-	} else if b64Len-1 <= strLen && strLen <= b64Len+1 {
-		keyBin, err = base64.RawURLEncoding.DecodeString(keyStr)
-		if err != nil {
-			log.Warn(err)
-			return nil
-		}
-		switch len(keyBin) {
-		case binLen - 1:
-			keyBin = append(keyBin, 0)
-		case binLen + 1:
-			keyBin = keyBin[:binLen]
-		}
-	} else {
-		return nil
-	}
-
-	if len(keyBin) != binLen {
-		log.Panic("want=", binLen, "got=", len(keyBin))
-	}
-
-	return keyBin
 }
 
 func (v *HS256) GenAccessToken(timeout, maxTTL, user string, groups, orgs []string) (string, error) {
@@ -489,12 +452,8 @@ type claimError struct {
 	claimsBytes []byte
 }
 
-func (e *claimError) Message() string {
-	return "cannot JSON-decode AccessClaims"
-}
-
 func (e *claimError) Error() string {
-	return e.err.Error() + " => " + e.Message() + ": " + string(e.claimsBytes)
+	return e.err.Error() + " => cannot JSON-decode AccessClaims: " + string(e.claimsBytes)
 }
 
 func (e *claimError) Unwrap() error {

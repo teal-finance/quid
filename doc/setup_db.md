@@ -1,8 +1,8 @@
-# Setup the PostreSQL database
+# Setup the PostgreSQL database
 
-## Check PostreSQL
+## Check PostgreSQL
 
-Install, then check the PostreSQL status and port:
+Install, then check the PostgreSQL status and port:
 
 ```sh
 $ sudo apt install postgresql
@@ -12,7 +12,7 @@ LISTEN 0      244        127.0.0.1:5432      0.0.0.0:*
 LISTEN 0      244            [::1]:5432         [::]:*
 ```
 
-Note: By default, Quid connects to the PostreSQL server on port 5432.
+Note: By default, Quid connects to the PostgreSQL server on port 5432.
 
 ## Configuration
 

@@ -74,7 +74,7 @@ func CreateQuidAdmin(username, password string) error {
 		}
 	}
 
-	log.V().Dataf("Create the Quid Admin user usr=%q pwdLen=%d", username, len(password))
+	log.V().Dataf("Create the Quid Admin user=%q pwd=%d bytes", username, len(password))
 	u, err := CreateUser(username, password, nsID)
 	if err != nil {
 		return err

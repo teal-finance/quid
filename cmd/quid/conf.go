@@ -38,7 +38,7 @@ func readConfigFile() (name, usr, pwd, key string) {
 	err := viper.ReadInConfig()
 	if err != nil {
 		if _, ok := err.(viper.ConfigFileNotFoundError); ok {
-			log.Info(`No "config.json" file found. You may use the -conf flag to generate the "config.json" file with a random key.`)
+			log.Info(`No "config.json" file found. You may use the -conf flag to generate the "config.json" file with a random AES-128 key.`)
 		} else {
 			log.Fatal(err)
 		}

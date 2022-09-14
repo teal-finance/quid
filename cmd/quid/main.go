@@ -23,7 +23,7 @@ const (
 
 	// defaultKey is AES-128-bits (16 bytes) in hexadecimal form (32 digits).
 	defaultKey = "00112233445566778899aabbccddeeff"
-	defaultUsr = "quid"
+	defaultUsr = "admin"
 	defaultPwd = "my_password"
 
 	defaultPort = 8090
@@ -78,7 +78,7 @@ func main() {
 	emo.GlobalVerbosity(*verbose)
 
 	if *genConf {
-		log.Info(`Generating "config.json" file with random key`)
+		log.Info(`Generating "config.json" file with random AES-128 key`)
 		if err := createConfigFile(*dbName, *dbUser, *dbPass); err != nil {
 			log.Fatal(`Cannot create "config.json" file`, err)
 		}

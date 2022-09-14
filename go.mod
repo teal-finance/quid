@@ -12,7 +12,7 @@ require (
 	github.com/mailru/easyjson v0.7.7
 	github.com/manifoldco/promptui v0.9.0
 	github.com/spf13/viper v1.13.0
-	github.com/teal-finance/emo v0.0.0-20220911224233-8a59de6c9132
+	github.com/teal-finance/emo v0.0.0-20220914195410-20b6929a3239
 	github.com/teal-finance/garcon v0.30.0-beta3
 	github.com/teal-finance/incorruptible v0.0.0-20220911120629-83c603e0c8b9
 	golang.org/x/crypto v0.0.0-20220829220503-c86fa9a7ed90

@@ -30,15 +30,12 @@ func createConfigFile(dbName, dbUser, dbPass string) error {
 func readConfigFile() (name, usr, pwd, key string) {
 	viper.SetConfigName("config")
 	viper.AddConfigPath(".")
-	viper.SetDefault("db_name", nil)
-	viper.SetDefault("db_user", nil)
-	viper.SetDefault("db_password", nil)
-	viper.SetDefault("key", nil)
 
 	err := viper.ReadInConfig()
 	if err != nil {
 		if _, ok := err.(viper.ConfigFileNotFoundError); ok {
-			log.Info(`No "config.json" file found. You may use the -conf flag to generate the "config.json" file with a random AES-128 key.`)
+			log.Info(`No "config.json" file. Note: flag -conf generates a "config.json" file with a random AES-128 key.`)
+			return "", "", "", ""
 		} else {
 			log.Fatal(err)
 		}

@@ -1,4 +1,4 @@
-# ![Quid logo](ui/public/logo-text.svg) &emsp; &emsp; &emsp; [![Go Reference](https://pkg.go.dev/badge/github.com/teal-finance/quid.svg "Go documentation for Quid")](https://pkg.go.dev/github.com/teal-finance/quid) [![Go Report Card](https://goreportcard.com/badge/github.com/teal-finance/quid "Go Report Card for Quid")](https://goreportcard.com/report/github.com/teal-finance/quid)
+# ![Quid logo](ui/public/logo.svg) Quid &emsp; &emsp; &emsp; [![Go Reference](https://pkg.go.dev/badge/github.com/teal-finance/quid.svg "Go documentation for Quid")](https://pkg.go.dev/github.com/teal-finance/quid) [![Go Report Card](https://goreportcard.com/badge/github.com/teal-finance/quid "Go Report Card for Quid")](https://goreportcard.com/report/github.com/teal-finance/quid)
 
 ![Quid preview](ui/public/quid-preview.jpg)
 

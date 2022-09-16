@@ -1,8 +1,8 @@
 package api
 
 import (
-	"encoding/base64"
 	"net/http"
+	"strings"
 
 	"github.com/teal-finance/garcon/gg"
 	"github.com/teal-finance/quid/server"
@@ -120,7 +120,7 @@ func getAccessVerificationKey(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	found, algo, key, err := db.SelectVerificationKeyDER(m.ID)
+	found, algo, keyDER, err := db.SelectVerificationKeyDER(m.ID)
 	if err != nil {
 		log.QueryError(err)
 		gw.WriteErr(w, r, http.StatusUnauthorized, "error SELECT namespace access key", "namespace_id", m.ID)
@@ -132,8 +132,10 @@ func getAccessVerificationKey(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	keyB64 := base64.RawURLEncoding.EncodeToString([]byte(key))
-	gw.WriteOK(w, server.PublicKeyResponse{Alg: algo, Key: keyB64})
+	isHex := strings.ToLower(m.EncodingForm) != "base64"
+	keyTxt := gg.EncodeHexOrB64Bytes(keyDER, isHex)
+
+	gw.WriteOK(w, server.PublicKeyResponse{Alg: algo, Key: keyTxt})
 }
 
 // findNamespace : namespace creation http handler.

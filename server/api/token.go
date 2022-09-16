@@ -1,9 +1,9 @@
 package api
 
 import (
-	"encoding/base64"
 	"fmt"
 	"net/http"
+	"strings"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/golang-jwt/jwt/v4"
@@ -173,13 +173,15 @@ func getAccessPublicKey(w http.ResponseWriter, r *http.Request) {
 		gw.WriteErr(w, r, http.StatusBadRequest, "namespace signing algo has no public key", "algo", ns.SigningAlgo)
 	}
 
-	publicDER, err := tokens.DecryptVerificationKeyDER(ns.SigningAlgo, ns.AccessKey)
+	keyDER, err := tokens.DecryptVerificationKeyDER(ns.SigningAlgo, ns.AccessKey)
 	if err != nil {
 		log.Error(err)
 	}
 
-	keyB64 := base64.RawURLEncoding.EncodeToString(publicDER)
-	gw.WriteOK(w, server.PublicKeyResponse{Alg: ns.SigningAlgo, Key: keyB64})
+	isHex := strings.ToLower(m.EncodingForm) != "base64"
+	keyTxt := gg.EncodeHexOrB64Bytes(keyDER, isHex)
+
+	gw.WriteOK(w, server.PublicKeyResponse{Alg: ns.SigningAlgo, Key: keyTxt})
 }
 
 func validAccessToken(w http.ResponseWriter, r *http.Request) {

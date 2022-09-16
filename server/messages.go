@@ -71,7 +71,8 @@ type MaxTTLRequest struct {
 }
 
 type InfoRequest struct {
-	ID int64
+	ID           int64
+	EncodingForm string
 }
 
 type NameRequest struct {
@@ -117,7 +118,8 @@ type AccessTokenValidationRequest struct {
 }
 
 type NamespaceRequest struct {
-	Namespace string
+	Namespace    string
+	EncodingForm string
 }
 
 type UserOrgRequest struct {
@@ -136,18 +138,9 @@ type UserRequest struct {
 	NamespaceID int64
 }
 
-type AdminType bool
-
-const (
-	QuidAdmin AdminType = false
-	NsAdmin   AdminType = true
-)
-
-func (t AdminType) String() string {
-	if t == QuidAdmin {
-		return "QuidAdmin"
-	}
-	return "NsAdmin"
+type PublicKeyResponse struct {
+	Alg string
+	Key []byte
 }
 
 type StatusResponse struct {
@@ -161,7 +154,16 @@ type NSInfo struct {
 	Name string
 }
 
-type PublicKeyResponse struct {
-	Alg string
-	Key string
+type AdminType bool
+
+const (
+	QuidAdmin AdminType = false
+	NsAdmin   AdminType = true
+)
+
+func (t AdminType) String() string {
+	if t == QuidAdmin {
+		return "QuidAdmin"
+	}
+	return "NsAdmin"
 }

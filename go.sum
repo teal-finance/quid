@@ -306,8 +306,8 @@ github.com/subosito/gotenv v1.4.1 h1:jyEFiXpy21Wm81FBN71l9VoMMV8H8jG+qIK3GCpY6Qs
 github.com/subosito/gotenv v1.4.1/go.mod h1:ayKnFf/c6rvx/2iiLrJUk1e6plDbT3edrFNGqEflhK0=
 github.com/teal-finance/emo v0.0.0-20220914195410-20b6929a3239 h1:dqrLueB0LUeNq8QGzUt8l1EcuuDd24SBd2CfXORyjsw=
 github.com/teal-finance/emo v0.0.0-20220914195410-20b6929a3239/go.mod h1:1PNyO4kPCk3rmmQr5bDpsuvLIrIZ3YDvYqecRdU4Nzo=
-github.com/teal-finance/garcon v0.30.0-beta3 h1:xmbST9ljak7UmNZ8JlJZo6+ZMG2vCEiP16AdxUFopb0=
-github.com/teal-finance/garcon v0.30.0-beta3/go.mod h1:LfFyGVYsFphmXAJxdVYH9QLq3issj0z7KHW0HCIMTms=
+github.com/teal-finance/garcon v0.30.0-beta4 h1:lZYBa6gZ5LML0eWm7aJ9sDC+GiA7A+aCpI9LsnZ31HQ=
+github.com/teal-finance/garcon v0.30.0-beta4/go.mod h1:6hW97O09/CColPj5FDlSOK78vmiNXYonbz3/8UQcO1c=
 github.com/teal-finance/incorruptible v0.0.0-20220916173341-2a473e62ae53 h1:zgD1LfdrlZzDLfzURHpRMCKe+/Tay5ZvwtsgaKkLI9o=
 github.com/teal-finance/incorruptible v0.0.0-20220916173341-2a473e62ae53/go.mod h1:ly5DILrDV5tHJcLdRjMvamvYgJtVGzcmVuT0NqMrJJo=
 github.com/yuin/goldmark v1.1.25/go.mod h1:3hX8gzYuyVAZsxl0MRgGTJEmQBFcNTphYh9decYSb74=

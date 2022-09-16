@@ -522,7 +522,12 @@ func easyjson66c1e240DecodeGithubComTealFinanceQuidServer6(in *jlexer.Lexer, out
 		case "alg":
 			out.Alg = string(in.String())
 		case "key":
-			out.Key = string(in.String())
+			if in.IsNull() {
+				in.Skip()
+				out.Key = nil
+			} else {
+				out.Key = []byte(in.String())
+			}
 		default:
 			in.AddError(&jlexer.LexerError{
 				Offset: in.GetPos(),
@@ -759,6 +764,8 @@ func easyjson66c1e240DecodeGithubComTealFinanceQuidServer9(in *jlexer.Lexer, out
 		switch key {
 		case "namespace":
 			out.Namespace = string(in.String())
+		case "encoding_form":
+			out.EncodingForm = string(in.String())
 		default:
 			in.AddError(&jlexer.LexerError{
 				Offset: in.GetPos(),
@@ -781,6 +788,11 @@ func easyjson66c1e240EncodeGithubComTealFinanceQuidServer9(out *jwriter.Writer, 
 		const prefix string = ",\"namespace\":"
 		out.RawString(prefix[1:])
 		out.String(string(in.Namespace))
+	}
+	{
+		const prefix string = ",\"encoding_form\":"
+		out.RawString(prefix)
+		out.String(string(in.EncodingForm))
 	}
 	out.RawByte('}')
 }
@@ -1221,6 +1233,8 @@ func easyjson66c1e240DecodeGithubComTealFinanceQuidServer15(in *jlexer.Lexer, ou
 		switch key {
 		case "id":
 			out.ID = int64(in.Int64())
+		case "encoding_form":
+			out.EncodingForm = string(in.String())
 		default:
 			in.AddError(&jlexer.LexerError{
 				Offset: in.GetPos(),
@@ -1243,6 +1257,11 @@ func easyjson66c1e240EncodeGithubComTealFinanceQuidServer15(out *jwriter.Writer,
 		const prefix string = ",\"id\":"
 		out.RawString(prefix[1:])
 		out.Int64(int64(in.ID))
+	}
+	{
+		const prefix string = ",\"encoding_form\":"
+		out.RawString(prefix)
+		out.String(string(in.EncodingForm))
 	}
 	out.RawByte('}')
 }
@@ -1459,9 +1478,9 @@ func easyjson66c1e240DecodeGithubComTealFinanceQuidServer18(in *jlexer.Lexer, ou
 					out.UserIDs = (out.UserIDs)[:0]
 				}
 				for !in.IsDelim(']') {
-					var v1 int64
-					v1 = int64(in.Int64())
-					out.UserIDs = append(out.UserIDs, v1)
+					var v4 int64
+					v4 = int64(in.Int64())
+					out.UserIDs = append(out.UserIDs, v4)
 					in.WantComma()
 				}
 				in.Delim(']')
@@ -1493,11 +1512,11 @@ func easyjson66c1e240EncodeGithubComTealFinanceQuidServer18(out *jwriter.Writer,
 			out.RawString("null")
 		} else {
 			out.RawByte('[')
-			for v2, v3 := range in.UserIDs {
-				if v2 > 0 {
+			for v5, v6 := range in.UserIDs {
+				if v5 > 0 {
 					out.RawByte(',')
 				}
-				out.Int64(int64(v3))
+				out.Int64(int64(v6))
 			}
 			out.RawByte(']')
 		}

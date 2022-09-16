@@ -12,8 +12,8 @@ func quidAdminMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		tv, err := Incorruptible.DecodeCookieToken(r)
 		if err != nil {
-			log.Warn("QuidAdminMiddleware: no valid token:", err.Error())
-			w.WriteHeader(http.StatusUnauthorized)
+			log.Warn("quidAdminMiddleware wants cookie", Incorruptible.Cookie(0).Name, "but", err)
+			gw.WriteErr(w, r, http.StatusUnauthorized, "missing or invalid incorruptible cookie", "want_cookie_name", Incorruptible.Cookie(0).Name)
 			return
 		}
 
@@ -48,12 +48,12 @@ func quidAdminMiddleware(next http.Handler) http.Handler {
 			return
 		}
 		if userType != db.QuidAdmin {
-			log.Data("QuidAdminMiddleware: u=" + userName + " is not Admin in database")
+			log.Data("quidAdminMiddleware: u=" + userName + " is not Admin in database")
 			w.WriteHeader(http.StatusUnauthorized)
 			return
 		}
 
-		log.Param("QuidAdminMiddleware OK u="+userName+" (id=", userID, ") ns="+namespace+" (id=", nsID, ")")
+		log.Param("quidAdminMiddleware OK u="+userName+" (id=", userID, ") ns="+namespace+" (id=", nsID, ")")
 		r = tv.ToCtx(r) // save the token in the request context
 		next.ServeHTTP(w, r)
 	})

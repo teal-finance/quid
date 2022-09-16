@@ -105,12 +105,12 @@ func adminLogin(w http.ResponseWriter, r *http.Request) {
 	sendStatusResponse(w, tv)
 }
 
-// status returns 200 if user is admin.
+// status returns 200 if incorruptible cookie says user is admin.
 func status(w http.ResponseWriter, r *http.Request) {
 	tv, err := Incorruptible.DecodeCookieToken(r)
 	if err != nil {
-		log.Warning("/status: no valid token:", err)
-		gw.WriteErr(w, r, http.StatusUnauthorized, "missing or invalid incorruptible cookie")
+		log.Warning("/status wants cookie", Incorruptible.Cookie(0).Name, "but", err)
+		gw.WriteErr(w, r, http.StatusUnauthorized, "missing or invalid incorruptible cookie", "want_cookie_name", Incorruptible.Cookie(0).Name)
 		return
 	}
 

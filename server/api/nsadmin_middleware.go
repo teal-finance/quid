@@ -41,8 +41,8 @@ func nsAdminMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		tv, err := Incorruptible.DecodeCookieToken(r)
 		if err != nil {
-			log.Warn("QuidAdminMiddleware: no valid token:", err.Error())
-			w.WriteHeader(http.StatusUnauthorized)
+			log.Warn("nsAdminMiddleware wants cookie", Incorruptible.Cookie(0).Name, "but", err)
+			gw.WriteErr(w, r, http.StatusUnauthorized, "missing or invalid incorruptible cookie", "want_cookie_name", Incorruptible.Cookie(0).Name)
 			return
 		}
 
@@ -65,17 +65,17 @@ func nsAdminMiddleware(next http.Handler) http.Handler {
 
 		userType, err := db.GetUserType(namespace, nsID, userID)
 		if err != nil {
-			log.QueryError("NsAdminMiddleware:", err)
+			log.QueryError("nsAdminMiddleware:", err)
 			w.WriteHeader(http.StatusInternalServerError)
 			return
 		}
 		if userType == db.UserNoAdmin {
-			log.ParamError("NsAdminMiddleware: u=" + userName + " is admin, but not for ns=" + namespace)
+			log.ParamError("nsAdminMiddleware: u=" + userName + " is admin, but not for ns=" + namespace)
 			w.WriteHeader(http.StatusUnauthorized)
 			return
 		}
 
-		log.RequestPost("NsAdminMiddleware OK u="+userName+" (id=", userID, ") ns="+namespace+" (id=", nsID, ")")
+		log.RequestPost("nsAdminMiddleware OK u="+userName+" (id=", userID, ") ns="+namespace+" (id=", nsID, ")")
 		r = tv.ToCtx(r) // save the token in the request context
 		next.ServeHTTP(w, r)
 	})

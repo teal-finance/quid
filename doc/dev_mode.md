@@ -1,16 +1,14 @@
 # Run in dev mode
 
-Add the `enable_dev_mode` parameter set to `true` in `config.json`.
-
 Use two consoles.
 
 ## Run the backend
 
-    make run-dev
+    make run
 
 ## Run the frontend
 
-    make run-front
+    make run-ui
 
 Open <http://localhost:3000> to login into the admin interface:
 

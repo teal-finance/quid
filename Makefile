@@ -4,7 +4,7 @@ help:
 	# make quid         Build the backend.
 	#
 	# make run          Run the backend (serves the frontend static files).
-	# make run-front    Run the frontend in dev mode (NodeJS serves the frontend).
+	# make run-ui       Run the frontend in dev mode (NodeJS serves the frontend).
 	#
 	# make compose-up   Run Quid and Database using podman-compose or docker-compose.
 	# make compose-rm   Stop and remove containers.
@@ -38,8 +38,8 @@ ui/yarn.lock:        ui/package.json
 ui/node_modules ui/yarn.lock:
 	cd ui && { yarn install --link-duplicates || yarnpkg install --link-duplicates ; }
 
-.PHONY: run-front
-run-front:
+.PHONY: run-ui
+run-ui:
 	cd ui && \
 	{ yarn    --link-duplicates && yarn    dev; } || \
 	{ yarnpkg --link-duplicates && yarnpkg dev; }

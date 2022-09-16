@@ -62,31 +62,31 @@ func NewVerifier(algoKey string, reuse bool) (Verifier, error) {
 	}
 
 	algo := strings.ToUpper(slice[0])
-	keyStr := slice[1]
+	keyTxt := slice[1]
 
 	switch algo {
 	case "HTTP", "HTTPS":
 		return RequestAlgoKey(algoKey, reuse) // here algoKey is an URL
-	case "HMAC":
-		return NewHMAC(keyStr, reuse)
+	case "", "HMAC":
+		return NewHMAC(keyTxt, reuse)
 	case "HS256":
-		return NewHS256(keyStr, reuse)
+		return NewHS256(keyTxt, reuse)
 	case "HS384":
-		return NewHS384(keyStr, reuse)
+		return NewHS384(keyTxt, reuse)
 	case "HS512":
-		return NewHS512(keyStr, reuse)
+		return NewHS512(keyTxt, reuse)
 	case "RS256", "RS384", "RS512":
 		return nil, log.ParamError(algo + notSupportedNotice).Err()
 	case "PS256", "PS384", "PS512":
 		return nil, log.ParamError(algo + notSupportedNotice).Err()
 	case "ES256":
-		return NewES256(keyStr, reuse)
+		return NewES256(keyTxt, reuse)
 	case "ES384":
-		return NewES384(keyStr, reuse)
+		return NewES384(keyTxt, reuse)
 	case "ES512":
-		return NewES512(keyStr, reuse)
+		return NewES512(keyTxt, reuse)
 	case "EDDSA":
-		return NewEdDSA(keyStr, reuse)
+		return NewEdDSA(keyTxt, reuse)
 	}
 
 	return nil, log.ParamErrorf("Unexpected AlgoKey scheme %q in algoKey=%q", slice[0], algoKey).Err()
@@ -128,7 +128,7 @@ func RequestAlgoKey(uri string, reuse bool) (Verifier, error) {
 					continue
 				}
 
-				algoKey := m.Alg + ":" + m.Key
+				algoKey := m.Alg + ":" + string(m.Key)
 				return NewVerifier(algoKey, reuse)
 			}
 		}
@@ -167,7 +167,7 @@ var (
 	ErrThreeParts   = errors.New("JWT must be composed of three parts separated by periods")
 	ErrJWTSignature = errors.New("JWT signature mismatch")
 	ErrNoBase64JWT  = errors.New("the token claims (second part of the JWT) is not base64-valid")
-	ErrColumnInKey  = errors.New("fount a column symbol in the key string but tokens.NemHMAC(keyStr) does not support AlgoKey scheme => use tokens.NewVerifier(algoKey)")
+	ErrColumnInKey  = errors.New("found a column symbol in the key string but tokens.NemHMAC() does not support AlgoKey scheme => use tokens.NewVerifier(algoKey)")
 	ErrHMACKey      = errors.New("cannot decode the HMAC key, please provide a key in hexadecimal or Base64 form (64, 96 or 128 hexadecimal digits ; 43, 64 or 86 Base64 characters)")
 	ErrHS256PubKey  = errors.New("cannot decode the HMAC-SHA256 key, please provide 64 hexadecimal digits or a Base64 string containing about 43 characters")
 	ErrHS384PubKey  = errors.New("cannot decode the HMAC-SHA384 key, please provide 96 hexadecimal digits or a Base64 string containing 64 characters")
@@ -194,48 +194,48 @@ $ go test -v ./tokens/... | grep -w Public
 */
 
 // NewHMAC creates an asymmetric-key Tokenizer based on HMAC algorithms.
-func NewHMAC(keyStr string, reuse bool) (Tokenizer, error) {
-	if strings.ContainsRune(keyStr, ':') {
+func NewHMAC(keyTxt string, reuse bool) (Tokenizer, error) {
+	if strings.ContainsRune(keyTxt, ':') {
 		return nil, ErrColumnInKey
 	}
-	if tokenizer, err := NewHS256(keyStr, reuse); err == nil {
+	if tokenizer, err := NewHS256(keyTxt, reuse); err == nil {
 		return tokenizer, nil
 	}
-	if tokenizer, err := NewHS384(keyStr, reuse); err == nil {
+	if tokenizer, err := NewHS384(keyTxt, reuse); err == nil {
 		return tokenizer, nil
 	}
-	if tokenizer, err := NewHS512(keyStr, reuse); err == nil {
+	if tokenizer, err := NewHS512(keyTxt, reuse); err == nil {
 		return tokenizer, nil
 	}
 	return nil, ErrHMACKey
 }
 
-func NewHS256(keyStr string, reuse bool) (*HS256, error) {
-	key, err := gg.DecodeHexOrB64(keyStr, 32)
+func NewHS256(keyTxt string, reuse bool) (*HS256, error) {
+	key, err := gg.DecodeHexOrB64(keyTxt, 32)
 	if err != nil {
 		return nil, err
 	}
 	return &HS256{BytesKey{Base{reuse}, key}}, nil
 }
 
-func NewHS384(keyStr string, reuse bool) (*HS384, error) {
-	key, err := gg.DecodeHexOrB64(keyStr, 48)
+func NewHS384(keyTxt string, reuse bool) (*HS384, error) {
+	key, err := gg.DecodeHexOrB64(keyTxt, 48)
 	if err != nil {
 		return nil, err
 	}
 	return &HS384{BytesKey{Base{reuse}, key}}, nil
 }
 
-func NewHS512(keyStr string, reuse bool) (*HS512, error) {
-	key, err := gg.DecodeHexOrB64(keyStr, 64)
+func NewHS512(keyTxt string, reuse bool) (*HS512, error) {
+	key, err := gg.DecodeHexOrB64(keyTxt, 64)
 	if err != nil {
 		return nil, err
 	}
 	return &HS512{BytesKey{Base{reuse}, key}}, nil
 }
 
-func NewEdDSA(keyStr string, reuse bool) (*EdDSA, error) {
-	der, err := gg.DecodeHexOrB64(keyStr, 44)
+func NewEdDSA(keyTxt string, reuse bool) (*EdDSA, error) {
+	der, err := gg.DecodeHexOrB64(keyTxt, 44)
 	if err != nil {
 		return nil, err
 	}
@@ -250,8 +250,8 @@ func NewEdDSA(keyStr string, reuse bool) (*EdDSA, error) {
 	return &EdDSA{BytesKey{Base{reuse}, edPubKey}}, nil
 }
 
-func NewES256(keyStr string, reuse bool) (*ES256, error) {
-	key, err := gg.DecodeHexOrB64(keyStr, 91)
+func NewES256(keyTxt string, reuse bool) (*ES256, error) {
+	key, err := gg.DecodeHexOrB64(keyTxt, 91)
 	if err != nil {
 		return nil, err
 	}
@@ -266,8 +266,8 @@ func NewES256(keyStr string, reuse bool) (*ES256, error) {
 	return &ES256{ECDSA{Base{reuse}, ecPubKey}}, nil
 }
 
-func NewES384(keyStr string, reuse bool) (*ES384, error) {
-	key, err := gg.DecodeHexOrB64(keyStr, 120)
+func NewES384(keyTxt string, reuse bool) (*ES384, error) {
+	key, err := gg.DecodeHexOrB64(keyTxt, 120)
 	if err != nil {
 		return nil, err
 	}
@@ -282,8 +282,8 @@ func NewES384(keyStr string, reuse bool) (*ES384, error) {
 	return &ES384{ECDSA{Base{reuse}, ecPubKey}}, nil
 }
 
-func NewES512(keyStr string, reuse bool) (*ES512, error) {
-	key, err := gg.DecodeHexOrB64(keyStr, 158)
+func NewES512(keyTxt string, reuse bool) (*ES512, error) {
+	key, err := gg.DecodeHexOrB64(keyTxt, 158)
 	if err != nil {
 		return nil, err
 	}

@@ -18,9 +18,9 @@ help:
 	# make cov      Go: Browse test coverage
 	# make vet      Go: Lint
 	#
-	# Before "git push" concerning the backend:
+	# Before "git push" changes concerning the backend:
 	#
-	#     make up+go fmt test vet
+	#     make up-go fmt test vet
 
 .PHONY: all
 all: front quid
@@ -120,7 +120,7 @@ compose-rm:
 	{ command -v docker && docker help|grep -wq compose && set -x && docker compose -f compose.yml down                    ;}
 
 .PHONY: up up+
-up: up-ui up-go
+up:  up-ui up-go
 up+: up+ui up+go
 
 .PHONY: up-ui

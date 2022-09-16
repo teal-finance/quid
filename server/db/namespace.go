@@ -103,7 +103,7 @@ func SelectNsFromName(name string) (bool, server.Namespace, error) {
 
 // SelectVerificationKeyDER get the AccessToken key (in DER form) for a namespace.
 func SelectVerificationKeyDER(id int64) (found bool, algo string, der []byte, _ error) {
-	row := db.QueryRowx("SELECT key FROM namespace WHERE id=$1", id)
+	row := db.QueryRowx("SELECT access_key FROM namespace WHERE id=$1", id)
 
 	var data namespace
 	if err := row.StructScan(&data); err != nil {

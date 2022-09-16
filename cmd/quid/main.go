@@ -16,14 +16,15 @@ var log = emo.NewZone("quid")
 const (
 	// defaultKey is AES-128-bits (16 bytes) in hexadecimal form (32 digits).
 	// Attention: Heroku generates secrets with 64 hexadecimal digits.
-	defaultKey    = "00112233445566778899aabbccddeeff"
-	defaultUsr    = "admin"
-	defaultPwd    = "my_password"
-	defaultDBUser = "pguser"
-	defaultDBPass = "my_password"
-	defaultDBName = "quid"
-	defaultDBHost = "localhost"
-	defaultDBPort = "5432"
+	defaultKey     = "00112233445566778899aabbccddeeff"
+	defaultUsr     = "admin"
+	defaultPwd     = "my_password"
+	defaultDBUser  = "pguser"
+	defaultDBPass  = "my_password"
+	defaultDBName  = "quid"
+	defaultDBHost  = "localhost"
+	defaultDBPort  = "5432"
+	defaultOrigins = "http://localhost:"
 )
 
 var defaultDBurl = buildURL(defaultDBUser, defaultDBPass, defaultDBHost, defaultDBPort, defaultDBName)
@@ -46,6 +47,7 @@ func main() {
 		dbHost  = flag.String("db-host", gg.EnvStr("DB_HOST", defaultDBHost), "Network location of the Postgres server. Env. var: DB_HOST")
 		dbPort  = flag.String("db-port", gg.EnvStr("DB_PORT", defaultDBPort), "TCP port of the Postgres server. Env. var: DB_PORT")
 		dbURL   = flag.String("db-url", gg.EnvStr("DB_URL", defaultDBurl), "The endpoint of the PostgreSQL server. Env. var: DB_URL")
+		origins = flag.String("origins", gg.EnvStr("ALLOWED_ORIGINS", defaultOrigins), "Allowed origins (CORS) separated by comas")
 		www     = flag.String("www", gg.EnvStr("WWW_DIR", "ui/dist"), "Folder of the web static files. Env. var: WWW_DIR")
 		port    = flag.Int("port", gg.EnvInt("PORT", 8090), "Listening port of the Quid server")
 	)
@@ -69,12 +71,12 @@ func main() {
 		*dbURL = buildURL(*dbUser, *dbPass, *dbHost, *dbPort, *dbName)
 	}
 
-	if (!*dev) && (*key == defaultKey) && (*dbURL == defaultDBurl) {
+	if (!*dev) && (*key == defaultKey) && (*dbURL == defaultDBurl) && (*origins == defaultOrigins) {
 		if !*verbose {
-			log.Print("Enable -v verbose mode because default values for -dev, -key QUID_KEY and -db DB_URL")
+			log.Print("Enable -v verbose mode because default values for -dev, -key QUID_KEY, -db DB_URL and -origins ALLOWED_ORIGINS")
 			*verbose = true
 		}
-		log.Print("Enable -dev mode because default values for -key QUID_KEY and -db DB_URL")
+		log.Print("Enable -dev mode because default values for -key QUID_KEY, -db DB_URL and -origins ALLOWED_ORIGINS")
 		*dev = true
 	}
 	emo.GlobalVerbosity(*verbose)
@@ -98,6 +100,7 @@ func main() {
 	log.V().Param("-db-host DB_HOST           =", *dbHost)
 	log.V().Param("-db-port DB_PORT           =", *dbPort)
 	log.V().Param("-db-url  DB_URL            =", obfuscatedPwdURL)
+	log.V().Param("-origins ALLOWED_ORIGINS   =", *origins)
 	log.V().Param("-www     WWW_DIR           =", *www)
 	log.V().Param("-port    PORT              =", *port)
 
@@ -134,5 +137,5 @@ func main() {
 		log.Fatal(err)
 	}
 
-	api.RunServer(*port, *dev, *www)
+	api.RunServer(*port, *dev, *origins, *www)
 }

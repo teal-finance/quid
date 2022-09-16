@@ -35,6 +35,7 @@ services:
       - POSTGRES_PASSWORD=my_PSQL_password
       - POSTGRES_DB=quid
       - DB_HOST=db # "db" is the "container_name" of the Postgres container.
+      - ALLOWED_ORIGINS=http://localhost:8082/
     command: -v
     # Quid listens on port 8082 by default.
     # To connect from the machine (outside the compose),

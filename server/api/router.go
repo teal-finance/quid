@@ -20,8 +20,8 @@ var Incorruptible *incorruptible.Incorruptible
 var gw garcon.Writer
 
 // RunServer : configure and run the server.
-func RunServer(port int, devMode bool, wwwDir string) {
-	server := newServer(port, devMode, wwwDir)
+func RunServer(port int, devMode bool, allowedOrigins, wwwDir string) {
+	server := newServer(port, devMode, allowedOrigins, wwwDir)
 
 	if devMode {
 		log.Print(color.BoldRed("Running in development mode"))
@@ -31,8 +31,9 @@ func RunServer(port int, devMode bool, wwwDir string) {
 	log.Fatal(garcon.ListenAndServe(&server))
 }
 
-func newServer(port int, devMode bool, wwwDir string) http.Server {
+func newServer(port int, devMode bool, allowedOrigins, wwwDir string) http.Server {
 	g := garcon.New(
+		garcon.WithURLs(gg.SplitClean(allowedOrigins)...),
 		garcon.WithServerName("Quid"),
 		garcon.WithDev(devMode))
 

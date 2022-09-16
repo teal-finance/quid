@@ -168,7 +168,7 @@ func getAccessPublicKey(w http.ResponseWriter, r *http.Request) {
 	case "PS256", "PS384", "PS512": // OK
 	case "ES256", "ES384", "ES512": // OK
 	case "EdDSA": // OK
-	default: // "HS256", "HS384", "HS512"
+	default: // "", "HS256", "HS384", "HS512"
 		log.ParamError("Namespace", m.Namespace, "has algo", ns.SigningAlgo, "without public key")
 		gw.WriteErr(w, r, http.StatusBadRequest, "namespace signing algo has no public key", "algo", ns.SigningAlgo)
 	}

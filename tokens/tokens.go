@@ -106,7 +106,7 @@ func GenAccessTokenWithAlgo(algo, timeout, maxTTL, user string, groups, orgs []s
 // convertDERToPrivateKey converts DER format to a private key depending on the algo.
 func convertDERToPrivateKey(algo string, der []byte) (any, error) {
 	switch algo {
-	case "HS256", "HS384", "HS512":
+	case "", "HS256", "HS384", "HS512":
 		return der, nil
 	case "RS256", "RS384", "RS512":
 		return x509.ParsePKCS1PrivateKey(der)
@@ -127,7 +127,7 @@ func convertDERToPrivateKey(algo string, der []byte) (any, error) {
 // The input and output are in DER form.
 func PrivateToPublicDER(algo string, der []byte) ([]byte, error) {
 	switch algo {
-	case "HS256", "HS384", "HS512": // HMAC: same key to sign/verify
+	case "", "HS256", "HS384", "HS512": // HMAC: same key to sign/verify
 		return der, nil
 	}
 
@@ -161,7 +161,7 @@ func DecryptVerificationKeyDER(algo string, accessKey []byte) ([]byte, error) {
 // ParsePublicDER converts a public key in DER form into the original public key.
 func ParsePublicDER(algo string, der []byte) (any, error) {
 	switch algo {
-	case "HS256", "HS384", "HS512": // HMAC: same key to sign/verify
+	case "", "HS256", "HS384", "HS512": // HMAC: same key to sign/verify
 		return der, nil
 	}
 
@@ -171,7 +171,7 @@ func ParsePublicDER(algo string, der []byte) (any, error) {
 // PrivateToPublic converts a private key into a public key depending on the algo.
 func PrivateToPublic(algo string, der []byte) (any, error) {
 	switch algo {
-	case "HS256", "HS384", "HS512": // HMAC: same key to sign/verify
+	case "", "HS256", "HS384", "HS512": // HMAC: same key to sign/verify
 		return der, nil
 
 	case "RS256", "RS384", "RS512": // RSA
@@ -225,7 +225,7 @@ func GenerateSigningKey(algo string) ([]byte, error) {
 
 	// HMAC
 
-	case "HS256":
+	case "", "HS256":
 		return GenerateKeyHMAC(256), nil
 	case "HS384":
 		return GenerateKeyHMAC(384), nil

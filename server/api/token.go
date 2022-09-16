@@ -14,8 +14,103 @@ import (
 	"github.com/teal-finance/quid/tokens"
 )
 
+// requestRefreshToken : http login handler.
+func requestRefreshToken(w http.ResponseWriter, r *http.Request) {
+	var m server.PasswordRequest
+	if err := gg.UnmarshalJSONRequest(w, r, &m); err != nil {
+		log.ParamError("RequestRefreshToken:", err)
+		gw.WriteErr(w, r, http.StatusUnauthorized, "cannot decode JSON")
+		return
+	}
+
+	timeout := chi.URLParam(r, "timeout")
+
+	if p := gg.Printable(m.Username, m.Password, m.Namespace, timeout); p >= 0 {
+		log.ParamError("RequestRefreshToken: JSON contains a forbidden character at p=", p)
+		gw.WriteErr(w, r, http.StatusUnauthorized, "forbidden character", "position", p)
+		return
+	}
+
+	// get the namespace
+	exists, ns, err := db.SelectNsFromName(m.Namespace)
+	if err != nil {
+		log.QueryError("RequestRefreshToken SelectNsFromName:", err)
+		gw.WriteErr(w, r, http.StatusUnauthorized, "DB error SELECT namespace", "namespace", m.Namespace)
+		return
+	}
+	if !exists {
+		log.Data("RequestRefreshToken: namespace does not exist")
+		gw.WriteErr(w, r, http.StatusUnauthorized, "namespace does not exist", "namespace", m.Namespace)
+		return
+	}
+
+	// check if the endpoint is available
+	if !ns.PublicEndpointEnabled {
+		log.Data("RequestRefreshToken: public endpoint unauthorized")
+		gw.WriteErr(w, r, http.StatusUnauthorized, "endpoint disabled", "namespace", m.Namespace)
+		return
+	}
+
+	// check if the user password matches
+	same, u, err := checkUserPassword(m.Username, m.Password, ns.ID)
+	if err != nil {
+		gw.WriteErr(w, r, http.StatusUnauthorized, "error while checking password", "namespace_id", ns.ID, "usr", m.Username)
+		return
+	}
+	if !same {
+		log.Info("RequestRefreshToken u=" + m.Username + ": disabled user or bad password")
+		gw.WriteErr(w, r, http.StatusUnauthorized, "disabled user or bad password", "namespace_id", ns.ID, "usr", m.Username)
+		return
+	}
+
+	// generate the token
+	t, err := tokens.GenRefreshToken(timeout, ns.MaxRefreshTokenTTL, ns.Name, u.Name, ns.RefreshKey)
+	if err != nil {
+		log.Error("RequestRefreshToken GenRefreshToken:", err)
+		gw.WriteErr(w, r, http.StatusUnauthorized, "error while generating a new RefreshToken", "namespace", ns.Name, "usr", u.Name)
+		return
+	}
+	if t == "" {
+		log.Info("RequestRefreshToken: max timeout exceeded")
+		gw.WriteErr(w, r, http.StatusUnauthorized, "max timeout exceeded", "timeout", timeout, "max", ns.MaxRefreshTokenTTL)
+		return
+	}
+
+	log.RefreshToken("RequestRefreshToken: user=" + u.Name + " t=" + timeout + " TTL=" + ns.MaxRefreshTokenTTL + " ns=" + ns.Name)
+	gw.WriteOK(w, "token", t)
+}
+
 // requestAccessToken : request an access token from a refresh token.
 func requestAccessToken(w http.ResponseWriter, r *http.Request) {
+	t, _, _, _ := genAccessToken(w, r)
+	if t != "" {
+		gw.WriteOK(w, "token", t)
+	}
+}
+
+func requestRefreshAndAccessTokens(w http.ResponseWriter, r *http.Request) {
+	accessToken, timeout, ns, u := genAccessToken(w, r)
+	if accessToken == "" {
+		return
+	}
+
+	refreshToken, err := tokens.GenRefreshToken(timeout, ns.MaxRefreshTokenTTL, ns.Name, u.Name, ns.RefreshKey)
+	if err != nil {
+		log.Error("RequestRefreshToken GenRefreshToken:", err)
+		gw.WriteErr(w, r, http.StatusUnauthorized, "error while generating a new RefreshToken", "namespace", ns.Name, "usr", u.Name)
+		return
+	}
+
+	if refreshToken == "" {
+		log.Info("RequestRefreshToken: max timeout exceeded")
+		gw.WriteErr(w, r, http.StatusUnauthorized, "max timeout exceeded", "timeout", timeout, "max", ns.MaxRefreshTokenTTL)
+		return
+	}
+
+	gw.WriteOK(w, "refresh_token", refreshToken, "access_token", accessToken)
+}
+
+func genAccessToken(w http.ResponseWriter, r *http.Request) (accessToken, timeout string, _ server.Namespace, _ server.User) {
 	var m server.AccessTokenRequest
 	if err := gg.UnmarshalJSONRequest(w, r, &m); err != nil {
 		log.ParamError("RequestAccessToken:", err)
@@ -23,40 +118,36 @@ func requestAccessToken(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	refreshToken := m.RefreshToken
-	namespace := m.Namespace
+	timeout = chi.URLParam(r, "timeout")
 
-	if p := gg.Printable(refreshToken, namespace); p >= 0 {
+	if p := gg.Printable(m.RefreshToken, m.Namespace, timeout); p >= 0 {
 		log.Warn("RequestAccessToken: JSON contains a forbidden character at p=", p)
 		gw.WriteErr(w, r, http.StatusUnauthorized, "forbidden character", "position", p)
 		return
 	}
 
-	timeout := chi.URLParam(r, "timeout")
-
 	// get the namespace
-	exists, ns, err := db.SelectNsFromName(namespace)
+	exists, ns, err := db.SelectNsFromName(m.Namespace)
 	if err != nil {
 		log.QueryError("RequestAccessToken SelectNsFromName:", err)
-		gw.WriteErr(w, r, http.StatusUnauthorized, "DB error SELECT namespace", "namespace", namespace)
+		gw.WriteErr(w, r, http.StatusUnauthorized, "DB error SELECT namespace", "namespace", m.Namespace)
 		return
 	}
 	if !exists {
 		log.Data("RequestAccessToken: the namespace does not exist")
-		w.WriteHeader(http.StatusBadRequest)
+		gw.WriteErr(w, r, http.StatusUnauthorized, "namespace does not exist", "namespace", m.Namespace)
 		return
 	}
 
 	// check if the endpoint is available
 	if !ns.PublicEndpointEnabled {
 		log.Warn("RequestAccessToken: Public endpoint unauthorized")
-		w.WriteHeader(http.StatusUnauthorized)
+		gw.WriteErr(w, r, http.StatusUnauthorized, "endpoint disabled", "namespace", m.Namespace)
 		return
 	}
 
 	// verify the refresh token
-	var username string
-	token, err := jwt.ParseWithClaims(refreshToken, &tokens.RefreshClaims{}, func(token *jwt.Token) (any, error) {
+	token, err := jwt.ParseWithClaims(m.RefreshToken, &tokens.RefreshClaims{}, func(token *jwt.Token) (any, error) {
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
 			return nil, fmt.Errorf("Unexpected signing method: %v", token.Header["alg"])
 		}
@@ -80,19 +171,17 @@ func requestAccessToken(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	username = claims.UserName
 	log.AccessToken("RequestAccessToken:", claims.UserName, claims.ExpiresAt)
 
 	// get the user
-	found, u, err := db.SelectEnabledUser(username, ns.ID)
+	found, u, err := db.SelectEnabledUser(claims.UserName, ns.ID)
 	if err != nil {
 		log.QueryError(err)
-		w.WriteHeader(http.StatusInternalServerError)
-		log.Fatal(err)
+		w.WriteHeader(http.StatusUnauthorized)
 		return
 	}
 	if !found {
-		log.Warn("RequestAccessToken: user not found: " + username)
+		log.Warn("RequestAccessToken: user not found: " + claims.UserName)
 		w.WriteHeader(http.StatusUnauthorized)
 		return
 	}
@@ -101,7 +190,7 @@ func requestAccessToken(w http.ResponseWriter, r *http.Request) {
 	groupNames, err := db.SelectGroupsNamesForUser(u.ID)
 	if err != nil {
 		log.QueryError("RequestAccessToken: Groups error:", err)
-		w.WriteHeader(http.StatusInternalServerError)
+		w.WriteHeader(http.StatusUnauthorized)
 		return
 	}
 
@@ -109,31 +198,25 @@ func requestAccessToken(w http.ResponseWriter, r *http.Request) {
 	orgsNames, err := db.SelectOrgsNamesForUser(u.ID)
 	if err != nil {
 		log.QueryError("RequestAccessToken: Orgs error:", err)
-		w.WriteHeader(http.StatusInternalServerError)
+		w.WriteHeader(http.StatusUnauthorized)
 		return
 	}
 
 	// generate the access token
-	var t string
-	if ns.SigningAlgo == "HS256" {
-		t, err = tokens.GenAccessToken(timeout, ns.MaxTokenTTL, u.Name, groupNames, orgsNames, []byte(ns.AccessKey))
-	} else {
-		t, err = tokens.GenAccessTokenWithAlgo(ns.SigningAlgo, timeout, ns.MaxTokenTTL, u.Name, groupNames, orgsNames, ns.AccessKey)
-	}
-
+	t, err := tokens.GenAccessTokenWithAlgo(ns.SigningAlgo, timeout, ns.MaxTokenTTL, u.Name, groupNames, orgsNames, ns.AccessKey)
 	if err != nil {
 		log.Error("RequestAccessToken GenAccessToken:", err)
-		w.WriteHeader(http.StatusInternalServerError)
+		w.WriteHeader(http.StatusUnauthorized)
 		return
 	}
 	if t == "" {
 		log.Warn("RequestAccessToken: Timeout unauthorized")
-		gw.WriteErr(w, r, http.StatusUnauthorized, "error", "unauthorized")
+		w.WriteHeader(http.StatusUnauthorized)
 		return
 	}
 
 	log.AccessToken("RequestAccessToken: user="+u.Name+" t="+timeout+" TTL="+ns.MaxTokenTTL+" grp=", groupNames, "org=", orgsNames)
-	gw.WriteOK(w, "token", t)
+	return t, timeout, ns, u
 }
 
 func getAccessPublicKey(w http.ResponseWriter, r *http.Request) {
@@ -229,75 +312,4 @@ func validAccessToken(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusOK)
 		w.Write([]byte(`{"valid":true}`))
 	}
-}
-
-// requestRefreshToken : http login handler.
-func requestRefreshToken(w http.ResponseWriter, r *http.Request) {
-	var m server.PasswordRequest
-	if err := gg.UnmarshalJSONRequest(w, r, &m); err != nil {
-		log.ParamError("RequestRefreshToken:", err)
-		gw.WriteErr(w, r, http.StatusUnauthorized, "cannot decode JSON")
-		return
-	}
-
-	username := m.Username
-	password := m.Password
-	namespace := m.Namespace
-
-	if p := gg.Printable(username, password, namespace); p >= 0 {
-		log.ParamError("RequestRefreshToken: JSON contains a forbidden character at p=", p)
-		gw.WriteErr(w, r, http.StatusUnauthorized, "forbidden character", "position", p)
-		return
-	}
-
-	// timeout
-	timeout := chi.URLParam(r, "timeout")
-
-	// get the namespace
-	exists, ns, err := db.SelectNsFromName(namespace)
-	if err != nil {
-		log.QueryError("RequestRefreshToken SelectNsFromName:", err)
-		gw.WriteErr(w, r, http.StatusUnauthorized, "DB error SELECT namespace", "namespace", namespace)
-		return
-	}
-	if !exists {
-		log.Data("RequestRefreshToken: namespace does not exist")
-		gw.WriteErr(w, r, http.StatusUnauthorized, "namespace does not exist")
-		return
-	}
-
-	// check if the endpoint is available
-	if !ns.PublicEndpointEnabled {
-		log.Data("RequestRefreshToken: public endpoint unauthorized")
-		gw.WriteErr(w, r, http.StatusUnauthorized, "endpoint disabled", "namespace", namespace)
-		return
-	}
-
-	// check if the user password matches
-	isAuthorized, u, err := checkUserPassword(username, password, ns.ID)
-	if err != nil {
-		gw.WriteErr(w, r, http.StatusUnauthorized, "error while checking password", "namespace_id", ns.ID, "usr", username)
-		return
-	}
-	if !isAuthorized {
-		log.Info("RequestRefreshToken u=" + username + ": disabled user or bad password")
-		gw.WriteErr(w, r, http.StatusUnauthorized, "disabled user or bad password", "namespace_id", ns.ID, "usr", username)
-		return
-	}
-
-	// generate the token
-	t, err := tokens.GenRefreshToken(timeout, ns.MaxRefreshTokenTTL, ns.Name, u.Name, []byte(ns.RefreshKey))
-	if err != nil {
-		log.Error("RequestRefreshToken GenRefreshToken:", err)
-		gw.WriteErr(w, r, http.StatusUnauthorized, "error while generating a new RefreshToken", "namespace", ns.Name, "usr", u.Name)
-		return
-	}
-	if t == "" {
-		log.Info("RequestRefreshToken: max timeout exceeded")
-		gw.WriteErr(w, r, http.StatusUnauthorized, "max timeout exceeded", "timeout", timeout, "max", ns.MaxRefreshTokenTTL)
-		return
-	}
-
-	log.RefreshToken("RequestRefreshToken: user=" + u.Name + " t=" + timeout + " TTL=" + ns.MaxRefreshTokenTTL + " ns=" + ns.Name)
-	gw.WriteOK(w, "token", t)
 }

@@ -56,13 +56,13 @@ func adminLogin(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// check the user password
-	isAuthorized, u, err := checkUserPassword(username, password, ns.ID)
+	same, u, err := checkUserPassword(username, password, ns.ID)
 	if err != nil {
 		log.Error("AdminLogin checkUserPassword:", err)
 		gw.WriteErr(w, r, http.StatusUnauthorized, "internal error when checking user password", "usr", username, "namespace", namespace)
 		return
 	}
-	if !isAuthorized {
+	if !same {
 		log.Info("AdminLogin u=" + username + " ns=" + namespace + ": disabled user or bad password")
 		gw.WriteErr(w, r, http.StatusUnauthorized, "disabled user or bad password", "usr", username, "namespace", namespace)
 		return

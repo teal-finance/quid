@@ -74,6 +74,7 @@ func newRouter(g *garcon.Garcon, wwwDir string) http.Handler {
 	// public routes: not protected by login cookie
 	r.Post("/token/refresh/{timeout}", requestRefreshToken)
 	r.Post("/token/access/{timeout}", requestAccessToken)
+	r.Post("/token/refresh-access/{timeout}", requestRefreshAndAccessTokens)
 	r.Post("/token/public", getAccessPublicKey)
 	r.Post("/admin_login", adminLogin)
 	r.Get("/logout", adminLogout)

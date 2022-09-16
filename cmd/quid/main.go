@@ -92,7 +92,6 @@ func main() {
 	log.V().Param("-key   QUID_KEY            =", len(*key), "bytes")
 	log.V().Param("-admin QUID_ADMIN_USR      =", *admin)
 	log.V().Param("-pwd   QUID_ADMIN_PWD      =", len(*pwd), "bytes")
-	log.V().Param("-conf                      =", *conf)
 	log.V().Param("-db-usr  POSTGRES_USER     =", *dbUser)
 	log.V().Param("-db-pwd  POSTGRES_PASSWORD =", len(*dbPass), "bytes")
 	log.V().Param("-db-name POSTGRES_DB       =", *dbName)

@@ -287,9 +287,8 @@ func checkUserPassword(username, password string, namespaceID int64) (bool, serv
 	err = bcrypt.CompareHashAndPassword([]byte(u.PasswordHash), []byte(password))
 	if err != nil {
 		log.Error(err)
-		if err.Error() == "crypto/bcrypt: hashedPassword is not the hash of the given password" {
-			return false, u, err
-		}
+		// "crypto/bcrypt: hashedPassword is not the hash of the given password"
+		return false, u, err
 	}
 
 	return true, u, err

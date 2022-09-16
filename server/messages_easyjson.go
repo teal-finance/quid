@@ -359,7 +359,7 @@ func easyjson66c1e240DecodeGithubComTealFinanceQuidServer4(in *jlexer.Lexer, out
 		}
 		switch key {
 		case "admin_type":
-			out.AdminType = AdminType(in.Bool())
+			out.AdminType = string(in.String())
 		case "username":
 			out.Username = string(in.String())
 		case "ns":
@@ -385,7 +385,7 @@ func easyjson66c1e240EncodeGithubComTealFinanceQuidServer4(out *jwriter.Writer, 
 	{
 		const prefix string = ",\"admin_type\":"
 		out.RawString(prefix[1:])
-		out.Bool(bool(in.AdminType))
+		out.String(string(in.AdminType))
 	}
 	{
 		const prefix string = ",\"username\":"

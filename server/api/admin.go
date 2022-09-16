@@ -122,7 +122,7 @@ func sendStatusResponse(w http.ResponseWriter, tv incorruptible.TValues) {
 	adminType := tv.BoolIfAny(keyAdminType)
 
 	gw.WriteOK(w, server.StatusResponse{
-		AdminType: server.AdminType(adminType),
+		AdminType: server.AdminType(adminType).String(),
 		Username:  tv.StringIfAny(keyUsername),
 		Ns: server.NSInfo{
 			ID:   tv.Int64IfAny(keyNsID),

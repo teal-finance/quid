@@ -151,7 +151,7 @@ func (t AdminType) String() string {
 }
 
 type StatusResponse struct {
-	AdminType AdminType
+	AdminType string
 	Username  string
 	Ns        NSInfo
 }

@@ -7,8 +7,8 @@
 #
 # Run in prod as a daemon (-d)
 #
-#    docker run --rm -d -p 0.0.0.0:8082:8082 -e DB_PWD=my_password --name quid quid -env
-#    podman run --rm -d -p 0.0.0.0:8082:8082 -e DB_PWD=my_password --name quid quid -env
+#    docker run --rm -d -p 0.0.0.0:8082:8082 -e POSTGRES_PASSWORD=my_password --name quid quid -env
+#    podman run --rm -d -p 0.0.0.0:8082:8082 -e POSTGRES_PASSWORD=my_password --name quid quid -env
 #
 # Run in dev. mode with local PostgreSQL
 #
@@ -100,8 +100,7 @@ COPY --from=go-builder /code/quid .
 FROM scratch AS final
 
 # Run as unprivileged.
-ARG UID \
-    GID
+ARG     UID    GID
 USER "${UID}:${GID}"
 
 # In this tiny image, put only the the static website,
@@ -109,32 +108,35 @@ USER "${UID}:${GID}"
 # the "passwd" and "group" files. No shell commands.
 COPY --chown="${UID}:${GID}" --from=integrator /target /
 
-ARG DB_USR=pguser       \
-    DB_PWD=my_password  \
-    DB_HOST=""
-
-# DB_URL format: postgres://[user[:password]@][host][:port][/dbname][?param1=value1&...]
-# See https://stackoverflow.com/a/20722229
-ENV DB_URL="postgres://${DB_USR}:${DB_PWD}@${DB_HOST}:5432/quid?sslmode=disable"
-
 # QUID_ADMIN_* and QUID_KEY are used to initialize the Database.
-ARG QUID_ADMIN_USR=quid-admin           \
-    QUID_ADMIN_PWD=quid-admin-password  \
-    QUID_KEY=95c14b86ac89362e8246661bd2c05c3b
-
-ENV QUID_ADMIN_USR=$QUID_ADMIN_USR    \
-    QUID_ADMIN_PWD=$QUID_ADMIN_PWD    \
-    QUID_KEY=$QUID_KEY
-
-# PORT is the web+API port exposed outside of the container.
-ENV PORT=8082
-EXPOSE ${PORT}
+ARG QUID_ADMIN_USR=quid-admin                 \
+    QUID_ADMIN_PWD=quid-admin-password        \
+    QUID_KEY=95c14b86ac89362e8246661bd2c05c3b \
+    POSTGRES_USER=pguser                      \
+    POSTGRES_PASSWORD=my_password             \
+    POSTGRES_DB=quid                          \
+    DB_HOST=db                                \
+    DB_PORT=5432                              \
+    DB_URL
 
 # Default timezone is UTC.
-ENV TZ=UTC0
+ENV TZ=UTC0                                   \
+    QUID_ADMIN_USR=$QUID_ADMIN_USR            \
+    QUID_ADMIN_PWD=$QUID_ADMIN_PWD            \
+    QUID_KEY=$QUID_KEY                        \
+    POSTGRES_USER=$POSTGRES_USER              \
+    POSTGRES_PASSWORD=$POSTGRES_PASSWORD      \
+    POSTGRES_DB=$POSTGRES_DB                  \
+    PORT=8082                                 \
+    DB_HOST=$DB_HOST                          \
+    DB_PORT=$DB_PORT                          \
+    DB_URL=$DB_URL
+
+# PORT is the web+API port exposed outside of the container.
+EXPOSE ${PORT}
 
 # The default command to run the container.
 ENTRYPOINT ["/quid"]
 
 # Default argument(s) appended to ENTRYPOINT.
-CMD ["-env"]
+CMD [""]

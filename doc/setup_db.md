@@ -22,11 +22,11 @@ The following table concerns only the database:
 
 | Command line options | Environnement variables | `config.json`                   | Default value                                                       |
 | -------------------- | ----------------------- | ------------------------------- | ------------------------------------------------------------------- |
-| `-db-usr`            | `DB_USR`                | `"db_user": "pguser",`          | `pguser`                                                            |
-| `-db-pwd`            | `DB_PWD`                | `"db_password": "my_password",` | `my_password`                                                       |
+| `-db-usr`            | `POSTGRES_USER`         | `"db_user":     "pguser",`      | `pguser`                                                            |
+| `-db-pwd`            | `POSTGRES_PASSWORD`     | `"db_password": "my_password",` | `my_password`                                                       |
+| `-db-name`           | `POSTGRES_DB`           | `"db_name":     "quid",`        | `quid`                                                              |
 | `-db-host`           | `DB_HOST`               |                                 | `localhost`                                                         |
 | `-db-port`           | `DB_PORT`               |                                 | `5432`                                                              |
-| `-db-name`           | `DB_NAME`               | `"db_name": "quid",`            | `quid`                                                              |
 | `-db-url`            | `DB_URL`                |                                 | `postgres://pguser:my_password@localhost:5432/quid?sslmode=disable` |
 
 When the `-db-url` option or the `DB_URL` env. var. is used,

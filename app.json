@@ -19,26 +19,31 @@
   ],
   "env": {
     "QUID_KEY": {
-      "description": "A secret key for the Quid server",
+      "description": "An internal secret key for the Quid server used to encrypt sensitive data",
       "generator": "secret"
     },
     "QUID_ADMIN_USR": {
-      "description": "The admin username",
+      "description": "The Quid administrator username",
       "required": false,
       "value": "admin"
     },
     "QUID_ADMIN_PWD": {
-      "description": "The admin password",
+      "description": "The administrator password",
       "required": true
     },
-    "DB_USR": {
-      "description": "The database username",
+    "POSTGRES_USER": {
+      "description": "The username used by the Quid server to connect to the Postgres server",
       "required": false,
       "value": "pguser"
     },
-    "DB_PWD": {
+    "POSTGRES_PASSWORD": {
       "description": "The database user password",
       "required": true
+    },
+    "POSTGRES_DB": {
+      "description": "The database name of the Quid server",
+      "required": false,
+      "value": "quid"
     },
     "DB_HOST": {
       "description": "The network location of the Postgres server",
@@ -49,11 +54,6 @@
       "description": "The TCP port to send the requests to the Postgres server",
       "required": false,
       "value": "5432"
-    },
-    "DB_NAME": {
-      "description": "The database name of the Quid server",
-      "required": false,
-      "value": "quid"
     },
     "DB_URL": {
       "description": "The info to connect to the Postgres server",

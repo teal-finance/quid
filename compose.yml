@@ -21,9 +21,10 @@ services:
       args:
         - UID=6606
         - GID=6606
-        - DB_USR=pguser
-        - DB_PWD=my_password
-        - DB_HOST=db
+        - POSTGRES_USER=pguser
+        - POSTGRES_PASSWORD=my_password
+        - POSTGRES_DB=quid
+        - DB_HOST=db # use the container_name of Postgres
     depends_on:
       db:
         condition: service_healthy

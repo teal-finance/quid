@@ -21,9 +21,9 @@ const (
 	defaultPwd    = "my_password"
 	defaultDBUser = "pguser"
 	defaultDBPass = "my_password"
+	defaultDBName = "quid"
 	defaultDBHost = "localhost"
 	defaultDBPort = "5432"
-	defaultDBName = "quid"
 )
 
 var defaultDBurl = buildURL(defaultDBUser, defaultDBPass, defaultDBHost, defaultDBPort, defaultDBName)
@@ -40,11 +40,11 @@ func main() {
 		admin   = flag.String("admin", gg.EnvStr("QUID_ADMIN_USR", defaultUsr), "The username of the Quid Administrator. Env. var: QUID_ADMIN_USR")
 		pwd     = flag.String("pwd", gg.EnvStr("QUID_ADMIN_PWD", defaultPwd), "The password of the Quid Administrator. Env. var: QUID_ADMIN_PWD")
 		conf    = flag.Bool("conf", false, `Generate a "config.json" file with a random AES-128 key`)
-		dbUser  = flag.String("db-usr", gg.EnvStr("DB_USR", defaultDBUser), "Username to read/write the database. Env. var: DB_USR")
-		dbPass  = flag.String("db-pwd", gg.EnvStr("DB_PWD", defaultDBPass), "Password of the database user. Env. var: DB_PWD")
+		dbUser  = flag.String("db-usr", gg.EnvStr("POSTGRES_USER", defaultDBUser), "Username to read/write the database. Env. var: POSTGRES_USER")
+		dbPass  = flag.String("db-pwd", gg.EnvStr("POSTGRES_PASSWORD", defaultDBPass), "Password of the database user. Env. var: POSTGRES_PASSWORD")
+		dbName  = flag.String("db-name", gg.EnvStr("POSTGRES_DB", defaultDBName), "Name of the Postgres database. Env. var: POSTGRES_DB")
 		dbHost  = flag.String("db-host", gg.EnvStr("DB_HOST", defaultDBHost), "Network location of the Postgres server. Env. var: DB_HOST")
 		dbPort  = flag.String("db-port", gg.EnvStr("DB_PORT", defaultDBPort), "TCP port of the Postgres server. Env. var: DB_PORT")
-		dbName  = flag.String("db-name", gg.EnvStr("DB_NAME", defaultDBName), "Name of the Postgres database. Env. var: DB_NAME")
 		dbURL   = flag.String("db-url", gg.EnvStr("DB_URL", defaultDBurl), "The endpoint of the PostgreSQL server. Env. var: DB_URL")
 		www     = flag.String("www", gg.EnvStr("WWW_DIR", "ui/dist"), "Folder of the web static files. Env. var: WWW_DIR")
 		port    = flag.Int("port", gg.EnvInt("PORT", 8090), "Listening port of the Quid server")
@@ -65,7 +65,7 @@ func main() {
 		*key = cfgKey
 	}
 
-	if *dbURL == defaultDBurl {
+	if *dbURL == "" || *dbURL == defaultDBurl {
 		*dbURL = buildURL(*dbUser, *dbPass, *dbHost, *dbPort, *dbName)
 	}
 
@@ -86,21 +86,21 @@ func main() {
 		obfuscatedPwdURL = u.Redacted()
 	}
 
-	log.V().Param("-dev                  =", *dev)
-	log.V().Param("-v                    =", *verbose)
-	log.V().Param("-conf                 =", *conf)
-	log.V().Param("-key   QUID_KEY  size =", len(*key), "bytes")
-	log.V().Param("-admin QUID_ADMIN_USR =", *admin)
-	log.V().Param("-pwd   QUID_ADMIN_PWD =", len(*pwd), "bytes")
-	log.V().Param("-conf                 =", *conf)
-	log.V().Param("-db-usr  DB_USR       =", *dbUser)
-	log.V().Param("-db-pwd  DB_PWD  size =", len(*dbPass), "bytes")
-	log.V().Param("-db-host DB_HOST      =", *dbHost)
-	log.V().Param("-db-port DB_PORT      =", *dbPort)
-	log.V().Param("-db-name DB_NAME      =", *dbName)
-	log.V().Param("-db-url  DB_URL       =", obfuscatedPwdURL)
-	log.V().Param("-www     WWW_DIR      =", *www)
-	log.V().Param("-port    PORT         =", *port)
+	log.V().Param("-dev                       =", *dev)
+	log.V().Param("-v                         =", *verbose)
+	log.V().Param("-conf                      =", *conf)
+	log.V().Param("-key   QUID_KEY            =", len(*key), "bytes")
+	log.V().Param("-admin QUID_ADMIN_USR      =", *admin)
+	log.V().Param("-pwd   QUID_ADMIN_PWD      =", len(*pwd), "bytes")
+	log.V().Param("-conf                      =", *conf)
+	log.V().Param("-db-usr  POSTGRES_USER     =", *dbUser)
+	log.V().Param("-db-pwd  POSTGRES_PASSWORD =", len(*dbPass), "bytes")
+	log.V().Param("-db-name POSTGRES_DB       =", *dbName)
+	log.V().Param("-db-host DB_HOST           =", *dbHost)
+	log.V().Param("-db-port DB_PORT           =", *dbPort)
+	log.V().Param("-db-url  DB_URL            =", obfuscatedPwdURL)
+	log.V().Param("-www     WWW_DIR           =", *www)
+	log.V().Param("-port    PORT              =", *port)
 
 	if *conf {
 		log.Info(`Generating "config.json" file with random AES-128 key`)
@@ -123,7 +123,8 @@ func main() {
 	}
 
 	if err := db.Connect(*dbURL); err != nil {
-		log.Fatal(err)
+		log.Error(err)
+		log.Fatal("Cannot connect to", obfuscatedPwdURL, "(password is obfuscated)")
 	}
 
 	if err := db.ExecSchema(); err != nil {

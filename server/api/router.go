@@ -15,7 +15,7 @@ import (
 
 var log = emo.NewZone("api")
 
-var Incorruptible *incorruptible.Incorruptible
+var incorr *incorruptible.Incorruptible
 
 var gw garcon.Writer
 
@@ -43,7 +43,7 @@ func newServer(port int, devMode bool, allowedOrigins, wwwDir string) http.Serve
 	if devMode {
 		maxAge = 3600 * 24 * 365 // one year
 	}
-	Incorruptible = g.IncorruptibleCheckerBin(crypt.EncodingKey[:16], maxAge, true)
+	incorr = g.IncorruptibleCheckerBin(crypt.EncodingKey[:16], maxAge, true)
 
 	middleware := gg.NewChain(
 		g.MiddlewareRejectUnprintableURI(),

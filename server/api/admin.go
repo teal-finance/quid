@@ -20,7 +20,7 @@ const (
 
 // adminLogout : http logout handler for the admin interface.
 func adminLogout(w http.ResponseWriter, r *http.Request) {
-	http.SetCookie(w, Incorruptible.DeadCookie())
+	http.SetCookie(w, incorr.DeadCookie())
 }
 
 // adminLogin : http login handler for the admin interface.
@@ -87,7 +87,7 @@ func adminLogin(w http.ResponseWriter, r *http.Request) {
 	log.Result("AdminLogin OK u=" + u.Name + " ns=" + namespace + " AdminType=" + adminType.String())
 
 	// create a new Incorruptible cookie
-	cookie, tv, err := Incorruptible.NewCookie(r,
+	cookie, tv, err := incorr.NewCookie(r,
 		incorruptible.String(keyUsername, u.Name),
 		incorruptible.Int64(KeyUserID, u.ID),
 		incorruptible.String(keyNsName, ns.Name),
@@ -107,10 +107,10 @@ func adminLogin(w http.ResponseWriter, r *http.Request) {
 
 // status returns 200 if incorruptible cookie says user is admin.
 func status(w http.ResponseWriter, r *http.Request) {
-	tv, err := Incorruptible.DecodeCookieToken(r)
+	tv, err := incorr.DecodeCookieToken(r)
 	if err != nil {
-		log.Warning("/status wants cookie", Incorruptible.Cookie(0).Name, "but", err)
-		gw.WriteErr(w, r, http.StatusUnauthorized, "missing or invalid incorruptible cookie", "want_cookie_name", Incorruptible.Cookie(0).Name)
+		log.Warning("/status wants cookie", incorr.Cookie(0).Name, "but", err)
+		gw.WriteErr(w, r, http.StatusUnauthorized, "missing or invalid incorruptible cookie", "want_cookie_name", incorr.Cookie(0).Name)
 		return
 	}
 

@@ -10,10 +10,10 @@ import (
 // quidAdminMiddleware : check the token claim to see if the user is admin.
 func quidAdminMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		tv, err := Incorruptible.DecodeCookieToken(r)
+		tv, err := incorr.DecodeCookieToken(r)
 		if err != nil {
-			log.Warn("quidAdminMiddleware wants cookie", Incorruptible.Cookie(0).Name, "but", err)
-			gw.WriteErr(w, r, http.StatusUnauthorized, "missing or invalid incorruptible cookie", "want_cookie_name", Incorruptible.Cookie(0).Name)
+			log.Warn("quidAdminMiddleware wants cookie", incorr.Cookie(0).Name, "but", err)
+			gw.WriteErr(w, r, http.StatusUnauthorized, "missing or invalid incorruptible cookie", "want_cookie_name", incorr.Cookie(0).Name)
 			return
 		}
 

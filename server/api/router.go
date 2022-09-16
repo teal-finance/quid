@@ -68,6 +68,7 @@ func newRouter(g *garcon.Garcon, wwwDir string) http.Handler {
 	r.Get("/favicon.ico", ws.ServeFile("favicon.ico", "image/x-icon"))
 	r.Get("/js/*", ws.ServeDir("text/javascript; charset=utf-8"))
 	r.Get("/assets/*", ws.ServeAssets())
+	r.Get("/img/*", ws.ServeImages())
 
 	// public routes: not protected by login cookie
 	r.Post("/token/refresh/{timeout}", requestRefreshToken)

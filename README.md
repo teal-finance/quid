@@ -1,6 +1,6 @@
-# ![logo](ui/public/logo-2em.svg) Quid &emsp; &emsp; &emsp; [![Go Reference](https://pkg.go.dev/badge/github.com/teal-finance/quid.svg "Go documentation for Quid")](https://pkg.go.dev/github.com/teal-finance/quid) [![Go Report Card](https://goreportcard.com/badge/github.com/teal-finance/quid "Go Report Card for Quid")](https://goreportcard.com/report/github.com/teal-finance/quid)
+# ![❄](ui/public/img/logo-2em.svg) Quid &emsp; &emsp; &emsp; [![Go Reference](https://pkg.go.dev/badge/github.com/teal-finance/quid.svg "Go documentation for Quid")](https://pkg.go.dev/github.com/teal-finance/quid) [![Go Report Card](https://goreportcard.com/badge/github.com/teal-finance/quid "Go Report Card for Quid")](https://goreportcard.com/report/github.com/teal-finance/quid)
 
-![Quid preview](ui/public/quid-preview.jpg)
+![Quid preview](ui/public/img/quid-preview.jpg)
 
 **Quid** is a [JWT][jwt] server (frontend + backend + client libraries)
 to manage Administrators, Users, **Refresh Tokens** and **Access Tokens**

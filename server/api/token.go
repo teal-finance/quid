@@ -203,7 +203,7 @@ func genAccessToken(w http.ResponseWriter, r *http.Request) (accessToken, timeou
 	}
 
 	// generate the access token
-	t, err := tokens.GenAccessTokenWithAlgo(ns.SigningAlgo, timeout, ns.MaxTokenTTL, u.Name, groupNames, orgsNames, ns.AccessKey)
+	t, err := tokens.GenAccessTokenWithAlgo(ns.Alg, timeout, ns.MaxTokenTTL, u.Name, groupNames, orgsNames, ns.AccessKey)
 	if err != nil {
 		log.Error("RequestAccessToken GenAccessToken:", err)
 		w.WriteHeader(http.StatusUnauthorized)
@@ -246,17 +246,17 @@ func getAccessPublicKey(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	switch ns.SigningAlgo {
+	switch ns.Alg {
 	case "RS256", "RS384", "RS512": // OK
 	case "PS256", "PS384", "PS512": // OK
 	case "ES256", "ES384", "ES512": // OK
 	case "EdDSA": // OK
 	default: // "", "HS256", "HS384", "HS512"
-		log.ParamError("Namespace", m.Namespace, "has algo", ns.SigningAlgo, "without public key")
-		gw.WriteErr(w, r, http.StatusBadRequest, "namespace signing algo has no public key", "algo", ns.SigningAlgo)
+		log.ParamError("Namespace", m.Namespace, "has algo", ns.Alg, "without public key")
+		gw.WriteErr(w, r, http.StatusBadRequest, "namespace signing algo has no public key", "algo", ns.Alg)
 	}
 
-	keyDER, err := tokens.DecryptVerificationKeyDER(ns.SigningAlgo, ns.AccessKey)
+	keyDER, err := tokens.DecryptVerificationKeyDER(ns.Alg, ns.AccessKey)
 	if err != nil {
 		log.Error(err)
 	}
@@ -264,7 +264,7 @@ func getAccessPublicKey(w http.ResponseWriter, r *http.Request) {
 	isHex := strings.ToLower(m.EncodingForm) != "base64"
 	keyTxt := gg.EncodeHexOrB64Bytes(keyDER, isHex)
 
-	gw.WriteOK(w, server.PublicKeyResponse{Alg: ns.SigningAlgo, Key: keyTxt})
+	gw.WriteOK(w, server.PublicKeyResponse{Alg: ns.Alg, Key: keyTxt})
 }
 
 func validAccessToken(w http.ResponseWriter, r *http.Request) {
@@ -294,7 +294,7 @@ func validAccessToken(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	verificationKeyDER, err := tokens.DecryptVerificationKeyDER(ns.SigningAlgo, ns.AccessKey)
+	verificationKeyDER, err := tokens.DecryptVerificationKeyDER(ns.Alg, ns.AccessKey)
 	if err != nil {
 		gw.WriteErr(w, r, http.StatusBadRequest, "error decrypting verification key", "namespace", m.Namespace)
 		return
@@ -302,7 +302,7 @@ func validAccessToken(w http.ResponseWriter, r *http.Request) {
 
 	w.Header().Set("Content-Type", "application/json")
 
-	err = tokens.ValidAccessToken(m.AccessToken, ns.SigningAlgo, verificationKeyDER)
+	err = tokens.ValidAccessToken(m.AccessToken, ns.Alg, verificationKeyDER)
 	if err != nil {
 		log.Result("Invalid AccessToken:", err)
 		w.WriteHeader(http.StatusConflict)

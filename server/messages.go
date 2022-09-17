@@ -86,7 +86,7 @@ type Availability struct {
 
 type NamespaceCreation struct {
 	Name           string
-	Algo           string
+	Alg            string
 	MaxTTL         string
 	RefreshMaxTTL  string
 	EnableEndpoint bool

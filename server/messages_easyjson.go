@@ -911,8 +911,8 @@ func easyjson66c1e240DecodeGithubComTealFinanceQuidServer11(in *jlexer.Lexer, ou
 		switch key {
 		case "name":
 			out.Name = string(in.String())
-		case "algo":
-			out.Algo = string(in.String())
+		case "alg":
+			out.Alg = string(in.String())
 		case "max_ttl":
 			out.MaxTTL = string(in.String())
 		case "refresh_max_ttl":
@@ -943,9 +943,9 @@ func easyjson66c1e240EncodeGithubComTealFinanceQuidServer11(out *jwriter.Writer,
 		out.String(string(in.Name))
 	}
 	{
-		const prefix string = ",\"algo\":"
+		const prefix string = ",\"alg\":"
 		out.RawString(prefix)
-		out.String(string(in.Algo))
+		out.String(string(in.Alg))
 	}
 	{
 		const prefix string = ",\"max_ttl\":"

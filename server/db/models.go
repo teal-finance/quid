@@ -23,7 +23,7 @@ type userOrgName struct {
 
 type namespace struct {
 	Name                  string `db:"name" json:"name"`
-	SigningAlgo           string `db:"alg" json:"alg"`
+	Alg                   string `db:"alg" json:"alg"`
 	AccessKey             []byte `db:"access_key" json:"access_key"`
 	RefreshKey            []byte `db:"refresh_key" json:"refresh_key"`
 	MaxAccessTTL          string `db:"max_access_ttl" json:"max_access_ttl"`

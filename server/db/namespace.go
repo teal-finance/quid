@@ -24,7 +24,7 @@ func SelectAllNamespaces() ([]server.Namespace, error) {
 	for _, u := range data {
 		res = append(res, server.Namespace{
 			Name:                  u.Name,
-			SigningAlgo:           "",
+			Alg:                   "",
 			AccessKey:             nil,
 			RefreshKey:            nil,
 			MaxTokenTTL:           u.MaxAccessTTL,
@@ -89,7 +89,7 @@ func SelectNsFromName(name string) (bool, server.Namespace, error) {
 
 	ns = server.Namespace{
 		Name:                  data.Name,
-		SigningAlgo:           "HS256",
+		Alg:                   "HS256",
 		AccessKey:             accessKey,
 		RefreshKey:            refreshKey,
 		MaxTokenTTL:           data.MaxAccessTTL,
@@ -114,13 +114,13 @@ func SelectVerificationKeyDER(id int64) (found bool, algo string, der []byte, _ 
 		return false, "", nil, err
 	}
 
-	der, err := tokens.DecryptVerificationKeyDER(data.SigningAlgo, data.AccessKey)
+	der, err := tokens.DecryptVerificationKeyDER(data.Alg, data.AccessKey)
 	if err != nil {
 		log.Error(err)
 		return true, "", nil, err
 	}
 
-	return true, data.SigningAlgo, der, nil
+	return true, data.Alg, der, nil
 }
 
 // SelectNsID : get a namespace.

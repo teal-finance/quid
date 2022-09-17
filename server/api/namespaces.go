@@ -214,20 +214,20 @@ func createNamespace(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if m.Algo == "" {
-		m.Algo = "HS256"
-		log.Param("No signing algo provided, defaults to " + m.Algo)
+	if m.Alg == "" {
+		m.Alg = "HS256"
+		log.Param("No signing algo provided, defaults to " + m.Alg)
 	}
 
 	refreshKey := tokens.GenerateKeyHMAC(256)
-	accessKey, err := tokens.GenerateSigningKey(m.Algo)
+	accessKey, err := tokens.GenerateSigningKey(m.Alg)
 	if err != nil {
-		log.Warn("Generate AccessKey algo=" + m.Algo + " err: " + err.Error())
+		log.Warn("Generate AccessKey algo=" + m.Alg + " err: " + err.Error())
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
 
-	nsID, exists, err := db.CreateNamespaceIfExist(m.Name, m.MaxTTL, m.RefreshMaxTTL, m.Algo, accessKey, refreshKey, m.EnableEndpoint)
+	nsID, exists, err := db.CreateNamespaceIfExist(m.Name, m.MaxTTL, m.RefreshMaxTTL, m.Alg, accessKey, refreshKey, m.EnableEndpoint)
 	if err != nil {
 		gw.WriteErr(w, r, http.StatusInternalServerError, "error creating namespace", "namespace", m.Name)
 		return

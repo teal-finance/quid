@@ -3,7 +3,6 @@ package db
 import (
 	"database/sql"
 	"errors"
-	"fmt"
 
 	// pg import.
 	_ "github.com/lib/pq"
@@ -158,18 +157,7 @@ func CreateUserFromNameAndPassword(username, passwordHash string, namespaceID in
 		return 0, err
 	}
 
-	for rows.Next() {
-		var idi any
-		err := rows.Scan(&idi)
-		if err != nil {
-			log.QueryError(err)
-			return 0, err
-		}
-		return idi.(int64), nil
-	}
-
-	log.QueryError("no user", username)
-	return 0, fmt.Errorf("no user %q", username)
+	return getFirstID(username, rows)
 }
 
 /*

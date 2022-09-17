@@ -2,8 +2,6 @@ package db
 
 import (
 	// pg import.
-	"fmt"
-
 	_ "github.com/lib/pq"
 
 	"github.com/teal-finance/quid/server"
@@ -116,18 +114,7 @@ func CreateOrg(name string) (int64, error) {
 		return 0, err
 	}
 
-	for rows.Next() {
-		var idi any
-		err := rows.Scan(&idi)
-		if err != nil {
-			log.QueryError(err)
-			return 0, err
-		}
-		return idi.(int64), nil
-	}
-
-	log.QueryError("no org", name)
-	return 0, fmt.Errorf("no org %q", name)
+	return getFirstID(name, rows)
 }
 
 // CreateOrgIfExist : create an org.

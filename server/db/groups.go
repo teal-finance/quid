@@ -86,24 +86,7 @@ func CreateGroup(name string, namespaceID int64) (int64, error) {
 		return 0, err
 	}
 
-	if !rows.Next() {
-		return 0, log.QueryErrorf("no group %q", name).Err()
-	}
-
-	var gid any
-	err = rows.Scan(&gid)
-	if err != nil {
-		log.QueryError(err)
-		return 0, err
-	}
-
-	id, ok := gid.(int64)
-	if !ok {
-		log.QueryError("Cannot convert gid into int64")
-		return 0, err
-	}
-
-	return id, nil
+	return getFirstID(name, rows)
 }
 
 // createGroup : create a group.

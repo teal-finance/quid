@@ -161,24 +161,7 @@ func CreateNamespace(name, ttl, refreshTTL, algo string, accessKey, refreshKey [
 		return 0, err
 	}
 
-	if !rows.Next() {
-		return 0, log.QueryErrorf("no namespace %q", name).Err()
-	}
-
-	var nsID any
-	err = rows.Scan(&nsID)
-	if err != nil {
-		log.QueryError(err)
-		return 0, err
-	}
-
-	id, ok := nsID.(int64)
-	if !ok {
-		log.QueryError("Cannot convert nsID into int64")
-		return 0, err
-	}
-
-	return id, nil
+	return getFirstID(name, rows)
 }
 
 // CreateNamespaceIfExist : create a namespace.

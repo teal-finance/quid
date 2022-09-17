@@ -19,14 +19,12 @@ func allNsUsers(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	nsID := m.NamespaceID
-
-	if !isNsAdmin(r, nsID) {
-		gw.WriteErr(w, r, http.StatusUnauthorized, "user is not admin for requested namespace", "namespace_id", nsID)
+	if !isNsAdmin(r, m.NamespaceID) {
+		gw.WriteErr(w, r, http.StatusUnauthorized, "user is not admin for requested namespace", "namespace_id", m.NamespaceID)
 		return
 	}
 
-	data, err := db.SelectNsUsers(nsID)
+	data, err := db.SelectNsUsers(m.NamespaceID)
 	if err != nil {
 		log.QueryError("AllUsersInNamespace: error SELECT users:", err)
 		gw.WriteErr(w, r, http.StatusInternalServerError, "error SELECT users")
@@ -45,15 +43,13 @@ func nsGroups(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	namespace := m.Namespace
-
-	if p := gg.Printable(namespace); p >= 0 {
+	if p := gg.Printable(m.Namespace); p >= 0 {
 		log.ParamError("GroupsForNamespace: JSON contains a forbidden character at p=", p)
 		gw.WriteErr(w, r, http.StatusUnauthorized, "forbidden character", "position", p)
 		return
 	}
 
-	hasResult, ns, err := db.SelectNsFromName(namespace)
+	hasResult, ns, err := db.SelectNsFromName(m.Namespace)
 	if err != nil || !hasResult {
 		log.QueryError("GroupsForNamespace: error SELECT namespace:", err)
 		gw.WriteErr(w, r, http.StatusInternalServerError, "error SELECT namespace")
@@ -79,10 +75,7 @@ func addUserInOrg(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	uID := m.UserID
-	oID := m.OrgID
-
-	err := db.AddUserInOrg(uID, oID)
+	err := db.AddUserInOrg(m.UserID, m.OrgID)
 	if err != nil {
 		log.QueryError("AddUserInOrg: error adding user in org:", err)
 		gw.WriteErr(w, r, http.StatusInternalServerError, "error adding user in org")
@@ -102,10 +95,7 @@ func removeUserFromOrg(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	uID := m.UserID
-	oID := m.OrgID
-
-	err := db.RemoveUserFromOrg(uID, oID)
+	err := db.RemoveUserFromOrg(m.UserID, m.OrgID)
 	if err != nil {
 		log.QueryError("RemoveUserFromOrg: error removing user from org:", err)
 		gw.WriteErr(w, r, http.StatusInternalServerError, "error removing user from org")
@@ -125,16 +115,12 @@ func addUserInGroup(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	uID := m.UserID
-	gID := m.GroupID
-	nsID := m.NamespaceID
-
-	if !isNsAdmin(r, nsID) {
-		gw.WriteErr(w, r, http.StatusUnauthorized, "user is not admin for requested namespace", "namespace_id", nsID)
+	if !isNsAdmin(r, m.NamespaceID) {
+		gw.WriteErr(w, r, http.StatusUnauthorized, "user is not admin for requested namespace", "namespace_id", m.NamespaceID)
 		return
 	}
 
-	err := db.AddUserInGroup(uID, gID)
+	err := db.AddUserInGroup(m.UserID, m.GroupID)
 	if err != nil {
 		log.QueryError("AddUserInGroup:", err)
 		gw.WriteErr(w, r, http.StatusInternalServerError, "error adding user in group")
@@ -154,16 +140,12 @@ func removeUserFromGroup(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	uID := m.UserID
-	gID := m.GroupID
-	nsID := m.NamespaceID
-
-	if !isNsAdmin(r, nsID) {
-		gw.WriteErr(w, r, http.StatusUnauthorized, "user is not admin for requested namespace", "namespace_id", nsID)
+	if !isNsAdmin(r, m.NamespaceID) {
+		gw.WriteErr(w, r, http.StatusUnauthorized, "user is not admin for requested namespace", "namespace_id", m.NamespaceID)
 		return
 	}
 
-	err := db.RemoveUserFromGroup(uID, gID)
+	err := db.RemoveUserFromGroup(m.UserID, m.GroupID)
 	if err != nil {
 		log.QueryError("RemoveUserFromGroup: error removing user from group:", err)
 		gw.WriteErr(w, r, http.StatusInternalServerError, "error removing user from group")
@@ -183,15 +165,12 @@ func userGroupsInfo(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	id := m.ID
-	nsID := m.NamespaceID
-
-	if !isNsAdmin(r, nsID) {
-		gw.WriteErr(w, r, http.StatusUnauthorized, "user is not admin for requested namespace", "namespace_id", nsID)
+	if !isNsAdmin(r, m.NamespaceID) {
+		gw.WriteErr(w, r, http.StatusUnauthorized, "user is not admin for requested namespace", "namespace_id", m.NamespaceID)
 		return
 	}
 
-	g, err := db.SelectGroupsForUser(id)
+	g, err := db.SelectGroupsForUser(m.ID)
 	if err != nil {
 		log.QueryError("UserGroupsInfo: error SELECT groups:", err)
 		gw.WriteErr(w, r, http.StatusInternalServerError, "error SELECT groups")
@@ -211,15 +190,12 @@ func deleteUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	id := m.ID
-	nsID := m.NamespaceID
-
-	if !isNsAdmin(r, nsID) {
-		gw.WriteErr(w, r, http.StatusUnauthorized, "user is not admin for requested namespace", "namespace_id", nsID)
+	if !isNsAdmin(r, m.NamespaceID) {
+		gw.WriteErr(w, r, http.StatusUnauthorized, "user is not admin for requested namespace", "namespace_id", m.NamespaceID)
 		return
 	}
 
-	if err := db.DeleteUser(id); err != nil {
+	if err := db.DeleteUser(m.ID); err != nil {
 		log.QueryError("DeleteUser: error deleting user:", err)
 		gw.WriteErr(w, r, http.StatusConflict, "error deleting user")
 		return
@@ -238,23 +214,19 @@ func createUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	name := m.Name
-	password := m.Password
-	nsID := m.NamespaceID
-
-	if p := gg.Printable(name, password); p >= 0 {
+	if p := gg.Printable(m.Name, m.Password); p >= 0 {
 		log.ParamError("CreateUser: JSON contains a forbidden character at p=", p)
 		gw.WriteErr(w, r, http.StatusUnauthorized, "forbidden character")
 		return
 	}
 
-	if !isNsAdmin(r, nsID) {
-		gw.WriteErr(w, r, http.StatusUnauthorized, "user is not admin for requested namespace", "namespace_id", nsID)
+	if !isNsAdmin(r, m.NamespaceID) {
+		gw.WriteErr(w, r, http.StatusUnauthorized, "user is not admin for requested namespace", "namespace_id", m.NamespaceID)
 		return
 	}
 
 	// check if user exists
-	exists, err := db.UserExists(name, nsID)
+	exists, err := db.UserExists(m.Name, m.NamespaceID)
 	if err != nil {
 		log.QueryError("CreateUser: error checking user:", err)
 		gw.WriteErr(w, r, http.StatusConflict, "error checking user")
@@ -267,7 +239,7 @@ func createUser(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// create user
-	u, err := db.CreateUser(name, password, nsID)
+	u, err := db.CreateUser(m.Name, m.Password, m.NamespaceID)
 	if err != nil {
 		log.QueryError("CreateUser: error creating user:", err)
 		gw.WriteErr(w, r, http.StatusConflict, "error creating user")

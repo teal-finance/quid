@@ -32,51 +32,47 @@ func adminLogin(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	username := m.Username
-	password := m.Password
-	namespace := m.Namespace
-
-	if p := gg.Printable(username, password, namespace); p >= 0 {
+	if p := gg.Printable(m.Username, m.Password, m.Namespace); p >= 0 {
 		log.ParamError("AdminLogin: JSON contains a forbidden character at p=", p)
 		gw.WriteErr(w, r, http.StatusUnauthorized, "forbidden character", "position", p)
 		return
 	}
 
 	// get the namespace
-	exists, ns, err := db.SelectNsFromName(namespace)
+	exists, ns, err := db.SelectNsFromName(m.Namespace)
 	if err != nil {
 		log.QueryError("AdminLogin SelectNsFromName:", err)
-		gw.WriteErr(w, r, http.StatusUnauthorized, "DB error SELECT namespace", "namespace", namespace)
+		gw.WriteErr(w, r, http.StatusUnauthorized, "DB error SELECT namespace", "namespace", m.Namespace)
 		return
 	}
 	if !exists {
-		log.ParamError("AdminLogin: namespace " + namespace + " does not exist")
-		gw.WriteErr(w, r, http.StatusBadRequest, "namespace does not exist", "namespace", namespace)
+		log.ParamError("AdminLogin: namespace " + m.Namespace + " does not exist")
+		gw.WriteErr(w, r, http.StatusBadRequest, "namespace does not exist", "namespace", m.Namespace)
 		return
 	}
 
 	// check the user password
-	same, u, err := checkUserPassword(username, password, ns.ID)
+	same, u, err := checkUserPassword(m.Username, m.Password, ns.ID)
 	if err != nil {
 		log.Error("AdminLogin checkUserPassword:", err)
-		gw.WriteErr(w, r, http.StatusUnauthorized, "internal error when checking user password", "usr", username, "namespace", namespace)
+		gw.WriteErr(w, r, http.StatusUnauthorized, "internal error when checking user password", "usr", m.Username, "namespace", m.Namespace)
 		return
 	}
 	if !same {
-		log.Info("AdminLogin u=" + username + " ns=" + namespace + ": disabled user or bad password")
-		gw.WriteErr(w, r, http.StatusUnauthorized, "disabled user or bad password", "usr", username, "namespace", namespace)
+		log.Info("AdminLogin u=" + m.Username + " ns=" + m.Namespace + ": disabled user or bad password")
+		gw.WriteErr(w, r, http.StatusUnauthorized, "disabled user or bad password", "usr", m.Username, "namespace", m.Namespace)
 		return
 	}
 
 	userType, err := db.GetUserType(ns.Name, ns.ID, u.ID)
 	if err != nil {
 		log.QueryError("AdminLogin AdminType:", err)
-		gw.WriteErr(w, r, http.StatusUnauthorized, "DB error when getting user type", "usr", username, "namespace", namespace)
+		gw.WriteErr(w, r, http.StatusUnauthorized, "DB error when getting user type", "usr", m.Username, "namespace", m.Namespace)
 		return
 	}
 	if userType == db.UserNoAdmin {
-		log.ParamError("AdminLogin: u=" + username + " is not admin")
-		gw.WriteErr(w, r, http.StatusUnauthorized, "user is not admin", "usr", username, "namespace", namespace)
+		log.ParamError("AdminLogin: u=" + m.Username + " is not admin")
+		gw.WriteErr(w, r, http.StatusUnauthorized, "user is not admin", "usr", m.Username, "namespace", m.Namespace)
 		return
 	}
 
@@ -84,7 +80,7 @@ func adminLogin(w http.ResponseWriter, r *http.Request) {
 	if userType == db.NsAdmin {
 		adminType = server.NsAdmin
 	}
-	log.Result("AdminLogin OK u=" + u.Name + " ns=" + namespace + " AdminType=" + adminType.String())
+	log.Result("AdminLogin OK u=" + u.Name + " ns=" + m.Namespace + " AdminType=" + adminType.String())
 
 	// create a new Incorruptible cookie
 	cookie, tv, err := incorr.NewCookie(r,
@@ -96,7 +92,7 @@ func adminLogin(w http.ResponseWriter, r *http.Request) {
 	)
 	if err != nil {
 		log.Error("AdminLogin NewCookie:", err)
-		gw.WriteErr(w, r, http.StatusUnauthorized, "internal error when creating a new incorruptible cookie", "usr", username, "namespace", namespace)
+		gw.WriteErr(w, r, http.StatusUnauthorized, "internal error when creating a new incorruptible cookie", "usr", m.Username, "namespace", m.Namespace)
 		return
 	}
 

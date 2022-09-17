@@ -29,15 +29,13 @@ func findOrg(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	name := m.Name
-
-	if p := gg.Printable(name); p >= 0 {
+	if p := gg.Printable(m.Name); p >= 0 {
 		log.Warn("FindOrg: JSON contains a forbidden character at p=", p)
 		gw.WriteErr(w, r, http.StatusUnauthorized, "forbidden character", "position", p)
 		return
 	}
 
-	data, err := db.SelectOrgStartsWith(name)
+	data, err := db.SelectOrgStartsWith(m.Name)
 	if err != nil {
 		log.QueryError("FindOrg:", err)
 		gw.WriteErr(w, r, http.StatusInternalServerError, "error finding org")
@@ -56,9 +54,7 @@ func userOrgsInfo(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	id := m.ID
-
-	o, err := db.SelectOrgsForUser(id)
+	o, err := db.SelectOrgsForUser(m.ID)
 	if err != nil {
 		log.QueryError("UserOrgsInfo: error SELECT orgs:", err)
 		gw.WriteErr(w, r, http.StatusInternalServerError, "error SELECT orgs")
@@ -77,9 +73,7 @@ func deleteOrg(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	id := m.ID
-
-	if err := db.DeleteOrg(id); err != nil {
+	if err := db.DeleteOrg(m.ID); err != nil {
 		log.QueryError("DeleteOrg:", err)
 		gw.WriteErr(w, r, http.StatusConflict, "error deleting org")
 		return
@@ -97,15 +91,13 @@ func createOrg(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	name := m.Name
-
-	if p := gg.Printable(name); p >= 0 {
+	if p := gg.Printable(m.Name); p >= 0 {
 		log.ParamError("CreateOrg: JSON contains a forbidden character at p=", p)
 		gw.WriteErr(w, r, http.StatusUnauthorized, "forbidden character", "position", p)
 		return
 	}
 
-	org, exists, err := db.CreateOrgIfExist(name)
+	org, exists, err := db.CreateOrgIfExist(m.Name)
 	if err != nil {
 		gw.WriteErr(w, r, http.StatusConflict, "error creating org")
 		return

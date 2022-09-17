@@ -31,16 +31,13 @@ func setRefreshMaxTTL(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	id := m.ID
-	refreshMxTTL := m.RefreshMaxTTL
-
-	if p := gg.Printable(refreshMxTTL); p >= 0 {
+	if p := gg.Printable(m.RefreshMaxTTL); p >= 0 {
 		log.Warn("SetNamespaceRefreshTokenMaxTTL: JSON contains a forbidden character at p=", p)
 		gw.WriteErr(w, r, http.StatusUnauthorized, "forbidden character", "position", p)
 		return
 	}
 
-	err := db.UpdateNsRefreshMaxTTL(id, refreshMxTTL)
+	err := db.UpdateNsRefreshMaxTTL(m.ID, m.RefreshMaxTTL)
 	if err != nil {
 		log.QueryError("SetNamespaceRefreshTokenMaxTTL: error updating tokens max TTL in namespace:", err)
 		gw.WriteErr(w, r, http.StatusInternalServerError, "error updating tokens max TTL in namespace")
@@ -59,16 +56,13 @@ func setTokenMaxTTL(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	id := m.ID
-	ttl := m.MaxTTL
-
-	if p := gg.Printable(ttl); p >= 0 {
+	if p := gg.Printable(m.MaxTTL); p >= 0 {
 		log.Warn("SetNamespaceTokenMaxTTL: JSON contains a forbidden character at p=", p)
 		gw.WriteErr(w, r, http.StatusUnauthorized, "forbidden character", "position", p)
 		return
 	}
 
-	err := db.UpdateNsTokenMaxTTL(id, ttl)
+	err := db.UpdateNsTokenMaxTTL(m.ID, m.MaxTTL)
 	if err != nil {
 		log.QueryError("SetNamespaceTokenMaxTTL: error updating tokens max TTL in namespace:", err)
 		gw.WriteErr(w, r, http.StatusInternalServerError, "error updating tokens max TTL in namespace")
@@ -87,16 +81,14 @@ func namespaceInfo(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	id := m.ID
-
-	nu, err := db.CountUsersForNamespace(id)
+	nu, err := db.CountUsersForNamespace(m.ID)
 	if err != nil {
 		log.QueryError("NamespaceInfo: error counting users in namespace:", err)
 		gw.WriteErr(w, r, http.StatusInternalServerError, "error counting users in namespace")
 		return
 	}
 
-	g, err := db.SelectNsGroups(id)
+	g, err := db.SelectNsGroups(m.ID)
 	if err != nil {
 		log.QueryError("NamespaceInfo: error counting groups in namespace:", err)
 		gw.WriteErr(w, r, http.StatusInternalServerError, "error counting groups in namespace")
@@ -147,15 +139,13 @@ func findNamespace(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	name := m.Name
-
-	if p := gg.Printable(name); p >= 0 {
+	if p := gg.Printable(m.Name); p >= 0 {
 		log.Warn("FindNamespace: JSON contains a forbidden character at p=", p)
 		gw.WriteErr(w, r, http.StatusUnauthorized, "forbidden character", "position", p)
 		return
 	}
 
-	data, err := db.SelectNsStartsWith(name)
+	data, err := db.SelectNsStartsWith(m.Name)
 	if err != nil {
 		log.QueryError("FindNamespace: error SELECT namespace:", err)
 		gw.WriteErr(w, r, http.StatusInternalServerError, "error SELECT namespace")
@@ -174,9 +164,7 @@ func deleteNamespace(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	id := m.ID
-
-	qRes := db.DeleteNamespace(id)
+	qRes := db.DeleteNamespace(m.ID)
 	if qRes.HasError {
 		log.QueryError(qRes.Error.Message)
 		if qRes.Error.HasUserMessage {
@@ -201,10 +189,7 @@ func enableNsEndpoint(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	id := m.ID
-	enable := m.Enable
-
-	err := db.EnableNsEndpoint(id, enable)
+	err := db.EnableNsEndpoint(m.ID, m.Enable)
 	if err != nil {
 		log.QueryError("SetNamespaceEndpointAvailability: error updating namespace:", err)
 		gw.WriteErr(w, r, http.StatusConflict, "error updating namespace")

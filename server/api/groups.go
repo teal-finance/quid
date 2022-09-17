@@ -17,14 +17,12 @@ func allNsGroups(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	nsID := m.NamespaceID
-
-	if !isNsAdmin(r, nsID) {
-		gw.WriteErr(w, r, http.StatusUnauthorized, "user is not admin for requested namespace", "namespace_id", nsID)
+	if !isNsAdmin(r, m.NamespaceID) {
+		gw.WriteErr(w, r, http.StatusUnauthorized, "user is not admin for requested namespace", "namespace_id", m.NamespaceID)
 		return
 	}
 
-	data, err := db.SelectNsGroups(nsID)
+	data, err := db.SelectNsGroups(m.NamespaceID)
 	if err != nil {
 		log.QueryError("AllGroupsForNamespace: error SELECT groups:", err)
 		gw.WriteErr(w, r, http.StatusConflict, "error SELECT groups")
@@ -55,15 +53,12 @@ func groupsInfo(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	id := m.ID
-	nsID := m.NamespaceID
-
-	if !isNsAdmin(r, nsID) {
-		gw.WriteErr(w, r, http.StatusUnauthorized, "user is not admin for requested namespace", "namespace_id", nsID)
+	if !isNsAdmin(r, m.NamespaceID) {
+		gw.WriteErr(w, r, http.StatusUnauthorized, "user is not admin for requested namespace", "namespace_id", m.NamespaceID)
 		return
 	}
 
-	n, err := db.CountUsersInGroup(id)
+	n, err := db.CountUsersInGroup(m.ID)
 	if err != nil {
 		log.QueryError("GroupsInfo: error counting in group:", err)
 		gw.WriteErr(w, r, http.StatusConflict, "error counting in group")
@@ -82,15 +77,12 @@ func deleteGroup(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	id := m.ID
-	nsID := m.NamespaceID
-
-	if !isNsAdmin(r, nsID) {
-		gw.WriteErr(w, r, http.StatusUnauthorized, "user is not admin for requested namespace", "namespace_id", nsID)
+	if !isNsAdmin(r, m.NamespaceID) {
+		gw.WriteErr(w, r, http.StatusUnauthorized, "user is not admin for requested namespace", "namespace_id", m.NamespaceID)
 		return
 	}
 
-	if err := db.DeleteGroup(id); err != nil {
+	if err := db.DeleteGroup(m.ID); err != nil {
 		log.QueryError("DeleteGroup: error deleting group:", err)
 		gw.WriteErr(w, r, http.StatusConflict, "error deleting group")
 		return
@@ -108,21 +100,18 @@ func createGroup(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	name := m.Name
-	nsID := m.NamespaceID
-
-	if p := gg.Printable(name); p >= 0 {
+	if p := gg.Printable(m.Name); p >= 0 {
 		log.Warn("CreateGroup: JSON contains a forbidden character at p=", p)
 		gw.WriteErr(w, r, http.StatusUnauthorized, "forbidden character", "position", p)
 		return
 	}
 
-	if !isNsAdmin(r, nsID) {
-		gw.WriteErr(w, r, http.StatusUnauthorized, "user is not admin for requested namespace", "namespace_id", nsID)
+	if !isNsAdmin(r, m.NamespaceID) {
+		gw.WriteErr(w, r, http.StatusUnauthorized, "user is not admin for requested namespace", "namespace_id", m.NamespaceID)
 		return
 	}
 
-	grp, exists, err := db.CreateGroupIfExist(name, nsID)
+	grp, exists, err := db.CreateGroupIfExist(m.Name, m.NamespaceID)
 	if err != nil {
 		gw.WriteErr(w, r, http.StatusConflict, "error creating group")
 		return

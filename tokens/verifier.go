@@ -435,18 +435,6 @@ func AccessClaimsFromBase64(payload []byte, reuse bool) (*AccessClaims, error) {
 	return &claims, err
 }
 
-// trimRightNull drops potential ending null bytes
-func trimRightNull(b []byte) []byte {
-	i := len(b)
-	for i > 0 {
-		if b[i-1] != 0 {
-			break
-		}
-		i--
-	}
-	return b[:i]
-}
-
 type claimError struct {
 	err         error
 	claimsBytes []byte

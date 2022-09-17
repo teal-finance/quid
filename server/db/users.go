@@ -107,7 +107,7 @@ func SelectNsUsers(namespaceID int64) ([]server.User, error) {
 }
 
 // SearchUsersInNamespaceFromUsername : get the users in a namespace from a username.
-// TODO FIXME TOFIX
+// TODO FIXME
 /*func SearchUsersInNamespaceFromUsername(username string, namespaceID int64) ([]server.User, error) {
 	var data []server.User
 	err := db.Select(&data, "SELECT id,username FROM usertable WHERE(username LIKE $1 AND namespace_id=$2)", username+"%", namespaceID)

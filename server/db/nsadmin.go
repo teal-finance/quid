@@ -49,26 +49,13 @@ func SelectNonAdminUsersInNs(namespaceID int64, qs string) ([]server.NonNsAdmin,
 
 // CreateAdministrator : create an admin user.
 func CreateAdministrator(namespaceID, userID int64) error {
-	q := "INSERT INTO namespaceadmin(namespace_id, user_id) VALUES($1,$2) RETURNING id"
+	q := "INSERT INTO namespaceadmin(namespace_id, user_id) VALUES($1,$2)"
 
-	rows, err := db.Query(q, namespaceID, userID)
+	_, err := db.Query(q, namespaceID, userID)
 	if err != nil {
 		log.QueryError(err)
-		return err
 	}
-
-	if !rows.Next() {
-		return log.QueryError("no nsAdmin for nsID=", namespaceID, "userID=", userID).Err()
-	}
-
-	var id any
-	err = rows.Scan(&id)
-	if err != nil {
-		log.QueryError(err)
-		return err
-	}
-
-	return nil
+	return err
 }
 
 // IsUserAnAdmin : check if an admin user exists.

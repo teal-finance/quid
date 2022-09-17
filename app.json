@@ -2,6 +2,7 @@
   "name": "Quid",
   "description": "JWT server providing Refresh/Access tokens supporting HMAC, RSA, ECDSA and EdDSA",
   "repository": "https://github.com/teal-finance/quid",
+  "logo": "https://raw.githubusercontent.com/teal-finance/quid/main/ui/public/img/logo.svg",
   "keywords": [
     "JWT",
     "JSON Web Token",

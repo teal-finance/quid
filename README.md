@@ -199,5 +199,9 @@ See the following open-source projects providing these features:
   Password-less login server using email/OpenID/OAuth2/JWT,
   successor to Persona (Portier is simpler than Persona)
 
+Other Go and JWT related projects:
+
+- https://github.com/kataras/jwt
+
 - Other Authentication tools in Go:  
   <https://github.com/avelino/awesome-go#authentication-and-oauth>

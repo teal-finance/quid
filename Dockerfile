@@ -67,11 +67,13 @@ COPY server server
 COPY tokens tokens
 
 # Go build flags "-s -w" removes all debug symbols, see: https://pkg.go.dev/cmd/link
+# GOAMD64=v3 --> https://github.com/golang/go/wiki/MinimumRequirements#amd64
 RUN set -ex                                                          ;\
     ls -lA                                                           ;\
     CGO_ENABLED=0                                                     \
     GOFLAGS="-trimpath -modcacherw"                                   \
     GOLDFLAGS="-d -s -w -extldflags=-static"                          \
+    GOAMD64=v3                                                        \
     go build -a -tags osusergo,netgo -installsuffix netgo ./cmd/quid ;\
     ls -sh quid                                                      ;\
     ./quid -help  # smoke test

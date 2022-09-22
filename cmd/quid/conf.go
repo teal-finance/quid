@@ -20,6 +20,7 @@ func createConfigFile(dbName, dbUser, dbPass string) error {
 
 	jsonString, err := json.MarshalIndent(data, "", "    ")
 	if err != nil {
+		log.S().Warning(err)
 		return err
 	}
 

@@ -9,21 +9,26 @@ import (
 
 // SelectAllOrgs : get all the orgs.
 func SelectAllOrgs() ([]server.Org, error) {
-	q := "SELECT id,name FROM orgtable"
+	q := "SELECT id,name FROM organizations"
 
 	var data []server.Org
 	err := db.Select(&data, q)
+	if err != nil {
+		log.S().Warning(err)
+		return nil, err
+	}
 
-	return data, err
+	return data, nil
 }
 
 // SelectOrg : get a org.
 func SelectOrg(name string) (server.Org, error) {
-	q := "SELECT id,name FROM orgtable WHERE(name=$1)"
+	q := "SELECT id,name FROM organizations WHERE(name=$1)"
 
 	var data []server.Org
 	err := db.Select(&data, q, name)
 	if err != nil {
+		log.S().Warning(err)
 		return server.Org{}, err
 	}
 
@@ -31,24 +36,29 @@ func SelectOrg(name string) (server.Org, error) {
 }
 
 // SelectOrgsForUser : get the orgs for a user.
-func SelectOrgsForUser(userID int64) ([]server.Org, error) {
-	q := "SELECT orgtable.id as id, orgtable.name as name FROM userorg " +
-		"JOIN orgtable ON userorg.org_id = orgtable.id " +
-		"WHERE userorg.user_id=$1 ORDER BY orgtable.name"
+func SelectOrgsForUser(usrID int64) ([]server.Org, error) {
+	q := "SELECT organizations.id as id, organizations.name as name FROM user_organizations " +
+		"JOIN organizations ON user_organizations.org_id = organizations.id " +
+		"WHERE user_organizations.usr_id=$1 ORDER BY organizations.name"
 
 	var data []server.Org
-	err := db.Select(&data, q, userID)
+	err := db.Select(&data, q, usrID)
+	if err != nil {
+		log.S().Warning(err)
+		return nil, err
+	}
 
-	return data, err
+	return data, nil
 }
 
 // SelectOrgStartsWith : get a namespace.
 func SelectOrgStartsWith(name string) ([]server.Org, error) {
-	q := "SELECT id,name FROM orgtable WHERE name LIKE '" + name + "%'"
+	q := "SELECT id,name FROM organizations WHERE name LIKE '" + name + "%'"
 
 	var data []org
 	err := db.Select(&data, q)
 	if err != nil {
+		log.S().Warning(err)
 		return nil, err
 	}
 
@@ -64,14 +74,15 @@ func SelectOrgStartsWith(name string) ([]server.Org, error) {
 }
 
 // SelectOrgsNamesForUser : get the orgs for a user.
-func SelectOrgsNamesForUser(userID int64) ([]string, error) {
-	q := "SELECT orgtable.name as name FROM userorg " +
-		"JOIN orgtable ON userorg.org_id = orgtable.id " +
-		"WHERE userorg.user_id=$1 ORDER BY orgtable.name"
+func SelectOrgsNamesForUser(usrID int64) ([]string, error) {
+	q := "SELECT organizations.name as name FROM user_organizations " +
+		"JOIN organizations ON user_organizations.org_id = organizations.id " +
+		"WHERE user_organizations.usr_id=$1 ORDER BY organizations.name"
 
 	var data []userOrgName
-	err := db.Select(&data, q, userID)
+	err := db.Select(&data, q, usrID)
 	if err != nil {
+		log.S().Warning(err)
 		return nil, err
 	}
 
@@ -85,28 +96,36 @@ func SelectOrgsNamesForUser(userID int64) ([]string, error) {
 
 // OrgExists : check if an org exists.
 func OrgExists(name string) (bool, error) {
-	q := "SELECT COUNT(id) FROM orgtable WHERE(name=$1)"
+	q := "SELECT COUNT(id) FROM organizations WHERE(name=$1)"
 
 	var n int
 	err := db.Get(&n, q, name)
-	exists := (n == 1)
+	if err != nil {
+		log.S().Warning(err)
+		return false, err
+	}
 
-	return exists, err
+	exists := (n > 0)
+	return exists, nil
 }
 
 // DeleteOrg : delete an org.
 func DeleteOrg(id int64) error {
-	q := "DELETE FROM orgtable WHERE id=$1"
+	q := "DELETE FROM organizations WHERE id=$1"
 
 	tx := db.MustBegin()
 	tx.MustExec(q, id)
 
-	return tx.Commit()
+	err := tx.Commit()
+	if err != nil {
+		log.S().Warning(err)
+	}
+	return err
 }
 
 // CreateOrg : create an org.
 func CreateOrg(name string) (int64, error) {
-	q := "INSERT INTO orgtable(name) VALUES($1) RETURNING id"
+	q := "INSERT INTO organizations(name) VALUES($1) RETURNING id"
 
 	rows, err := db.Query(q, name)
 	if err != nil {
@@ -143,21 +162,29 @@ func CreateOrgIfExist(name string) (server.Org, bool, error) {
 }
 
 // AddUserInOrg : add a user into an org.
-func AddUserInOrg(userID, orgID int64) error {
-	q := "INSERT INTO userorg(user_id,org_id) VALUES($1,$2)"
+func AddUserInOrg(usrID, orgID int64) error {
+	q := "INSERT INTO user_organizations(usr_id,org_id) VALUES($1,$2)"
 
 	tx := db.MustBegin()
-	tx.MustExec(q, userID, orgID)
+	tx.MustExec(q, usrID, orgID)
 
-	return tx.Commit()
+	err := tx.Commit()
+	if err != nil {
+		log.S().Warning(err)
+	}
+	return err
 }
 
 // RemoveUserFromOrg : remove a user from an org.
-func RemoveUserFromOrg(userID, orgID int64) error {
-	q := "DELETE FROM userorg WHERE user_id=$1 AND org_id=$2"
+func RemoveUserFromOrg(usrID, orgID int64) error {
+	q := "DELETE FROM user_organizations WHERE usr_id=$1 AND org_id=$2"
 
 	tx := db.MustBegin()
-	tx.MustExec(q, userID, orgID)
+	tx.MustExec(q, usrID, orgID)
 
-	return tx.Commit()
+	err := tx.Commit()
+	if err != nil {
+		log.S().Warning(err)
+	}
+	return err
 }

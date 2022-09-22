@@ -38,10 +38,10 @@ func easyjsonD2b7633eDecodeGithubComTealFinanceQuidServer(in *jlexer.Lexer, out 
 		switch key {
 		case "id":
 			out.ID = int32(in.Int32())
-		case "user_id":
-			out.UserID = int64(in.Int64())
-		case "group_id":
-			out.GroupID = int64(in.Int64())
+		case "usr_id":
+			out.UsrID = int64(in.Int64())
+		case "grp_id":
+			out.GrpID = int64(in.Int64())
 		default:
 			in.AddError(&jlexer.LexerError{
 				Offset: in.GetPos(),
@@ -66,14 +66,14 @@ func easyjsonD2b7633eEncodeGithubComTealFinanceQuidServer(out *jwriter.Writer, i
 		out.Int32(int32(in.ID))
 	}
 	{
-		const prefix string = ",\"user_id\":"
+		const prefix string = ",\"usr_id\":"
 		out.RawString(prefix)
-		out.Int64(int64(in.UserID))
+		out.Int64(int64(in.UsrID))
 	}
 	{
-		const prefix string = ",\"group_id\":"
+		const prefix string = ",\"grp_id\":"
 		out.RawString(prefix)
-		out.Int64(int64(in.GroupID))
+		out.Int64(int64(in.GrpID))
 	}
 	out.RawByte('}')
 }
@@ -327,10 +327,10 @@ func easyjsonD2b7633eDecodeGithubComTealFinanceQuidServer3(in *jlexer.Lexer, out
 		switch key {
 		case "username":
 			out.UserName = string(in.String())
-		case "user_id":
-			out.UserID = int64(in.Int64())
-		case "namespace_id":
-			out.NamespaceID = int64(in.Int64())
+		case "usr_id":
+			out.UsrID = int64(in.Int64())
+		case "ns_id":
+			out.NsID = int64(in.Int64())
 		default:
 			in.AddError(&jlexer.LexerError{
 				Offset: in.GetPos(),
@@ -355,14 +355,14 @@ func easyjsonD2b7633eEncodeGithubComTealFinanceQuidServer3(out *jwriter.Writer, 
 		out.String(string(in.UserName))
 	}
 	{
-		const prefix string = ",\"user_id\":"
+		const prefix string = ",\"usr_id\":"
 		out.RawString(prefix)
-		out.Int64(int64(in.UserID))
+		out.Int64(int64(in.UsrID))
 	}
 	{
-		const prefix string = ",\"namespace_id\":"
+		const prefix string = ",\"ns_id\":"
 		out.RawString(prefix)
-		out.Int64(int64(in.NamespaceID))
+		out.Int64(int64(in.NsID))
 	}
 	out.RawByte('}')
 }
@@ -522,10 +522,10 @@ func easyjsonD2b7633eDecodeGithubComTealFinanceQuidServer5(in *jlexer.Lexer, out
 			out.UserName = string(in.String())
 		case "id":
 			out.ID = int64(in.Int64())
-		case "user_id":
-			out.UserID = int64(in.Int64())
-		case "namespace_id":
-			out.NamespaceID = int64(in.Int64())
+		case "usr_id":
+			out.UsrID = int64(in.Int64())
+		case "ns_id":
+			out.NsID = int64(in.Int64())
 		default:
 			in.AddError(&jlexer.LexerError{
 				Offset: in.GetPos(),
@@ -555,14 +555,14 @@ func easyjsonD2b7633eEncodeGithubComTealFinanceQuidServer5(out *jwriter.Writer, 
 		out.Int64(int64(in.ID))
 	}
 	{
-		const prefix string = ",\"user_id\":"
+		const prefix string = ",\"usr_id\":"
 		out.RawString(prefix)
-		out.Int64(int64(in.UserID))
+		out.Int64(int64(in.UsrID))
 	}
 	{
-		const prefix string = ",\"namespace_id\":"
+		const prefix string = ",\"ns_id\":"
 		out.RawString(prefix)
-		out.Int64(int64(in.NamespaceID))
+		out.Int64(int64(in.NsID))
 	}
 	out.RawByte('}')
 }

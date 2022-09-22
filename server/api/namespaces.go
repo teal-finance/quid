@@ -115,12 +115,12 @@ func getAccessVerificationKey(w http.ResponseWriter, r *http.Request) {
 	found, algo, keyDER, err := db.SelectVerificationKeyDER(m.ID)
 	if err != nil {
 		log.QueryError(err)
-		gw.WriteErr(w, r, http.StatusUnauthorized, "error SELECT namespace access key", "namespace_id", m.ID)
+		gw.WriteErr(w, r, http.StatusUnauthorized, "error SELECT namespace access key", "ns_id", m.ID)
 		return
 	}
 	if !found {
 		log.QueryError("GetNamespaceAccessKey: namespace not found")
-		gw.WriteErr(w, r, http.StatusBadRequest, "namespace not found", "namespace_id", m.ID)
+		gw.WriteErr(w, r, http.StatusBadRequest, "namespace not found", "ns_id", m.ID)
 		return
 	}
 
@@ -237,5 +237,5 @@ func createNamespace(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	gw.WriteOK(w, "namespace_id", nsID)
+	gw.WriteOK(w, "ns_id", nsID)
 }

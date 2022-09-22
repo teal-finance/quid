@@ -1,24 +1,24 @@
 help:
-	# make all          Build both frontend and backend.
-	# make front        Build the frontend UI.
-	# make quid         Build the backend.
+	# make all          Build both frontend and backend
+	# make front        Build the frontend UI
+	# make quid         Build the backend
 	#
-	# make run          Run the backend (serves the frontend static files).
-	# make run-ui       Run the frontend in dev mode (NodeJS serves the frontend).
+	# make run          Run the backend (serves the frontend static files)
+	# make run-ui       Run the frontend in dev mode (NodeJS serves the frontend)
 	#
-	# make compose-up   Run Quid and Database using podman-compose or docker-compose.
-	# make compose-rm   Stop and remove containers.
+	# make compose-up   Run Quid and Database using podman-compose or docker-compose
+	# make compose-rm   Stop and remove containers
 	#
-	# make up           Upgrade dependencies patch version (Go/Node).
-	# make up+          Upgrade dependencies minor version (Go/Node).
-	# make up++         Upgrade dependencies major version (Node only).
+	# make up           Upgrade dependencies patch version (Go/Node)
+	# make up+          Upgrade dependencies minor version (Go/Node)
+	# make up++         Upgrade dependencies major version (Node only)
 	#
 	# make fmt      Go: Generate code and Format code
 	# make test     Go: Check build and Test
 	# make cov      Go: Browse test coverage
 	# make vet      Go: Lint
 	#
-	# Before "git push" changes concerning the backend:
+	# Before "git push" the backend:
 	#
 	#     make up-go fmt test vet
 
@@ -45,8 +45,8 @@ run-ui:
 	{ yarnpkg --link-duplicates && yarnpkg dev; }
 
 .PHONY: run
-run: quid
-	./quid -dev -v
+run: go.sum $(shell find -name *.go)
+	CGO_ENABLED=1 GOFLAGS="-trimpath -modcacherw" GOLDFLAGS="-d -s -w -extldflags=-static" go run -race -a -tags osusergo,netgo -installsuffix netgo ./cmd/quid -dev -v
 
 quid: go.sum $(shell find -name *.go)
 	CGO_ENABLED=0 GOFLAGS="-trimpath -modcacherw" GOLDFLAGS="-d -s -w -extldflags=-static" go build -a -tags osusergo,netgo -installsuffix netgo -o $@ ./cmd/quid
@@ -173,4 +173,4 @@ cov: code-coverage.out
 .PHONY: vet
 vet:
 	go run github.com/golangci/golangci-lint/cmd/golangci-lint@latest run --fix || true
-	go run -race ./cmd/quid -dev -v
+	$(MAKE) run

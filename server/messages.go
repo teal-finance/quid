@@ -46,18 +46,18 @@ type PasswordRequest struct {
 }
 
 type UserHandlerCreation struct {
-	Name        string
-	Password    string
-	NamespaceID int64
+	Name     string
+	Password string
+	NsID     int64
 }
 
 type GroupCreation struct {
-	Name        string
-	NamespaceID int64
+	Name string
+	NsID int64
 }
 
 type NamespaceIDRequest struct {
-	NamespaceID int64
+	NsID int64
 }
 
 type RefreshMaxTTLRequest struct {
@@ -93,18 +93,18 @@ type NamespaceCreation struct {
 }
 
 type NonAdminUsersRequest struct {
-	Username    string
-	NamespaceID int64
+	Username string
+	NsID     int64
 }
 
 type AdministratorsCreation struct {
-	UserIDs     []int64
-	NamespaceID int64
+	UsrIDs []int64 `json:"usr_ids"`
+	NsID   int64
 }
 
 type AdministratorDeletion struct {
-	UserID      int64
-	NamespaceID int64
+	UsrID int64
+	NsID  int64
 }
 
 type AccessTokenRequest struct {
@@ -123,19 +123,19 @@ type NamespaceRequest struct {
 }
 
 type UserOrgRequest struct {
-	UserID int64
-	OrgID  int64
+	UsrID int64
+	OrgID int64
 }
 
 type UserGroupRequest struct {
-	UserID      int64
-	GroupID     int64
-	NamespaceID int64
+	UsrID int64
+	GrpID int64
+	NsID  int64
 }
 
 type UserRequest struct {
-	ID          int64
-	NamespaceID int64
+	ID   int64
+	NsID int64
 }
 
 type PublicKeyResponse struct {

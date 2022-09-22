@@ -54,12 +54,12 @@ func requestRefreshToken(w http.ResponseWriter, r *http.Request) {
 	// check if the user password matches
 	same, u, err := checkUserPassword(m.Username, m.Password, ns.ID)
 	if err != nil {
-		gw.WriteErr(w, r, http.StatusUnauthorized, "error while checking password", "namespace_id", ns.ID, "usr", m.Username)
+		gw.WriteErr(w, r, http.StatusUnauthorized, "error while checking password", "ns_id", ns.ID, "usr", m.Username)
 		return
 	}
 	if !same {
 		log.Info("RequestRefreshToken u=" + m.Username + ": disabled user or bad password")
-		gw.WriteErr(w, r, http.StatusUnauthorized, "disabled user or bad password", "namespace_id", ns.ID, "usr", m.Username)
+		gw.WriteErr(w, r, http.StatusUnauthorized, "disabled user or bad password", "ns_id", ns.ID, "usr", m.Username)
 		return
 	}
 

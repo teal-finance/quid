@@ -19,7 +19,7 @@ func allNsAdministrators(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	data, err := db.SelectNsAdministrators(m.NamespaceID)
+	data, err := db.SelectNsAdministrators(m.NsID)
 	if err != nil {
 		log.QueryError("AllAdministratorsInNamespace: error SELECT admin users:", err)
 		gw.WriteErr(w, r, http.StatusInternalServerError, "error SELECT admin users")
@@ -44,7 +44,7 @@ func listNonAdminUsersInNs(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	u, err := db.SelectNonAdminUsersInNs(m.NamespaceID, m.Username)
+	u, err := db.SelectNonAdminUsersInNs(m.NsID, m.Username)
 	if err != nil {
 		log.QueryError("SearchForNonAdminUsersInNamespace: error searching for non admin users:", err)
 		gw.WriteErr(w, r, http.StatusInternalServerError, "error searching for non admin users")
@@ -59,13 +59,13 @@ func createAdministrators(w http.ResponseWriter, r *http.Request) {
 	var m server.AdministratorsCreation
 	if err := gg.UnmarshalJSONRequest(w, r, &m); err != nil {
 		log.Warn("CreateAdministrators:", err)
-		gw.WriteErr(w, r, http.StatusUnauthorized, "cannot decode JSON")
+		gw.WriteErr(w, r, http.StatusUnauthorized, "cannot decode JSON", "err", err)
 		return
 	}
 
-	for _, uID := range m.UserIDs {
+	for _, uID := range m.UsrIDs {
 		// check if user is admin
-		yes, err := db.IsUserAnAdmin(m.NamespaceID, uID)
+		yes, err := db.IsUserAnAdmin(m.NsID, uID)
 		if err != nil {
 			log.QueryError("CreateAdministrators: error checking admin user:", err)
 			gw.WriteErr(w, r, http.StatusConflict, "error checking admin user")
@@ -77,7 +77,7 @@ func createAdministrators(w http.ResponseWriter, r *http.Request) {
 		}
 
 		// create admin user
-		if err = db.CreateAdministrator(m.NamespaceID, uID); err != nil {
+		if err = db.CreateAdministrator(m.NsID, uID); err != nil {
 			log.QueryError("CreateAdministrators: error creating admin user:", err)
 			gw.WriteErr(w, r, http.StatusConflict, "error creating admin user")
 			return
@@ -96,7 +96,7 @@ func deleteAdministrator(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err := db.DeleteAdministrator(m.UserID, m.NamespaceID)
+	err := db.DeleteAdministrator(m.UsrID, m.NsID)
 	if err != nil {
 		log.QueryError("DeleteAdministrator: error deleting admin users:", err)
 		gw.WriteErr(w, r, http.StatusInternalServerError, "error deleting admin users")

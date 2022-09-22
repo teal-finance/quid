@@ -19,7 +19,7 @@ func quidAdminMiddleware(next http.Handler) http.Handler {
 
 		values, err := tv.Get(
 			tv.KString(keyUsername),
-			tv.KInt64(KeyUserID),
+			tv.KInt64(KeyUsrID),
 			tv.KString(keyNsName),
 			tv.KInt64(keyNsID),
 			tv.KString(keyAdminType))
@@ -29,11 +29,11 @@ func quidAdminMiddleware(next http.Handler) http.Handler {
 			return
 		}
 
-		userName := values[0].String()
-		userID := values[1].Int64()
-		namespace := values[2].String()
-		nsID := values[3].Int64()
-		adminType := values[4].Bool()
+		userName := values[keyUsername].String()
+		usrID := values[KeyUsrID].Int64()
+		namespace := values[keyNsName].String()
+		nsID := values[keyNsID].Int64()
+		adminType := values[keyAdminType].Bool()
 
 		if server.AdminType(adminType) != server.QuidAdmin {
 			log.ParamError("User '" + userName + "' is not QuidAdmin")
@@ -41,10 +41,10 @@ func quidAdminMiddleware(next http.Handler) http.Handler {
 			return
 		}
 
-		userType, err := db.GetUserType(namespace, nsID, userID)
+		userType, err := db.GetUserType(namespace, nsID, usrID)
 		if err != nil {
 			log.QueryError(err)
-			gw.WriteErr(w, r, http.StatusUnauthorized, "DB error while getting user type", "namespace_id", nsID, "uid", userID)
+			gw.WriteErr(w, r, http.StatusUnauthorized, "DB error while getting user type", "ns_id", nsID, "uid", usrID)
 			return
 		}
 		if userType != db.QuidAdmin {
@@ -53,7 +53,7 @@ func quidAdminMiddleware(next http.Handler) http.Handler {
 			return
 		}
 
-		log.Param("quidAdminMiddleware OK u="+userName+" (id=", userID, ") ns="+namespace+" (id=", nsID, ")")
+		log.Param("quidAdminMiddleware OK u="+userName+" (id=", usrID, ") ns="+namespace+" (id=", nsID, ")")
 		r = tv.ToCtx(r) // save the token in the request context
 		next.ServeHTTP(w, r)
 	})

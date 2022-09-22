@@ -48,22 +48,21 @@ func nsAdminMiddleware(next http.Handler) http.Handler {
 
 		values, err := tv.Get(
 			tv.KString(keyUsername),
-			tv.KInt64(KeyUserID),
+			tv.KInt64(KeyUsrID),
 			tv.KString(keyNsName),
-			tv.KInt64(keyNsID),
-			tv.KString(keyAdminType))
+			tv.KInt64(keyNsID))
 		if err != nil {
 			log.Error(err)
 			w.WriteHeader(http.StatusInternalServerError)
 			return
 		}
 
-		userName := values[0].String()
-		userID := values[1].Int64()
-		namespace := values[2].String()
-		nsID := values[3].Int64()
+		userName := values[keyUsername].String()
+		usrID := values[KeyUsrID].Int64()
+		namespace := values[keyNsName].String()
+		nsID := values[keyNsID].Int64()
 
-		userType, err := db.GetUserType(namespace, nsID, userID)
+		userType, err := db.GetUserType(namespace, nsID, usrID)
 		if err != nil {
 			log.QueryError("nsAdminMiddleware:", err)
 			w.WriteHeader(http.StatusInternalServerError)
@@ -75,7 +74,7 @@ func nsAdminMiddleware(next http.Handler) http.Handler {
 			return
 		}
 
-		log.RequestPost("nsAdminMiddleware OK u="+userName+" (id=", userID, ") ns="+namespace+" (id=", nsID, ")")
+		log.RequestPost("nsAdminMiddleware OK u="+userName+" (id=", usrID, ") ns="+namespace+" (id=", nsID, ")")
 		r = tv.ToCtx(r) // save the token in the request context
 		next.ServeHTTP(w, r)
 	})

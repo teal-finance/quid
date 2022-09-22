@@ -72,7 +72,7 @@ async function postForm() {
     await api.post(user.adminUrl + "/users/add", {
       name: form.name.val,
       password: form.pwd.val,
-      namespace_id: user.namespace.value.id,
+      ns_id: user.namespace.value.id,
     });
     emit("end");
     notify.done("User added")

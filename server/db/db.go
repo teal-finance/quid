@@ -2,6 +2,7 @@ package db
 
 import (
 	"database/sql"
+	"errors"
 	"strings"
 
 	"github.com/jmoiron/sqlx"
@@ -21,6 +22,7 @@ func Connect(url string) error {
 	url = strings.Replace(url, "postgresql://", "postgres://", 1)
 	_db, err := sqlx.Connect("postgres", url)
 	if err != nil {
+		log.S().Warning(err)
 		return err
 	}
 
@@ -28,21 +30,47 @@ func Connect(url string) error {
 	return nil
 }
 
-// ExecSchema : execute the schema.
-func ExecSchema() error {
-	result, err := db.Exec(schema)
+// DropTablesIndexes deletes all tables and indexes from DB.
+func DropTablesIndexes() error {
+	result, err := db.Exec(dropAll)
 	if err != nil {
+		log.S().Warning(err)
 		return err
 	}
 
-	if result != nil {
-		id, _ := result.LastInsertId()
-		n, _ := result.RowsAffected()
-		if id > 0 || n > 0 {
-			log.V().Dataf("Created tables and indexes LastID=%d RowsAffected=%d", id, n)
-		}
+	if result == nil {
+		return errors.New("DropTablesIndexes: result is nil")
 	}
 
+	n, err := result.RowsAffected()
+	if err != nil {
+		log.Warn("DropTablesIndexes RowsAffected:", err)
+		return err
+	}
+
+	log.Dataf("Dropped tables and indexes (if exist). RowsAffected=%d", n)
+	return nil
+}
+
+// CreateTablesIndexes : execute the schema.
+func CreateTablesIndexes() error {
+	result, err := db.Exec(schema)
+	if err != nil {
+		log.S().Warning(err)
+		return err
+	}
+
+	if result == nil {
+		return errors.New("CreateTablesIndexes: result is nil")
+	}
+
+	n, err := result.RowsAffected()
+	if err != nil {
+		log.Warn("CreateTablesIndexes RowsAffected:", err)
+		return err
+	}
+
+	log.Dataf("Created tables and indexes (if not exist). RowsAffected=%d", n)
 	return nil
 }
 

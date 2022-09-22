@@ -5,11 +5,11 @@ import { AdminUserContract, AdminUserTable } from "./interface";
 export default class AdminUser {
   id: number;
   userName: string;
-  userId: number;
+  usrId: number;
 
   constructor(row: AdminUserContract) {
     this.id = row.id;
-    this.userId = row.user_id;
+    this.usrId = row.usr_id;
     this.userName = row.username;
   }
 
@@ -23,7 +23,7 @@ export default class AdminUser {
     const url = "/admin/nsadmin/nsall";
     const data = new Array<AdminUserTable>();
     try {
-      const payload = { namespace_id: nsid }
+      const payload = { ns_id: nsid }
       try {
         const resp = await api.post<Array<AdminUserContract>>(url, payload);
         resp.forEach((row) => data.push(new AdminUser(row).toTableRow()));
@@ -42,7 +42,7 @@ export default class AdminUser {
     const url = "/admin/nsadmin/search/nonadmins";
     const data = new Array<AdminUser>();
     try {
-      const payload = { namespace_id: nsid, username: username }
+      const payload = { ns_id: nsid, username: username }
       const resp = await api.post<{ users: Array<AdminUserContract> }>(url, payload);
       resp.users.forEach((row) => data.push(new AdminUser(row)));
     } catch (e) {
@@ -52,11 +52,11 @@ export default class AdminUser {
     return data;
   }
 
-  static async fetchAdd(nsId: number, userIds: Array<number>) {
+  static async fetchAdd(nsId: number, usrIds: Array<number>) {
     try {
       await api.post("/admin/nsadmin/add", {
-        namespace_id: nsId,
-        user_ids: userIds,
+        ns_id: nsId,
+        usr_ids: usrIds,
       });
     } catch (e) {
       console.log(e)
@@ -66,13 +66,13 @@ export default class AdminUser {
 
   static async delete(uid: number, nsid: number) {
     console.log("Delete", {
-      namespace_id: nsid,
-      user_id: uid,
+      ns_id: nsid,
+      usr_id: uid,
     })
     try {
       await api.post("/admin/nsadmin/delete", {
-        namespace_id: nsid,
-        user_id: uid,
+        ns_id: nsid,
+        usr_id: uid,
       });
     } catch (e) {
       console.log(e)

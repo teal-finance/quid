@@ -61,7 +61,7 @@ func DropDatabase(dbName string) error {
 			"but got %q containing an invalid character at position %d", dbName, p)
 	}
 
-	result, err := db.Exec("DROP DATABASE "+ dbName+";")
+	result, err := db.Exec("DROP DATABASE " + dbName + ";")
 	if err != nil {
 		log.Warn(err)
 		return err

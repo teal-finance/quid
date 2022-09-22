@@ -27,7 +27,7 @@ func allNsUsers(w http.ResponseWriter, r *http.Request) {
 	data, err := db.SelectNsUsers(m.NsID)
 	if err != nil {
 		log.QueryError("AllUsersInNamespace: error SELECT users:", err)
-		gw.WriteErr(w, r, http.StatusInternalServerError, "error SELECT users")
+		gw.WriteErr(w, r, http.StatusUnauthorized, "error SELECT users")
 		return
 	}
 
@@ -99,7 +99,7 @@ func removeUserFromOrg(w http.ResponseWriter, r *http.Request) {
 	err := db.RemoveUserFromOrg(m.UsrID, m.OrgID)
 	if err != nil {
 		log.QueryError("RemoveUserFromOrg: error removing user from org:", err)
-		gw.WriteErr(w, r, http.StatusInternalServerError, "error removing user from org")
+		gw.WriteErr(w, r, http.StatusUnauthorized, "error removing user from org")
 		return
 	}
 
@@ -124,7 +124,7 @@ func addUserInGroup(w http.ResponseWriter, r *http.Request) {
 	err := db.AddUserInGroup(m.UsrID, m.GrpID)
 	if err != nil {
 		log.QueryError("AddUserInGroup:", err)
-		gw.WriteErr(w, r, http.StatusInternalServerError, "error adding user in group")
+		gw.WriteErr(w, r, http.StatusUnauthorized, "error adding user in group")
 		return
 	}
 
@@ -149,7 +149,7 @@ func removeUserFromGroup(w http.ResponseWriter, r *http.Request) {
 	err := db.RemoveUserFromGroup(m.UsrID, m.GrpID)
 	if err != nil {
 		log.QueryError("RemoveUserFromGroup: error removing user from group:", err)
-		gw.WriteErr(w, r, http.StatusInternalServerError, "error removing user from group")
+		gw.WriteErr(w, r, http.StatusUnauthorized, "error removing user from group")
 		return
 	}
 
@@ -174,7 +174,7 @@ func userGroupsInfo(w http.ResponseWriter, r *http.Request) {
 	g, err := db.SelectGroupsForUser(m.ID)
 	if err != nil {
 		log.QueryError("UserGroupsInfo: error SELECT groups:", err)
-		gw.WriteErr(w, r, http.StatusInternalServerError, "error SELECT groups")
+		gw.WriteErr(w, r, http.StatusUnauthorized, "error SELECT groups")
 		return
 	}
 

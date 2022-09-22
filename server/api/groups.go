@@ -25,7 +25,7 @@ func allNsGroups(w http.ResponseWriter, r *http.Request) {
 	data, err := db.SelectNsGroups(m.NsID)
 	if err != nil {
 		log.QueryError("AllGroupsForNamespace: error SELECT groups:", err)
-		gw.WriteErr(w, r, http.StatusConflict, "error SELECT groups")
+		gw.WriteErr(w, r, http.StatusUnauthorized, "error SELECT groups")
 		return
 	}
 
@@ -40,7 +40,6 @@ func AllGroups(w http.ResponseWriter, r *http.Request) {
 		log.QueryError("AllGroups: error SELECT groups:", err)
 		gw.WriteErr(w, r, http.StatusConflict, "error SELECT groups")
 	}
-
 	gw.WriteOK(w, data)
 }
 
@@ -61,7 +60,7 @@ func groupsInfo(w http.ResponseWriter, r *http.Request) {
 	n, err := db.CountUsersInGroup(m.ID)
 	if err != nil {
 		log.QueryError("GroupsInfo: error counting in group:", err)
-		gw.WriteErr(w, r, http.StatusConflict, "error counting in group")
+		gw.WriteErr(w, r, http.StatusUnauthorized, "error counting in group")
 		return
 	}
 
@@ -84,7 +83,7 @@ func deleteGroup(w http.ResponseWriter, r *http.Request) {
 
 	if err := db.DeleteGroup(m.ID); err != nil {
 		log.QueryError("DeleteGroup: error deleting group:", err)
-		gw.WriteErr(w, r, http.StatusConflict, "error deleting group")
+		gw.WriteErr(w, r, http.StatusUnauthorized, "error deleting group")
 		return
 	}
 

@@ -7,9 +7,9 @@ export default class User {
   id: number;
   name: string;
 
-  constructor(data: UserContract) {
-    this.id = data.id;
-    this.name = data.username;
+  constructor(user: UserContract) {
+    this.id = user.id;
+    this.name = user.name;
   }
 
   toTableRow(): UserTable {

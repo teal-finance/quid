@@ -133,7 +133,10 @@ func main() {
 
 	if *drop {
 		if err := db.DropTablesIndexes(); err != nil {
-			log.Fatal(err)
+			log.Warn("Try to drop the whole database because:", err)
+			if err := db.DropDatabase(*dbName); err != nil {
+				log.Warn("Continue even if:", err)
+			}
 		}
 	}
 

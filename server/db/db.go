@@ -3,7 +3,9 @@ package db
 import (
 	"database/sql"
 	"errors"
+	"fmt"
 	"strings"
+	"unicode"
 
 	"github.com/jmoiron/sqlx"
 
@@ -34,7 +36,7 @@ func Connect(url string) error {
 func DropTablesIndexes() error {
 	result, err := db.Exec(dropAll)
 	if err != nil {
-		log.S().Warning(err)
+		log.Warn(err)
 		return err
 	}
 
@@ -49,6 +51,33 @@ func DropTablesIndexes() error {
 	}
 
 	log.Dataf("Dropped tables and indexes (if exist). RowsAffected=%d", n)
+	return nil
+}
+
+// DropDatabase executes "DROP DATABASE $POSTGRES_DB;".
+func DropDatabase(dbName string) error {
+	if p := isAlphaNum(dbName); p >= 0 {
+		return fmt.Errorf("The database name must be composed of letters and digits only, "+
+			"but got %q containing an invalid character at position %d", dbName, p)
+	}
+
+	result, err := db.Exec("DROP DATABASE "+ dbName+";")
+	if err != nil {
+		log.Warn(err)
+		return err
+	}
+
+	if result == nil {
+		return errors.New("DropDatabase: result is nil")
+	}
+
+	n, err := result.RowsAffected()
+	if err != nil {
+		log.Warn("DropDatabase RowsAffected:", err)
+		return err
+	}
+
+	log.Dataf("Dropped database. RowsAffected=%d", n)
 	return nil
 }
 
@@ -72,6 +101,19 @@ func CreateTablesIndexes() error {
 
 	log.Dataf("Created tables and indexes (if not exist). RowsAffected=%d", n)
 	return nil
+}
+
+func isAlphaNum(s string) int {
+	for i, r := range s {
+		if unicode.IsLetter(r) {
+			continue
+		}
+		if unicode.IsDigit(r) {
+			continue
+		}
+		return i
+	}
+	return -1
 }
 
 func getFirstID(name string, rows *sql.Rows) (int64, error) {

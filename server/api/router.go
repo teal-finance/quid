@@ -47,7 +47,8 @@ func newServer(port int, devMode bool, allowedOrigins, wwwDir string) http.Serve
 
 	middleware := gg.NewChain(
 		g.MiddlewareRejectUnprintableURI(),
-		g.MiddlewareLogRequest(),
+		g.MiddlewareLogRequest(),  // log incoming requests
+		g.MiddlewareLogDuration(), // log output responses (with their processing durations)
 		g.MiddlewareRateLimiter(10, 30),
 		g.MiddlewareCORSWithMethodsHeaders(
 			[]string{http.MethodGet, http.MethodOptions, http.MethodPost, http.MethodDelete},

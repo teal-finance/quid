@@ -29,11 +29,11 @@ func quidAdminMiddleware(next http.Handler) http.Handler {
 			return
 		}
 
-		userName := values[0].String()
-		userID := values[1].Int64()
-		namespace := values[2].String()
-		nsID := values[3].Int64()
-		adminType := values[4].Bool()
+		userName := values[keyUsername].String()
+		usrID := values[KeyUsrID].Int64()
+		namespace := values[keyNsName].String()
+		nsID := values[keyNsID].Int64()
+		adminType := values[keyAdminType].Bool()
 
 		if server.AdminType(adminType) != server.QuidAdmin {
 			log.ParamError("User '" + userName + "' is not QuidAdmin")

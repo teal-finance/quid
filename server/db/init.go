@@ -10,13 +10,13 @@ import (
 )
 
 func CreateQuidAdmin(username, password string) error {
-	found, err := NamespaceExists("quid")
+	exist, err := NamespaceExists("quid")
 	if err != nil {
 		return err
 	}
 
 	var nsID int64
-	if found {
+	if exist {
 		nsID, err = SelectNsID("quid")
 	} else {
 		log.V().Data(`Creating the "quid" namespace`)
@@ -29,13 +29,13 @@ func CreateQuidAdmin(username, password string) error {
 		return err
 	}
 
-	found, err = GroupExists("quid_admin", nsID)
+	exist, err = GroupExists("quid_admin", nsID)
 	if err != nil {
 		return err
 	}
 
 	var gid int64
-	if found {
+	if exist {
 		var g server.Group
 		g, err = SelectGroup("quid_admin", nsID)
 		gid = g.ID

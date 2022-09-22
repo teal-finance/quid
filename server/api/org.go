@@ -16,7 +16,6 @@ func allOrgs(w http.ResponseWriter, r *http.Request) {
 		gw.WriteErr(w, r, http.StatusConflict, "error SELECT orgs")
 		return
 	}
-
 	gw.WriteOK(w, data)
 }
 

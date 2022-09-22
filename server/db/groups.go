@@ -10,9 +10,9 @@ import (
 
 // SelectAllGroups : get all the groups.
 func SelectAllGroups() ([]server.Group, error) {
-	q := "SELECT groups.id,groups.name,namespace.name as namespace" +
+	q := "SELECT groups.id,groups.name,namespaces.name as namespaces" +
 		" FROM groups" +
-		" JOIN namespace ON groups.ns_id = namespace.id" +
+		" JOIN namespaces ON groups.ns_id = namespaces.id" +
 		" ORDER BY groups.name"
 
 	var data []server.Group
@@ -65,9 +65,9 @@ func SelectGroupsNamesForUser(usrID int64) ([]string, error) {
 
 // SelectNsGroups : get the groups for a namespace.
 func SelectNsGroups(nsID int64) ([]server.Group, error) {
-	q := "SELECT groups.id,groups.name,namespace.name as namespace" +
+	q := "SELECT groups.id,groups.name,namespaces.name as namespaces" +
 		" FROM groups" +
-		" JOIN namespace ON groups.ns_id = namespace.id" +
+		" JOIN namespaces ON groups.ns_id = namespaces.id" +
 		" WHERE groups.ns_id=$1 ORDER BY groups.name"
 
 	var data []server.Group

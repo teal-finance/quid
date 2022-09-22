@@ -11,8 +11,8 @@ func SelectNsAdministrators(nsID int64) ([]server.NamespaceAdmin, error) {
 	q := "SELECT administrators.id,administrators.usr_id,administrators.ns_id,users.username " +
 		"FROM administrators " +
 		"LEFT OUTER JOIN users on users.id=administrators.usr_id " +
-		"LEFT OUTER JOIN namespace on namespace.id=administrators.ns_id " +
-		"WHERE namespace.id=$1"
+		"LEFT OUTER JOIN namespaces on namespaces.id=administrators.ns_id " +
+		"WHERE namespaces.id=$1"
 
 	var data []server.NamespaceAdmin
 	err := db.Select(&data, q, nsID)
@@ -26,14 +26,14 @@ func SelectNsAdministrators(nsID int64) ([]server.NamespaceAdmin, error) {
 
 // SelectNonAdminUsersInNs : find non admin users in a namespace
 func SelectNonAdminUsersInNs(nsID int64, qs string) ([]server.NonNsAdmin, error) {
-	q := "SELECT users.id as usr_id, users.username, namespace.id as ns_id FROM users  " +
-		"JOIN namespace ON users.ns_id = namespace.id " +
-		"WHERE (namespace.id = $1 AND users.username LIKE E'" + qs + "%') " +
+	q := "SELECT users.id as usr_id, users.username, namespaces.id as ns_id FROM users  " +
+		"JOIN namespaces ON users.ns_id = namespaces.id " +
+		"WHERE (namespaces.id = $1 AND users.username LIKE E'" + qs + "%') " +
 		"AND users.id NOT IN ( " +
 		"SELECT administrators.usr_id as id " +
 		"FROM administrators " +
 		"LEFT OUTER JOIN users on users.id = administrators.usr_id " +
-		"LEFT OUTER JOIN namespace on namespace.id = administrators.ns_id" +
+		"LEFT OUTER JOIN namespaces on namespaces.id = administrators.ns_id" +
 		" )"
 	log.Query(q, nsID)
 	var data []server.NonNsAdmin

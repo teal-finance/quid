@@ -15,7 +15,7 @@ import (
 // SelectAllNamespaces : get the namespaces.
 func SelectAllNamespaces() ([]server.Namespace, error) {
 	var data []namespace
-	err := db.Select(&data, "SELECT id,name,max_access_ttl,max_refresh_ttl,public_endpoint_enabled FROM namespace ORDER BY name")
+	err := db.Select(&data, "SELECT id,name,max_access_ttl,max_refresh_ttl,public_endpoint_enabled FROM namespaces ORDER BY name")
 	if err != nil {
 		log.S().Warning(err)
 		return nil, err
@@ -41,7 +41,7 @@ func SelectAllNamespaces() ([]server.Namespace, error) {
 // SelectNsStartsWith : get a namespace.
 func SelectNsStartsWith(name string) ([]server.Namespace, error) {
 	var data []namespace
-	err := db.Select(&data, "SELECT id,name FROM namespace WHERE name LIKE '"+name+"%'")
+	err := db.Select(&data, "SELECT id,name FROM namespaces WHERE name LIKE '"+name+"%'")
 	if err != nil {
 		log.S().Warning(err)
 		return nil, err
@@ -61,7 +61,7 @@ func SelectNsStartsWith(name string) ([]server.Namespace, error) {
 // SelectNsFromName : get a namespace.
 func SelectNsFromName(nsName string) (server.Namespace, error) {
 	q := "SELECT id,name,alg,access_key,refresh_key,max_access_ttl,max_refresh_ttl,public_endpoint_enabled" +
-		" FROM namespace WHERE name=$1"
+		" FROM namespaces WHERE name=$1"
 
 	var ns server.Namespace
 
@@ -105,7 +105,7 @@ func SelectNsFromName(nsName string) (server.Namespace, error) {
 
 // SelectVerificationKeyDER get the AccessToken key (in DER form) for a namespace.
 func SelectVerificationKeyDER(id int64) (found bool, algo string, der []byte, _ error) {
-	row := db.QueryRowx("SELECT alg,access_key FROM namespace WHERE id=$1", id)
+	row := db.QueryRowx("SELECT alg,access_key FROM namespaces WHERE id=$1", id)
 
 	var data namespace
 	if err := row.StructScan(&data); err != nil {
@@ -128,7 +128,7 @@ func SelectVerificationKeyDER(id int64) (found bool, algo string, der []byte, _ 
 // SelectNsID : get a namespace.
 func SelectNsID(name string) (int64, error) {
 	var data []namespace
-	err := db.Select(&data, "SELECT id,name FROM namespace WHERE name=$1", name)
+	err := db.Select(&data, "SELECT id,name FROM namespaces WHERE name=$1", name)
 	if err != nil {
 		log.S().Warning(err)
 		return 0, err
@@ -141,7 +141,7 @@ func SelectNsID(name string) (int64, error) {
 
 // EnableNsEndpoint : enable or disable public endpoint.
 func EnableNsEndpoint(id int64, enable bool) error {
-	q := "UPDATE namespace SET public_endpoint_enabled=$2 WHERE id=$1"
+	q := "UPDATE namespaces SET public_endpoint_enabled=$2 WHERE id=$1"
 	_, err := db.Query(q, id, enable)
 	if err != nil {
 		log.S().Warning(err)
@@ -151,9 +151,6 @@ func EnableNsEndpoint(id int64, enable bool) error {
 
 // CreateNamespace : create a namespace.
 func CreateNamespace(name, ttl, refreshTTL, algo string, accessKey, refreshKey []byte, endpoint bool) (int64, error) {
-	q := "INSERT INTO namespace(name,alg,access_key,refresh_key,max_access_ttl,max_refresh_ttl,public_endpoint_enabled)" +
-		" VALUES($1,$2,$3,$4,$5,$6,$7) RETURNING id"
-
 	ak, err := crypt.AesGcmEncryptBin(accessKey)
 	if err != nil {
 		log.EncryptError("AccessKey", err)
@@ -166,6 +163,8 @@ func CreateNamespace(name, ttl, refreshTTL, algo string, accessKey, refreshKey [
 		return 0, err
 	}
 
+	q := "INSERT INTO namespaces(name,alg,access_key,refresh_key,max_access_ttl,max_refresh_ttl,public_endpoint_enabled)" +
+		" VALUES($1,$2,$3,$4,$5,$6,$7) RETURNING id"
 	rows, err := db.Query(q, name, algo, ak, rk, ttl, refreshTTL, endpoint)
 	if err != nil {
 		log.QueryError(err)
@@ -177,7 +176,7 @@ func CreateNamespace(name, ttl, refreshTTL, algo string, accessKey, refreshKey [
 
 // UpdateNsTokenMaxTTL : update a max access token ttl for a namespace.
 func UpdateNsTokenMaxTTL(id int64, maxTTL string) error {
-	q := "UPDATE namespace set max_access_ttl=$2 WHERE id=$1"
+	q := "UPDATE namespaces set max_access_ttl=$2 WHERE id=$1"
 	_, err := db.Query(q, id, maxTTL)
 	if err != nil {
 		log.S().Warning(err)
@@ -187,7 +186,7 @@ func UpdateNsTokenMaxTTL(id int64, maxTTL string) error {
 
 // UpdateNsRefreshMaxTTL : update a max refresh token ttl for a namespace.
 func UpdateNsRefreshMaxTTL(id int64, refreshMaxTTL string) error {
-	q := "UPDATE namespace set max_refresh_ttl=$2 WHERE id=$1"
+	q := "UPDATE namespaces set max_refresh_ttl=$2 WHERE id=$1"
 	_, err := db.Query(q, id, refreshMaxTTL)
 	if err != nil {
 		log.S().Warning(err)
@@ -197,7 +196,7 @@ func UpdateNsRefreshMaxTTL(id int64, refreshMaxTTL string) error {
 
 // DeleteNamespace : delete a namespace.
 func DeleteNamespace(id int64) QueryResult {
-	q := "DELETE FROM namespace where id=$1"
+	q := "DELETE FROM namespaces where id=$1"
 	tx, _ := db.Begin()
 
 	_, err := tx.Exec(q, id)
@@ -215,7 +214,7 @@ func DeleteNamespace(id int64) QueryResult {
 
 // NamespaceExists : check if a namespace exists.
 func NamespaceExists(name string) (bool, error) {
-	q := "SELECT COUNT(id) FROM namespace WHERE(name=$1)"
+	q := "SELECT COUNT(id) FROM namespaces WHERE(name=$1)"
 
 	var n int
 	err := db.Get(&n, q, name)

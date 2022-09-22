@@ -62,8 +62,8 @@ func SelectEnabledUser(username string, nsID int64) (bool, server.User, error) {
 func SelectAllUsers() ([]server.User, error) {
 	var data []user
 	err := db.Select(&data,
-		"SELECT users.id,users.username,namespace.name as namespace FROM users "+
-			"JOIN namespace ON users.ns_id = namespace.id "+
+		"SELECT users.id,users.username,namespaces.name as namespaces FROM users "+
+			"JOIN namespaces ON users.ns_id = namespaces.id "+
 			"ORDER BY users.username")
 	if err != nil {
 		log.S().Warning(err)
@@ -88,8 +88,8 @@ func SelectAllUsers() ([]server.User, error) {
 func SelectNsUsers(nsID int64) ([]server.User, error) {
 	var data []user
 	err := db.Select(&data,
-		"SELECT users.id,users.username,namespace.name as namespace FROM users "+
-			"JOIN namespace ON users.ns_id = namespace.id  "+
+		"SELECT users.id,users.username,namespaces.name as namespaces FROM users "+
+			"JOIN namespaces ON users.ns_id = namespaces.id  "+
 			"WHERE users.ns_id=$1 ORDER BY users.username", nsID)
 	if err != nil {
 		log.S().Warning(err)

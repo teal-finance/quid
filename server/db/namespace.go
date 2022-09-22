@@ -175,27 +175,6 @@ func CreateNamespace(name, ttl, refreshTTL, algo string, accessKey, refreshKey [
 	return getFirstID(name, rows)
 }
 
-// CreateNamespaceIfExist : create a namespace.
-func CreateNamespaceIfExist(name, ttl, refreshMaxTTL, algo string, accessKey, refreshKey []byte, endpoint bool) (int64, bool, error) {
-	exists, err := NamespaceExists(name)
-	if err != nil {
-		log.QueryError("createNamespace NamespaceExists:", err)
-		return 0, false, err
-	}
-	if exists {
-		log.QueryError("createNamespace: already exist")
-		return 0, true, nil
-	}
-
-	nsID, err := CreateNamespace(name, ttl, refreshMaxTTL, algo, accessKey, refreshKey, endpoint)
-	if err != nil {
-		log.QueryError("createNamespace:", err)
-		return 0, false, err
-	}
-
-	return nsID, false, nil
-}
-
 // UpdateNsTokenMaxTTL : update a max access token ttl for a namespace.
 func UpdateNsTokenMaxTTL(id int64, maxTTL string) error {
 	q := "UPDATE namespace set max_access_ttl=$2 WHERE id=$1"

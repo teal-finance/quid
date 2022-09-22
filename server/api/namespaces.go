@@ -214,6 +214,16 @@ func createNamespace(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	exist, err := db.NamespaceExists(m.Name)
+	if err != nil {
+		gw.WriteErr(w, r, http.StatusUnauthorized, "DB error while checking namespace", "namespace", m.Name, "error", err)
+		return
+	}
+	if exist {
+		gw.WriteErr(w, r, http.StatusUnauthorized, "namespace already exists", "namespace", m.Name)
+		return
+	}
+
 	if m.Alg == "" {
 		m.Alg = "HS256"
 		log.Param("No signing algo provided, defaults to " + m.Alg)
@@ -227,13 +237,9 @@ func createNamespace(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	nsID, exists, err := db.CreateNamespaceIfExist(m.Name, m.MaxTTL, m.RefreshMaxTTL, m.Alg, accessKey, refreshKey, m.EnableEndpoint)
+	nsID, err := db.CreateNamespace(m.Name, m.MaxTTL, m.RefreshMaxTTL, m.Alg, accessKey, refreshKey, m.EnableEndpoint)
 	if err != nil {
-		gw.WriteErr(w, r, http.StatusInternalServerError, "error creating namespace", "namespace", m.Name)
-		return
-	}
-	if exists {
-		gw.WriteErr(w, r, http.StatusConflict, "namespace already exists", "namespace", m.Name)
+		gw.WriteErr(w, r, http.StatusUnauthorized, "DB error while creating the namespace", "namespace", m.Name, "error", err)
 		return
 	}
 

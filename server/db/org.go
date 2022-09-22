@@ -13,8 +13,12 @@ func SelectAllOrgs() ([]server.Org, error) {
 
 	var data []server.Org
 	err := db.Select(&data, q)
+	if err != nil {
+		log.S().Warning(err)
+		return nil, err
+	}
 
-	return data, err
+	return data, nil
 }
 
 // SelectOrg : get a org.
@@ -24,6 +28,7 @@ func SelectOrg(name string) (server.Org, error) {
 	var data []server.Org
 	err := db.Select(&data, q, name)
 	if err != nil {
+		log.S().Warning(err)
 		return server.Org{}, err
 	}
 
@@ -37,9 +42,13 @@ func SelectOrgsForUser(userID int64) ([]server.Org, error) {
 		"WHERE userorg.user_id=$1 ORDER BY orgtable.name"
 
 	var data []server.Org
-	err := db.Select(&data, q, userID)
+	err := db.Select(&data, q, usrID)
+	if err != nil {
+		log.S().Warning(err)
+		return nil, err
+	}
 
-	return data, err
+	return data, nil
 }
 
 // SelectOrgStartsWith : get a namespace.
@@ -49,6 +58,7 @@ func SelectOrgStartsWith(name string) ([]server.Org, error) {
 	var data []org
 	err := db.Select(&data, q)
 	if err != nil {
+		log.S().Warning(err)
 		return nil, err
 	}
 
@@ -72,6 +82,7 @@ func SelectOrgsNamesForUser(userID int64) ([]string, error) {
 	var data []userOrgName
 	err := db.Select(&data, q, userID)
 	if err != nil {
+		log.S().Warning(err)
 		return nil, err
 	}
 
@@ -89,9 +100,13 @@ func OrgExists(name string) (bool, error) {
 
 	var n int
 	err := db.Get(&n, q, name)
-	exists := (n == 1)
+	if err != nil {
+		log.S().Warning(err)
+		return false, err
+	}
 
-	return exists, err
+	exists := (n > 0)
+	return exists, nil
 }
 
 // DeleteOrg : delete an org.
@@ -101,7 +116,11 @@ func DeleteOrg(id int64) error {
 	tx := db.MustBegin()
 	tx.MustExec(q, id)
 
-	return tx.Commit()
+	err := tx.Commit()
+	if err != nil {
+		log.S().Warning(err)
+	}
+	return err
 }
 
 // CreateOrg : create an org.
@@ -149,7 +168,11 @@ func AddUserInOrg(userID, orgID int64) error {
 	tx := db.MustBegin()
 	tx.MustExec(q, userID, orgID)
 
-	return tx.Commit()
+	err := tx.Commit()
+	if err != nil {
+		log.S().Warning(err)
+	}
+	return err
 }
 
 // RemoveUserFromOrg : remove a user from an org.
@@ -159,5 +182,9 @@ func RemoveUserFromOrg(userID, orgID int64) error {
 	tx := db.MustBegin()
 	tx.MustExec(q, userID, orgID)
 
-	return tx.Commit()
+	err := tx.Commit()
+	if err != nil {
+		log.S().Warning(err)
+	}
+	return err
 }

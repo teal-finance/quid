@@ -17,6 +17,7 @@ func SelectAllNamespaces() ([]server.Namespace, error) {
 	var data []namespace
 	err := db.Select(&data, "SELECT id,name,max_access_ttl,max_refresh_ttl,public_endpoint_enabled FROM namespace ORDER BY name")
 	if err != nil {
+		log.S().Warning(err)
 		return nil, err
 	}
 
@@ -42,6 +43,7 @@ func SelectNsStartsWith(name string) ([]server.Namespace, error) {
 	var data []namespace
 	err := db.Select(&data, "SELECT id,name FROM namespace WHERE name LIKE '"+name+"%'")
 	if err != nil {
+		log.S().Warning(err)
 		return nil, err
 	}
 
@@ -128,7 +130,11 @@ func SelectNsID(name string) (int64, error) {
 	var data []namespace
 	err := db.Select(&data, "SELECT id,name FROM namespace WHERE name=$1", name)
 	if err != nil {
+		log.S().Warning(err)
 		return 0, err
+	}
+	if len(data) == 0 {
+		return 0, log.Warn("SelectNsID has no data").Err()
 	}
 	return data[0].ID, nil
 }
@@ -137,6 +143,9 @@ func SelectNsID(name string) (int64, error) {
 func EnableNsEndpoint(id int64, enable bool) error {
 	q := "UPDATE namespace SET public_endpoint_enabled=$2 WHERE id=$1"
 	_, err := db.Query(q, id, enable)
+	if err != nil {
+		log.S().Warning(err)
+	}
 	return err
 }
 
@@ -147,11 +156,13 @@ func CreateNamespace(name, ttl, refreshTTL, algo string, accessKey, refreshKey [
 
 	ak, err := crypt.AesGcmEncryptBin(accessKey)
 	if err != nil {
+		log.S().Warning(err)
 		return 0, err
 	}
 
 	rk, err := crypt.AesGcmEncryptBin(refreshKey)
 	if err != nil {
+		log.S().Warning(err)
 		return 0, err
 	}
 
@@ -189,6 +200,9 @@ func CreateNamespaceIfExist(name, ttl, refreshMaxTTL, algo string, accessKey, re
 func UpdateNsTokenMaxTTL(id int64, maxTTL string) error {
 	q := "UPDATE namespace set max_access_ttl=$2 WHERE id=$1"
 	_, err := db.Query(q, id, maxTTL)
+	if err != nil {
+		log.S().Warning(err)
+	}
 	return err
 }
 
@@ -196,6 +210,9 @@ func UpdateNsTokenMaxTTL(id int64, maxTTL string) error {
 func UpdateNsRefreshMaxTTL(id int64, refreshMaxTTL string) error {
 	q := "UPDATE namespace set max_refresh_ttl=$2 WHERE id=$1"
 	_, err := db.Query(q, id, refreshMaxTTL)
+	if err != nil {
+		log.S().Warning(err)
+	}
 	return err
 }
 
@@ -223,17 +240,25 @@ func NamespaceExists(name string) (bool, error) {
 
 	var n int
 	err := db.Get(&n, q, name)
-	exists := (n == 1)
+	if err != nil {
+		log.S().Warning(err)
+		return false, err
+	}
 
-	return exists, err
+	exists := (n > 0)
+	return exists, nil
 }
 
 // CountUsersForNamespace : count users in a namespace.
 func CountUsersForNamespace(id int64) (int, error) {
-	q := "SELECT COUNT(id) FROM usertable WHERE(namespace_id=$1)"
+	q := "SELECT COUNT(id) FROM users WHERE(ns_id=$1)"
 
 	var n int
 	err := db.Get(&n, q, id)
+	if err != nil {
+		log.S().Warning(err)
+		return 0, err
+	}
 
-	return n, err
+	return n, nil
 }

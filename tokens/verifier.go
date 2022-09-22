@@ -99,6 +99,7 @@ func RequestAlgoKey(uri string, reuse bool) (Verifier, error) {
 
 	u, err := url.Parse(uri)
 	if err != nil {
+		log.S().Warning(err)
 		return nil, err
 	}
 

@@ -66,6 +66,7 @@ func SelectAllUsers() ([]server.User, error) {
 			"JOIN namespace ON usertable.namespace_id = namespace.id "+
 			"ORDER BY usertable.username")
 	if err != nil {
+		log.S().Warning(err)
 		return nil, err
 	}
 
@@ -91,6 +92,7 @@ func SelectNsUsers(namespaceID int64) ([]server.User, error) {
 			"JOIN namespace ON usertable.namespace_id = namespace.id  "+
 			"WHERE usertable.namespace_id=$1 ORDER BY usertable.username", namespaceID)
 	if err != nil {
+		log.S().Warning(err)
 		return nil, err
 	}
 
@@ -112,6 +114,11 @@ func SelectNsUsers(namespaceID int64) ([]server.User, error) {
 	var data []server.User
 	err := db.Select(&data, "SELECT id,username FROM usertable WHERE(username LIKE $1 AND namespace_id=$2)", username+"%", namespaceID)
 	return data, err
+	if err != nil {
+		log.S().Warning(err)
+		return nil, err
+	}
+	return data, nil
 }*/
 
 // SelectUsersInGroup : get the users in a group.
@@ -122,7 +129,11 @@ func SelectUsersInGroup(username string, namespaceID int64) (server.Group, error
 	var data []server.Group
 	err := db.Select(&data, q, username, namespaceID)
 	if err != nil {
+		log.S().Warning(err)
 		return server.Group{}, err
+	}
+	if len(data) == 0 {
+		return server.Group{}, log.Warn("SelectUsersInGroup is empty").Err()
 	}
 
 	return data[0], nil
@@ -134,11 +145,13 @@ func CreateUser(username, password string, namespaceID int64) (server.User, erro
 
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
 	if err != nil {
+		log.S().Warning(err)
 		return user, err
 	}
 
 	uid, err := CreateUserFromNameAndPassword(username, string(hashedPassword), namespaceID)
 	if err != nil {
+		log.S().Warning(err)
 		return user, err
 	}
 
@@ -169,6 +182,7 @@ func SelectGroupsForUser(userID int64) ([]server.Group, error) {
 		userID)
 	var gr []server.Group
 	if err != nil {
+		log.S().Warning(err)
 		return gr, err
 	}
 	for _, g := range gr {
@@ -197,9 +211,13 @@ func UserExists(username string, namespaceID int64) (bool, error) {
 
 	var n int
 	err := db.Get(&n, q, username, namespaceID)
-	exists := (n > 0)
+	if err != nil {
+		log.S().Warning(err)
+		return false, err
+	}
 
-	return exists, err
+	exists := (n > 0)
+	return exists, nil
 }
 
 // DeleteUser : delete a user.
@@ -209,7 +227,11 @@ func DeleteUser(id int64) error {
 	tx := db.MustBegin()
 	tx.MustExec(q, id)
 
-	return tx.Commit()
+	err := tx.Commit()
+	if err != nil {
+		log.S().Warning(err)
+	}
+	return err
 }
 
 // IsUserInAdminGroup : check if a user is in quid admin group

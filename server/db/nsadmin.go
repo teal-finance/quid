@@ -7,40 +7,40 @@ import (
 )
 
 // SelectNsAdministrators : get the admin users in a namespace.
-func SelectNsAdministrators(namespaceID int64) ([]server.NamespaceAdmin, error) {
-	q := "SELECT namespaceadmin.id,namespaceadmin.user_id,namespaceadmin.namespace_id,usertable.username " +
-		"FROM namespaceadmin " +
-		"LEFT OUTER JOIN usertable on usertable.id=namespaceadmin.user_id " +
-		"LEFT OUTER JOIN namespace on namespace.id=namespaceadmin.namespace_id " +
+func SelectNsAdministrators(nsID int64) ([]server.NamespaceAdmin, error) {
+	q := "SELECT administrators.id,administrators.usr_id,administrators.ns_id,users.username " +
+		"FROM administrators " +
+		"LEFT OUTER JOIN users on users.id=administrators.usr_id " +
+		"LEFT OUTER JOIN namespace on namespace.id=administrators.ns_id " +
 		"WHERE namespace.id=$1"
 
 	var data []server.NamespaceAdmin
-	err := db.Select(&data, q, namespaceID)
+	err := db.Select(&data, q, nsID)
 	if err != nil {
 		log.Error(err)
-		return data, err
+		return nil, err
 	}
 
 	return data, nil
 }
 
 // SelectNonAdminUsersInNs : find non admin users in a namespace
-func SelectNonAdminUsersInNs(namespaceID int64, qs string) ([]server.NonNsAdmin, error) {
-	q := "SELECT usertable.id as user_id, usertable.username, namespace.id as namespace_id FROM usertable  " +
-		"JOIN namespace ON usertable.namespace_id = namespace.id " +
-		"WHERE (namespace.id = $1 AND usertable.username LIKE E'" + qs + "%') " +
-		"AND usertable.id NOT IN ( " +
-		"SELECT namespaceadmin.user_id as id " +
-		"FROM namespaceadmin " +
-		"LEFT OUTER JOIN usertable on usertable.id = namespaceadmin.user_id " +
-		"LEFT OUTER JOIN namespace on namespace.id = namespaceadmin.namespace_id" +
+func SelectNonAdminUsersInNs(nsID int64, qs string) ([]server.NonNsAdmin, error) {
+	q := "SELECT users.id as usr_id, users.username, namespace.id as ns_id FROM users  " +
+		"JOIN namespace ON users.ns_id = namespace.id " +
+		"WHERE (namespace.id = $1 AND users.username LIKE E'" + qs + "%') " +
+		"AND users.id NOT IN ( " +
+		"SELECT administrators.usr_id as id " +
+		"FROM administrators " +
+		"LEFT OUTER JOIN users on users.id = administrators.usr_id " +
+		"LEFT OUTER JOIN namespace on namespace.id = administrators.ns_id" +
 		" )"
-	log.Query(q, namespaceID)
+	log.Query(q, nsID)
 	var data []server.NonNsAdmin
-	err := db.Select(&data, q, namespaceID)
+	err := db.Select(&data, q, nsID)
 	if err != nil {
 		log.Error(err)
-		return data, err
+		return nil, err
 	}
 
 	log.Debug("Data", data)
@@ -48,10 +48,10 @@ func SelectNonAdminUsersInNs(namespaceID int64, qs string) ([]server.NonNsAdmin,
 }
 
 // CreateAdministrator : create an admin user.
-func CreateAdministrator(namespaceID, userID int64) error {
-	q := "INSERT INTO namespaceadmin(namespace_id, user_id) VALUES($1,$2)"
+func CreateAdministrator(nsID, usrID int64) error {
+	q := "INSERT INTO administrators(ns_id, usr_id) VALUES($1,$2)"
 
-	_, err := db.Query(q, namespaceID, userID)
+	_, err := db.Query(q, nsID, usrID)
 	if err != nil {
 		log.QueryError(err)
 	}
@@ -59,26 +59,34 @@ func CreateAdministrator(namespaceID, userID int64) error {
 }
 
 // IsUserAnAdmin : check if an admin user exists.
-func IsUserAnAdmin(userID, namespaceID int64) (bool, error) {
-	q := "SELECT COUNT(id) FROM namespaceadmin WHERE (namespace_id=$1 AND user_id=$2)"
+func IsUserAnAdmin(usrID, nsID int64) (bool, error) {
+	q := "SELECT COUNT(id) FROM administrators WHERE (ns_id=$1 AND usr_id=$2)"
 
 	var n int
-	err := db.Get(&n, q, namespaceID, userID)
-	exists := (n > 0)
+	err := db.Get(&n, q, nsID, usrID)
+	if err != nil {
+		log.S().Warning(err)
+		return false, err
+	}
 
-	return exists, err
+	exists := (n > 0)
+	return exists, nil
 }
 
 // DeleteAdministrator : delete an admin user for a namespace.
-func DeleteAdministrator(userID, namespaceID int64) error {
-	q := "DELETE FROM namespaceadmin WHERE (user_id=$1 AND namespace_id=$2)"
+func DeleteAdministrator(usrID, nsID int64) error {
+	q := "DELETE FROM administrators WHERE (usr_id=$1 AND ns_id=$2)"
 
-	log.Data(q, userID, namespaceID)
+	log.Data(q, usrID, nsID)
 
 	tx := db.MustBegin()
-	tx.MustExec(q, userID, namespaceID)
+	tx.MustExec(q, usrID, nsID)
 
-	return tx.Commit()
+	err := tx.Commit()
+	if err != nil {
+		log.S().Warning(err)
+	}
+	return err
 }
 
 type UserType int
@@ -90,10 +98,10 @@ const (
 )
 
 // GetUserType checks if a user is
-func GetUserType(nsName string, nsID, userID int64) (UserType, error) {
+func GetUserType(nsName string, nsID, usrID int64) (UserType, error) {
 	if nsName == "quid" {
 		// check if the user is in the quid admin group
-		exists, err := IsUserInAdminGroup(userID, nsID)
+		exists, err := IsUserInAdminGroup(usrID, nsID)
 		if (err != nil) || !exists {
 			return UserNoAdmin, err
 		}
@@ -101,7 +109,7 @@ func GetUserType(nsName string, nsID, userID int64) (UserType, error) {
 	}
 
 	// check if the user is namespace administrator
-	exists, err := IsUserAnAdmin(userID, nsID)
+	exists, err := IsUserAnAdmin(usrID, nsID)
 	if (err != nil) || !exists {
 		return UserNoAdmin, err
 	}

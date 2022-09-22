@@ -10,37 +10,48 @@ import (
 
 // SelectAllGroups : get all the groups.
 func SelectAllGroups() ([]server.Group, error) {
-	q := "SELECT grouptable.id,grouptable.name,namespace.name as namespace" +
-		" FROM grouptable" +
-		" JOIN namespace ON grouptable.namespace_id = namespace.id" +
-		" ORDER BY grouptable.name"
+	q := "SELECT groups.id,groups.name,namespace.name as namespace" +
+		" FROM groups" +
+		" JOIN namespace ON groups.ns_id = namespace.id" +
+		" ORDER BY groups.name"
 
 	var data []server.Group
 	err := db.Select(&data, q)
-	return data, err
+	if err != nil {
+		log.S().Warning(err)
+		return nil, err
+	}
+
+	return data, nil
 }
 
 // SelectGroupsForUser : get the groups for a user.
-func SelectGroupsForUser(userID int64) ([]server.Group, error) {
-	q := "SELECT grouptable.id as id, grouptable.name as name" +
-		" FROM usergroup" +
-		" JOIN grouptable ON usergroup.group_id = grouptable.id" +
-		" WHERE usergroup.user_id=$1 ORDER BY grouptable.name"
+func SelectGroupsForUser(usrID int64) ([]server.Group, error) {
+	q := "SELECT groups.id as id, groups.name as name" +
+		" FROM user_groups" +
+		" JOIN groups ON user_groups.grp_id = groups.id" +
+		" WHERE user_groups.usr_id=$1 ORDER BY groups.name"
 
 	var data []server.Group
-	err := db.Select(&data, q, userID)
-	return data, err
+	err := db.Select(&data, q, usrID)
+	if err != nil {
+		log.S().Warning(err)
+		return nil, err
+	}
+
+	return data, nil
 }
 
 // SelectGroupsNamesForUser : get the groups for a user.
-func SelectGroupsNamesForUser(userID int64) ([]string, error) {
-	q := "SELECT grouptable.name as name FROM usergroup" +
-		" JOIN grouptable ON usergroup.group_id = grouptable.id" +
-		" WHERE usergroup.user_id=$1 ORDER BY grouptable.name"
+func SelectGroupsNamesForUser(usrID int64) ([]string, error) {
+	q := "SELECT groups.name as name FROM user_groups" +
+		" JOIN groups ON user_groups.grp_id = groups.id" +
+		" WHERE user_groups.usr_id=$1 ORDER BY groups.name"
 
 	var data []userGroupName
-	err := db.Select(&data, q, userID)
+	err := db.Select(&data, q, usrID)
 	if err != nil {
+		log.S().Warning(err)
 		return nil, err
 	}
 
@@ -53,34 +64,43 @@ func SelectGroupsNamesForUser(userID int64) ([]string, error) {
 }
 
 // SelectNsGroups : get the groups for a namespace.
-func SelectNsGroups(namespaceID int64) ([]server.Group, error) {
-	q := "SELECT grouptable.id,grouptable.name,namespace.name as namespace" +
-		" FROM grouptable" +
-		" JOIN namespace ON grouptable.namespace_id = namespace.id" +
-		" WHERE grouptable.namespace_id=$1 ORDER BY grouptable.name"
+func SelectNsGroups(nsID int64) ([]server.Group, error) {
+	q := "SELECT groups.id,groups.name,namespace.name as namespace" +
+		" FROM groups" +
+		" JOIN namespace ON groups.ns_id = namespace.id" +
+		" WHERE groups.ns_id=$1 ORDER BY groups.name"
 
 	var data []server.Group
-	err := db.Select(&data, q, namespaceID)
-	return data, err
+	err := db.Select(&data, q, nsID)
+	if err != nil {
+		log.S().Warning(err)
+		return nil, err
+	}
+
+	return data, nil
 }
 
 // SelectGroup : get a group.
-func SelectGroup(name string, namespaceID int64) (server.Group, error) {
+func SelectGroup(name string, nsID int64) (server.Group, error) {
 	var data []server.Group
-	err := db.Select(&data, "SELECT id,name FROM grouptable WHERE(name=$1 AND namespace_id=$2)", name, namespaceID)
-
-	if len(data) == 0 {
+	err := db.Select(&data, "SELECT id,name FROM groups WHERE(name=$1 AND ns_id=$2)", name, nsID)
+	if err != nil {
+		log.S().Warn(err)
 		return server.Group{}, err
 	}
 
-	return data[0], err
+	if len(data) == 0 {
+		return server.Group{}, nil
+	}
+
+	return data[0], nil
 }
 
 // CreateGroup : create a group.
-func CreateGroup(name string, namespaceID int64) (int64, error) {
-	q := "INSERT INTO grouptable(name,namespace_id) VALUES($1,$2) RETURNING id"
+func CreateGroup(name string, nsID int64) (int64, error) {
+	q := "INSERT INTO groups(name,ns_id) VALUES($1,$2) RETURNING id"
 
-	rows, err := db.Query(q, name, namespaceID)
+	rows, err := db.Query(q, name, nsID)
 	if err != nil {
 		log.QueryError(err)
 		return 0, err
@@ -90,10 +110,10 @@ func CreateGroup(name string, namespaceID int64) (int64, error) {
 }
 
 // createGroup : create a group.
-func CreateGroupIfExist(name string, namespaceID int64) (server.Group, bool, error) {
+func CreateGroupIfExist(name string, nsID int64) (server.Group, bool, error) {
 	var grp server.Group
 
-	exists, err := GroupExists(name, namespaceID)
+	exists, err := GroupExists(name, nsID)
 	if err != nil {
 		log.QueryError("createGroup GroupExists:", err)
 		return grp, false, err
@@ -103,7 +123,7 @@ func CreateGroupIfExist(name string, namespaceID int64) (server.Group, bool, err
 		return grp, true, nil
 	}
 
-	gid, err := CreateGroup(name, namespaceID)
+	gid, err := CreateGroup(name, nsID)
 	if err != nil {
 		log.QueryError("createGroup:", err)
 		return grp, false, err
@@ -119,53 +139,73 @@ func CreateGroupIfExist(name string, namespaceID int64) (server.Group, bool, err
 
 // DeleteGroup : delete a group.
 func DeleteGroup(id int64) error {
-	q := "DELETE FROM grouptable WHERE id=$1"
+	q := "DELETE FROM groups WHERE id=$1"
 
 	tx := db.MustBegin()
 	tx.MustExec(q, id)
 
-	return tx.Commit()
+	err := tx.Commit()
+	if err != nil {
+		log.S().Warning(err)
+	}
+	return err
 }
 
 // GroupExists : check if an group exists.
-func GroupExists(name string, namespaceID int64) (bool, error) {
-	q := "SELECT COUNT(id) FROM grouptable WHERE(name=$1 AND namespace_id=$2)"
+func GroupExists(name string, nsID int64) (bool, error) {
+	q := "SELECT COUNT(id) FROM groups WHERE(name=$1 AND ns_id=$2)"
 
 	var n int
-	err := db.Get(&n, q, name, namespaceID)
-	exists := (n == 1)
+	err := db.Get(&n, q, name, nsID)
+	if err != nil {
+		log.S().Warning(err)
+		return false, err
+	}
 
-	return exists, err
+	exists := (n > 0)
+	return exists, nil
 }
 
 // AddUserInGroup : add a user into a group.
-func AddUserInGroup(userID, groupID int64) error {
-	q := "INSERT INTO usergroup(user_id,group_id) VALUES($1,$2)"
+func AddUserInGroup(usrID, grpID int64) error {
+	q := "INSERT INTO user_groups(usr_id,grp_id) VALUES($1,$2)"
 
 	tx := db.MustBegin()
-	tx.MustExec(q, userID, groupID)
+	tx.MustExec(q, usrID, grpID)
 
-	return tx.Commit()
+	err := tx.Commit()
+	if err != nil {
+		log.S().Warning(err)
+	}
+	return err
 }
 
 // RemoveUserFromGroup : remove a user from a group.
-func RemoveUserFromGroup(userID, groupID int64) error {
-	q := "DELETE FROM usergroup WHERE user_id=$1 AND group_id=$2"
+func RemoveUserFromGroup(usrID, grpID int64) error {
+	q := "DELETE FROM user_groups WHERE usr_id=$1 AND grp_id=$2"
 
 	tx := db.MustBegin()
-	tx.MustExec(q, userID, groupID)
+	tx.MustExec(q, usrID, grpID)
 
-	return tx.Commit()
+	err := tx.Commit()
+	if err != nil {
+		log.S().Warning(err)
+	}
+	return err
 }
 
 // IsUserInGroup : check if a user is in a group.
-func IsUserInGroup(userID, groupID int64) (bool, error) {
-	q := "SELECT COUNT(id) FROM usergroup WHERE(user_id=$1 AND group_id=$2)"
-	log.Query(q, userID, groupID)
+func IsUserInGroup(usrID, grpID int64) (bool, error) {
+	q := "SELECT COUNT(id) FROM user_groups WHERE(usr_id=$1 AND grp_id=$2)"
+	log.Query(q, usrID, grpID)
 
 	var n int
-	err := db.Get(&n, q, userID, groupID)
+	err := db.Get(&n, q, usrID, grpID)
+	if err != nil {
+		log.S().Warning(err)
+		return false, err
+	}
 
-	exists := (n == 1)
-	return exists, err
+	exists := (n > 0)
+	return exists, nil
 }

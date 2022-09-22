@@ -11,9 +11,9 @@ import (
 	"github.com/teal-finance/quid/server"
 )
 
-// SelectEnabledUserID : get a user id from it's username.
-func SelectEnabledUserID(username string) (bool, int64, error) {
-	row := db.QueryRowx("SELECT id,username,password,is_disabled FROM usertable WHERE(username=$1)", username)
+// SelectEnabledUsrID : get a user id from it's username.
+func SelectEnabledUsrID(username string) (bool, int64, error) {
+	row := db.QueryRowx("SELECT id,username,password,is_disabled FROM users WHERE(username=$1)", username)
 	var u user
 	err := row.StructScan(&u)
 	if err != nil {
@@ -32,16 +32,16 @@ func SelectEnabledUserID(username string) (bool, int64, error) {
 }
 
 // SelectEnabledUser : get a user from it's username.
-func SelectEnabledUser(username string, namespaceID int64) (bool, server.User, error) {
+func SelectEnabledUser(username string, nsID int64) (bool, server.User, error) {
 	var usr server.User
 
-	row := db.QueryRowx("SELECT id,username,password,is_disabled FROM usertable WHERE(username=$1 AND namespace_id=$2)", username, namespaceID)
+	row := db.QueryRowx("SELECT id,username,password,is_disabled FROM users WHERE(username=$1 AND ns_id=$2)", username, nsID)
 
 	var u user
 	err := row.StructScan(&u)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
-			log.NotFound("User", username, "not found for", namespaceID)
+			log.NotFound("User", username, "not found for", nsID)
 			return false, usr, nil
 		}
 		return false, usr, err
@@ -62,9 +62,9 @@ func SelectEnabledUser(username string, namespaceID int64) (bool, server.User, e
 func SelectAllUsers() ([]server.User, error) {
 	var data []user
 	err := db.Select(&data,
-		"SELECT usertable.id,usertable.username,namespace.name as namespace FROM usertable "+
-			"JOIN namespace ON usertable.namespace_id = namespace.id "+
-			"ORDER BY usertable.username")
+		"SELECT users.id,users.username,namespace.name as namespace FROM users "+
+			"JOIN namespace ON users.ns_id = namespace.id "+
+			"ORDER BY users.username")
 	if err != nil {
 		log.S().Warning(err)
 		return nil, err
@@ -85,12 +85,12 @@ func SelectAllUsers() ([]server.User, error) {
 }
 
 // SelectNsUsers : get the users in a namespace.
-func SelectNsUsers(namespaceID int64) ([]server.User, error) {
+func SelectNsUsers(nsID int64) ([]server.User, error) {
 	var data []user
 	err := db.Select(&data,
-		"SELECT usertable.id,usertable.username,namespace.name as namespace FROM usertable "+
-			"JOIN namespace ON usertable.namespace_id = namespace.id  "+
-			"WHERE usertable.namespace_id=$1 ORDER BY usertable.username", namespaceID)
+		"SELECT users.id,users.username,namespace.name as namespace FROM users "+
+			"JOIN namespace ON users.ns_id = namespace.id  "+
+			"WHERE users.ns_id=$1 ORDER BY users.username", nsID)
 	if err != nil {
 		log.S().Warning(err)
 		return nil, err
@@ -110,10 +110,9 @@ func SelectNsUsers(namespaceID int64) ([]server.User, error) {
 
 // SearchUsersInNamespaceFromUsername : get the users in a namespace from a username.
 // TODO FIXME
-/*func SearchUsersInNamespaceFromUsername(username string, namespaceID int64) ([]server.User, error) {
+/*func SearchUsersInNamespaceFromUsername(username string, nsID int64) ([]server.User, error) {
 	var data []server.User
-	err := db.Select(&data, "SELECT id,username FROM usertable WHERE(username LIKE $1 AND namespace_id=$2)", username+"%", namespaceID)
-	return data, err
+	err := db.Select(&data, "SELECT id,username FROM users WHERE(username LIKE $1 AND ns_id=$2)", username+"%", nsID)
 	if err != nil {
 		log.S().Warning(err)
 		return nil, err
@@ -122,12 +121,12 @@ func SelectNsUsers(namespaceID int64) ([]server.User, error) {
 }*/
 
 // SelectUsersInGroup : get the users in a group.
-func SelectUsersInGroup(username string, namespaceID int64) (server.Group, error) {
-	q := "SELECT id,username FROM grouptable" +
-		" WHERE(username=$1 AND namespace_id=$2)"
+func SelectUsersInGroup(username string, nsID int64) (server.Group, error) {
+	q := "SELECT id,username FROM groups" +
+		" WHERE(username=$1 AND ns_id=$2)"
 
 	var data []server.Group
-	err := db.Select(&data, q, username, namespaceID)
+	err := db.Select(&data, q, username, nsID)
 	if err != nil {
 		log.S().Warning(err)
 		return server.Group{}, err
@@ -140,7 +139,7 @@ func SelectUsersInGroup(username string, namespaceID int64) (server.Group, error
 }
 
 // CreateUser : create a user.
-func CreateUser(username, password string, namespaceID int64) (server.User, error) {
+func CreateUser(username, password string, nsID int64) (server.User, error) {
 	var user server.User
 
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
@@ -149,7 +148,7 @@ func CreateUser(username, password string, namespaceID int64) (server.User, erro
 		return user, err
 	}
 
-	uid, err := CreateUserFromNameAndPassword(username, string(hashedPassword), namespaceID)
+	uid, err := CreateUserFromNameAndPassword(username, string(hashedPassword), nsID)
 	if err != nil {
 		log.S().Warning(err)
 		return user, err
@@ -162,9 +161,9 @@ func CreateUser(username, password string, namespaceID int64) (server.User, erro
 }
 
 // CreateUserFromNameAndPassword : create a user.
-func CreateUserFromNameAndPassword(username, passwordHash string, namespaceID int64) (int64, error) {
-	q := "INSERT INTO usertable(username,password,namespace_id) VALUES($1,$2,$3) RETURNING id"
-	rows, err := db.Query(q, username, passwordHash, namespaceID)
+func CreateUserFromNameAndPassword(username, passwordHash string, nsID int64) (int64, error) {
+	q := "INSERT INTO users(username,password,ns_id) VALUES($1,$2,$3) RETURNING id"
+	rows, err := db.Query(q, username, passwordHash, nsID)
 	if err != nil {
 		log.QueryError(err)
 		return 0, err
@@ -175,11 +174,11 @@ func CreateUserFromNameAndPassword(username, passwordHash string, namespaceID in
 
 /*
 // SelectGroupsForUser : get the groups for a user in a namespace
-func SelectGroupsForUser(userID int64) ([]server.Group, error) {
+func SelectGroupsForUser(usrID int64) ([]server.Group, error) {
 	var data []group
-	err := db.Select(&data, "SELECT grouptable.id,grouptable.name FROM usergroup "+
-		"JOIN grouptable ON usergroup.group_id = grouptable.id WHERE usergroup.user_id=$1 ORDER BY grouptable.name",
-		userID)
+	err := db.Select(&data, "SELECT groups.id,groups.name FROM user_groups "+
+		"JOIN groups ON user_groups.grp_id = groups.id WHERE user_groups.usr_id=$1 ORDER BY groups.name",
+		usrID)
 	var gr []server.Group
 	if err != nil {
 		log.S().Warning(err)
@@ -196,21 +195,21 @@ func SelectGroupsForUser(userID int64) ([]server.Group, error) {
 }*/
 
 // CountUsersInGroup : count the users in a group.
-func CountUsersInGroup(groupID int64) (int, error) {
-	q := "SELECT COUNT(user_id) FROM usergroup WHERE group_id=$1"
+func CountUsersInGroup(grpID int64) (int, error) {
+	q := "SELECT COUNT(usr_id) FROM user_groups WHERE grp_id=$1"
 
 	var n int
-	err := db.Get(&n, q, groupID)
+	err := db.Get(&n, q, grpID)
 
 	return n, err
 }
 
 // UserExists : check if a username exists.
-func UserExists(username string, namespaceID int64) (bool, error) {
-	q := "SELECT COUNT(id) FROM usertable WHERE (username=$1 AND namespace_id=$2)"
+func UserExists(username string, nsID int64) (bool, error) {
+	q := "SELECT COUNT(id) FROM users WHERE (username=$1 AND ns_id=$2)"
 
 	var n int
-	err := db.Get(&n, q, username, namespaceID)
+	err := db.Get(&n, q, username, nsID)
 	if err != nil {
 		log.S().Warning(err)
 		return false, err
@@ -222,7 +221,7 @@ func UserExists(username string, namespaceID int64) (bool, error) {
 
 // DeleteUser : delete a user.
 func DeleteUser(id int64) error {
-	q := "DELETE FROM usertable WHERE id=$1"
+	q := "DELETE FROM users WHERE id=$1"
 
 	tx := db.MustBegin()
 	tx.MustExec(q, id)

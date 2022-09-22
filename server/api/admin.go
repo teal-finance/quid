@@ -39,15 +39,10 @@ func adminLogin(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// get the namespace
-	exists, ns, err := db.SelectNsFromName(m.Namespace)
+	ns, err := db.SelectNsFromName(m.Namespace)
 	if err != nil {
 		log.QueryError("AdminLogin SelectNsFromName:", err)
-		gw.WriteErr(w, r, http.StatusUnauthorized, "DB error SELECT namespace", "namespace", m.Namespace)
-		return
-	}
-	if !exists {
-		log.ParamError("AdminLogin: namespace " + m.Namespace + " does not exist")
-		gw.WriteErr(w, r, http.StatusBadRequest, "namespace does not exist", "namespace", m.Namespace)
+		gw.WriteErr(w, r, http.StatusUnauthorized, "Cannot SELECT namespace", "namespace", m.Namespace, "error", err)
 		return
 	}
 

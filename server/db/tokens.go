@@ -9,13 +9,11 @@ import (
 // GenNsAdminTokenForUser : generate a refresh token for an admin user and namespace
 func GenNsAdminTokenForUser(userName, nsName string) (string, error) {
 	log.Info("Generating ns admin token for", userName, nsName)
+
 	// get the namespace
-	exists, ns, err := SelectNsFromName(nsName)
+	ns, err := SelectNsFromName(nsName)
 	if err != nil {
 		return "", err
-	}
-	if !exists {
-		return "", errors.New("namespace does not exist")
 	}
 
 	exists, uid, err := SelectEnabledUsrID(userName)

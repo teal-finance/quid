@@ -59,34 +59,34 @@ func SelectNsStartsWith(name string) ([]server.Namespace, error) {
 }
 
 // SelectNsFromName : get a namespace.
-func SelectNsFromName(name string) (bool, server.Namespace, error) {
+func SelectNsFromName(nsName string) (server.Namespace, error) {
 	q := "SELECT id,name,alg,access_key,refresh_key,max_access_ttl,max_refresh_ttl,public_endpoint_enabled" +
 		" FROM namespace WHERE name=$1"
 
 	var ns server.Namespace
 
-	row := db.QueryRowx(q, name)
+	row := db.QueryRowx(q, nsName)
 
 	var data namespace
 	err := row.StructScan(&data)
 	if err != nil {
 		log.Error(err)
 		if errors.Is(err, sql.ErrNoRows) {
-			return false, ns, nil
+			return ns, log.ParamError("namespace " + nsName + " does not exist").Err()
 		}
-		return true, ns, err
+		return ns, err
 	}
 
 	accessKey, err := crypt.AesGcmDecryptBin(data.AccessKey)
 	if err != nil {
 		log.DecryptError(err)
-		return true, ns, err
+		return ns, err
 	}
 
 	refreshKey, err := crypt.AesGcmDecryptBin(data.RefreshKey)
 	if err != nil {
 		log.DecryptError(err)
-		return true, ns, err
+		return ns, err
 	}
 
 	ns = server.Namespace{
@@ -100,7 +100,7 @@ func SelectNsFromName(name string) (bool, server.Namespace, error) {
 		PublicEndpointEnabled: data.PublicEndpointEnabled,
 	}
 
-	return true, ns, nil
+	return ns, nil
 }
 
 // SelectVerificationKeyDER get the AccessToken key (in DER form) for a namespace.

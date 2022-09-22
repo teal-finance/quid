@@ -49,10 +49,11 @@ func nsGroups(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	hasResult, ns, err := db.SelectNsFromName(m.Namespace)
-	if err != nil || !hasResult {
-		log.QueryError("GroupsForNamespace: error SELECT namespace:", err)
-		gw.WriteErr(w, r, http.StatusInternalServerError, "error SELECT namespace")
+	// get the namespace
+	ns, err := db.SelectNsFromName(m.Namespace)
+	if err != nil {
+		log.QueryError(err)
+		gw.WriteErr(w, r, http.StatusUnauthorized, "Cannot SELECT namespace", "namespace", m.Namespace, "error", err)
 		return
 	}
 

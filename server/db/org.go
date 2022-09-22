@@ -136,31 +136,6 @@ func CreateOrg(name string) (int64, error) {
 	return getFirstID(name, rows)
 }
 
-// CreateOrgIfExist : create an org.
-func CreateOrgIfExist(name string) (server.Org, bool, error) {
-	var org server.Org
-
-	exists, err := OrgExists(name)
-	if err != nil {
-		log.QueryError("createOrg OrgExists:", err)
-		return org, false, err
-	}
-	if exists {
-		log.QueryError("createOrg: already exist:", name)
-		return org, true, nil
-	}
-
-	id, err := CreateOrg(name)
-	if err != nil {
-		log.QueryError("createOrg:", err)
-		return org, false, err
-	}
-
-	org.ID = id
-	org.Name = name
-	return org, false, nil
-}
-
 // AddUserInOrg : add a user into an org.
 func AddUserInOrg(usrID, orgID int64) error {
 	q := "INSERT INTO user_organizations(usr_id,org_id) VALUES($1,$2)"

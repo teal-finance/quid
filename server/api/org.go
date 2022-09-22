@@ -97,15 +97,24 @@ func createOrg(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	org, exists, err := db.CreateOrgIfExist(m.Name)
+	exists, err := db.OrgExists(m.Name)
 	if err != nil {
-		gw.WriteErr(w, r, http.StatusConflict, "error creating org")
+		log.QueryError("createOrg OrgExists:", err)
+		gw.WriteErr(w, r, http.StatusUnauthorized, "error checking org", "org", m.Name)
 		return
 	}
 	if exists {
-		gw.WriteErr(w, r, http.StatusConflict, "org already exists")
+		log.QueryError("createOrg: already exist:", m.Name)
+		gw.WriteErr(w, r, http.StatusUnauthorized, "org already exists", "org", m.Name)
 		return
 	}
 
-	gw.WriteOK(w, "org_id", org.ID)
+	gid, err := db.CreateOrg(m.Name)
+	if err != nil {
+		log.QueryError("createOrg:", err)
+		gw.WriteErr(w, r, http.StatusUnauthorized, "error creating org", "org", m.Name)
+		return
+	}
+
+	gw.WriteOK(w, "org_id", gid)
 }

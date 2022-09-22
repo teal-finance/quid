@@ -40,7 +40,7 @@ func easyjsonB448b467DecodeGithubComTealFinanceQuidTokens(in *jlexer.Lexer, out 
 		case "namespace":
 			out.Namespace = string(in.String())
 		case "username":
-			out.UserName = string(in.String())
+			out.Username = string(in.String())
 		case "iss":
 			out.Issuer = string(in.String())
 		case "sub":
@@ -111,7 +111,7 @@ func easyjsonB448b467EncodeGithubComTealFinanceQuidTokens(out *jwriter.Writer, i
 		out.RawString(prefix[1:])
 		out.String(string(in.Namespace))
 	}
-	if in.UserName != "" {
+	if in.Username != "" {
 		const prefix string = ",\"username\":"
 		if first {
 			first = false
@@ -119,7 +119,7 @@ func easyjsonB448b467EncodeGithubComTealFinanceQuidTokens(out *jwriter.Writer, i
 		} else {
 			out.RawString(prefix)
 		}
-		out.String(string(in.UserName))
+		out.String(string(in.Username))
 	}
 	if in.Issuer != "" {
 		const prefix string = ",\"iss\":"
@@ -237,7 +237,7 @@ func easyjsonB448b467DecodeGithubComTealFinanceQuidTokens1(in *jlexer.Lexer, out
 		}
 		switch key {
 		case "usr":
-			out.UserName = string(in.String())
+			out.Username = string(in.String())
 		case "grp":
 			if in.IsNull() {
 				in.Skip()
@@ -348,11 +348,11 @@ func easyjsonB448b467EncodeGithubComTealFinanceQuidTokens1(out *jwriter.Writer, 
 	out.RawByte('{')
 	first := true
 	_ = first
-	if in.UserName != "" {
+	if in.Username != "" {
 		const prefix string = ",\"usr\":"
 		first = false
 		out.RawString(prefix[1:])
-		out.String(string(in.UserName))
+		out.String(string(in.Username))
 	}
 	if len(in.Groups) != 0 {
 		const prefix string = ",\"grp\":"

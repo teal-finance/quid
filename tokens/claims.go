@@ -10,7 +10,7 @@ import (
 
 // AccessClaims is the standard claims for a user access token.
 type AccessClaims struct {
-	UserName string   `json:"usr,omitempty"`
+	Username string   `json:"usr,omitempty"`
 	Groups   []string `json:"grp,omitempty"`
 	Orgs     []string `json:"org,omitempty"`
 	jwt.RegisteredClaims
@@ -19,7 +19,7 @@ type AccessClaims struct {
 // RefreshClaims is the standard claims for a user refresh token.
 type RefreshClaims struct {
 	Namespace string `json:"namespace,omitempty"`
-	UserName  string `json:"username,omitempty"`
+	Username  string `json:"username,omitempty"`
 	jwt.RegisteredClaims
 }
 

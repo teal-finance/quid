@@ -42,7 +42,7 @@ func adminLogin(w http.ResponseWriter, r *http.Request) {
 	ns, err := db.SelectNsFromName(m.Namespace)
 	if err != nil {
 		log.QueryError("AdminLogin SelectNsFromName:", err)
-		gw.WriteErr(w, r, http.StatusUnauthorized, "Cannot SELECT namespace", "namespace", m.Namespace, "error", err)
+		gw.WriteErr(w, r, http.StatusUnauthorized, "cannot SELECT namespace", "namespace", m.Namespace, "error", err)
 		return
 	}
 

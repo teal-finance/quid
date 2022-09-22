@@ -35,7 +35,7 @@ func requestRefreshToken(w http.ResponseWriter, r *http.Request) {
 	ns, err := db.SelectNsFromName(m.Namespace)
 	if err != nil {
 		log.QueryError("RequestRefreshToken SelectNsFromName:", err)
-		gw.WriteErr(w, r, http.StatusUnauthorized, "Cannot SELECT namespace", "namespace", m.Namespace, "error", err)
+		gw.WriteErr(w, r, http.StatusUnauthorized, "cannot SELECT namespace", "namespace", m.Namespace, "error", err)
 		return
 	}
 
@@ -125,7 +125,7 @@ func genAccessToken(w http.ResponseWriter, r *http.Request) (accessToken, timeou
 	ns, err := db.SelectNsFromName(m.Namespace)
 	if err != nil {
 		log.QueryError(err)
-		gw.WriteErr(w, r, http.StatusUnauthorized, "Cannot SELECT namespace", "namespace", m.Namespace, "error", err)
+		gw.WriteErr(w, r, http.StatusUnauthorized, "cannot SELECT namespace", "namespace", m.Namespace, "error", err)
 		return
 	}
 
@@ -227,7 +227,7 @@ func getAccessPublicKey(w http.ResponseWriter, r *http.Request) {
 	ns, err := db.SelectNsFromName(m.Namespace)
 	if err != nil {
 		log.QueryError(err)
-		gw.WriteErr(w, r, http.StatusUnauthorized, "Cannot SELECT namespace", "namespace", m.Namespace, "error", err)
+		gw.WriteErr(w, r, http.StatusUnauthorized, "cannot SELECT namespace", "namespace", m.Namespace, "error", err)
 		return
 	}
 
@@ -270,7 +270,7 @@ func validAccessToken(w http.ResponseWriter, r *http.Request) {
 	ns, err := db.SelectNsFromName(m.Namespace)
 	if err != nil {
 		log.QueryError(err)
-		gw.WriteErr(w, r, http.StatusUnauthorized, "Cannot SELECT namespace", "namespace", m.Namespace, "error", err)
+		gw.WriteErr(w, r, http.StatusUnauthorized, "cannot SELECT namespace", "namespace", m.Namespace, "error", err)
 		return
 	}
 

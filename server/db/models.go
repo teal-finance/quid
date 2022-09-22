@@ -10,7 +10,7 @@ type user struct {
 	Password    string    `db:"password" json:"password"`
 	Namespace   string    `db:"namespace" json:"namespace"`
 	ID          int64     `db:"id" json:"id"`
-	IsDisabled  bool      `db:"is_disabled" json:"is_disabled"`
+	Enabled     bool      `db:"enabled" json:"enabled"`
 }
 
 type userGroupName struct {

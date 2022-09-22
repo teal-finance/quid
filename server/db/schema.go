@@ -43,7 +43,7 @@ CREATE TABLE IF NOT EXISTS users (
 	ns_id INTEGER NOT NULL,
 	org_id INTEGER,
 	date_created DATE NOT NULL DEFAULT CURRENT_DATE,
-	is_disabled BOOLEAN DEFAULT false,
+	enabled BOOLEAN DEFAULT true,
 	properties JSONB,
 	FOREIGN KEY(ns_id) REFERENCES namespace(id) ON DELETE RESTRICT,
 	FOREIGN KEY(org_id) REFERENCES organizations(id) ON DELETE RESTRICT,

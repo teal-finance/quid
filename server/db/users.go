@@ -13,7 +13,7 @@ import (
 
 // SelectEnabledUsrID : get a user id from it's username.
 func SelectEnabledUsrID(username string) (bool, int64, error) {
-	row := db.QueryRowx("SELECT id,username,password,is_disabled FROM users WHERE(username=$1)", username)
+	row := db.QueryRowx("SELECT id,username,password,enabled FROM users WHERE(username=$1)", username)
 	var u user
 	err := row.StructScan(&u)
 	if err != nil {
@@ -24,7 +24,7 @@ func SelectEnabledUsrID(username string) (bool, int64, error) {
 		return false, 0, err
 	}
 	// emo.Found("BASE USER", u.ID, u.UserName)
-	if u.IsDisabled {
+	if !u.Enabled {
 		return false, 0, nil
 	}
 	// emo.Found("USER", u.ID)
@@ -35,7 +35,7 @@ func SelectEnabledUsrID(username string) (bool, int64, error) {
 func SelectEnabledUser(username string, nsID int64) (bool, server.User, error) {
 	var usr server.User
 
-	row := db.QueryRowx("SELECT id,username,password,is_disabled FROM users WHERE(username=$1 AND ns_id=$2)", username, nsID)
+	row := db.QueryRowx("SELECT id,username,password,enabled FROM users WHERE(username=$1 AND ns_id=$2)", username, nsID)
 
 	var u user
 	err := row.StructScan(&u)
@@ -47,7 +47,7 @@ func SelectEnabledUser(username string, nsID int64) (bool, server.User, error) {
 		return false, usr, err
 	}
 
-	if u.IsDisabled {
+	if !u.Enabled {
 		return false, usr, nil
 	}
 

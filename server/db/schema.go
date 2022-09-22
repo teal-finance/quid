@@ -38,7 +38,7 @@ CREATE INDEX IF NOT EXISTS organizations_name_idx ON organizations(name);
 
 CREATE TABLE IF NOT EXISTS users (
 	id SERIAL PRIMARY KEY,
-	username TEXT NOT NULL,
+	name TEXT NOT NULL,
 	password TEXT,
 	ns_id INTEGER NOT NULL,
 	org_id INTEGER,
@@ -47,12 +47,12 @@ CREATE TABLE IF NOT EXISTS users (
 	properties JSONB,
 	FOREIGN KEY(ns_id) REFERENCES namespaces(id) ON DELETE RESTRICT,
 	FOREIGN KEY(org_id) REFERENCES organizations(id) ON DELETE RESTRICT,
-	UNIQUE (username, ns_id)
+	UNIQUE (name, ns_id)
 );
 
 CREATE INDEX IF NOT EXISTS organizations_id_idx ON users(org_id);
 
-CREATE INDEX IF NOT EXISTS users_name_idx ON users(username);
+CREATE INDEX IF NOT EXISTS users_name_idx ON users(name);
 
 CREATE TABLE IF NOT EXISTS user_groups (
 	id SERIAL PRIMARY KEY,

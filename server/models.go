@@ -20,19 +20,19 @@ type NamespaceInfo struct {
 	NumUsers int     `json:"num_users"`
 }
 
-// NamespaceAdmin : base model.
-type NamespaceAdmin struct {
-	UserName string `db:"username" json:"username"`
-	ID       int64  `db:"id" json:"id"`
-	UsrID    int64  `db:"usr_id" json:"usr_id"`
-	NsID     int64  `db:"ns_id" json:"ns_id"`
+// Administrator : base model.
+type Administrator struct {
+	Name  string `db:"name" json:"username"`
+	ID    int64  `db:"id" json:"id"`
+	UsrID int64  `db:"usr_id" json:"usr_id"`
+	NsID  int64  `db:"ns_id" json:"ns_id"`
 }
 
-// NonNsAdmin : base model.
-type NonNsAdmin struct {
-	UserName string `db:"username" json:"username"`
-	UsrID    int64  `db:"usr_id" json:"usr_id"`
-	NsID     int64  `db:"ns_id" json:"ns_id"`
+// NonAdmin : base model.
+type NonAdmin struct {
+	Name  string `db:"name" json:"username"`
+	UsrID int64  `db:"usr_id" json:"usr_id"`
+	NsID  int64  `db:"ns_id" json:"ns_id"`
 }
 
 // User : base model.

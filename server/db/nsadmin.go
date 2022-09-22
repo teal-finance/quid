@@ -7,14 +7,14 @@ import (
 )
 
 // SelectNsAdministrators : get the admin users in a namespace.
-func SelectNsAdministrators(nsID int64) ([]server.NamespaceAdmin, error) {
-	q := "SELECT administrators.id,administrators.usr_id,administrators.ns_id,users.username " +
+func SelectNsAdministrators(nsID int64) ([]server.Administrator, error) {
+	q := "SELECT administrators.id,administrators.usr_id,administrators.ns_id,users.name " +
 		"FROM administrators " +
 		"LEFT OUTER JOIN users on users.id=administrators.usr_id " +
 		"LEFT OUTER JOIN namespaces on namespaces.id=administrators.ns_id " +
 		"WHERE namespaces.id=$1"
 
-	var data []server.NamespaceAdmin
+	var data []server.Administrator
 	err := db.Select(&data, q, nsID)
 	if err != nil {
 		log.Error(err)
@@ -25,10 +25,10 @@ func SelectNsAdministrators(nsID int64) ([]server.NamespaceAdmin, error) {
 }
 
 // SelectNonAdminUsersInNs : find non admin users in a namespace
-func SelectNonAdminUsersInNs(nsID int64, qs string) ([]server.NonNsAdmin, error) {
-	q := "SELECT users.id as usr_id, users.username, namespaces.id as ns_id FROM users  " +
+func SelectNonAdminUsersInNs(nsID int64, qs string) ([]server.NonAdmin, error) {
+	q := "SELECT users.id as usr_id, users.name, namespaces.id as ns_id FROM users  " +
 		"JOIN namespaces ON users.ns_id = namespaces.id " +
-		"WHERE (namespaces.id = $1 AND users.username LIKE E'" + qs + "%') " +
+		"WHERE (namespaces.id = $1 AND users.name LIKE E'" + qs + "%') " +
 		"AND users.id NOT IN ( " +
 		"SELECT administrators.usr_id as id " +
 		"FROM administrators " +
@@ -36,7 +36,7 @@ func SelectNonAdminUsersInNs(nsID int64, qs string) ([]server.NonNsAdmin, error)
 		"LEFT OUTER JOIN namespaces on namespaces.id = administrators.ns_id" +
 		" )"
 	log.Query(q, nsID)
-	var data []server.NonNsAdmin
+	var data []server.NonAdmin
 	err := db.Select(&data, q, nsID)
 	if err != nil {
 		log.Error(err)

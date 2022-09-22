@@ -10,48 +10,48 @@ import (
 	"github.com/teal-finance/quid/server/db"
 )
 
-// allNsAdministrators : select all admin users for a namespace.
-func allNsAdministrators(w http.ResponseWriter, r *http.Request) {
+// listAdministrators : select all admin users for a namespace.
+func listAdministrators(w http.ResponseWriter, r *http.Request) {
 	var m server.NamespaceIDRequest
 	if err := gg.UnmarshalJSONRequest(w, r, &m); err != nil {
-		log.Warn("AllAdministratorsInNamespace:", err)
+		log.Warn("listAdministrators:", err)
 		gw.WriteErr(w, r, http.StatusUnauthorized, "cannot decode JSON")
 		return
 	}
 
-	data, err := db.SelectNsAdministrators(m.NsID)
+	data, err := db.SelectAdministrators(m.NsID)
 	if err != nil {
-		log.QueryError("AllAdministratorsInNamespace: error SELECT admin users:", err)
+		log.QueryError("listAdministrators: error SELECT admin users:", err)
 		gw.WriteErr(w, r, http.StatusInternalServerError, "error SELECT admin users")
 		return
 	}
 
-	gw.WriteOK(w, data)
+	gw.WriteOK(w, data) // respond administrator.username
 }
 
-// listNonAdminUsersInNs : search from a username in namespace
-func listNonAdminUsersInNs(w http.ResponseWriter, r *http.Request) {
+// listNonAdministrators : search from a username in namespace
+func listNonAdministrators(w http.ResponseWriter, r *http.Request) {
 	var m server.NonAdminUsersRequest
 	if err := gg.UnmarshalJSONRequest(w, r, &m); err != nil {
-		log.Warn("SearchForNonAdminUsersInNamespace:", err)
+		log.Warn("listNonAdministrators:", err)
 		gw.WriteErr(w, r, http.StatusUnauthorized, "cannot decode JSON")
 		return
 	}
 
 	if p := gg.Printable(m.Username); p >= 0 {
-		log.Warn("SearchForNonAdminUsersInNamespace: JSON contains a forbidden character at p=", p)
+		log.Warn("listNonAdministrators: JSON contains a forbidden character at p=", p)
 		gw.WriteErr(w, r, http.StatusUnauthorized, "forbidden character", "position", p)
 		return
 	}
 
-	u, err := db.SelectNonAdminUsersInNs(m.NsID, m.Username)
+	users, err := db.SelectNonAdministrators(m.NsID, m.Username)
 	if err != nil {
-		log.QueryError("SearchForNonAdminUsersInNamespace: error searching for non admin users:", err)
+		log.QueryError("listNonAdministrators: error searching for non admin users:", err)
 		gw.WriteErr(w, r, http.StatusInternalServerError, "error searching for non admin users")
 		return
 	}
 
-	gw.WriteOK(w, "users", u)
+	gw.WriteOK(w, "users", users) // respond non_admin.username
 }
 
 // CreateUserAdministrators : create admin users handler.

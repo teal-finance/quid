@@ -103,7 +103,7 @@ func newRouter(g *garcon.Garcon, wwwDir string) http.Handler {
 			r.Post("/delete", deleteUser)
 			r.Post("/groups", userGroupsInfo)
 			r.Post("/orgs", userOrgsInfo)
-			r.Post("/nsall", allNsUsers)
+			r.Post("/nsall", listUsersInNs)
 		})
 
 		r.Route("/namespaces", func(r chi.Router) {
@@ -130,9 +130,9 @@ func newRouter(g *garcon.Garcon, wwwDir string) http.Handler {
 
 		r.Route("/nsadmin", func(r chi.Router) {
 			r.Post("/add", createAdministrators)
-			r.Post("/nsall", allNsAdministrators)
 			r.Post("/delete", deleteAdministrator)
-			r.Post("/search/nonadmins", listNonAdminUsersInNs)
+			r.Post("/nsall", listAdministrators)
+			r.Post("/nonadmins", listNonAdministrators)
 		})
 	})
 
@@ -147,7 +147,7 @@ func newRouter(g *garcon.Garcon, wwwDir string) http.Handler {
 			r.Post("/add", createUser)
 			r.Post("/delete", deleteUser)
 			r.Post("/groups", userGroupsInfo)
-			r.Post("/nsall", allNsUsers)
+			r.Post("/nsall", listUsersInNs)
 		})
 
 		// nsadmin groups

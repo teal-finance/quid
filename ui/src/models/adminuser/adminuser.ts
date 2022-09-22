@@ -39,7 +39,7 @@ export default class AdminUser {
   }
 
   static async searchNonAdmins(nsid: number, username: string): Promise<Array<AdminUser>> {
-    const url = "/admin/nsadmin/search/nonadmins";
+    const url = "/admin/nsadmin/nonadmins";
     const data = new Array<AdminUser>();
     try {
       const payload = { ns_id: nsid, username: username }

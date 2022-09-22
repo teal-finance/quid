@@ -6,8 +6,8 @@ import (
 	"github.com/teal-finance/quid/server"
 )
 
-// SelectNsAdministrators : get the admin users in a namespace.
-func SelectNsAdministrators(nsID int64) ([]server.Administrator, error) {
+// SelectAdministrators : get the admin users in a namespace.
+func SelectAdministrators(nsID int64) ([]server.Administrator, error) {
 	q := "SELECT administrators.id,administrators.usr_id,administrators.ns_id,users.name " +
 		"FROM administrators " +
 		"LEFT OUTER JOIN users on users.id=administrators.usr_id " +
@@ -24,8 +24,8 @@ func SelectNsAdministrators(nsID int64) ([]server.Administrator, error) {
 	return data, nil
 }
 
-// SelectNonAdminUsersInNs : find non admin users in a namespace
-func SelectNonAdminUsersInNs(nsID int64, qs string) ([]server.NonAdmin, error) {
+// SelectNonAdministrators : find non admin users in a namespace
+func SelectNonAdministrators(nsID int64, qs string) ([]server.NonAdmin, error) {
 	q := "SELECT users.id as usr_id, users.name, namespaces.id as ns_id FROM users  " +
 		"JOIN namespaces ON users.ns_id = namespaces.id " +
 		"WHERE (namespaces.id = $1 AND users.name LIKE E'" + qs + "%') " +

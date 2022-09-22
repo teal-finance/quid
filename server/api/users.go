@@ -10,11 +10,11 @@ import (
 	db "github.com/teal-finance/quid/server/db"
 )
 
-// allNsUsers : select all users for a namespace.
-func allNsUsers(w http.ResponseWriter, r *http.Request) {
+// listUsersInNs : select all users for a namespace.
+func listUsersInNs(w http.ResponseWriter, r *http.Request) {
 	var m server.NamespaceIDRequest
 	if err := gg.UnmarshalJSONRequest(w, r, &m); err != nil {
-		log.ParamError("AllUsersInNamespace:", err)
+		log.ParamError("listUsersInNs:", err)
 		gw.WriteErr(w, r, http.StatusUnauthorized, "cannot decode JSON")
 		return
 	}
@@ -24,14 +24,14 @@ func allNsUsers(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	data, err := db.SelectNsUsers(m.NsID)
+	users, err := db.SelectNsUsers(m.NsID)
 	if err != nil {
-		log.QueryError("AllUsersInNamespace: error SELECT users:", err)
+		log.QueryError("listUsersInNs: error SELECT users:", err)
 		gw.WriteErr(w, r, http.StatusUnauthorized, "error SELECT users")
 		return
 	}
 
-	gw.WriteOK(w, data)
+	gw.WriteOK(w, users) // respond user.name
 }
 
 // nsGroups : get the groups of a user.

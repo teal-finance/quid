@@ -37,7 +37,7 @@ type NonAdmin struct {
 
 // User : base model.
 type User struct {
-	Name         string  `json:"username"`
+	Name         string  `json:"name"`
 	PasswordHash string  `json:"-"`
 	Namespace    string  `json:"namespace,omitempty"`
 	Org          string  `json:"org,omitempty"`

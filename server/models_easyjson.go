@@ -120,7 +120,7 @@ func easyjsonD2b7633eDecodeGithubComTealFinanceQuidServer1(in *jlexer.Lexer, out
 			continue
 		}
 		switch key {
-		case "username":
+		case "name":
 			out.Name = string(in.String())
 		case "namespace":
 			out.Namespace = string(in.String())
@@ -170,7 +170,7 @@ func easyjsonD2b7633eEncodeGithubComTealFinanceQuidServer1(out *jwriter.Writer, 
 	first := true
 	_ = first
 	{
-		const prefix string = ",\"username\":"
+		const prefix string = ",\"name\":"
 		out.RawString(prefix[1:])
 		out.String(string(in.Name))
 	}

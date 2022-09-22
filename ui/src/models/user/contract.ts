@@ -2,7 +2,7 @@ import NamespaceContract from "../namespace/contract";
 
 interface UserContract {
   id: number;
-  username: string;
+  name: string;
   namespace: NamespaceContract;
 }
 

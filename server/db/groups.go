@@ -109,34 +109,6 @@ func CreateGroup(name string, nsID int64) (int64, error) {
 	return getFirstID(name, rows)
 }
 
-// createGroup : create a group.
-func CreateGroupIfExist(name string, nsID int64) (server.Group, bool, error) {
-	var grp server.Group
-
-	exists, err := GroupExists(name, nsID)
-	if err != nil {
-		log.QueryError("createGroup GroupExists:", err)
-		return grp, false, err
-	}
-	if exists {
-		log.QueryError("createGroup: group already exists")
-		return grp, true, nil
-	}
-
-	gid, err := CreateGroup(name, nsID)
-	if err != nil {
-		log.QueryError("createGroup:", err)
-		return grp, false, err
-	}
-
-	grp = server.Group{
-		Name:      name,
-		Namespace: "",
-		ID:        gid,
-	}
-	return grp, false, nil
-}
-
 // DeleteGroup : delete a group.
 func DeleteGroup(id int64) error {
 	q := "DELETE FROM groups WHERE id=$1"

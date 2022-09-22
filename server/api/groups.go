@@ -111,15 +111,24 @@ func createGroup(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	grp, exists, err := db.CreateGroupIfExist(m.Name, m.NsID)
+	exists, err := db.GroupExists(m.Name, m.NsID)
 	if err != nil {
-		gw.WriteErr(w, r, http.StatusConflict, "error creating group")
+		log.QueryError("createGroup GroupExists:", err)
+		gw.WriteErr(w, r, http.StatusUnauthorized, "DB error while checking group", "group", m.Name, "ns_id", m.NsID)
 		return
 	}
 	if exists {
-		gw.WriteErr(w, r, http.StatusConflict, "group already exists")
+		log.ParamError("createGroup: group '" + m.Name + "' already exists")
+		gw.WriteErr(w, r, http.StatusUnauthorized, "group already exists", "group", m.Name, "ns_id", m.NsID)
 		return
 	}
 
-	gw.WriteOK(w, "grp_id", grp.ID)
+	gid, err := db.CreateGroup(m.Name, m.NsID)
+	if err != nil {
+		log.QueryError("createGroup CreateGroup:", err)
+		gw.WriteErr(w, r, http.StatusUnauthorized, "DB error while creating group", "group", m.Name, "ns_id", m.NsID)
+		return
+	}
+
+	gw.WriteOK(w, "grp_id", gid)
 }

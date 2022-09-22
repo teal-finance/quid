@@ -40,7 +40,7 @@ func setRefreshMaxTTL(w http.ResponseWriter, r *http.Request) {
 	err := db.UpdateNsRefreshMaxTTL(m.ID, m.RefreshMaxTTL)
 	if err != nil {
 		log.QueryError("SetNamespaceRefreshTokenMaxTTL: error updating tokens max TTL in namespace:", err)
-		gw.WriteErr(w, r, http.StatusInternalServerError, "error updating tokens max TTL in namespace")
+		gw.WriteErr(w, r, http.StatusUnauthorized, "error updating tokens max TTL in namespace")
 		return
 	}
 
@@ -65,7 +65,7 @@ func setTokenMaxTTL(w http.ResponseWriter, r *http.Request) {
 	err := db.UpdateNsTokenMaxTTL(m.ID, m.MaxTTL)
 	if err != nil {
 		log.QueryError("SetNamespaceTokenMaxTTL: error updating tokens max TTL in namespace:", err)
-		gw.WriteErr(w, r, http.StatusInternalServerError, "error updating tokens max TTL in namespace")
+		gw.WriteErr(w, r, http.StatusUnauthorized, "error updating tokens max TTL in namespace")
 		return
 	}
 
@@ -84,14 +84,14 @@ func namespaceInfo(w http.ResponseWriter, r *http.Request) {
 	nu, err := db.CountUsersForNamespace(m.ID)
 	if err != nil {
 		log.QueryError("NamespaceInfo: error counting users in namespace:", err)
-		gw.WriteErr(w, r, http.StatusInternalServerError, "error counting users in namespace")
+		gw.WriteErr(w, r, http.StatusUnauthorized, "error counting users in namespace")
 		return
 	}
 
 	g, err := db.SelectNsGroups(m.ID)
 	if err != nil {
 		log.QueryError("NamespaceInfo: error counting groups in namespace:", err)
-		gw.WriteErr(w, r, http.StatusInternalServerError, "error counting groups in namespace")
+		gw.WriteErr(w, r, http.StatusUnauthorized, "error counting groups in namespace")
 		return
 	}
 
@@ -120,7 +120,7 @@ func getAccessVerificationKey(w http.ResponseWriter, r *http.Request) {
 	}
 	if !found {
 		log.QueryError("GetNamespaceAccessKey: namespace not found")
-		gw.WriteErr(w, r, http.StatusBadRequest, "namespace not found", "ns_id", m.ID)
+		gw.WriteErr(w, r, http.StatusUnauthorized, "namespace not found", "ns_id", m.ID)
 		return
 	}
 
@@ -148,7 +148,7 @@ func findNamespace(w http.ResponseWriter, r *http.Request) {
 	data, err := db.SelectNsStartsWith(m.Name)
 	if err != nil {
 		log.QueryError("FindNamespace: error SELECT namespace:", err)
-		gw.WriteErr(w, r, http.StatusInternalServerError, "error SELECT namespace")
+		gw.WriteErr(w, r, http.StatusUnauthorized, "error SELECT namespace")
 		return
 	}
 
@@ -169,11 +169,11 @@ func deleteNamespace(w http.ResponseWriter, r *http.Request) {
 		log.QueryError(qRes.Error.Message)
 		if qRes.Error.HasUserMessage {
 			log.Warn("DeleteNamespace: error deleting namespace")
-			gw.WriteErr(w, r, http.StatusConflict, "error deleting namespace: "+qRes.Error.Message)
+			gw.WriteErr(w, r, http.StatusUnauthorized, "error deleting namespace", "error", qRes.Error.Message)
 			return
 		}
 		log.Error("DeleteNamespace")
-		w.WriteHeader(http.StatusInternalServerError)
+		w.WriteHeader(http.StatusUnauthorized)
 		return
 	}
 
@@ -233,7 +233,7 @@ func createNamespace(w http.ResponseWriter, r *http.Request) {
 	accessKey, err := tokens.GenerateSigningKey(m.Alg)
 	if err != nil {
 		log.Warn("Generate AccessKey algo=" + m.Alg + " err: " + err.Error())
-		w.WriteHeader(http.StatusBadRequest)
+		w.WriteHeader(http.StatusUnauthorized)
 		return
 	}
 

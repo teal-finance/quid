@@ -53,14 +53,14 @@ func nsGroups(w http.ResponseWriter, r *http.Request) {
 	ns, err := db.SelectNsFromName(m.Namespace)
 	if err != nil {
 		log.QueryError(err)
-		gw.WriteErr(w, r, http.StatusUnauthorized, "Cannot SELECT namespace", "namespace", m.Namespace, "error", err)
+		gw.WriteErr(w, r, http.StatusUnauthorized, "cannot SELECT namespace", "namespace", m.Namespace, "error", err)
 		return
 	}
 
 	g, err := db.SelectNsGroups(ns.ID)
 	if err != nil {
 		log.QueryError("GroupsForNamespace: error SELECT groups:", err)
-		gw.WriteErr(w, r, http.StatusInternalServerError, "error SELECT groups")
+		gw.WriteErr(w, r, http.StatusUnauthorized, "error SELECT groups")
 	}
 
 	log.Result("GroupsForNamespace:", g)
@@ -79,7 +79,7 @@ func addUserInOrg(w http.ResponseWriter, r *http.Request) {
 	err := db.AddUserInOrg(m.UsrID, m.OrgID)
 	if err != nil {
 		log.QueryError("AddUserInOrg: error adding user in org:", err)
-		gw.WriteErr(w, r, http.StatusInternalServerError, "error adding user in org")
+		gw.WriteErr(w, r, http.StatusUnauthorized, "error adding user in org")
 		return
 	}
 
@@ -234,8 +234,8 @@ func createUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	if exists {
-		log.Data("CreateUser: user already exist")
-		gw.WriteErr(w, r, http.StatusConflict, "user already exist")
+		log.Data("CreateUser: user already exists")
+		gw.WriteErr(w, r, http.StatusConflict, "user already exists")
 		return
 	}
 

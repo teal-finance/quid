@@ -79,13 +79,13 @@ func SelectNsFromName(nsName string) (server.Namespace, error) {
 
 	accessKey, err := crypt.AesGcmDecryptBin(data.AccessKey)
 	if err != nil {
-		log.DecryptError(err)
+		log.DecryptError("AccessKey", err)
 		return ns, err
 	}
 
 	refreshKey, err := crypt.AesGcmDecryptBin(data.RefreshKey)
 	if err != nil {
-		log.DecryptError(err)
+		log.DecryptError("RefreshKey", err)
 		return ns, err
 	}
 
@@ -156,13 +156,13 @@ func CreateNamespace(name, ttl, refreshTTL, algo string, accessKey, refreshKey [
 
 	ak, err := crypt.AesGcmEncryptBin(accessKey)
 	if err != nil {
-		log.S().Warning(err)
+		log.EncryptError("AccessKey", err)
 		return 0, err
 	}
 
 	rk, err := crypt.AesGcmEncryptBin(refreshKey)
 	if err != nil {
-		log.S().Warning(err)
+		log.EncryptError("RefreshKey", err)
 		return 0, err
 	}
 
@@ -220,7 +220,7 @@ func NamespaceExists(name string) (bool, error) {
 	var n int
 	err := db.Get(&n, q, name)
 	if err != nil {
-		log.S().Warning(err)
+		log.QueryError(err)
 		return false, err
 	}
 

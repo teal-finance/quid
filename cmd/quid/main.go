@@ -41,6 +41,7 @@ func main() {
 		admin   = flag.String("admin", gg.EnvStr("QUID_ADMIN_USR", defaultUsr), "The username of the Quid Administrator. Env. var: QUID_ADMIN_USR")
 		pwd     = flag.String("pwd", gg.EnvStr("QUID_ADMIN_PWD", defaultPwd), "The password of the Quid Administrator. Env. var: QUID_ADMIN_PWD")
 		conf    = flag.Bool("conf", false, `Generate a "config.json" file with a random AES-128 key`)
+		drop    = flag.Bool("drop", false, "Reset the DB: drop tables and indexes")
 		dbUser  = flag.String("db-usr", gg.EnvStr("POSTGRES_USER", defaultDBUser), "Username to read/write the database. Env. var: POSTGRES_USER")
 		dbPass  = flag.String("db-pwd", gg.EnvStr("POSTGRES_PASSWORD", defaultDBPass), "Password of the database user. Env. var: POSTGRES_PASSWORD")
 		dbName  = flag.String("db-name", gg.EnvStr("POSTGRES_DB", defaultDBName), "Name of the Postgres database. Env. var: POSTGRES_DB")
@@ -91,9 +92,10 @@ func main() {
 	log.V().Param("-dev                       =", *dev)
 	log.V().Param("-v                         =", *verbose)
 	log.V().Param("-conf                      =", *conf)
-	log.V().Param("-key   QUID_KEY            =", len(*key), "bytes")
-	log.V().Param("-admin QUID_ADMIN_USR      =", *admin)
-	log.V().Param("-pwd   QUID_ADMIN_PWD      =", len(*pwd), "bytes")
+	log.V().Param("-drop                      =", *drop)
+	log.V().Param("-key     QUID_KEY          =", len(*key), "bytes")
+	log.V().Param("-admin   QUID_ADMIN_USR    =", *admin)
+	log.V().Param("-pwd     QUID_ADMIN_PWD    =", len(*pwd), "bytes")
 	log.V().Param("-db-usr  POSTGRES_USER     =", *dbUser)
 	log.V().Param("-db-pwd  POSTGRES_PASSWORD =", len(*dbPass), "bytes")
 	log.V().Param("-db-name POSTGRES_DB       =", *dbName)
@@ -129,7 +131,13 @@ func main() {
 		log.Fatal("Cannot connect to", obfuscatedPwdURL, "(password is obfuscated)")
 	}
 
-	if err := db.ExecSchema(); err != nil {
+	if *drop {
+		if err := db.DropTablesIndexes(); err != nil {
+			log.Fatal(err)
+		}
+	}
+
+	if err := db.CreateTablesIndexes(); err != nil {
 		log.Fatal(err)
 	}
 

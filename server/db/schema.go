@@ -99,5 +99,44 @@ CREATE TABLE IF NOT EXISTS token (
 	UNIQUE (user_id, namespace_id)
 );
 
-CREATE INDEX IF NOT EXISTS token_user_idx ON token(user_id);
+CREATE INDEX IF NOT EXISTS token_usr_idx ON token(usr_id);
+`
+
+// Schema : the PostgreSQL schema.
+var dropAll = `
+
+DROP INDEX IF EXISTS namespaces_name_idx;
+DROP INDEX IF EXISTS groups_name_idx;
+DROP INDEX IF EXISTS organizations_name_idx;
+DROP INDEX IF EXISTS organizations_id_idx;
+DROP INDEX IF EXISTS users_name_idx;
+DROP INDEX IF EXISTS user_groups_usr_idx;
+DROP INDEX IF EXISTS user_groups_grp_idx;
+DROP INDEX IF EXISTS user_organizations_usr_idx;
+DROP INDEX IF EXISTS user_organizations_org_idx;
+DROP INDEX IF EXISTS administrators_usr_idx;
+DROP INDEX IF EXISTS administrators_ns_idx;
+DROP INDEX IF EXISTS token_usr_idx;
+
+DROP INDEX IF EXISTS namespace_name_idx;
+DROP INDEX IF EXISTS grouptable_name_idx;
+DROP INDEX IF EXISTS orgtable_name_idx;
+DROP INDEX IF EXISTS user_name_idx;
+DROP INDEX IF EXISTS org_id_idx;
+DROP INDEX IF EXISTS usergroup_user_idx;
+DROP INDEX IF EXISTS usergroup_group_idx;
+DROP INDEX IF EXISTS userorg_user_idx;
+DROP INDEX IF EXISTS userorg_org_idx;
+DROP INDEX IF EXISTS namespaceadmin_user_idx;
+DROP INDEX IF EXISTS namespaceadmin_namespace_idx;
+DROP INDEX IF EXISTS token_user_idx;
+
+DROP TABLE IF EXISTS namespace,
+                     groups, grouptable,
+					 organizations, orgtable,
+					 users, usertable,
+					 user_groups, usergroup,
+					 user_organizations, userorg,
+					 administrators, namespaceadmin,
+					 token;
 `

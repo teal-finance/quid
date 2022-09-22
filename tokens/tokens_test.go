@@ -270,7 +270,10 @@ func BenchmarkBase64Encode(b *testing.B) {
 	b64BytesSame := make([]byte, B64size)
 	base64.RawURLEncoding.Encode(b64BytesSame, []byte(srcTxt))
 	b64BytesDiff := make([]byte, B64size)
-	rand.Read(b64BytesDiff)
+	_, err := rand.Read(b64BytesDiff)
+	if err != nil {
+		b.Fatal(err)
+	}
 
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
@@ -298,7 +301,10 @@ func BenchmarkBase64EncodeTurbo(b *testing.B) {
 	b64BytesSame := make([]byte, B64size)
 	base64.RawURLEncoding.Encode(b64BytesSame, []byte(srcTxt))
 	b64BytesDiff := make([]byte, B64size)
-	rand.Read(b64BytesDiff)
+	_, err := rand.Read(b64BytesDiff)
+	if err != nil {
+		b.Fatal(err)
+	}
 
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
@@ -326,7 +332,10 @@ func BenchmarkBase64EncodeString(b *testing.B) {
 	b64BytesSame := make([]byte, B64size)
 	base64.RawURLEncoding.Encode(b64BytesSame, []byte(srcTxt))
 	b64BytesDiff := make([]byte, B64size)
-	rand.Read(b64BytesDiff)
+	_, err := rand.Read(b64BytesDiff)
+	if err != nil {
+		b.Fatal(err)
+	}
 
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
@@ -350,7 +359,10 @@ func BenchmarkBase64EncodeString(b *testing.B) {
 func BenchmarkBase64Decode(b *testing.B) {
 	txtSame := []byte(jwtSample)
 	txtDiff := make([]byte, len(txtSame))
-	rand.Read(txtDiff)
+	_, err := rand.Read(txtDiff)
+	if err != nil {
+		b.Fatal(err)
+	}
 
 	B64size := base64.RawURLEncoding.EncodedLen(len(txtSame))
 	b64 := make([]byte, B64size)
@@ -382,7 +394,10 @@ func BenchmarkBase64Decode(b *testing.B) {
 func BenchmarkBase64DecodeTurbo(b *testing.B) {
 	txtSame := []byte(jwtSample)
 	txtDiff := make([]byte, len(txtSame))
-	rand.Read(txtDiff)
+	_, err := rand.Read(txtDiff)
+	if err != nil {
+		b.Fatal(err)
+	}
 
 	B64size := base64.RawURLEncoding.EncodedLen(len(txtSame))
 	b64 := make([]byte, B64size)
@@ -413,7 +428,10 @@ func BenchmarkBase64DecodeTurbo(b *testing.B) {
 func BenchmarkBase64DecodeString(b *testing.B) {
 	txtSame := []byte(jwtSample)
 	txtDiff := make([]byte, len(txtSame))
-	rand.Read(txtDiff)
+	_, err := rand.Read(txtDiff)
+	if err != nil {
+		b.Fatal(err)
+	}
 
 	B64size := base64.RawURLEncoding.EncodedLen(len(txtSame))
 	b64Bytes := make([]byte, B64size)

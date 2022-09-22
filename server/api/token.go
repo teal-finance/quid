@@ -252,6 +252,7 @@ func getAccessPublicKey(w http.ResponseWriter, r *http.Request) {
 	gw.WriteOK(w, server.PublicKeyResponse{Alg: ns.Alg, Key: keyTxt})
 }
 
+//nolint:errcheck // no need to check last write of this function
 func validAccessToken(w http.ResponseWriter, r *http.Request) {
 	var m server.AccessTokenValidationRequest
 	if err := gg.UnmarshalJSONRequest(w, r, &m); err != nil {

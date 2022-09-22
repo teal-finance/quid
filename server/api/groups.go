@@ -88,7 +88,7 @@ func deleteGroup(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	gw.WriteOK(w, "message", "ok")
+	w.WriteHeader(http.StatusOK)
 }
 
 // createGroup : group creation http handler.

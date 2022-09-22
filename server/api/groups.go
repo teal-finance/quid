@@ -17,12 +17,12 @@ func allNsGroups(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if !isNsAdmin(r, m.NamespaceID) {
-		gw.WriteErr(w, r, http.StatusUnauthorized, "user is not admin for requested namespace", "namespace_id", m.NamespaceID)
+	if !isNsAdmin(r, m.NsID) {
+		gw.WriteErr(w, r, http.StatusUnauthorized, "user is not admin for requested namespace", "ns_id", m.NsID)
 		return
 	}
 
-	data, err := db.SelectNsGroups(m.NamespaceID)
+	data, err := db.SelectNsGroups(m.NsID)
 	if err != nil {
 		log.QueryError("AllGroupsForNamespace: error SELECT groups:", err)
 		gw.WriteErr(w, r, http.StatusConflict, "error SELECT groups")
@@ -53,8 +53,8 @@ func groupsInfo(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if !isNsAdmin(r, m.NamespaceID) {
-		gw.WriteErr(w, r, http.StatusUnauthorized, "user is not admin for requested namespace", "namespace_id", m.NamespaceID)
+	if !isNsAdmin(r, m.NsID) {
+		gw.WriteErr(w, r, http.StatusUnauthorized, "user is not admin for requested namespace", "ns_id", m.NsID)
 		return
 	}
 
@@ -77,8 +77,8 @@ func deleteGroup(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if !isNsAdmin(r, m.NamespaceID) {
-		gw.WriteErr(w, r, http.StatusUnauthorized, "user is not admin for requested namespace", "namespace_id", m.NamespaceID)
+	if !isNsAdmin(r, m.NsID) {
+		gw.WriteErr(w, r, http.StatusUnauthorized, "user is not admin for requested namespace", "ns_id", m.NsID)
 		return
 	}
 
@@ -106,12 +106,12 @@ func createGroup(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if !isNsAdmin(r, m.NamespaceID) {
-		gw.WriteErr(w, r, http.StatusUnauthorized, "user is not admin for requested namespace", "namespace_id", m.NamespaceID)
+	if !isNsAdmin(r, m.NsID) {
+		gw.WriteErr(w, r, http.StatusUnauthorized, "user is not admin for requested namespace", "ns_id", m.NsID)
 		return
 	}
 
-	grp, exists, err := db.CreateGroupIfExist(m.Name, m.NamespaceID)
+	grp, exists, err := db.CreateGroupIfExist(m.Name, m.NsID)
 	if err != nil {
 		gw.WriteErr(w, r, http.StatusConflict, "error creating group")
 		return

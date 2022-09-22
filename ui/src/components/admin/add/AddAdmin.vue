@@ -57,7 +57,7 @@ function setHasNoUsersSelected() {
 async function submitSelection(users: Set<AdminUser>) {
   const uids = new Array<number>()
   for (const user of users) {
-    uids.push(user.userId)
+    uids.push(user.usrId)
   }
   await AdminUser.fetchAdd(user.namespace.value.id, uids)
   emit("end")

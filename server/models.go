@@ -22,17 +22,17 @@ type NamespaceInfo struct {
 
 // NamespaceAdmin : base model.
 type NamespaceAdmin struct {
-	UserName    string `db:"username" json:"username"`
-	ID          int64  `db:"id" json:"id"`
-	UserID      int64  `db:"user_id" json:"user_id"`
-	NamespaceID int64  `db:"namespace_id" json:"namespace_id"`
+	UserName string `db:"username" json:"username"`
+	ID       int64  `db:"id" json:"id"`
+	UsrID    int64  `db:"usr_id" json:"usr_id"`
+	NsID     int64  `db:"ns_id" json:"ns_id"`
 }
 
 // NonNsAdmin : base model.
 type NonNsAdmin struct {
-	UserName    string `db:"username" json:"username"`
-	UserID      int64  `db:"user_id" json:"user_id"`
-	NamespaceID int64  `db:"namespace_id" json:"namespace_id"`
+	UserName string `db:"username" json:"username"`
+	UsrID    int64  `db:"usr_id" json:"usr_id"`
+	NsID     int64  `db:"ns_id" json:"ns_id"`
 }
 
 // User : base model.
@@ -64,9 +64,9 @@ type Group struct {
 
 // UserGroup : base model.
 type UserGroup struct {
-	ID      int32 `db:"id" json:"id"`
-	UserID  int64 `db:"user_id" json:"user_id"`
-	GroupID int64 `db:"group_id" json:"group_id"`
+	ID    int32 `db:"id" json:"id"`
+	UsrID int64 `db:"usr_id" json:"usr_id"`
+	GrpID int64 `db:"grp_id" json:"grp_id"`
 }
 
 // Org : base model.

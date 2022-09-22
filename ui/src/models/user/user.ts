@@ -22,7 +22,7 @@ export default class User {
     const url = user.adminUrl + "/users/nsall";
     const data = new Array<UserTable>();
     try {
-      const payload = { namespace_id: nsid }
+      const payload = { ns_id: nsid }
       const resp = await api.post<Array<UserContract>>(url, payload);
       resp.forEach((row) => data.push(new User(row).toTableRow()));
     } catch (e) {
@@ -36,7 +36,7 @@ export default class User {
     const url = user.adminUrl + "/users/delete";
     await api.post(url, {
       id: id,
-      namespace_id: user.namespace.value.id
+      ns_id: user.namespace.value.id
     });
   }
 }

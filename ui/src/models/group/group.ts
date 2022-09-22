@@ -41,7 +41,7 @@ export default class Group {
     const url = user.adminUrl + "/groups/nsall";
     const ns = new Array<GroupTable>();
     try {
-      const payload = { namespace_id: nsid }
+      const payload = { ns_id: nsid }
       const resp = await api.post<Array<GroupContract>>(url, payload, false, true);
       resp.forEach((row) => {
         //console.log(row)
@@ -58,7 +58,7 @@ export default class Group {
     const url = user.adminUrl + "/users/groups";
     const data = new Array<GroupTable>();
     try {
-      const payload = { id: uid, namespace_id: user.namespace.value.id }
+      const payload = { id: uid, ns_id: user.namespace.value.id }
       const resp = await api.post<{ groups: Array<GroupContract> }>(url, payload);
       //console.log("RESP", JSON.stringify(resp.groups, null, "  "))
       if (resp.groups.length > 0) {
@@ -77,9 +77,9 @@ export default class Group {
     const url = user.adminUrl + "/groups/add_user";
     try {
       const payload = {
-        user_id: uid,
-        group_id: gid,
-        namespace_id: user.namespace.value.id
+        usr_id: uid,
+        grp_id: gid,
+        ns_id: user.namespace.value.id
       }
       await api.post(url, payload);
     } catch (e) {
@@ -92,9 +92,9 @@ export default class Group {
     const url = user.adminUrl + "/groups/remove_user";
     try {
       const payload = {
-        user_id: uid,
-        group_id: gid,
-        namespace_id: user.namespace.value.id
+        usr_id: uid,
+        grp_id: gid,
+        ns_id: user.namespace.value.id
       }
       await api.post(url, payload);
     } catch (e) {
@@ -106,7 +106,7 @@ export default class Group {
   static async delete(id: number) {
     await api.post(user.adminUrl + "/groups/delete", {
       id: id,
-      namespace_id: user.namespace.value.id
+      ns_id: user.namespace.value.id
     });
   }
 }

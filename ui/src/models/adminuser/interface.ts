@@ -1,14 +1,14 @@
 interface AdminUserContract {
   "id": number;
-  "user_id": number;
-  "namespace_id": number;
+  "usr_id": number;
+  "ns_id": number;
   "username": string
 }
 
 interface AdminUserTable {
   id: number;
   userName: string;
-  userId: number;
+  usrId: number;
 }
 
 export { AdminUserContract, AdminUserTable }

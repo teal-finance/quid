@@ -12,7 +12,7 @@ import (
 // Key IDs for the Incorruptible TValues
 const (
 	keyUsername = iota
-	KeyUserID
+	KeyUsrID
 	keyNsName
 	keyNsID
 	keyAdminType
@@ -85,7 +85,7 @@ func adminLogin(w http.ResponseWriter, r *http.Request) {
 	// create a new Incorruptible cookie
 	cookie, tv, err := incorr.NewCookie(r,
 		incorruptible.String(keyUsername, u.Name),
-		incorruptible.Int64(KeyUserID, u.ID),
+		incorruptible.Int64(KeyUsrID, u.ID),
 		incorruptible.String(keyNsName, ns.Name),
 		incorruptible.Int64(keyNsID, ns.ID),
 		incorruptible.Bool(keyAdminType, bool(adminType)),

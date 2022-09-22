@@ -39,7 +39,7 @@ async function postForm() {
   try {
     await api.post(user.adminUrl + "/groups/add", {
       name: form.name.val,
-      namespace_id: user.namespace.value.id,
+      ns_id: user.namespace.value.id,
     });
     emit("end");
     notify.done("Group added")

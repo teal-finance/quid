@@ -48,7 +48,7 @@ func nsAdminMiddleware(next http.Handler) http.Handler {
 
 		values, err := tv.Get(
 			tv.KString(keyUsername),
-			tv.KInt64(KeyUserID),
+			tv.KInt64(KeyUsrID),
 			tv.KString(keyNsName),
 			tv.KInt64(keyNsID),
 			tv.KString(keyAdminType))
@@ -63,7 +63,7 @@ func nsAdminMiddleware(next http.Handler) http.Handler {
 		namespace := values[2].String()
 		nsID := values[3].Int64()
 
-		userType, err := db.GetUserType(namespace, nsID, userID)
+		userType, err := db.GetUserType(namespace, nsID, usrID)
 		if err != nil {
 			log.QueryError("nsAdminMiddleware:", err)
 			w.WriteHeader(http.StatusInternalServerError)
@@ -75,7 +75,7 @@ func nsAdminMiddleware(next http.Handler) http.Handler {
 			return
 		}
 
-		log.RequestPost("nsAdminMiddleware OK u="+userName+" (id=", userID, ") ns="+namespace+" (id=", nsID, ")")
+		log.RequestPost("nsAdminMiddleware OK u="+userName+" (id=", usrID, ") ns="+namespace+" (id=", nsID, ")")
 		r = tv.ToCtx(r) // save the token in the request context
 		next.ServeHTTP(w, r)
 	})

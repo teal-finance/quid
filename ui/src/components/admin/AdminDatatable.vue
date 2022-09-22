@@ -40,7 +40,7 @@ function confirmDelete(row: AdminUserTable) {
   notify.confirmDelete(
     `Delete the ${row.userName} admin user?`,
     () => {
-      AdminUser.delete(row.userId, user.namespace.value.id).then(() => {
+      AdminUser.delete(row.usrId, user.namespace.value.id).then(() => {
         notify.done("User deleted");
         emit("reload");
       })

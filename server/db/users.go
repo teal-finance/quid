@@ -51,10 +51,17 @@ func SelectEnabledUser(name string, nsID int64) (server.User, error) {
 		return usr, log.Data("User", name, "is disabled in namespace ID=", nsID).Err()
 	}
 
-	usr.Name = u.Name
-	usr.PasswordHash = u.Password
-	usr.Namespace = u.Namespace
-	usr.ID = u.ID
+	usr = server.User{
+		DateCreated:  u.DateCreated,
+		ID:           u.ID,
+		Name:         u.Name,
+		PasswordHash: u.PasswordHash,
+		Namespace:    u.Namespace,
+		Org:          "",
+		Groups:       []server.Group{},
+		Enabled:      u.Enabled,
+	}
+
 	return usr, nil
 }
 

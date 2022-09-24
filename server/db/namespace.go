@@ -24,14 +24,14 @@ func SelectAllNamespaces() ([]server.Namespace, error) {
 	res := make([]server.Namespace, 0, len(data))
 	for _, u := range data {
 		res = append(res, server.Namespace{
-			Name:                  u.Name,
-			Alg:                   "",
-			AccessKey:             nil,
-			RefreshKey:            nil,
-			MaxTokenTTL:           u.MaxAccessTTL,
-			MaxRefreshTokenTTL:    u.MaxRefreshTTL,
-			ID:                    u.ID,
-			PublicEndpointEnabled: u.PublicEndpointEnabled,
+			Name:          u.Name,
+			Alg:           "",
+			AccessKey:     nil,
+			RefreshKey:    nil,
+			MaxAccessTTL:  u.MaxAccessTTL,
+			MaxRefreshTTL: u.MaxRefreshTTL,
+			ID:            u.ID,
+			Enabled:       u.PublicEndpointEnabled,
 		})
 	}
 
@@ -77,27 +77,27 @@ func SelectNsFromName(nsName string) (server.Namespace, error) {
 		return ns, err
 	}
 
-	accessKey, err := crypt.AesGcmDecryptBin(data.AccessKey)
-	if err != nil {
-		log.DecryptError("AccessKey", err)
-		return ns, err
-	}
-
-	refreshKey, err := crypt.AesGcmDecryptBin(data.RefreshKey)
+	refreshKey, err := crypt.AesGcmDecryptBin(data.EncryptedRefreshKey)
 	if err != nil {
 		log.DecryptError("RefreshKey", err)
 		return ns, err
 	}
 
+	accessKey, err := crypt.AesGcmDecryptBin(data.EncryptedAccessKey)
+	if err != nil {
+		log.DecryptError("AccessKey", err)
+		return ns, err
+	}
+
 	ns = server.Namespace{
-		Name:                  data.Name,
-		Alg:                   "HS256",
-		AccessKey:             accessKey,
-		RefreshKey:            refreshKey,
-		MaxTokenTTL:           data.MaxAccessTTL,
-		MaxRefreshTokenTTL:    data.MaxRefreshTTL,
-		ID:                    data.ID,
-		PublicEndpointEnabled: data.PublicEndpointEnabled,
+		Name:          data.Name,
+		Alg:           "HS256",
+		RefreshKey:    refreshKey,
+		AccessKey:     accessKey,
+		MaxRefreshTTL: data.MaxRefreshTTL,
+		MaxAccessTTL:  data.MaxAccessTTL,
+		ID:            data.ID,
+		Enabled:       data.PublicEndpointEnabled,
 	}
 
 	return ns, nil
@@ -116,7 +116,7 @@ func SelectVerificationKeyDER(id int64) (found bool, algo string, der []byte, _ 
 		return false, "", nil, err
 	}
 
-	der, err := tokens.DecryptVerificationKeyDER(data.Alg, data.AccessKey)
+	der, err := tokens.DecryptVerificationKeyDER(data.Alg, data.EncryptedAccessKey)
 	if err != nil {
 		log.Error(err)
 		return true, "", nil, err

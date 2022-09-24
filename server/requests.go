@@ -142,28 +142,3 @@ type PublicKeyResponse struct {
 	Alg string
 	Key []byte
 }
-
-type StatusResponse struct {
-	AdminType string
-	Username  string
-	Ns        NSInfo
-}
-
-type NSInfo struct {
-	ID   int64
-	Name string
-}
-
-type AdminType bool
-
-const (
-	QuidAdmin AdminType = false
-	NsAdmin   AdminType = true
-)
-
-func (t AdminType) String() string {
-	if t == QuidAdmin {
-		return "QuidAdmin"
-	}
-	return "NsAdmin"
-}

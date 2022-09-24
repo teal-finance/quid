@@ -40,7 +40,7 @@ func requestRefreshToken(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// check if the endpoint is available
-	if !ns.PublicEndpointEnabled {
+	if !ns.Enabled {
 		log.Data("RequestRefreshToken: public endpoint unauthorized")
 		gw.WriteErr(w, r, http.StatusUnauthorized, "endpoint disabled", "namespace", m.Namespace)
 		return
@@ -55,7 +55,7 @@ func requestRefreshToken(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// generate the token
-	t, err := tokens.GenRefreshToken(timeout, ns.MaxRefreshTokenTTL, ns.Name, u.Name, ns.RefreshKey)
+	t, err := tokens.GenRefreshToken(timeout, ns.MaxRefreshTTL, ns.Name, u.Name, ns.RefreshKey)
 	if err != nil {
 		log.Error("RequestRefreshToken GenRefreshToken:", err)
 		gw.WriteErr(w, r, http.StatusUnauthorized, "error while generating a new RefreshToken", "namespace", ns.Name, "usr", u.Name)
@@ -63,11 +63,11 @@ func requestRefreshToken(w http.ResponseWriter, r *http.Request) {
 	}
 	if t == "" {
 		log.Info("RequestRefreshToken: max timeout exceeded")
-		gw.WriteErr(w, r, http.StatusUnauthorized, "max timeout exceeded", "timeout", timeout, "max", ns.MaxRefreshTokenTTL)
+		gw.WriteErr(w, r, http.StatusUnauthorized, "max timeout exceeded", "timeout", timeout, "max", ns.MaxRefreshTTL)
 		return
 	}
 
-	log.RefreshToken("RequestRefreshToken: user=" + u.Name + " t=" + timeout + " TTL=" + ns.MaxRefreshTokenTTL + " ns=" + ns.Name)
+	log.RefreshToken("RequestRefreshToken: user=" + u.Name + " t=" + timeout + " TTL=" + ns.MaxRefreshTTL + " ns=" + ns.Name)
 	gw.WriteOK(w, "token", t)
 }
 
@@ -85,7 +85,7 @@ func requestRefreshAndAccessTokens(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	refreshToken, err := tokens.GenRefreshToken(timeout, ns.MaxRefreshTokenTTL, ns.Name, u.Name, ns.RefreshKey)
+	refreshToken, err := tokens.GenRefreshToken(timeout, ns.MaxRefreshTTL, ns.Name, u.Name, ns.RefreshKey)
 	if err != nil {
 		log.Error("RequestRefreshToken GenRefreshToken:", err)
 		gw.WriteErr(w, r, http.StatusUnauthorized, "error while generating a new RefreshToken", "namespace", ns.Name, "usr", u.Name)
@@ -94,7 +94,7 @@ func requestRefreshAndAccessTokens(w http.ResponseWriter, r *http.Request) {
 
 	if refreshToken == "" {
 		log.Info("RequestRefreshToken: max timeout exceeded")
-		gw.WriteErr(w, r, http.StatusUnauthorized, "max timeout exceeded", "timeout", timeout, "max", ns.MaxRefreshTokenTTL)
+		gw.WriteErr(w, r, http.StatusUnauthorized, "max timeout exceeded", "timeout", timeout, "max", ns.MaxRefreshTTL)
 		return
 	}
 
@@ -126,9 +126,9 @@ func genAccessToken(w http.ResponseWriter, r *http.Request) (accessToken, timeou
 	}
 
 	// check if the endpoint is available
-	if !ns.PublicEndpointEnabled {
-		log.Warn("RequestAccessToken: Public endpoint unauthorized")
-		gw.WriteErr(w, r, http.StatusUnauthorized, "endpoint disabled", "namespace", m.Namespace)
+	if !ns.Enabled {
+		log.Warn("RequestAccessToken: Public endpoint disabled")
+		gw.WriteErr(w, r, http.StatusUnauthorized, "public endpoint disabled", "namespace", m.Namespace)
 		return
 	}
 
@@ -144,6 +144,7 @@ func genAccessToken(w http.ResponseWriter, r *http.Request) (accessToken, timeou
 		w.WriteHeader(http.StatusUnauthorized)
 		return
 	}
+
 	if !token.Valid {
 		log.Warn("RequestAccessToken: invalid token")
 		w.WriteHeader(http.StatusUnauthorized)
@@ -177,13 +178,12 @@ func genAccessToken(w http.ResponseWriter, r *http.Request) (accessToken, timeou
 	// get the user orgs names
 	orgsNames, err := db.SelectOrgsNamesForUser(u.ID)
 	if err != nil {
-		log.QueryError("RequestAccessToken: Orgs error:", err)
 		w.WriteHeader(http.StatusUnauthorized)
 		return
 	}
 
 	// generate the access token
-	t, err := tokens.GenAccessTokenWithAlgo(ns.Alg, timeout, ns.MaxTokenTTL, u.Name, groupNames, orgsNames, ns.AccessKey)
+	t, err := tokens.GenAccessTokenWithAlgo(ns.Alg, timeout, ns.MaxAccessTTL, u.Name, groupNames, orgsNames, ns.AccessKey)
 	if err != nil {
 		log.Error("RequestAccessToken GenAccessToken:", err)
 		w.WriteHeader(http.StatusUnauthorized)
@@ -195,7 +195,7 @@ func genAccessToken(w http.ResponseWriter, r *http.Request) (accessToken, timeou
 		return
 	}
 
-	log.AccessToken("RequestAccessToken: user="+u.Name+" t="+timeout+" TTL="+ns.MaxTokenTTL+" grp=", groupNames, "org=", orgsNames)
+	log.AccessToken("RequestAccessToken: user="+u.Name+" t="+timeout+" TTL="+ns.MaxAccessTTL+" grp=", groupNames, "org=", orgsNames)
 	return t, timeout, ns, u
 }
 

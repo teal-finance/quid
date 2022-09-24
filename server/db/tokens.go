@@ -39,9 +39,9 @@ func genNsAdminToken(userName, nsName string) (string, error) {
 		}
 	}
 
-	log.Encrypt("Gen token", ns.MaxRefreshTokenTTL, ns.MaxRefreshTokenTTL, ns.Name, userName, []byte(ns.RefreshKey))
+	log.Encrypt("Gen token", ns.MaxRefreshTTL, ns.MaxRefreshTTL, ns.Name, userName, []byte(ns.RefreshKey))
 
-	token, err := tokens.GenRefreshToken(ns.MaxRefreshTokenTTL, ns.MaxRefreshTokenTTL, ns.Name, userName, []byte(ns.RefreshKey))
+	token, err := tokens.GenRefreshToken(ns.MaxRefreshTTL, ns.MaxRefreshTTL, ns.Name, userName, []byte(ns.RefreshKey))
 	if err != nil {
 		return "", log.Error("Error generating refresh token", err).Err()
 	}

@@ -45,7 +45,7 @@ func GenRefreshToken(timeout, maxTTL, namespace, user string, secretKey []byte) 
 		return "", err
 	}
 
-	log.RefreshToken("Issued a refresh token for user '" + user + "' and namespace " + namespace)
+	log.RefreshToken("Issued a refresh token for user '" + user + "' and namespace '" + namespace + "'")
 	return token, nil
 }
 

@@ -32,9 +32,9 @@ func allNsGroups(w http.ResponseWriter, r *http.Request) {
 	gw.WriteOK(w, data)
 }
 
-// AllGroups : get all groups for a namespace http handler.
+// allGroups : get all groups for a namespace http handler.
 // Deprecated because this function is not used.
-func AllGroups(w http.ResponseWriter, r *http.Request) {
+func allGroups(w http.ResponseWriter, r *http.Request) {
 	data, err := db.SelectAllGroups()
 	if err != nil {
 		log.QueryError("AllGroups: error SELECT groups:", err)

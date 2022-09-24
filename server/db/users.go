@@ -122,10 +122,10 @@ func SelectNsUsers(nsID int64) ([]server.User, error) {
 	return data, nil
 }*/
 
-// SelectUsersInGroup : get the users in a group.
+// selectUsersInGroup : get the users in a group.
 // Deprecated because this function is not used.
 // FIXME: there is no username in groups TABLE.
-func SelectUsersInGroup(username string, nsID int64) (server.Group, error) {
+func selectUsersInGroup(username string, nsID int64) (server.Group, error) {
 	q := "SELECT id,username FROM groups" +
 		" WHERE(username=$1 AND ns_id=$2)"
 

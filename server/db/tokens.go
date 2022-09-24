@@ -4,9 +4,9 @@ import (
 	"github.com/teal-finance/quid/tokens"
 )
 
-// GenNsAdminToken : generate a refresh token for an admin user and namespace
+// genNsAdminToken : generate a refresh token for an admin user and namespace
 // Deprecated because this function is not used.
-func GenNsAdminToken(userName, nsName string) (string, error) {
+func genNsAdminToken(userName, nsName string) (string, error) {
 	log.Info("Generating NS Admin token for", userName, nsName)
 
 	// get the namespace

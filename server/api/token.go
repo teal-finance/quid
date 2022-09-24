@@ -73,9 +73,9 @@ func requestRefreshToken(w http.ResponseWriter, r *http.Request) {
 
 // requestAccessToken : request an access token from a refresh token.
 func requestAccessToken(w http.ResponseWriter, r *http.Request) {
-	t, _, _, _ := genAccessToken(w, r)
-	if t != "" {
-		gw.WriteOK(w, "token", t)
+	accessToken, _, _, _ := genAccessToken(w, r)
+	if accessToken != "" {
+		gw.WriteOK(w, "token", accessToken)
 	}
 }
 

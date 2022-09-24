@@ -66,7 +66,8 @@ func GenAccessToken(timeout, maxTTL, user string, groups, orgs []string, secretK
 		return "", err
 	}
 
-	log.AccessToken("Issued an access token for user", user)
+	keyHex := gg.EncodeHexOrB64Bytes(secretKey, true)
+	log.AccessToken("Issued HS256 AccessToken exp="+timeout+" usr="+user+" grp:", groups, "org:", orgs, "key:", len(keyHex), "bytes", string(keyHex))
 
 	return token, nil
 }
@@ -99,24 +100,27 @@ func GenAccessTokenWithAlgo(algo, timeout, maxTTL, user string, groups, orgs []s
 		return "", err
 	}
 
-	log.AccessToken("Issued AccessToken exp="+timeout+" usr="+user+" grp=", groups, "org=", orgs, "Algo="+algo)
+	keyHex := gg.EncodeHexOrB64Bytes(keyDER, true)
+	log.AccessToken("Issued "+algo+" AccessToken exp="+timeout+" usr="+user+" grp:", groups, "org:", orgs, "key:", len(keyHex), "bytes", string(keyHex))
 
 	return token, nil
 }
 
 // convertDERToPrivateKey converts DER format to a private key depending on the algo.
-func convertDERToPrivateKey(algo string, der []byte) (any, error) {
+func convertDERToPrivateKey(algo string, keyDER []byte) (any, error) {
 	switch algo {
 	case "", "HS256", "HS384", "HS512":
-		return der, nil
+		keyHex := gg.EncodeHexOrB64Bytes(keyDER, true)
+		log.Security("convertDERToPrivateKey HMAC alg="+algo+" key", len(keyHex), "bytes", string(keyHex))
+		return keyDER, nil
 	case "RS256", "RS384", "RS512":
-		return x509.ParsePKCS1PrivateKey(der)
+		return x509.ParsePKCS1PrivateKey(keyDER)
 	case "PS256", "PS384", "PS512":
 		return nil, errors.New(algo + notSupportedNotice)
 	case "ES256", "ES384", "ES512":
-		return x509.ParseECPrivateKey(der)
+		return x509.ParseECPrivateKey(keyDER)
 	case "EdDSA":
-		return ed25519.PrivateKey(der), nil
+		return ed25519.PrivateKey(keyDER), nil
 	}
 
 	err := fmt.Errorf("unsupported signing algorithm %q, golang-jwt supports: %+v", algo, jwt.GetAlgorithms())

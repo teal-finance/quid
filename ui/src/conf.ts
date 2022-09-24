@@ -1,9 +1,11 @@
-import { getEnv } from "./env";
+import { EnvType, getEnv } from "./env";
+
+const env = getEnv();
 
 function getServerUrl() {
     let url = "";
-    if (import.meta.env.DEV) {
-        url = "http://localhost:8082";
+    if (env == EnvType.local) {
+        url = "http://localhost:8090";
     }
     /*if (process.env.VUE_APP_SERVER_URL !== undefined) {
         return process.env.VUE_APP_SERVER_URL;
@@ -12,7 +14,7 @@ function getServerUrl() {
 }
 
 const conf = {
-    env: getEnv(),
+    env: env,
     quidUrl: getServerUrl(),
     serverUri: getServerUrl(),
     isProduction: import.meta.env.PROD

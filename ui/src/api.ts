@@ -1,9 +1,10 @@
 import conf from "@/conf";
-import { notify } from './state';
-//import { useApi } from "@snowind/api";
-import { useApi } from "@/packages/api";
-import { ResponseError } from "./packages/errors";
+import { notify, user } from './state';
+//import { useApi, ResponseError } from "@snowind/api";
+import { useApi } from "./packages/api/api";
+import { ResponseError } from "./packages/api/errors";
 import { UserStatusContract } from "./interface";
+import Namespace from "./models/namespace";
 
 const api = useApi({ serverUrl: conf.quidUrl });
 
@@ -13,8 +14,7 @@ async function checkStatus(): Promise<{ ok: boolean, status: UserStatusContract 
     _data = await api.get<UserStatusContract>("/status")
   } catch (e) {
     if (e instanceof ResponseError) {
-      console.log("Response error", e);
-      if (e.response.status == 401) {
+      if (e.status == 401) {
         return { ok: false, status: {} as UserStatusContract }
       }
       throw new Error(e.toString())
@@ -50,15 +50,16 @@ async function adminLogin(nsName: string, username: string, password: string): P
     throw new Error(response.statusText)
   }
   const resp = await response.json();
-  console.log("LOGIN RESP", resp)
-  /*namespace.name = nsName;
+  const ns = Namespace.empty();
+  ns.name = resp.name;
+  ns.id = resp.id;
   if (nsName != 'quid') {
-    user.changeNs(namespace.toTableRow());
+    user.changeNs(ns.toTableRow());
   } else {
     user.type.value = "serverAdmin";
     user.adminUrl = "/admin";
     user.resetNs()
-  }*/
+  }
 }
 
 export { api, adminLogin, checkStatus }

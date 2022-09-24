@@ -59,12 +59,14 @@ export default class Group {
     const data = new Array<GroupTable>();
     try {
       const payload = { id: uid, ns_id: user.namespace.value.id }
-      const resp = await api.post<{ groups: Array<GroupContract> }>(url, payload);
+      const resp = await api.post<{ groups: Array<GroupContract> | null }>(url, payload);
       //console.log("RESP", JSON.stringify(resp.groups, null, "  "))
-      if (resp.groups.length > 0) {
-        resp.groups.forEach((row) => {
-          data.push(new Group(row).toTableRow())
-        });
+      if (resp.groups) {
+        if (resp.groups.length > 0) {
+          resp.groups.forEach((row) => {
+            data.push(new Group(row).toTableRow())
+          });
+        }
       }
     } catch (e) {
       console.log("Err", e);

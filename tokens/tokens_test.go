@@ -148,14 +148,14 @@ func TestNewAccessToken(t *testing.T) {
 			}
 			t.Log(algo+" Private key len=", len(privateKey))
 
-			publicDER, err := tokens.PrivateToPublicDER(algo, privateKey)
+			publicDER, err := tokens.PrivateDER2PublicDER(algo, privateKey)
 			if err != nil {
 				t.Error("Public(privateKey) error:", err)
 				return
 			}
 			t.Log(algo+" Public  key len=", len(publicDER))
 
-			publicKey, err := tokens.PrivateToPublic(algo, privateKey)
+			publicKey, err := tokens.PrivateDER2Public(algo, privateKey)
 			if err != nil {
 				t.Error("PrivateToPublic("+algo+",privateKey) error:", err)
 				return

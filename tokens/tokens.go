@@ -73,7 +73,7 @@ func GenAccessToken(timeout, maxTTL, user string, groups, orgs []string, secretK
 }
 
 // GenAccessTokenWithAlgo creates an Access Token with the JSON fields "exp", "usr", "grp" and "org".
-func GenAccessTokenWithAlgo(algo, timeout, maxTTL, user string, groups, orgs []string, secretKey []byte) (string, error) {
+func GenAccessTokenWithAlgo(algo, timeout, maxTTL, user string, groups, orgs []string, keyDER []byte) (string, error) {
 	expiry, err := authorizedExpiry(timeout, maxTTL)
 	if err != nil {
 		return "", err
@@ -89,7 +89,7 @@ func GenAccessTokenWithAlgo(algo, timeout, maxTTL, user string, groups, orgs []s
 	}
 	t := jwt.NewWithClaims(method, claims)
 
-	key, err := convertDERToPrivateKey(algo, secretKey)
+	key, err := convertDERToPrivateKey(algo, keyDER)
 	if err != nil {
 		return "", err
 	}
@@ -126,20 +126,20 @@ func convertDERToPrivateKey(algo string, keyDER []byte) (any, error) {
 	return nil, log.ParamErrorf("unsupported signing algorithm %q, golang-jwt supports: %+v", algo, jwt.GetAlgorithms()).Err()
 }
 
-// PrivateToPublicDER converts a private key into a public key depending on the algo.
+// PrivateDER2PublicDER converts a private key into a public key depending on the algo.
 // The input and output are in DER form.
-func PrivateToPublicDER(algo string, der []byte) ([]byte, error) {
+func PrivateDER2PublicDER(algo string, privateDER []byte) ([]byte, error) {
 	switch algo {
 	case "", "HS256", "HS384", "HS512": // HMAC: same key to sign/verify
-		return der, nil
+		return privateDER, nil
 	}
 
-	public, err := PrivateToPublic(algo, der)
+	publicKey, err := PrivateDER2Public(algo, privateDER)
 	if err != nil {
 		return nil, err
 	}
 
-	return x509.MarshalPKIXPublicKey(public)
+	return x509.MarshalPKIXPublicKey(publicKey)
 }
 
 // DecryptVerificationKeyDER returns the secret key for symmetric algos (like HMAC),
@@ -152,7 +152,7 @@ func DecryptVerificationKeyDER(algo string, accessKey []byte) ([]byte, error) {
 		return nil, err
 	}
 
-	public, err := PrivateToPublicDER(algo, private)
+	public, err := PrivateDER2PublicDER(algo, private)
 	if err != nil {
 		log.DecryptError(err)
 		return nil, err
@@ -171,8 +171,8 @@ func ParsePublicDER(algo string, der []byte) (any, error) {
 	return x509.ParsePKIXPublicKey(der)
 }
 
-// PrivateToPublic converts a private key into a public key depending on the algo.
-func PrivateToPublic(algo string, der []byte) (any, error) {
+// PrivateDER2Public converts a private key into a public key depending on the algo.
+func PrivateDER2Public(algo string, der []byte) (any, error) {
 	switch algo {
 	case "", "HS256", "HS384", "HS512": // HMAC: same key to sign/verify
 		return der, nil

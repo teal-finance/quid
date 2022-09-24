@@ -50,6 +50,7 @@ func GenRefreshToken(timeout, maxTTL, namespace, user string, secretKey []byte) 
 }
 
 // GenAccessToken generates an access token with HS256 signing algo.
+// Deprecated: Use `GenAccessTokenWithAlgo("HMAC", ...)`
 func GenAccessToken(timeout, maxTTL, user string, groups, orgs []string, secretKey []byte) (string, error) {
 	expiry, err := authorizedExpiry(timeout, maxTTL)
 	if err != nil {

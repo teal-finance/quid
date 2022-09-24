@@ -2,6 +2,7 @@ package db
 
 import (
 	"errors"
+	"fmt"
 
 	"github.com/manifoldco/promptui"
 
@@ -9,7 +10,7 @@ import (
 	"github.com/teal-finance/quid/tokens"
 )
 
-func CreateQuidAdmin(username, password string) error {
+func CreateQuidAdmin(username, password string, forcePrompt bool) error {
 	exist, err := NamespaceExists("quid")
 	if err != nil {
 		return err
@@ -56,20 +57,16 @@ func CreateQuidAdmin(username, password string) error {
 		return nil
 	}
 
-	if username == "" {
-		log.V().Input("Enter the Quid Admin username")
-		username, err = promptForUsername()
+	if forcePrompt || (username == "") {
+		username, err = promptForUsername(username)
 		if err != nil {
-			log.ParamError(err)
 			return err
 		}
 	}
 
-	if password == "" {
-		log.V().Input("Enter the Quid Admin password")
-		password, err = promptForPassword()
+	if forcePrompt || (password == "") {
+		password, err = promptForPassword(password, forcePrompt)
 		if err != nil {
-			log.ParamError(err)
 			return err
 		}
 	}
@@ -83,35 +80,59 @@ func CreateQuidAdmin(username, password string) error {
 	return AddUserInGroup(u.ID, gid)
 }
 
-func promptForUsername() (string, error) {
-	validate := func(input string) error {
-		if len(input) < 3 {
-			return errors.New("Username must have more than 3 characters")
-		}
-		return nil
-	}
+var (
+	UsernameTooShort = errors.New("Username must have more than 2 characters.")
+	PasswordTooShort = errors.New("Password must have more than 5 characters.")
+)
+
+func promptForUsername(username string) (string, error) {
+	fmt.Println(`
+Enter the Quid Admin username.
+` + UsernameTooShort.Error())
 
 	prompt := promptui.Prompt{
-		Label:    "Username",
-		Validate: validate,
+		Label:   "Username",
+		Default: username,
+		Validate: func(s string) error {
+			if len(s) <= 2 {
+				return UsernameTooShort
+			}
+			return nil
+		},
 	}
 
-	return prompt.Run()
+	username, err := prompt.Run()
+	if err != nil {
+		log.ParamError(err)
+	}
+	return username, err
 }
 
-func promptForPassword() (string, error) {
-	validate := func(input string) error {
-		if len(input) < 6 {
-			return errors.New("Password must have more than 6 characters")
-		}
-		return nil
+func promptForPassword(password string, showPassword bool) (string, error) {
+	fmt.Println(`
+Enter the Quid Admin password.
+` + PasswordTooShort.Error())
+
+	mask := '*'
+	if showPassword {
+		mask = 0
 	}
 
 	prompt := promptui.Prompt{
-		Label:    "Password",
-		Validate: validate,
-		Mask:     '*',
+		Label:   "Password",
+		Default: password,
+		Mask:    mask,
+		Validate: func(input string) error {
+			if len(input) <= 5 {
+				return errors.New("Password must have more than 6 characters")
+			}
+			return nil
+		},
 	}
 
-	return prompt.Run()
+	password, err := prompt.Run()
+	if err != nil {
+		log.ParamError(err)
+	}
+	return password, err
 }

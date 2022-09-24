@@ -82,6 +82,11 @@ func main() {
 	}
 	emo.GlobalVerbosity(*verbose)
 
+	if !*dev && *pwd == defaultPwd {
+		log.Print("Flag -dev disabled => Do not use default password:", defaultPwd)
+		*pwd = ""
+	}
+
 	obfuscatedPwdURL := *dbURL
 	u, err := url.Parse(*dbURL)
 	if err == nil {
@@ -144,7 +149,8 @@ func main() {
 		log.Fatal(err)
 	}
 
-	if err := db.CreateQuidAdmin(*admin, *pwd); err != nil {
+	forcePrompt := (*pwd == defaultPwd)
+	if err := db.CreateQuidAdmin(*admin, *pwd, forcePrompt); err != nil {
 		log.Fatal(err)
 	}
 

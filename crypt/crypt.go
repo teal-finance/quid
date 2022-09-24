@@ -34,15 +34,17 @@ func AesGcmEncryptBin(plaintext []byte) ([]byte, error) {
 		return nil, err
 	}
 
-	returnedSize := gcm.NonceSize() + len(plaintext) + gcmTagSize
+	// all will contain the nonce (first 12 bytes) + the cypher text + the GCM tag
+	all := make([]byte, gcm.NonceSize(), gcm.NonceSize()+len(plaintext)+gcmTagSize)
 
-	iv := make([]byte, gcm.NonceSize(), returnedSize)
-	if _, err := rand.Read(iv); err != nil {
+	// write a random nonce
+	if _, err := rand.Read(all); err != nil {
 		return nil, fmt.Errorf("random iv generation: %w", err)
 	}
 
-	ciphertext := gcm.Seal(nil, iv, plaintext, nil)
-	return append(iv, ciphertext...), nil
+	// write the cypher text after the nonce and appends the GCM tag
+	all = gcm.Seal(all, all, plaintext, nil)
+	return all, nil
 }
 
 // AesGcmDecryptHex : decrypt content.
@@ -67,10 +69,12 @@ func AesGcmDecryptBin(bytes []byte) ([]byte, error) {
 		return nil, err
 	}
 
-	iv, ciphertext := bytes[:gcm.NonceSize()], bytes[gcm.NonceSize():]
+	iv := encryptedBytes[:gcm.NonceSize()]
+	ciphertext := encryptedBytes[gcm.NonceSize():]
+	dst := ciphertext[:0]
 
 	// we are not subject to confused deputy attack => additionalData can be empty
-	plaintext, err := gcm.Open(nil, iv, ciphertext, nil)
+	plaintext, err := gcm.Open(dst, iv, ciphertext, nil)
 	if err != nil {
 		return nil, err
 	}

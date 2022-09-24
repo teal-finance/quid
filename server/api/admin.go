@@ -47,15 +47,10 @@ func adminLogin(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// check the user password
-	same, u, err := checkUserPassword(m.Username, m.Password, ns.ID)
+	u, err := checkUserPassword(m.Username, m.Password, ns.ID)
 	if err != nil {
 		log.Error("AdminLogin checkUserPassword:", err)
-		gw.WriteErr(w, r, http.StatusUnauthorized, "internal error when checking user password", "usr", m.Username, "namespace", m.Namespace)
-		return
-	}
-	if !same {
-		log.Info("AdminLogin u=" + m.Username + " ns=" + m.Namespace + ": disabled user or bad password")
-		gw.WriteErr(w, r, http.StatusUnauthorized, "disabled user or bad password", "usr", m.Username, "namespace", m.Namespace)
+		gw.WriteErr(w, r, http.StatusUnauthorized, "inexistent/disabled user or invalid password", "usr", m.Username, "namespace", m.Namespace)
 		return
 	}
 

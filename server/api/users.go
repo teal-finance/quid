@@ -251,18 +251,18 @@ func createUser(w http.ResponseWriter, r *http.Request) {
 	gw.WriteOK(w, "usr_id", u.ID)
 }
 
-func checkUserPassword(username, password string, nsID int64) (bool, server.User, error) {
-	found, u, err := db.SelectEnabledUser(username, nsID)
-	if !found || err != nil {
-		return false, u, err
+func checkUserPassword(username, password string, nsID int64) (server.User, error) {
+	u, err := db.SelectEnabledUser(username, nsID)
+	if err != nil {
+		return u, err
 	}
 
 	err = bcrypt.CompareHashAndPassword([]byte(u.PasswordHash), []byte(password))
 	if err != nil {
-		log.Error(err)
+		log.Error("hash:", len(u.PasswordHash), "bytes", "pwd:", len(password), "bytes", err)
 		// "crypto/bcrypt: hashedPassword is not the hash of the given password"
-		return false, u, err
+		return u, err
 	}
 
-	return true, u, err
+	return u, nil
 }

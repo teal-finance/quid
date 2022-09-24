@@ -92,23 +92,24 @@ CREATE TABLE IF NOT EXISTS administrators (
 CREATE INDEX IF NOT EXISTS administrators_usr_idx ON administrators(usr_id);
 
 CREATE INDEX IF NOT EXISTS administrators_ns_idx ON administrators(ns_id);
-
-CREATE TABLE IF NOT EXISTS token (
-	id SERIAL PRIMARY KEY,
-	value TEXT NOT NULL,
-	usr_id INTEGER,
-	expiration_date DATE NOT NULL,
-	ns_id INTEGER NOT NULL,
-	claims JSONB,
-	FOREIGN KEY(usr_id) REFERENCES users(id) ON DELETE CASCADE,
-	FOREIGN KEY(ns_id) REFERENCES namespaces(id) ON DELETE CASCADE,
-	UNIQUE (usr_id, ns_id)
-);
-
-CREATE INDEX IF NOT EXISTS token_usr_idx ON token(usr_id);
 `
 
-// Schema : the PostgreSQL schema.
+// Table tokens is not used:
+//
+//     CREATE TABLE IF NOT EXISTS tokens (
+//     	id SERIAL PRIMARY KEY,
+//     	value TEXT NOT NULL,
+//     	usr_id INTEGER,
+//     	expiration_date DATE NOT NULL,
+//     	ns_id INTEGER NOT NULL,
+//     	claims JSONB,
+//     	FOREIGN KEY(usr_id) REFERENCES users(id) ON DELETE CASCADE,
+//     	FOREIGN KEY(ns_id) REFERENCES namespaces(id) ON DELETE CASCADE,
+//     	UNIQUE (usr_id, ns_id)
+//     );
+//
+//     CREATE INDEX IF NOT EXISTS token_usr_idx ON tokens(usr_id);
+
 var dropAll = `
 DROP INDEX IF EXISTS administrators_ns_idx,
                      administrators_usr_idx,

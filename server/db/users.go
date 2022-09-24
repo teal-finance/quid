@@ -11,24 +11,24 @@ import (
 	"github.com/teal-finance/quid/server"
 )
 
-// SelectEnabledUsrID : get a user id from it's name.
-func SelectEnabledUsrID(name string) (bool, int64, error) {
+// selectEnabledUsrID : get a user id from it's name.
+// Deprecated because this function is not really used.
+func selectEnabledUsrID(name string) (int64, error) {
 	row := db.QueryRowx("SELECT id,name,password,enabled FROM users WHERE(name=$1)", name)
 	var u user
 	err := row.StructScan(&u)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
-			log.NotFound("User", name, "not found")
-			return false, 0, nil
+			return 0, log.NotFound("User", name, "does not exist in DB").Err()
 		}
-		return false, 0, err
+		return 0, err
 	}
-	// emo.Found("BASE USER", u.ID, u.UserName)
+
 	if !u.Enabled {
-		return false, 0, nil
+		return 0, log.Data("User", name, "is disabled in DB").Err()
 	}
-	// emo.Found("USER", u.ID)
-	return true, u.ID, nil
+
+	return u.ID, nil
 }
 
 // SelectEnabledUser : get a user from it's name.

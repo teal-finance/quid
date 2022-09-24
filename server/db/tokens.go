@@ -1,14 +1,13 @@
 package db
 
 import (
-	"errors"
-
 	"github.com/teal-finance/quid/tokens"
 )
 
-// GenNsAdminTokenForUser : generate a refresh token for an admin user and namespace
-func GenNsAdminTokenForUser(userName, nsName string) (string, error) {
-	log.Info("Generating ns admin token for", userName, nsName)
+// GenNsAdminToken : generate a refresh token for an admin user and namespace
+// Deprecated because this function is not used.
+func GenNsAdminToken(userName, nsName string) (string, error) {
+	log.Info("Generating NS Admin token for", userName, nsName)
 
 	// get the namespace
 	ns, err := SelectNsFromName(nsName)
@@ -16,12 +15,9 @@ func GenNsAdminTokenForUser(userName, nsName string) (string, error) {
 		return "", err
 	}
 
-	exists, uid, err := SelectEnabledUsrID(userName)
+	uid, err := selectEnabledUsrID(userName)
 	if err != nil {
 		return "", err
-	}
-	if !exists {
-		return "", errors.New("user does not exist")
 	}
 
 	// check admin perms
@@ -29,7 +25,6 @@ func GenNsAdminTokenForUser(userName, nsName string) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	// emo.Debug("USER", userName, uid, "NS", nsName, "NSa", isNsAdmin)
 	if adminType == UserNoAdmin {
 		qid, err := SelectNsID("quid")
 		if err != nil {
@@ -40,17 +35,15 @@ func GenNsAdminTokenForUser(userName, nsName string) (string, error) {
 			return "", err
 		}
 		if !isAdmin {
-			return "", errors.New("the user is not namespace admin")
+			return "", log.Warn("the user is not a namespace admin").Err()
 		}
 	}
 
-	// get the refresh token
 	log.Encrypt("Gen token", ns.MaxRefreshTokenTTL, ns.MaxRefreshTokenTTL, ns.Name, userName, []byte(ns.RefreshKey))
+
 	token, err := tokens.GenRefreshToken(ns.MaxRefreshTokenTTL, ns.MaxRefreshTokenTTL, ns.Name, userName, []byte(ns.RefreshKey))
 	if err != nil {
-		msg := "Error generating refresh token"
-		log.Error(msg, err)
-		return "", err
+		return "", log.Error("Error generating refresh token", err).Err()
 	}
 	return token, nil
 }

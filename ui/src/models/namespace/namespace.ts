@@ -115,10 +115,14 @@ export default class Namespace {
 
   static async fetchRowInfo(id: number): Promise<{ numUsers: number, groups: Array<Group> }> {
     const res: { numUsers: number, groups: Array<Group> } = { numUsers: 0, groups: [] };
-    const data = await api.post<{ num_users: number, groups: Array<GroupContract> }>("/admin/namespaces/info", {
+    const data = await api.post<{ num_users: number, groups: Array<GroupContract> | null }>("/admin/namespaces/info", {
       id: id,
     });
     res.numUsers = data.num_users;
+    //console.log("GG", data)
+    if (!data.groups) {
+      return res
+    }
     for (const groupdata of data.groups) {
       res.groups.push(Group.fromContract(groupdata))
     }

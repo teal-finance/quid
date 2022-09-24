@@ -1,5 +1,7 @@
+/** Type of a response error */
 type ResponseErrorType = "request" | "json";
 
+/** The composable parameters */
 interface UseApiParams {
   serverUrl?: string;
   csrfCookieName?: string;

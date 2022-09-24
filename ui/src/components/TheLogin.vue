@@ -46,9 +46,7 @@ import { computed, defineComponent, reactive } from "vue";
 import Emo from "emosd";
 import SwInput from "@snowind/input";
 import { user } from "@/state";
-import { adminLogin, api } from "@/api";
-import conf from "@/conf";
-import { EnvType } from "@/env";
+import { adminLogin } from "@/api";
 
 export default defineComponent({
   components: {
@@ -98,11 +96,7 @@ export default defineComponent({
       }
       await adminLogin(form.namespace.val, form.name.val, form.password.val);
       emo.ok("Logging in");
-      //user.login(form.name.val);
       user.isLoggedIn.value = true;
-      /*if (conf.env === EnvType.local) {
-        user.devRefreshToken = api.refreshToken;
-      }*/
       emit("end");
     }
 

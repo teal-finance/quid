@@ -2,6 +2,7 @@ import Cookies from 'js-cookie';
 import { ResponseError } from './errors';
 import { UseApiParams } from './interfaces';
 
+/** The main api composable */
 const useApi = (params: UseApiParams = {
   serverUrl: "",
   csrfCookieName: "csrftoken",
@@ -34,10 +35,12 @@ const useApi = (params: UseApiParams = {
     return c
   }
 
+  /** Set a csrf token to use with request headers */
   const setCsrfToken = (token: string) => {
     _csrfToken = token;
   }
 
+  /** Get the csrf token from a cookie and set it to use with request headers */
   const setCsrfTokenFromCookie = (verbose = false): boolean => {
     if (_hasCsrfCookie()) {
       if (verbose) {
@@ -53,6 +56,7 @@ const useApi = (params: UseApiParams = {
     return false
   }
 
+  /** Post request */
   const post = async <T>(
     uri: string,
     payload: Array<any> | Record<string, any> | FormData,
@@ -71,17 +75,18 @@ const useApi = (params: UseApiParams = {
     }
     if (response.headers.get("content-type") != "application/json") {
       // no data
-      return {} as T;
+      return await response.text() as unknown as T;
     }
     let _data: T
     try {
-      _data = (await response.json()) as T
+      _data = (await response.json()) as unknown as T
     } catch (e) {
       throw new ResponseError(response, "json", `${e}`);
     }
     return _data;
   }
 
+  /** Patch request */
   const patch = async <T>(uri: string, payload: Array<any> | Record<string, any>, verbose = false) => {
     const opts = _postHeader(payload, "patch");
     let url = _serverUrl + uri;
@@ -95,7 +100,7 @@ const useApi = (params: UseApiParams = {
     }
     if (response.headers.get("content-type") != "application/json") {
       // no data
-      return {} as T;
+      return await response.text() as unknown as T;
     }
     let _data: T
     try {
@@ -106,6 +111,7 @@ const useApi = (params: UseApiParams = {
     return _data;
   }
 
+  /** Put request */
   const put = async <T>(uri: string, payload: Array<any> | Record<string, any>, verbose = false) => {
     let url = _serverUrl + uri;
     const opts = _postHeader(payload, "put");
@@ -119,7 +125,7 @@ const useApi = (params: UseApiParams = {
     }
     if (response.headers.get("content-type") != "application/json") {
       // no data
-      return {} as T;
+      return await response.text() as unknown as T;
     }
     let _data: T
     try {
@@ -130,6 +136,7 @@ const useApi = (params: UseApiParams = {
     return _data;
   }
 
+  /** Get request */
   const get = async <T>(uri: string, verbose = false): Promise<T> => {
     let url = _serverUrl + uri;
     const opts = _getHeader("get");
@@ -143,7 +150,7 @@ const useApi = (params: UseApiParams = {
     }
     if (response.headers.get("content-type") != "application/json") {
       // no data
-      return {} as T;
+      return await response.text() as unknown as T;
     }
     let _data: T
     try {
@@ -154,6 +161,7 @@ const useApi = (params: UseApiParams = {
     return _data;
   }
 
+  /** Delete request */
   const del = async (uri: string, verbose = false): Promise<void> => {
     const url = _serverUrl + uri;
     const opts = _getHeader("delete");

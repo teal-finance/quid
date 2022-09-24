@@ -242,8 +242,8 @@ func getAccessPublicKey(w http.ResponseWriter, r *http.Request) {
 		log.Error(err)
 	}
 
-	isHex := strings.ToLower(m.EncodingForm) != "base64"
-	keyTxt := gg.EncodeHexOrB64Bytes(keyDER, isHex)
+	isBase64 := strings.HasSuffix(m.EncodingForm, "64") // Base64 or base64 or b64...
+	keyTxt := gg.EncodeHexOrB64Bytes(keyDER, !isBase64)
 
 	gw.WriteOK(w, server.PublicKeyResponse{Alg: ns.Alg, Key: keyTxt})
 }

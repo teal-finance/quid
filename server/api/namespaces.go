@@ -124,8 +124,10 @@ func getAccessVerificationKey(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	isHex := strings.ToLower(m.EncodingForm) != "base64"
-	keyTxt := gg.EncodeHexOrB64Bytes(keyDER, isHex)
+	isBase64 := strings.HasSuffix(m.EncodingForm, "64") // Base64 or base64 or b64...
+	keyTxt := gg.EncodeHexOrB64Bytes(keyDER, !isBase64)
+
+	log.AccessToken("AccessVerificationKey DER", len(keyDER), "bytes base64=", isBase64, len(keyTxt), "bytes", string(keyTxt))
 
 	gw.WriteOK(w, server.PublicKeyResponse{Alg: algo, Key: keyTxt})
 }

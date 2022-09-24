@@ -5,8 +5,11 @@ import (
 	"crypto/cipher"
 	"crypto/rand"
 	"encoding/hex"
-	"fmt"
+
+	"github.com/teal-finance/emo"
 )
+
+var log = emo.NewZone("crypt")
 
 // EncodingKey is used to encode each JWT secret key in the DB.
 var EncodingKey []byte
@@ -26,11 +29,13 @@ func AesGcmEncryptHex(plaintext string) (string, error) {
 func AesGcmEncryptBin(plaintext []byte) ([]byte, error) {
 	block, err := aes.NewCipher(EncodingKey)
 	if err != nil {
+		log.EncryptError("NewCipher AES", len(EncodingKey), "bytes", err)
 		return nil, err
 	}
 
 	gcm, err := cipher.NewGCM(block)
 	if err != nil {
+		log.EncryptError("NewGCM", err)
 		return nil, err
 	}
 
@@ -39,7 +44,7 @@ func AesGcmEncryptBin(plaintext []byte) ([]byte, error) {
 
 	// write a random nonce
 	if _, err := rand.Read(all); err != nil {
-		return nil, fmt.Errorf("random iv generation: %w", err)
+		return nil, log.EncryptError("random iv generation", err).Err()
 	}
 
 	// write the cypher text after the nonce and appends the GCM tag
@@ -58,14 +63,16 @@ func AesGcmDecryptHex(encryptedString string) (string, error) {
 	return string(plaintext), err
 }
 
-func AesGcmDecryptBin(bytes []byte) ([]byte, error) {
+func AesGcmDecryptBin(encryptedBytes []byte) ([]byte, error) {
 	block, err := aes.NewCipher(EncodingKey)
 	if err != nil {
+		log.DecryptError("NewCipher AES", len(EncodingKey), "bytes", err)
 		return nil, err
 	}
 
 	gcm, err := cipher.NewGCM(block)
 	if err != nil {
+		log.DecryptError("NewGCM", err)
 		return nil, err
 	}
 
@@ -76,6 +83,7 @@ func AesGcmDecryptBin(bytes []byte) ([]byte, error) {
 	// we are not subject to confused deputy attack => additionalData can be empty
 	plaintext, err := gcm.Open(dst, iv, ciphertext, nil)
 	if err != nil {
+		log.DecryptError("Open ciphertext", len(ciphertext), "bytes", err)
 		return nil, err
 	}
 

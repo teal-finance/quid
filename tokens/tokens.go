@@ -123,9 +123,7 @@ func convertDERToPrivateKey(algo string, keyDER []byte) (any, error) {
 		return ed25519.PrivateKey(keyDER), nil
 	}
 
-	err := fmt.Errorf("unsupported signing algorithm %q, golang-jwt supports: %+v", algo, jwt.GetAlgorithms())
-	log.ParamError(err)
-	return nil, err
+	return nil, log.ParamErrorf("unsupported signing algorithm %q, golang-jwt supports: %+v", algo, jwt.GetAlgorithms()).Err()
 }
 
 // PrivateToPublicDER converts a private key into a public key depending on the algo.

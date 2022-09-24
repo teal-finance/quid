@@ -32,7 +32,7 @@ func selectEnabledUsrID(name string) (int64, error) {
 }
 
 // SelectEnabledUser : get a user from it's name.
-func SelectEnabledUser(name string, nsID int64) (bool, server.User, error) {
+func SelectEnabledUser(name string, nsID int64) (server.User, error) {
 	var usr server.User
 
 	row := db.QueryRowx("SELECT id,name,password,enabled FROM users WHERE(name=$1 AND ns_id=$2)", name, nsID)
@@ -41,22 +41,21 @@ func SelectEnabledUser(name string, nsID int64) (bool, server.User, error) {
 	err := row.StructScan(&u)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
-			log.NotFound("User", name, "not found for", nsID)
-			return false, usr, nil
+			return usr, log.NotFound("User", name, "not found in namespace ID=", nsID).Err()
 		}
 		log.QueryError(err)
-		return false, usr, err
+		return usr, err
 	}
 
 	if !u.Enabled {
-		return false, usr, nil
+		return usr, log.Data("User", name, "is disabled in namespace ID=", nsID).Err()
 	}
 
 	usr.Name = u.Name
 	usr.PasswordHash = u.Password
 	usr.Namespace = u.Namespace
 	usr.ID = u.ID
-	return true, usr, nil
+	return usr, nil
 }
 
 // SelectAllUsers : get the users.

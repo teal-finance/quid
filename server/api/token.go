@@ -160,14 +160,8 @@ func genAccessToken(w http.ResponseWriter, r *http.Request) (accessToken, timeou
 	log.AccessToken("RequestAccessToken:", claims.Username, claims.ExpiresAt)
 
 	// get the user
-	found, u, err := db.SelectEnabledUser(claims.Username, ns.ID)
+	u, err := db.SelectEnabledUser(claims.Username, ns.ID)
 	if err != nil {
-		log.QueryError(err)
-		w.WriteHeader(http.StatusUnauthorized)
-		return
-	}
-	if !found {
-		log.Warn("RequestAccessToken: user not found: " + claims.Username)
 		w.WriteHeader(http.StatusUnauthorized)
 		return
 	}

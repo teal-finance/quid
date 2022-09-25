@@ -51,6 +51,11 @@ type UserHandlerCreation struct {
 	NsID     int64
 }
 
+type UserSetEnabled struct {
+	ID      int64
+	Enabled bool
+}
+
 type GroupCreation struct {
 	Name string
 	NsID int64

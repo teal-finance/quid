@@ -206,6 +206,17 @@ func deleteUser(w http.ResponseWriter, r *http.Request) {
 	gw.WriteOK(w, "message", "ok")
 }
 
+// setUserEnabled : set user is enabled
+func setUserEnabled(w http.ResponseWriter, r *http.Request) {
+	var m server.UserSetEnabled
+	if err := gg.UnmarshalJSONRequest(w, r, &m); err != nil {
+		log.ParamError("setUserEnabled:", err)
+		gw.WriteErr(w, r, http.StatusUnauthorized, "cannot decode JSON")
+		return
+	}
+
+}
+
 // createUser : create a user handler.
 func createUser(w http.ResponseWriter, r *http.Request) {
 	var m server.UserHandlerCreation

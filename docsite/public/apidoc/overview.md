@@ -1,7 +1,5 @@
 ## Overview
 
-![Quid preview](/img/quid-preview.jpg)
-
 **Quid** is a [JWT][jwt] server (frontend + backend + client libraries)
 to manage Administrators, Users, **Refresh Tokens** and **Access Tokens**
 in independent **Namespaces** providing signature verification for the following algorithms:

@@ -8,7 +8,8 @@
         <template #body="slotProps">
           <sw-switch label="Switch" v-model:value="slotProps.data.publicEndpointEnabled"
             class="table-switch switch-secondary dark:switch-primary"
-            @change="togglePublicEndpoint(slotProps.data.id, Boolean($event))" v-if="slotProps.data.name != 'quid'">
+            @change="togglePublicEndpoint(slotProps.data.id, slotProps.data.publicEndpointEnabled)"
+            v-if="slotProps.data.name != 'quid'">
           </sw-switch>
         </template>
       </Column>

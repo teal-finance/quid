@@ -1,0 +1,43 @@
+{
+  "name": "docdundee_ts",
+  "version": "0.0.1",
+  "private": true,
+  "scripts": {
+    "dev": "vite",
+    "build_to_gh": "vite build && rm -rf ../docs/* && mv ./dist/* ../docs && cd ../docs && ln -s index.html 404.html",
+    "preview": "vite build && vite preview",
+    "build_docs": "dundee_docs",
+    "build_examples": "dundee_ex"
+  },
+  "dependencies": {
+    "@snowind/api": "0.0.8",
+    "@snowind/header": "^0.0.8",
+    "@snowind/state": "0.0.3",
+    "highlight.js": "^11.6.0",
+    "markdown-it": "^13.0.1",
+    "vue": "^3.2.31",
+    "vue-router": "^4.1.5",
+    "vuecodit": "0.0.2"
+  },
+  "devDependencies": {
+    "@iconify/json": "^2.1.26",
+    "@snowind/plugin": "0.4.0",
+    "@tailwindcss/forms": "^0.5.0",
+    "@tailwindcss/typography": "^0.5.7",
+    "@vitejs/plugin-vue": "^2.3.1",
+    "@vue/compiler-sfc": "^3.2.31",
+    "autoprefixer": "^10.4.4",
+    "docdundee": "^0.0.1",
+    "path": "^0.12.7",
+    "postcss": "^8.4.12",
+    "rollup-plugin-typescript2": "^0.31.2",
+    "sass": "^1.50.0",
+    "tailwindcss": "^3.0.23",
+    "tailwindcss-semantic-colors": "^0.2.0",
+    "tslib": "^2.3.1",
+    "typescript": "^4.6.3",
+    "unplugin-icons": "^0.14.1",
+    "unplugin-vue-components": "^0.18.5",
+    "vite": "^2.9.1"
+  }
+}

@@ -2,9 +2,11 @@ help:
 	# make all          Build both frontend and backend
 	# make front        Build the frontend UI
 	# make quid         Build the backend
+	# make doc          Build the documentation site
 	#
 	# make run          Run the backend (serves the frontend static files)
 	# make run-ui       Run the frontend in dev mode (NodeJS serves the frontend)
+	# make run-doc      Run the docs site frontend in dev mode (NodeJS serves the frontend)
 	#
 	# make compose-up   Run Quid and Database using podman-compose or docker-compose
 	# make compose-rm   Stop and remove containers
@@ -43,6 +45,18 @@ run-ui:
 	cd ui && \
 	{ yarn    --link-duplicates && yarn    dev; } || \
 	{ yarnpkg --link-duplicates && yarnpkg dev; }
+
+.PHONY: run-doc
+run-doc:
+	cd docsite && \
+	{ yarn    --link-duplicates && yarn    dev; } || \
+	{ yarnpkg --link-duplicates && yarnpkg dev; }
+
+.PHONY: doc
+doc:
+	cd docsite && \
+	{ yarn    --link-duplicates && yarn    build_to_gh; } || \
+	{ yarnpkg --link-duplicates && yarnpkg build_to_gh; }
 
 .PHONY: run
 run: go.sum $(shell find -name *.go)

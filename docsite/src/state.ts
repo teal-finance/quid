@@ -13,10 +13,18 @@ const state = reactive({
 })
 
 function fetchIndexes() {
-  api.get<Array<string>>("/apidoc/index.json").then((res) => state.apidocs = res);
-  api.get<Array<string>>("/server/index.json").then((res) => state.server = res);
-  api.get<Array<string>>("/client/index.json").then((res) => state.client = res);
-  api.get<Array<string>>("/examples/index.json").then(res => state.examples = res);
+  api.get<Array<string>>("/apidoc/index.json").then((res) => {
+    state.apidocs = typeof res == "string" ? JSON.parse(res) : res
+  });
+  api.get<Array<string>>("/server/index.json").then(res =>
+    state.server = typeof res == "string" ? JSON.parse(res) : res
+  );
+  api.get<Array<string>>("/client/index.json").then((res) => {
+    state.client = typeof res == "string" ? JSON.parse(res) : res
+  });
+  api.get<Array<string>>("/examples/index.json").then(res =>
+    state.examples = typeof res == "string" ? JSON.parse(res) : res
+  );
 }
 
 function initState() {

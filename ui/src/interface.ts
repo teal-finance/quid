@@ -22,4 +22,6 @@ interface NotifyService {
   confirmDelete: (msg: string, onConfirm: CallableFunction, onReject?: CallableFunction, title?: string) => void;
 }
 
-export { ConfirmOptions, NotifyService, UserStatusContract }
+type AlgoType = "HMAC" | "HS256" | "HS384" | "HS512" | "RS256" | "RS384" | "RS512" | "PS256" | "PS384" | "PS512" | "ES256" | "ES384" | "ES512" | "EDDSA";
+
+export { ConfirmOptions, NotifyService, UserStatusContract, AlgoType }

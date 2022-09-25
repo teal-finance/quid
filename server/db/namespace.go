@@ -15,7 +15,7 @@ import (
 // SelectAllNamespaces : get the namespaces.
 func SelectAllNamespaces() ([]server.Namespace, error) {
 	var data []namespace
-	err := db.Select(&data, "SELECT id,name,max_access_ttl,max_refresh_ttl,public_endpoint_enabled FROM namespaces ORDER BY name")
+	err := db.Select(&data, "SELECT id,name,alg,max_access_ttl,max_refresh_ttl,public_endpoint_enabled FROM namespaces ORDER BY name")
 	if err != nil {
 		log.S().Warning(err)
 		return nil, err
@@ -25,7 +25,7 @@ func SelectAllNamespaces() ([]server.Namespace, error) {
 	for _, u := range data {
 		res = append(res, server.Namespace{
 			Name:          u.Name,
-			Alg:           "",
+			Alg:           u.Alg,
 			AccessKey:     nil,
 			RefreshKey:    nil,
 			MaxAccessTTL:  u.MaxAccessTTL,

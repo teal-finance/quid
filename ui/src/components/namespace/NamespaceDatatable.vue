@@ -1,72 +1,44 @@
 <template>
   <div>
-    <DataTable
-      :value="namespaces"
-      class="main-table p-datatable-sm"
-      v-model:expandedRows="expandedRows"
-      data-key="id"
-    >
+    <DataTable :value="namespaces" class="main-table p-datatable-sm" v-model:expandedRows="expandedRows" data-key="id">
       <Column field="id" header="Id"></Column>
       <Column field="name" header="Name"></Column>
+      <Column field="algo" header="Algorithm"></Column>
       <Column field="publicEndpointEnabled" header="Public endpoint">
         <template #body="slotProps">
-          <sw-switch
-            label="Switch"
-            v-model:value="slotProps.data.publicEndpointEnabled"
+          <sw-switch label="Switch" v-model:value="slotProps.data.publicEndpointEnabled"
             class="table-switch switch-secondary dark:switch-primary"
-            @change="togglePublicEndpoint(slotProps.data.id, Boolean($event))"
-            v-if="slotProps.data.name != 'quid'"
-          ></sw-switch>
+            @change="togglePublicEndpoint(slotProps.data.id, Boolean($event))" v-if="slotProps.data.name != 'quid'">
+          </sw-switch>
         </template>
       </Column>
       <Column field="maxTokenTtl" header="Access token ttl">
         <template #body="slotProps">
-          <edit-token-ttl
-            v-if="slotProps.data.name != 'quid'"
-            :id="slotProps.data.id"
-            :ttl="slotProps.data.maxTokenTtl"
-            token-type="access"
-            @end="slotProps.data.maxTokenTtl = $event"
-          ></edit-token-ttl>
+          <edit-token-ttl v-if="slotProps.data.name != 'quid'" :id="slotProps.data.id" :ttl="slotProps.data.maxTokenTtl"
+            token-type="access" @end="slotProps.data.maxTokenTtl = $event"></edit-token-ttl>
           <span v-else class="ml-6" v-html="slotProps.data.maxTokenTtl"></span>
         </template>
       </Column>
       <Column field="maxRefreshTokenTtl" header="Refresh token ttl">
         <template #body="slotProps">
-          <edit-token-ttl
-            v-if="slotProps.data.name != 'quid'"
-            :id="slotProps.data.id"
-            :ttl="slotProps.data.maxRefreshTokenTtl"
-            token-type="refresh"
-            @end="slotProps.data.maxRefreshTokenTtl = $event"
-          ></edit-token-ttl>
+          <edit-token-ttl v-if="slotProps.data.name != 'quid'" :id="slotProps.data.id"
+            :ttl="slotProps.data.maxRefreshTokenTtl" token-type="refresh"
+            @end="slotProps.data.maxRefreshTokenTtl = $event"></edit-token-ttl>
           <span v-else class="ml-6" v-html="slotProps.data.maxRefreshTokenTtl"></span>
         </template>
       </Column>
       <Column field="actions">
         <template #body="slotProps">
-          <action-button
-            @click="selectNamespace(slotProps.data)"
-            v-if="slotProps.data.name != 'quid'"
+          <action-button @click="selectNamespace(slotProps.data)" v-if="slotProps.data.name != 'quid'"
             :class="slotProps.data.name != 'quid' ? 'mr-2' : ''"
-            :disabled="slotProps.data.id == user.namespace.value.id"
-          >Select</action-button>
-          <action-button
-            @click="expand(slotProps.data.id)"
-            v-if="expandedKey != slotProps.data.id"
-          >Show info</action-button>
+            :disabled="slotProps.data.id == user.namespace.value.id">Select</action-button>
+          <action-button @click="expand(slotProps.data.id)" v-if="expandedKey != slotProps.data.id">Show info
+          </action-button>
           <action-button @click="unexpand()" v-else>Hide info</action-button>
-          <action-button
-            class="ml-2"
-            @click="showKey(slotProps.data.id, slotProps.data.name)"
-            v-if="slotProps.data.name != 'quid'"
-          >Show key</action-button>
-          <action-button
-            type="delete"
-            class="ml-2"
-            v-if="slotProps.data.name != 'quid'"
-            @click="confirmDelete(slotProps.data)"
-          >Delete</action-button>
+          <action-button class="ml-2" @click="showKey(slotProps.data.id, slotProps.data.name)"
+            v-if="slotProps.data.name != 'quid'">Show key</action-button>
+          <action-button type="delete" class="ml-2" v-if="slotProps.data.name != 'quid'"
+            @click="confirmDelete(slotProps.data)">Delete</action-button>
         </template>
       </Column>
       <template #expansion>

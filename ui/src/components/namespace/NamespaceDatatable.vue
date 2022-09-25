@@ -3,7 +3,7 @@
     <DataTable :value="namespaces" class="main-table p-datatable-sm" v-model:expandedRows="expandedRows" data-key="id">
       <Column field="id" header="Id"></Column>
       <Column field="name" header="Name"></Column>
-      <Column field="algo" header="Algorithm"></Column>
+      <Column field="algo" header="Signing algorithm"></Column>
       <Column field="publicEndpointEnabled" header="Public endpoint">
         <template #body="slotProps">
           <sw-switch label="Switch" v-model:value="slotProps.data.publicEndpointEnabled"

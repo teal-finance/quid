@@ -330,13 +330,6 @@
     estree-walker "^2.0.1"
     picomatch "^2.2.2"
 
-"@snowind/api@0.0.8":
-  version "0.0.8"
-  resolved "https://registry.yarnpkg.com/@snowind/api/-/api-0.0.8.tgz#137a052a31ae00d3b46216aafa11b162df8666ed"
-  integrity sha512-rC5dH5+5Wl2Pib0WgeoRw3p5zXBhVy3qhrXRW1TeRK5kYUBAFRwYZqw8ZAuoaXSVGftdeLsKUSeYcSwSSmCwOQ==
-  dependencies:
-    js-cookie "^3.0.1"
-
 "@snowind/header@~0.0.8":
   version "0.0.8"
   resolved "https://registry.yarnpkg.com/@snowind/header/-/header-0.0.8.tgz#0c7b67bad35a727a1a7eacfe7e3669dc9fe08532"
@@ -3166,6 +3159,13 @@ resolve@^1.1.6, resolve@^1.1.7, resolve@^1.20.0, resolve@^1.22.0, resolve@^1.22.
     is-core-module "^2.9.0"
     path-parse "^1.0.7"
     supports-preserve-symlinks-flag "^1.0.0"
+
+restmix@0.0.1:
+  version "0.0.1"
+  resolved "https://registry.yarnpkg.com/restmix/-/restmix-0.0.1.tgz#dcc51e10606aea09c9a5ac21549023139113c831"
+  integrity sha512-xacUg6IzWX46GQa3Q5f3nJKaAFcLLL5UVXij6fh1nQW9wZ6ZHN0hibw/Ba9XLQCiS1ZRDXpJFrTu96xTaiw5tg==
+  dependencies:
+    js-cookie "^3.0.1"
 
 restore-cursor@^2.0.0:
   version "2.0.0"

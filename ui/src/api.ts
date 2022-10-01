@@ -1,8 +1,6 @@
 import conf from "@/conf";
 import { notify, user } from './state';
-//import { useApi, ResponseError } from "@snowind/api";
-import { useApi } from "./packages/api/api";
-import { ResponseError } from "./packages/api/errors";
+import { useApi } from "restmix";
 import { UserStatusContract } from "./interface";
 import Namespace from "./models/namespace";
 
@@ -12,12 +10,12 @@ async function checkStatus(): Promise<{ ok: boolean, status: UserStatusContract 
   let _data: UserStatusContract = {} as UserStatusContract;
   try {
     _data = await api.get<UserStatusContract>("/status")
-  } catch (e) {
-    if (e instanceof ResponseError) {
+  } catch (e: any) {
+    if (e.name == "ResponseError") {
       if (e.status == 401) {
         return { ok: false, status: {} as UserStatusContract }
       }
-      throw new Error(e.toString())
+      throw new Error(e?.toString())
     } else {
       throw e
     }

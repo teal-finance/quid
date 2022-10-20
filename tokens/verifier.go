@@ -9,6 +9,7 @@ import (
 	"crypto/sha256"
 	"crypto/sha512"
 	"crypto/x509"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"hash"
@@ -110,7 +111,7 @@ func RequestAlgoKey(uri string, reuse bool) (Verifier, error) {
 		case "ns", "namespace":
 			for _, ns := range values {
 				var b []byte
-				b, err = server.NamespaceRequest{Namespace: ns}.MarshalJSON()
+				b, err = json.Marshal(server.NamespaceRequest{Namespace: ns})
 				if err != nil {
 					continue
 				}
@@ -124,7 +125,7 @@ func RequestAlgoKey(uri string, reuse bool) (Verifier, error) {
 				}
 
 				var m server.PublicKeyResponse
-				err = gg.UnmarshalJSONResponse(resp, &m, 1000)
+				err = gg.DecodeJSONResponse(resp, &m, 1000)
 				if err != nil {
 					continue
 				}
@@ -428,7 +429,7 @@ func AccessClaimsFromBase64(payload []byte, reuse bool) (*AccessClaims, error) {
 	}
 
 	var claims AccessClaims
-	if err := claims.UnmarshalJSON(payload); err != nil {
+	if err := json.Unmarshal(payload, &claims); err != nil {
 		return nil, &claimError{err, payload}
 	}
 

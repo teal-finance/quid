@@ -2,8 +2,6 @@ package server
 
 import "time"
 
-//go:generate go run github.com/mailru/easyjson/... -all -byte -disable_members_unescape -disallow_unknown_fields -snake_case ${GOFILE}
-
 // Namespace : base model.
 type Namespace struct {
 	ID            int64  `json:"id"`

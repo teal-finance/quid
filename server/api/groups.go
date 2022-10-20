@@ -11,7 +11,7 @@ import (
 // allNsGroups : get all groups for a namespace http handler.
 func allNsGroups(w http.ResponseWriter, r *http.Request) {
 	var m server.NamespaceIDRequest
-	if err := gg.UnmarshalJSONRequest(w, r, &m); err != nil {
+	if err := gg.DecodeJSONRequest(w, r, &m); err != nil {
 		log.Warn("AllGroupsForNamespace:", err)
 		gw.WriteErr(w, r, http.StatusUnauthorized, "cannot decode JSON")
 		return
@@ -46,7 +46,7 @@ func allGroups(w http.ResponseWriter, r *http.Request) {
 // groupsInfo : group creation http handler.
 func groupsInfo(w http.ResponseWriter, r *http.Request) {
 	var m server.UserRequest
-	if err := gg.UnmarshalJSONRequest(w, r, &m); err != nil {
+	if err := gg.DecodeJSONRequest(w, r, &m); err != nil {
 		log.Warn("GroupsInfo:", err)
 		gw.WriteErr(w, r, http.StatusUnauthorized, "cannot decode JSON")
 		return
@@ -70,7 +70,7 @@ func groupsInfo(w http.ResponseWriter, r *http.Request) {
 // deleteGroup : group deletion http handler.
 func deleteGroup(w http.ResponseWriter, r *http.Request) {
 	var m server.UserRequest
-	if err := gg.UnmarshalJSONRequest(w, r, &m); err != nil {
+	if err := gg.DecodeJSONRequest(w, r, &m); err != nil {
 		log.Warn("DeleteGroup:", err)
 		gw.WriteErr(w, r, http.StatusUnauthorized, "cannot decode JSON")
 		return
@@ -93,7 +93,7 @@ func deleteGroup(w http.ResponseWriter, r *http.Request) {
 // createGroup : group creation http handler.
 func createGroup(w http.ResponseWriter, r *http.Request) {
 	var m server.GroupCreation
-	if err := gg.UnmarshalJSONRequest(w, r, &m); err != nil {
+	if err := gg.DecodeJSONRequest(w, r, &m); err != nil {
 		log.Warn("CreateGroup:", err)
 		gw.WriteErr(w, r, http.StatusUnauthorized, "cannot decode JSON")
 		return

@@ -13,7 +13,7 @@ import (
 // listUsersInNs : select all users for a namespace.
 func listUsersInNs(w http.ResponseWriter, r *http.Request) {
 	var m server.NamespaceIDRequest
-	if err := gg.UnmarshalJSONRequest(w, r, &m); err != nil {
+	if err := gg.DecodeJSONRequest(w, r, &m); err != nil {
 		log.ParamError("listUsersInNs:", err)
 		gw.WriteErr(w, r, http.StatusUnauthorized, "cannot decode JSON")
 		return
@@ -37,7 +37,7 @@ func listUsersInNs(w http.ResponseWriter, r *http.Request) {
 // nsGroups : get the groups of a user.
 func nsGroups(w http.ResponseWriter, r *http.Request) {
 	var m server.NamespaceRequest
-	if err := gg.UnmarshalJSONRequest(w, r, &m); err != nil {
+	if err := gg.DecodeJSONRequest(w, r, &m); err != nil {
 		log.ParamError("GroupsForNamespace:", err)
 		gw.WriteErr(w, r, http.StatusUnauthorized, "cannot decode JSON")
 		return
@@ -70,7 +70,7 @@ func nsGroups(w http.ResponseWriter, r *http.Request) {
 // addUserInOrg : add a user in an org.
 func addUserInOrg(w http.ResponseWriter, r *http.Request) {
 	var m server.UserOrgRequest
-	if err := gg.UnmarshalJSONRequest(w, r, &m); err != nil {
+	if err := gg.DecodeJSONRequest(w, r, &m); err != nil {
 		log.ParamError("AddUserInOrg:", err)
 		gw.WriteErr(w, r, http.StatusUnauthorized, "cannot decode JSON")
 		return
@@ -90,7 +90,7 @@ func addUserInOrg(w http.ResponseWriter, r *http.Request) {
 // removeUserFromOrg : add a user in an org.
 func removeUserFromOrg(w http.ResponseWriter, r *http.Request) {
 	var m server.UserOrgRequest
-	if err := gg.UnmarshalJSONRequest(w, r, &m); err != nil {
+	if err := gg.DecodeJSONRequest(w, r, &m); err != nil {
 		log.ParamError("RemoveUserFromOrg:", err)
 		gw.WriteErr(w, r, http.StatusUnauthorized, "cannot decode JSON")
 		return
@@ -110,7 +110,7 @@ func removeUserFromOrg(w http.ResponseWriter, r *http.Request) {
 // addUserInGroup : add a user in a group.
 func addUserInGroup(w http.ResponseWriter, r *http.Request) {
 	var m server.UserGroupRequest
-	if err := gg.UnmarshalJSONRequest(w, r, &m); err != nil {
+	if err := gg.DecodeJSONRequest(w, r, &m); err != nil {
 		log.ParamError("AddUserInGroup:", err)
 		gw.WriteErr(w, r, http.StatusUnauthorized, "cannot decode JSON")
 		return
@@ -135,7 +135,7 @@ func addUserInGroup(w http.ResponseWriter, r *http.Request) {
 // removeUserFromGroup : add a user in a group.
 func removeUserFromGroup(w http.ResponseWriter, r *http.Request) {
 	var m server.UserGroupRequest
-	if err := gg.UnmarshalJSONRequest(w, r, &m); err != nil {
+	if err := gg.DecodeJSONRequest(w, r, &m); err != nil {
 		log.ParamError("RemoveUserFromGroup:", err)
 		gw.WriteErr(w, r, http.StatusUnauthorized, "cannot decode JSON")
 		return
@@ -160,7 +160,7 @@ func removeUserFromGroup(w http.ResponseWriter, r *http.Request) {
 // userGroupsInfo : get info for a user.
 func userGroupsInfo(w http.ResponseWriter, r *http.Request) {
 	var m server.UserRequest
-	if err := gg.UnmarshalJSONRequest(w, r, &m); err != nil {
+	if err := gg.DecodeJSONRequest(w, r, &m); err != nil {
 		log.ParamError("UserGroupsInfo:", err)
 		gw.WriteErr(w, r, http.StatusUnauthorized, "cannot decode JSON")
 		return
@@ -185,7 +185,7 @@ func userGroupsInfo(w http.ResponseWriter, r *http.Request) {
 // deleteUser : delete a user handler.
 func deleteUser(w http.ResponseWriter, r *http.Request) {
 	var m server.UserRequest
-	if err := gg.UnmarshalJSONRequest(w, r, &m); err != nil {
+	if err := gg.DecodeJSONRequest(w, r, &m); err != nil {
 		log.ParamError("DeleteUser:", err)
 		gw.WriteErr(w, r, http.StatusUnauthorized, "cannot decode JSON")
 		return
@@ -206,10 +206,10 @@ func deleteUser(w http.ResponseWriter, r *http.Request) {
 	gw.WriteOK(w, "message", "ok")
 }
 
-// setUserEnabled : set user is enabled
-func setUserEnabled(w http.ResponseWriter, r *http.Request) {
+// enableUser : set user is enabled
+func enableUser(w http.ResponseWriter, r *http.Request) {
 	var m server.UserSetEnabled
-	if err := gg.UnmarshalJSONRequest(w, r, &m); err != nil {
+	if err := gg.DecodeJSONRequest(w, r, &m); err != nil {
 		log.ParamError("setUserEnabled:", err)
 		gw.WriteErr(w, r, http.StatusUnauthorized, "cannot decode JSON")
 		return
@@ -219,7 +219,7 @@ func setUserEnabled(w http.ResponseWriter, r *http.Request) {
 // createUser : create a user handler.
 func createUser(w http.ResponseWriter, r *http.Request) {
 	var m server.UserHandlerCreation
-	if err := gg.UnmarshalJSONRequest(w, r, &m); err != nil {
+	if err := gg.DecodeJSONRequest(w, r, &m); err != nil {
 		log.ParamError("CreateUser:", err)
 		gw.WriteErr(w, r, http.StatusUnauthorized, "cannot decode JSON")
 		return

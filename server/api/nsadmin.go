@@ -13,7 +13,7 @@ import (
 // listAdministrators : select all admin users for a namespace.
 func listAdministrators(w http.ResponseWriter, r *http.Request) {
 	var m server.NamespaceIDRequest
-	if err := gg.UnmarshalJSONRequest(w, r, &m); err != nil {
+	if err := gg.DecodeJSONRequest(w, r, &m); err != nil {
 		log.Warn("listAdministrators:", err)
 		gw.WriteErr(w, r, http.StatusUnauthorized, "cannot decode JSON")
 		return
@@ -32,7 +32,7 @@ func listAdministrators(w http.ResponseWriter, r *http.Request) {
 // listNonAdministrators : search from a username in namespace
 func listNonAdministrators(w http.ResponseWriter, r *http.Request) {
 	var m server.NonAdminUsersRequest
-	if err := gg.UnmarshalJSONRequest(w, r, &m); err != nil {
+	if err := gg.DecodeJSONRequest(w, r, &m); err != nil {
 		log.Warn("listNonAdministrators:", err)
 		gw.WriteErr(w, r, http.StatusUnauthorized, "cannot decode JSON")
 		return
@@ -57,7 +57,7 @@ func listNonAdministrators(w http.ResponseWriter, r *http.Request) {
 // CreateUserAdministrators : create admin users handler.
 func createAdministrators(w http.ResponseWriter, r *http.Request) {
 	var m server.AdministratorsCreation
-	if err := gg.UnmarshalJSONRequest(w, r, &m); err != nil {
+	if err := gg.DecodeJSONRequest(w, r, &m); err != nil {
 		log.Warn("CreateAdministrators:", err)
 		gw.WriteErr(w, r, http.StatusUnauthorized, "cannot decode JSON", "err", err)
 		return
@@ -90,7 +90,7 @@ func createAdministrators(w http.ResponseWriter, r *http.Request) {
 // deleteAdministrator : delete an admin user handler.
 func deleteAdministrator(w http.ResponseWriter, r *http.Request) {
 	var m server.AdministratorDeletion
-	if err := gg.UnmarshalJSONRequest(w, r, &m); err != nil {
+	if err := gg.DecodeJSONRequest(w, r, &m); err != nil {
 		log.ParamError("DeleteAdministrator:", err)
 		gw.WriteErr(w, r, http.StatusUnauthorized, "cannot decode JSON")
 		return

@@ -22,7 +22,7 @@ ARG UID=6606 \
     GID=6606
 
 # --------------------------------------------------------------------
-FROM docker.io/node:18-alpine AS ui-builder
+FROM docker.io/node:19-alpine AS ui-builder
 
 WORKDIR /code
 

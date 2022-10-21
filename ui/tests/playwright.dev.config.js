@@ -2,12 +2,12 @@ const { devices } = require('@playwright/test');/** @type {import('@playwright/t
 const config = {
   workers: 1,
   retries: 0,
-  //globalSetup: require.resolve('./global-setup'),
+  globalSetup: require.resolve('./global-setup'),
   use: {
-    baseURL: 'http://localhost:8082',
+    baseURL: 'http://localhost:8090',
     headless: false,
     viewport: { width: 1280, height: 720 },
-    //storageState: 'storage.state.json',
+    storageState: process.cwd() + '/tests/storage.state.json',
     launchOptions: {
       slowMo: 1500,
     },

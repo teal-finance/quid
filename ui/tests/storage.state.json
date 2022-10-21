@@ -1,0 +1,30 @@
+{
+  "cookies": [],
+  "origins": [
+    {
+      "origin": "http://localhost:8090",
+      "localStorage": [
+        {
+          "name": "iconify-count",
+          "value": "0"
+        },
+        {
+          "name": "isDarkMode",
+          "value": "false"
+        },
+        {
+          "name": "namespace",
+          "value": "{\"id\":0,\"name\":\"default\",\"algo\":\"HS256\",\"maxTokenTtl\":\"10\",\"maxRefreshTokenTtl\":\"10m\",\"publicEndpointEnabled\":false,\"actions\":[]}"
+        },
+        {
+          "name": "name",
+          "value": "anonymous"
+        },
+        {
+          "name": "iconify-version",
+          "value": "iconify2"
+        }
+      ]
+    }
+  ]
+}

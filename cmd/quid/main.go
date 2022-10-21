@@ -16,9 +16,9 @@ var log = emo.NewZone("quid")
 const (
 	// defaultKey is AES-128-bits (16 bytes) in hexadecimal form (32 digits).
 	// Attention: Heroku generates secrets with 64 hexadecimal digits.
-	defaultKey     = "00112233445566778899aabbccddeeff"
-	defaultUsr     = "admin"
-	defaultPwd     = "my_password"
+	defaultKey = "00112233445566778899aabbccddeeff"
+	defaultUsr = "admin"
+	//defaultPwd     = "my_password"
 	defaultDBUser  = "pguser"
 	defaultDBPass  = "my_password"
 	defaultDBName  = "quid"
@@ -36,10 +36,11 @@ func buildURL(usr, pwd, host, port, name string) string {
 func main() {
 	var (
 		dev     = flag.Bool("dev", false, "Development mode")
+		init    = flag.Bool("init", false, "Create an admin user")
 		verbose = flag.Bool("v", false, "Verbose (enables the info and debug logs)")
 		key     = flag.String("key", gg.EnvStr("QUID_KEY", defaultKey), "AES-128 key to encrypt the private keys of the refresh/access tokens in the database. Accept 32 hexadecimal digits or 22 Base64 characters. Env. var: QUID_KEY")
 		admin   = flag.String("admin", gg.EnvStr("QUID_ADMIN_USR", defaultUsr), "The username of the Quid Administrator. Env. var: QUID_ADMIN_USR")
-		pwd     = flag.String("pwd", gg.EnvStr("QUID_ADMIN_PWD", defaultPwd), "The password of the Quid Administrator. Env. var: QUID_ADMIN_PWD")
+		//pwd     = flag.String("pwd", gg.EnvStr("QUID_ADMIN_PWD", defaultPwd), "The password of the Quid Administrator. Env. var: QUID_ADMIN_PWD")
 		conf    = flag.Bool("conf", false, `Generate a "config.json" file with a random AES-128 key`)
 		drop    = flag.Bool("drop", false, "Reset the DB: drop tables and indexes")
 		dbUser  = flag.String("db-usr", gg.EnvStr("POSTGRES_USER", defaultDBUser), "Username to read/write the database. Env. var: POSTGRES_USER")
@@ -82,10 +83,10 @@ func main() {
 	}
 	emo.GlobalVerbosity(*verbose)
 
-	if !*dev && *pwd == defaultPwd {
+	/*if !*dev && *pwd == defaultPwd {
 		log.Print("Flag -dev disabled => Do not use default password:", defaultPwd)
 		*pwd = ""
-	}
+	}*/
 
 	obfuscatedPwdURL := *dbURL
 	u, err := url.Parse(*dbURL)
@@ -100,7 +101,7 @@ func main() {
 	log.V().Param("-drop                      =", *drop)
 	log.V().Param("-key     QUID_KEY          =", len(*key), "bytes")
 	log.V().Param("-admin   QUID_ADMIN_USR    =", *admin)
-	log.V().Param("-pwd     QUID_ADMIN_PWD    =", len(*pwd), "bytes")
+	//log.V().Param("-pwd     QUID_ADMIN_PWD    =", len(*pwd), "bytes")
 	log.V().Param("-db-usr  POSTGRES_USER     =", *dbUser)
 	log.V().Param("-db-pwd  POSTGRES_PASSWORD =", len(*dbPass), "bytes")
 	log.V().Param("-db-name POSTGRES_DB       =", *dbName)
@@ -149,9 +150,11 @@ func main() {
 		log.Fatal(err)
 	}
 
-	forcePrompt := (*pwd == defaultPwd)
-	if err := db.CreateQuidAdmin(*admin, *pwd, forcePrompt); err != nil {
-		log.Fatal(err)
+	if *init {
+		if err := db.CreateQuidAdmin(); err != nil {
+			log.Fatal(err)
+		}
+		return
 	}
 
 	api.RunServer(*port, *dev, *origins, *www)

@@ -7,3 +7,26 @@ Download the latest [release](https://github.com/teal-finance/quid/releases) to 
 ```bash
 make all -j
 ```
+
+Create a config file:
+
+```bash
+./quid -conf
+```
+
+### Create a database
+
+```bash
+sudo -u postgres psql
+```
+
+```psql
+CREATE DATABASE quid;
+GRANT ALL PRIVILEGES ON DATABASE quid TO pguser;
+```
+
+### Create a Quid admin user
+
+```bash
+./quid -init
+```

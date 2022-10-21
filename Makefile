@@ -1,4 +1,5 @@
 help:
+	# make installf     Install the frontend
 	# make all          Build both frontend and backend
 	# make front        Build the frontend UI
 	# make quid         Build the backend
@@ -24,8 +25,12 @@ help:
 	#
 	#     make up-go fmt test vet
 
+.PHONY: installf
+installf:
+	cd ui && yarn
+
 .PHONY: all
-all: front quid
+all: installf front quid
 
 .PHONY: front
 front: ui/dist

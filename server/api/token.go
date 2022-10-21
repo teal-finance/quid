@@ -17,7 +17,7 @@ import (
 // requestRefreshToken : http login handler.
 func requestRefreshToken(w http.ResponseWriter, r *http.Request) {
 	var m server.PasswordRequest
-	if err := gg.UnmarshalJSONRequest(w, r, &m); err != nil {
+	if err := gg.DecodeJSONRequest(w, r, &m); err != nil {
 		log.ParamError("RequestRefreshToken:", err)
 		gw.WriteErr(w, r, http.StatusUnauthorized, "cannot decode JSON")
 		return
@@ -103,7 +103,7 @@ func requestRefreshAndAccessTokens(w http.ResponseWriter, r *http.Request) {
 
 func genAccessToken(w http.ResponseWriter, r *http.Request) (accessToken, timeout string, _ server.Namespace, _ server.User) {
 	var m server.AccessTokenRequest
-	if err := gg.UnmarshalJSONRequest(w, r, &m); err != nil {
+	if err := gg.DecodeJSONRequest(w, r, &m); err != nil {
 		log.ParamError("RequestAccessToken:", err)
 		gw.WriteErr(w, r, http.StatusUnauthorized, "cannot decode JSON")
 		return
@@ -201,7 +201,7 @@ func genAccessToken(w http.ResponseWriter, r *http.Request) (accessToken, timeou
 
 func getAccessPublicKey(w http.ResponseWriter, r *http.Request) {
 	var m server.NamespaceRequest
-	if err := gg.UnmarshalJSONRequest(w, r, &m); err != nil {
+	if err := gg.DecodeJSONRequest(w, r, &m); err != nil {
 		log.Warn(err)
 		gw.WriteErr(w, r, http.StatusBadRequest, "cannot decode JSON")
 		return
@@ -245,7 +245,7 @@ func getAccessPublicKey(w http.ResponseWriter, r *http.Request) {
 //nolint:errcheck // no need to check last write of this function
 func validAccessToken(w http.ResponseWriter, r *http.Request) {
 	var m server.AccessTokenValidationRequest
-	if err := gg.UnmarshalJSONRequest(w, r, &m); err != nil {
+	if err := gg.DecodeJSONRequest(w, r, &m); err != nil {
 		log.ParamError(err)
 		gw.WriteErr(w, r, http.StatusUnauthorized, "cannot decode JSON")
 		return

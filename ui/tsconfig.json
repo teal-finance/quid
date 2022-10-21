@@ -15,7 +15,8 @@
     ],
     "types": [
       "vite/client",
-      "@types/js-cookie"
+      "@types/js-cookie",
+      "node"
     ],
     "baseUrl": ".",
     "paths": {

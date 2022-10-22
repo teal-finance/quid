@@ -60,7 +60,8 @@ doc:
 
 .PHONY: run
 run: go.sum $(shell find -name *.go)
-	CGO_ENABLED=1 GOFLAGS="-trimpath -modcacherw" GOLDFLAGS="-d -s -w -extldflags=-static" go run -race -a -tags osusergo,netgo -installsuffix netgo ./cmd/quid -dev -v
+# CGO_ENABLED=1 GOFLAGS="-trimpath -modcacherw" GOLDFLAGS="-d -s -w -extldflags=-static" go run -a -tags osusergo,netgo -installsuffix netgo ./cmd/quid -dev -v
+	go run ./cmd/quid -dev -v
 
 quid: go.sum $(shell find -name *.go)
 	CGO_ENABLED=0 GOFLAGS="-trimpath -modcacherw" GOLDFLAGS="-d -s -w -extldflags=-static" go build -a -tags osusergo,netgo -installsuffix netgo -o $@ ./cmd/quid

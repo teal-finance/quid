@@ -20,14 +20,14 @@ Quid can be configured with command line options, environnement variables and co
 
 The following table concerns only the database:
 
-| Command line options | Environnement variables | `config.json`                   | Default value                                                       |
-| -------------------- | ----------------------- | ------------------------------- | ------------------------------------------------------------------- |
-| `-db-usr`            | `POSTGRES_USER`         | `"db_user":     "pguser",`      | `pguser`                                                            |
-| `-db-pwd`            | `POSTGRES_PASSWORD`     | `"db_password": "my_password",` | `my_password`                                                       |
-| `-db-name`           | `POSTGRES_DB`           | `"db_name":     "quid",`        | `quid`                                                              |
-| `-db-host`           | `DB_HOST`               |                                 | `localhost`                                                         |
-| `-db-port`           | `DB_PORT`               |                                 | `5432`                                                              |
-| `-db-url`            | `DB_URL`                |                                 | `postgres://pguser:my_password@localhost:5432/quid?sslmode=disable` |
+| Command line options | Environnement variables | `config.json`             | Default value                                                   |
+| -------------------- | ----------------------- | ------------------------- | --------------------------------------------------------------- |
+| `-db-user`           | `POSTGRES_USER`         | `"db_user": "pguser",`    | `pguser`                                                        |
+| `-db-pass`           | `POSTGRES_PASSWORD`     | `"db_password": "xxxxx",` | `myDBpwd`                                                       |
+| `-db-name`           | `POSTGRES_DB`           | `"db_name": "quid",`      | `quid`                                                          |
+| `-db-host`           | `DB_HOST`               |                           | `localhost`                                                     |
+| `-db-port`           | `DB_PORT`               |                           | `5432`                                                          |
+| `-db-url`            | `DB_URL`                |                           | `postgres://pguser:myDBpwd@localhost:5432/quid?sslmode=disable` |
 
 When the `-db-url` option or the `DB_URL` env. var. is used,
 Quid does not uses the other options, env. vars and the configuration file.
@@ -41,7 +41,7 @@ URL = "postgres://{USR}:{PWD}@{HOST}:{PORT}/{NAME}?sslmode=disable"
 ## Setup in one command line
 
 ```sql
-sudo -u postgres psql -c "CREATE USER pguser WITH PASSWORD 'my_password'" -c "CREATE DATABASE quid" -c "GRANT ALL PRIVILEGES ON DATABASE quid TO pguser"
+sudo -u postgres psql -c "CREATE USER pguser WITH PASSWORD 'myDBpwd'" -c "CREATE DATABASE quid" -c "GRANT ALL PRIVILEGES ON DATABASE quid TO pguser"
 ```
 
 output:
@@ -60,7 +60,7 @@ If you do not have already created a privileged user, create it:
 
 ```sql
 $ sudo -u postgres psql
-postgres=# CREATE USER pguser WITH PASSWORD 'my_password';
+postgres=# CREATE USER pguser WITH PASSWORD 'myDBpwd';
 CREATE ROLE
 postgres=# exit
 ```
@@ -69,7 +69,7 @@ Update the `config.json` file:
 
 ```json
 "db_user": "pguser",
-"db_password": "my_password",
+"db_password": "myDBpwd",
 ```
 
 ## Create the `quid` database

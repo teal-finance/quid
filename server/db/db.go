@@ -81,8 +81,8 @@ func DropDatabase(dbName string) error {
 	return nil
 }
 
-// CreateTablesIndexes : execute the schema.
-func CreateTablesIndexes() error {
+// CreateTablesIndexesIfMissing : execute the schema.
+func CreateTablesIndexesIfMissing() error {
 	result, err := db.Exec(schema)
 	if err != nil {
 		log.S().Warning(err)

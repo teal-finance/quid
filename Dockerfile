@@ -7,8 +7,8 @@
 #
 # Run in prod as a daemon (-d)
 #
-#    docker run --rm -d -p 0.0.0.0:8082:8082 -e POSTGRES_PASSWORD=my_password --name quid quid -env
-#    podman run --rm -d -p 0.0.0.0:8082:8082 -e POSTGRES_PASSWORD=my_password --name quid quid -env
+#    docker run --rm -d -p 0.0.0.0:8082:8082 -e POSTGRES_PASSWORD=myDBpwd --name quid quid -env
+#    podman run --rm -d -p 0.0.0.0:8082:8082 -e POSTGRES_PASSWORD=myDBpwd --name quid quid -env
 #
 # Run in dev. mode with local PostgreSQL
 #
@@ -114,7 +114,7 @@ ARG QUID_ADMIN_USR=quid-admin                 \
     QUID_ADMIN_PWD=quid-admin-password        \
     QUID_KEY=95c14b86ac89362e8246661bd2c05c3b \
     POSTGRES_USER=pguser                      \
-    POSTGRES_PASSWORD=my_password             \
+    POSTGRES_PASSWORD=myDBpwd                 \
     POSTGRES_DB=quid                          \
     DB_HOST=db                                \
     DB_PORT=5432                              \

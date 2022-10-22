@@ -16,15 +16,15 @@ var log = emo.NewZone("quid")
 const (
 	// defaultKey is AES-128-bits (16 bytes) in hexadecimal form (32 digits).
 	// Attention: Heroku generates secrets with 64 hexadecimal digits.
-	defaultKey     = "00112233445566778899aabbccddeeff"
-	defaultUsr     = "admin"
-	defaultPwd     = "my_password"
-	defaultDBUser  = "pguser"
-	defaultDBPass  = "my_password"
-	defaultDBName  = "quid"
-	defaultDBHost  = "localhost"
-	defaultDBPort  = "5432"
-	defaultOrigins = "http://localhost:"
+	defaultKey      = "00112233445566778899aabbccddeeff"
+	defaultAdminUsr = "admin"
+	defaultAdminPwd = "myAdminPassword"
+	defaultDBUser   = "pguser"
+	defaultDBPass   = "myDBpwd"
+	defaultDBName   = "quid"
+	defaultDBHost   = "localhost"
+	defaultDBPort   = "5432"
+	defaultOrigins  = "http://localhost:"
 )
 
 var defaultDBurl = buildURL(defaultDBUser, defaultDBPass, defaultDBHost, defaultDBPort, defaultDBName)
@@ -38,12 +38,12 @@ func main() {
 		dev     = flag.Bool("dev", false, "Development mode")
 		verbose = flag.Bool("v", false, "Verbose (enables the info and debug logs)")
 		key     = flag.String("key", gg.EnvStr("QUID_KEY", defaultKey), "AES-128 key to encrypt the private keys of the refresh/access tokens in the database. Accept 32 hexadecimal digits or 22 Base64 characters. Env. var: QUID_KEY")
-		admin   = flag.String("admin", gg.EnvStr("QUID_ADMIN_USR", defaultUsr), "The username of the Quid Administrator. Env. var: QUID_ADMIN_USR")
-		pwd     = flag.String("pwd", gg.EnvStr("QUID_ADMIN_PWD", defaultPwd), "The password of the Quid Administrator. Env. var: QUID_ADMIN_PWD")
+		admin   = flag.String("admin", gg.EnvStr("QUID_ADMIN_USR", defaultAdminUsr), "The username of the Quid Administrator. Env. var: QUID_ADMIN_USR")
+		pwd     = flag.String("pwd", gg.EnvStr("QUID_ADMIN_PWD", defaultAdminPwd), "The password of the Quid Administrator. Env. var: QUID_ADMIN_PWD")
 		conf    = flag.Bool("conf", false, `Generate a "config.json" file with a random AES-128 key`)
 		drop    = flag.Bool("drop", false, "Reset the DB: drop tables and indexes")
-		dbUser  = flag.String("db-usr", gg.EnvStr("POSTGRES_USER", defaultDBUser), "Username to read/write the database. Env. var: POSTGRES_USER")
-		dbPass  = flag.String("db-pwd", gg.EnvStr("POSTGRES_PASSWORD", defaultDBPass), "Password of the database user. Env. var: POSTGRES_PASSWORD")
+		dbUser  = flag.String("db-user", gg.EnvStr("POSTGRES_USER", defaultDBUser), "Username to read/write the database. Env. var: POSTGRES_USER")
+		dbPass  = flag.String("db-pass", gg.EnvStr("POSTGRES_PASSWORD", defaultDBPass), "Password of the database user. Env. var: POSTGRES_PASSWORD")
 		dbName  = flag.String("db-name", gg.EnvStr("POSTGRES_DB", defaultDBName), "Name of the Postgres database. Env. var: POSTGRES_DB")
 		dbHost  = flag.String("db-host", gg.EnvStr("DB_HOST", defaultDBHost), "Network location of the Postgres server. Env. var: DB_HOST")
 		dbPort  = flag.String("db-port", gg.EnvStr("DB_PORT", defaultDBPort), "TCP port of the Postgres server. Env. var: DB_PORT")
@@ -82,8 +82,8 @@ func main() {
 	}
 	emo.GlobalVerbosity(*verbose)
 
-	if !*dev && *pwd == defaultPwd {
-		log.Print("Flag -dev disabled => Do not use default password:", defaultPwd)
+	if !*dev && *pwd == defaultAdminPwd {
+		log.Print("Flag -dev disabled => Do not use default admin password -pwd QUID_ADMIN_PWD:", defaultAdminPwd)
 		*pwd = ""
 	}
 
@@ -94,22 +94,35 @@ func main() {
 		obfuscatedPwdURL = u.Redacted()
 	}
 
-	log.V().Param("-dev                       =", *dev)
-	log.V().Param("-v                         =", *verbose)
-	log.V().Param("-conf                      =", *conf)
-	log.V().Param("-drop                      =", *drop)
-	log.V().Param("-key     QUID_KEY          =", len(*key), "bytes")
-	log.V().Param("-admin   QUID_ADMIN_USR    =", *admin)
-	log.V().Param("-pwd     QUID_ADMIN_PWD    =", len(*pwd), "bytes")
-	log.V().Param("-db-usr  POSTGRES_USER     =", *dbUser)
-	log.V().Param("-db-pwd  POSTGRES_PASSWORD =", len(*dbPass), "bytes")
-	log.V().Param("-db-name POSTGRES_DB       =", *dbName)
-	log.V().Param("-db-host DB_HOST           =", *dbHost)
-	log.V().Param("-db-port DB_PORT           =", *dbPort)
-	log.V().Param("-db-url  DB_URL            =", obfuscatedPwdURL)
-	log.V().Param("-origins ALLOWED_ORIGINS   =", *origins)
-	log.V().Param("-www     WWW_DIR           =", *www)
-	log.V().Param("-port    PORT              =", *port)
+	log.V().Param("-dev                        =", *dev)
+	log.V().Param("-v                          =", *verbose)
+	log.V().Param("-conf                       =", *conf)
+	log.V().Param("-drop                       =", *drop)
+	log.V().Param("-key     QUID_KEY           =", len(*key), "bytes")
+	log.V().Param("-admin   QUID_ADMIN_USR     =", *admin)
+	if *pwd == defaultAdminPwd {
+		log.Warning("-pwd     QUID_ADMIN_PWD     =", *pwd, " UNSECURED DEFAULT PASSWORD")
+	} else {
+		log.V().Param("-pwd     QUID_ADMIN_PWD     =", len(*pwd), "bytes")
+	}
+	log.V().Param("-db-user POSTGRES_USER      =", *dbUser)
+	if *dbPass == defaultDBPass {
+		log.Warning("-db-pass POSTGRES_PASSWORD  =", *dbPass, "         UNSECURED DEFAULT PASSWORD")
+	} else {
+		log.V().Param("-db-pass POSTGRES_PASSWORD  =", len(*dbPass), "bytes")
+	}
+	log.V().Param("-db-name POSTGRES_DB        =", *dbName)
+	log.V().Param("-db-host DB_HOST            =", *dbHost)
+	log.V().Param("-db-port DB_PORT            =", *dbPort)
+	log.V().Param("-db-url  DB_URL             =", obfuscatedPwdURL)
+	log.V().Param("-origins ALLOWED_ORIGINS    =", *origins)
+	log.V().Param("-www     WWW_DIR            =", *www)
+	log.V().Param("-port    PORT               =", *port)
+
+	if !*dev && *dbPass == defaultDBPass {
+		log.Error("Running in prod mode (flag -dev disabled), but default DB password:", defaultDBPass)
+		log.Error("Use flag -db-pass or env. var. POSTGRES_PASSWORD to use a different password")
+	}
 
 	if *conf {
 		log.Info(`Generating "config.json" file with random AES-128 key`)
@@ -133,7 +146,7 @@ func main() {
 
 	if err := db.Connect(*dbURL); err != nil {
 		log.Error(err)
-		log.Fatal("Cannot connect to", obfuscatedPwdURL, "(password is obfuscated)")
+		log.Fatal("Cannot connect to", obfuscatedPwdURL, "(obfuscated password)")
 	}
 
 	if *drop {
@@ -145,12 +158,11 @@ func main() {
 		}
 	}
 
-	if err := db.CreateTablesIndexes(); err != nil {
+	if err := db.CreateTablesIndexesIfMissing(); err != nil {
 		log.Fatal(err)
 	}
 
-	forcePrompt := (*pwd == defaultPwd)
-	if err := db.CreateQuidAdmin(*admin, *pwd, forcePrompt); err != nil {
+	if err := db.CreateQuidAdminIfMissing(*admin, *pwd); err != nil {
 		log.Fatal(err)
 	}
 

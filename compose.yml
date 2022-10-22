@@ -30,9 +30,9 @@ services:
     environment:
       - QUID_KEY=9362e8246661bd2c05c3bf1c14b86ac8
       - QUID_ADMIN_USR=admin
-      - QUID_ADMIN_PWD=my_QUID_admin_password
+      - QUID_ADMIN_PWD=myAdminPassword # Please change this password
       - POSTGRES_USER=pguser # Must be the same POSTGRES_USER used by container "db".
-      - POSTGRES_PASSWORD=my_PSQL_password
+      - POSTGRES_PASSWORD=myDBpwd # Please change this password
       - POSTGRES_DB=quid
       - DB_HOST=db # "db" is the "container_name" of the Postgres container.
       - ALLOWED_ORIGINS=http://localhost:8082/
@@ -58,7 +58,11 @@ services:
     # Quid waits for DB being ready using the following healthcheck
     # see: https://github.com/peter-evans/docker-compose-healthcheck/issues/16#issuecomment-1073039761
     healthcheck:
-      test: [ "CMD-SHELL", "pg_isready -d $${POSTGRES_DB} -U $${POSTGRES_USER}" ]
+      test:
+        [
+          "CMD-SHELL",
+          "pg_isready -d $${POSTGRES_DB} -U $${POSTGRES_USER}"
+        ]
       interval: 2s
       timeout: 1s
       retries: 3

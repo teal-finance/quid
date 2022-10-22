@@ -81,8 +81,8 @@ func CreateQuidAdmin(username, password string, forcePrompt bool) error {
 }
 
 var (
-	UsernameTooShort = errors.New("Username must have more than 2 characters.")
-	PasswordTooShort = errors.New("Password must have more than 5 characters.")
+	UsernameTooShort = errors.New("username must have more than 2 characters.")
+	PasswordTooShort = errors.New("password must have more than 5 characters.")
 )
 
 func promptForUsername(username string) (string, error) {
@@ -124,7 +124,7 @@ Enter the Quid Admin password.
 		Mask:    mask,
 		Validate: func(input string) error {
 			if len(input) <= 5 {
-				return errors.New("Password must have more than 6 characters")
+				return errors.New("password must have more than 6 characters")
 			}
 			return nil
 		},

@@ -353,7 +353,7 @@ func authorizedExpiry(timeout, maxTTL string) (time.Time, error) {
 	}
 
 	if d > max {
-		err = errors.New("Unauthorized timeout=" + timeout + " > maxTTL=" + maxTTL)
+		err = errors.New("unauthorized timeout=" + timeout + " > maxTTL=" + maxTTL)
 		log.ParamError(err.Error())
 		return time.Time{}, err
 	}

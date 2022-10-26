@@ -1,1 +1,0 @@
-import{d as e,c as s,a,b as o,o as t,_ as c}from"./index.bd52f0b3.js";const _={class:"p-3"},n=o("div",{class:"pb-3 text-xl"},"Api docs",-1),l=e({__name:"ApidocView",setup(d){return(i,p)=>(t(),s("div",_,[n,a(c)]))}});export{l as default};

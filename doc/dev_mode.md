@@ -8,7 +8,7 @@ Use two consoles.
 
 ## Run the frontend
 
-    make run-ui
+    make run-front
 
 Open <http://localhost:3000> to login into the admin interface:
 

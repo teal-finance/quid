@@ -26,7 +26,7 @@ func adminLogout(w http.ResponseWriter, r *http.Request) {
 // adminLogin : http login handler for the admin interface.
 func adminLogin(w http.ResponseWriter, r *http.Request) {
 	var m server.PasswordRequest
-	if err := gg.DecodeJSONRequest(w, r, &m); err != nil {
+	if err := gg.UnmarshalJSONRequest(w, r, &m); err != nil {
 		log.ParamError("AdminLogin DecodeJSONBody:", err)
 		gw.WriteErr(w, r, http.StatusUnauthorized, "cannot decode JSON")
 		return

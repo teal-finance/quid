@@ -214,7 +214,6 @@ func setUserEnabled(w http.ResponseWriter, r *http.Request) {
 		gw.WriteErr(w, r, http.StatusUnauthorized, "cannot decode JSON")
 		return
 	}
-
 }
 
 // createUser : create a user handler.

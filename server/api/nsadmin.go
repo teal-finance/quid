@@ -51,6 +51,12 @@ func listNonAdministrators(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	if len(users) == 0 {
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusNoContent)
+		w.Write([]byte(`{"users":[]}`)) // frontend prefers `[]` rather than `null`
+	}
+
 	gw.WriteOK(w, "users", users) // respond non_admin.username
 }
 

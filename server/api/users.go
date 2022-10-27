@@ -64,6 +64,13 @@ func nsGroups(w http.ResponseWriter, r *http.Request) {
 	}
 
 	log.Result("GroupsForNamespace:", g)
+
+	if len(g) == 0 {
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusNoContent)
+		w.Write([]byte(`{"groups":[]}`)) // frontend prefers `[]` rather than `null`
+	}
+
 	gw.WriteOK(w, "groups", g)
 }
 
@@ -179,6 +186,13 @@ func userGroupsInfo(w http.ResponseWriter, r *http.Request) {
 	}
 
 	log.Result("UserGroupsInfo:", g)
+
+	if len(g) == 0 {
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusNoContent)
+		w.Write([]byte(`{"groups":[]}`)) // frontend prefers `[]` rather than `null`
+	}
+
 	gw.WriteOK(w, "groups", g)
 }
 

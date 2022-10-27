@@ -60,6 +60,12 @@ func userOrgsInfo(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	if len(o) == 0 {
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusNoContent)
+		w.Write([]byte(`{"orgs":[]}`)) // frontend prefers `[]` rather than `null`
+	}
+
 	gw.WriteOK(w, "orgs", o)
 }
 
@@ -74,7 +80,7 @@ func deleteOrg(w http.ResponseWriter, r *http.Request) {
 
 	if err := db.DeleteOrg(m.ID); err != nil {
 		log.QueryError("DeleteOrg:", err)
-		gw.WriteErr(w, r, http.StatusConflict, "error deleting org")
+		gw.WriteErr(w, r, http.StatusUnauthorized, "error deleting org")
 		return
 	}
 

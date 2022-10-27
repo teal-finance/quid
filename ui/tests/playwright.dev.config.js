@@ -2,7 +2,8 @@ const { devices } = require('@playwright/test');/** @type {import('@playwright/t
 const config = {
   workers: 1,
   retries: 0,
-  globalSetup: require.resolve('./global-setup'),
+  //globalSetup: require.resolve('./global-setup'),
+  ignoreHTTPSErrors: true,
   use: {
     baseURL: 'http://localhost:8090',
     headless: false,

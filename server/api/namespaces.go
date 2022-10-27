@@ -154,7 +154,7 @@ func findNamespace(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	gw.WriteErr(w, r, http.StatusOK, &data)
+	gw.WriteOK(w, data)
 }
 
 // deleteNamespace : namespace creation http handler.

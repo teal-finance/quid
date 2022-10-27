@@ -61,6 +61,7 @@ func nsGroups(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		log.QueryError("GroupsForNamespace: error SELECT groups:", err)
 		gw.WriteErr(w, r, http.StatusUnauthorized, "error SELECT groups")
+		return
 	}
 
 	log.Result("GroupsForNamespace:", g)

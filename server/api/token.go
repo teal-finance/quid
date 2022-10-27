@@ -228,12 +228,15 @@ func getAccessPublicKey(w http.ResponseWriter, r *http.Request) {
 	case "EdDSA": // OK
 	default: // "", "HS256", "HS384", "HS512"
 		log.ParamError("Namespace", m.Namespace, "has algo", ns.Alg, "without public key")
-		gw.WriteErr(w, r, http.StatusBadRequest, "namespace signing algo has no public key", "algo", ns.Alg)
+		gw.WriteErr(w, r, http.StatusUnauthorized, "namespace signing algo has no public key", "algo", ns.Alg)
+		return
 	}
 
 	keyDER, err := tokens.DecryptVerificationKeyDER(ns.Alg, ns.AccessKey)
 	if err != nil {
 		log.Error(err)
+		gw.WriteErr(w, r, http.StatusUnauthorized, "cannot decrypt verification key and convert it to DER format", "algo", ns.Alg, "error", err)
+		return
 	}
 
 	isBase64 := strings.HasSuffix(m.EncodingForm, "64") // Base64 or base64 or b64...

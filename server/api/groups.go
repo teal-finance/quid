@@ -39,6 +39,7 @@ func allGroups(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		log.QueryError("AllGroups: error SELECT groups:", err)
 		gw.WriteErr(w, r, http.StatusConflict, "error SELECT groups")
+		return
 	}
 	gw.WriteOK(w, data)
 }

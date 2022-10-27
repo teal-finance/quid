@@ -78,14 +78,14 @@ type Org struct {
 }
 
 type StatusResponse struct {
-	AdminType string
-	Username  string
-	Ns        NSInfo
+	AdminType string `json:"admin_type"`
+	Username  string `json:"username"`
+	Ns        NSInfo `json:"ns"`
 }
 
 type NSInfo struct {
-	ID   int64
-	Name string
+	ID   int64  `json:"id"`
+	Name string `json:"name"`
 }
 
 type AdminType bool

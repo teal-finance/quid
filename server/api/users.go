@@ -225,7 +225,7 @@ func createUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if p := gg.Printable(m.Name, m.Password); p >= 0 {
+	if p := gg.Printable(m.Username, m.Password); p >= 0 {
 		log.ParamError("CreateUser: JSON contains a forbidden character at p=", p)
 		gw.WriteErr(w, r, http.StatusUnauthorized, "forbidden character")
 		return
@@ -237,7 +237,7 @@ func createUser(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// check if user exists
-	exists, err := db.UserExists(m.Name, m.NsID)
+	exists, err := db.UserExists(m.Username, m.NsID)
 	if err != nil {
 		log.QueryError("CreateUser: error checking user:", err)
 		gw.WriteErr(w, r, http.StatusConflict, "error checking user")
@@ -250,7 +250,7 @@ func createUser(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// create user
-	u, err := db.CreateUser(m.Name, m.Password, m.NsID)
+	u, err := db.CreateUser(m.Username, m.Password, m.NsID)
 	if err != nil {
 		log.QueryError("CreateUser: error creating user:", err)
 		gw.WriteErr(w, r, http.StatusConflict, "error creating user")

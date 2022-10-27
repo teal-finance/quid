@@ -70,7 +70,7 @@ function resetForm() {
 async function postForm() {
   try {
     await api.post(user.adminUrl + "/users/add", {
-      name: form.name.val,
+      username: form.name.val,
       password: form.pwd.val,
       ns_id: user.namespace.value.id,
     });

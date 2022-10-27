@@ -95,7 +95,7 @@ func NewVerifier(algoKey string, reuse bool) (Verifier, error) {
 
 func RequestAlgoKey(uri string, reuse bool) (Verifier, error) {
 	if p := gg.Printable(uri); p >= 0 {
-		return nil, fmt.Errorf("Unprintable character at position %d in sanitized URL=%q", p, uri)
+		return nil, fmt.Errorf("unprintable character at position %d in sanitized URL=%q", p, uri)
 	}
 
 	u, err := url.Parse(uri)
@@ -359,6 +359,7 @@ func (v *EdDSA) verify(headerPayload, sig []byte) bool {
 	return ed25519.Verify(v.key, headerPayload, sig)
 }
 
+// verifySlower is not used and may be removed later.
 func (v *ECDSA) verifySlower(digest hash.Hash, headerPayload, sig []byte) bool {
 	sig, err := B64Decode(sig, v.Reuse())
 	if err != nil {

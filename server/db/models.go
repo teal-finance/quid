@@ -36,3 +36,18 @@ type org struct {
 	Name string `db:"name" json:"name"`
 	ID   int64  `db:"id" json:"id"`
 }
+
+// Administrator : base model.
+type Administrator struct {
+	ID    int64  `json:"id"      db:"id"`
+	Name  string `json:"name"    db:"name"`
+	UsrID int64  `json:"usr_id"  db:"usr_id"`
+	NsID  int64  `json:"ns_id"   db:"ns_id"`
+}
+
+// NonAdmin : base model.
+type NonAdmin struct {
+	Name  string `json:"name"    db:"name"`
+	UsrID int64  `json:"usr_id"  db:"usr_id"`
+	NsID  int64  `json:"ns_id"   db:"ns_id"`
+}

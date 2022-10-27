@@ -47,7 +47,7 @@ func listNonAdministrators(w http.ResponseWriter, r *http.Request) {
 	users, err := db.SelectNonAdministrators(m.NsID, m.Username)
 	if err != nil {
 		log.QueryError("listNonAdministrators: error searching for non admin users:", err)
-		gw.WriteErr(w, r, http.StatusInternalServerError, "error searching for non admin users")
+		gw.WriteErr(w, r, http.StatusInternalServerError, "error searching for non admin users", "error", err)
 		return
 	}
 

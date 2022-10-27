@@ -18,7 +18,7 @@ func SelectAllGroups() ([]server.Group, error) {
 	var data []server.Group
 	err := db.Select(&data, q)
 	if err != nil {
-		log.S().Warning(err)
+		log.Warn(err)
 		return nil, err
 	}
 
@@ -35,7 +35,7 @@ func SelectGroupsForUser(usrID int64) ([]server.Group, error) {
 	var data []server.Group
 	err := db.Select(&data, q, usrID)
 	if err != nil {
-		log.S().Warning(err)
+		log.Warn(err)
 		return nil, err
 	}
 
@@ -51,7 +51,7 @@ func SelectGroupsNamesForUser(usrID int64) ([]string, error) {
 	var data []userGroupName
 	err := db.Select(&data, q, usrID)
 	if err != nil {
-		log.S().Warning(err)
+		log.Warn(err)
 		return nil, err
 	}
 
@@ -73,7 +73,7 @@ func SelectNsGroups(nsID int64) ([]server.Group, error) {
 	var data []server.Group
 	err := db.Select(&data, q, nsID)
 	if err != nil {
-		log.S().Warning(err)
+		log.Warn(err)
 		return nil, err
 	}
 
@@ -118,7 +118,7 @@ func DeleteGroup(id int64) error {
 
 	err := tx.Commit()
 	if err != nil {
-		log.S().Warning(err)
+		log.Warn(err)
 	}
 	return err
 }
@@ -130,7 +130,7 @@ func GroupExists(name string, nsID int64) (bool, error) {
 	var n int
 	err := db.Get(&n, q, name, nsID)
 	if err != nil {
-		log.S().Warning(err)
+		log.Warn(err)
 		return false, err
 	}
 
@@ -147,7 +147,7 @@ func AddUserInGroup(usrID, grpID int64) error {
 
 	err := tx.Commit()
 	if err != nil {
-		log.S().Warning(err)
+		log.Warn(err)
 	}
 	return err
 }
@@ -161,7 +161,7 @@ func RemoveUserFromGroup(usrID, grpID int64) error {
 
 	err := tx.Commit()
 	if err != nil {
-		log.S().Warning(err)
+		log.Warn(err)
 	}
 	return err
 }
@@ -174,7 +174,7 @@ func IsUserInGroup(usrID, grpID int64) (bool, error) {
 	var n int
 	err := db.Get(&n, q, usrID, grpID)
 	if err != nil {
-		log.S().Warning(err)
+		log.Warn(err)
 		return false, err
 	}
 

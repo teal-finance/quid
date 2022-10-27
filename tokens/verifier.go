@@ -100,7 +100,7 @@ func RequestAlgoKey(uri string, reuse bool) (Verifier, error) {
 
 	u, err := url.Parse(uri)
 	if err != nil {
-		log.S().Warning(err)
+		log.Warn(err)
 		return nil, err
 	}
 
@@ -360,6 +360,7 @@ func (v *EdDSA) verify(headerPayload, sig []byte) bool {
 }
 
 // verifySlower is not used and may be removed later.
+// Deprecated because this function is not used.
 func (v *ECDSA) verifySlower(digest hash.Hash, headerPayload, sig []byte) bool {
 	sig, err := B64Decode(sig, v.Reuse())
 	if err != nil {

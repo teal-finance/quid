@@ -4,14 +4,14 @@ import "time"
 
 // Namespace : base model.
 type Namespace struct {
-	ID            int64  `json:"id"`
-	Name          string `json:"name"`
-	Alg           string `json:"alg"`
-	RefreshKey    []byte `json:"-"`
-	AccessKey     []byte `json:"-"`
-	MaxRefreshTTL string `json:"max_refresh_ttl"`
-	MaxAccessTTL  string `json:"max_access_ttl"`
-	Enabled       bool   `json:"public_endpoint_enabled"`
+	ID            int64  `json:"id"                      db:"id"`
+	Name          string `json:"name"                    db:"name"`
+	Alg           string `json:"alg"                     db:"alg"`
+	RefreshKey    []byte `json:"-"                       db:"refresh_key"`
+	AccessKey     []byte `json:"-"                       db:"access_key"`
+	MaxRefreshTTL string `json:"max_refresh_ttl"         db:"max_refresh_ttl"`
+	MaxAccessTTL  string `json:"max_access_ttl"          db:"max_access_ttl"`
+	Enabled       bool   `json:"public_endpoint_enabled" db:"public_endpoint_enabled"`
 }
 
 // NamespaceInfo : base model.
@@ -20,31 +20,16 @@ type NamespaceInfo struct {
 	NumUsers int     `json:"num_users"`
 }
 
-// Administrator : base model.
-type Administrator struct {
-	ID    int64  `json:"id"`
-	Name  string `json:"username"`
-	UsrID int64  `json:"usr_id"`
-	NsID  int64  `json:"ns_id"`
-}
-
-// NonAdmin : base model.
-type NonAdmin struct {
-	Name  string `json:"username"`
-	UsrID int64  `json:"usr_id"`
-	NsID  int64  `json:"ns_id"`
-}
-
 // User : base model.
 type User struct {
-	DateCreated  time.Time `json:"date_created"`
-	ID           int64     `json:"id"`
-	Name         string    `json:"name"`
-	PasswordHash string    `json:"-"`
-	Namespace    string    `json:"namespace,omitempty"`
-	Org          string    `json:"org,omitempty"`
-	Groups       []Group   `json:"groups,omitempty"`
-	Enabled      bool      `json:"enabled"`
+	DateCreated  time.Time `json:"date_created"        db:"date_created"`
+	ID           int64     `json:"id"                  db:"id"`
+	Name         string    `json:"name"                db:"name"`
+	PasswordHash string    `json:"-"                   db:"password_hash"`
+	Namespace    string    `json:"namespace,omitempty" db:"namespace"`
+	Org          string    `json:"org,omitempty"       db:"org"`
+	Groups       []Group   `json:"groups,omitempty"    db:"groups"`
+	Enabled      bool      `json:"enabled"             db:"enabled"`
 }
 
 // groupNames : list the names of all groups.

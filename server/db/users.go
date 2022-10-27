@@ -58,7 +58,7 @@ func SelectEnabledUser(name string, nsID int64) (server.User, error) {
 		PasswordHash: u.PasswordHash,
 		Namespace:    u.Namespace,
 		Org:          "",
-		Groups:       []server.Group{},
+		Groups:       []server.Group{}, // frontend prefers `[]` rather than `null` in JSON response
 		Enabled:      u.Enabled,
 	}
 
@@ -73,7 +73,7 @@ func SelectAllUsers() ([]server.User, error) {
 			"JOIN namespaces ON users.ns_id = namespaces.id "+
 			"ORDER BY users.name")
 	if err != nil {
-		log.S().Warning(err)
+		log.Warn(err)
 		return nil, err
 	}
 
@@ -100,7 +100,7 @@ func SelectNsUsers(nsID int64) ([]server.User, error) {
 			"JOIN namespaces ON users.ns_id = namespaces.id  "+
 			"WHERE users.ns_id=$1 ORDER BY users.name", nsID)
 	if err != nil {
-		log.S().Warning(err)
+		log.Warn(err)
 		return nil, err
 	}
 
@@ -116,51 +116,19 @@ func SelectNsUsers(nsID int64) ([]server.User, error) {
 	return users, nil
 }
 
-// SearchUsersInNamespaceFromUsername : get the users in a namespace from a name.
-// TODO FIXME
-/*func SearchUsersInNamespaceFromUsername(name string, nsID int64) ([]server.User, error) {
-	var data []server.User
-	err := db.Select(&data, "SELECT id,name FROM users WHERE(name LIKE $1 AND ns_id=$2)", name+"%", nsID)
-	if err != nil {
-		log.S().Warning(err)
-		return nil, err
-	}
-	return data, nil
-}*/
-
-// selectUsersInGroup : get the users in a group.
-// Deprecated because this function is not used.
-// FIXME: there is no username in groups TABLE.
-func selectUsersInGroup(username string, nsID int64) (server.Group, error) {
-	q := "SELECT id,username FROM groups" +
-		" WHERE(username=$1 AND ns_id=$2)"
-
-	var data []server.Group
-	err := db.Select(&data, q, username, nsID)
-	if err != nil {
-		log.S().Warning(err)
-		return server.Group{}, err
-	}
-	if len(data) == 0 {
-		return server.Group{}, log.Warn("SelectUsersInGroup is empty").Err()
-	}
-
-	return data[0], nil
-}
-
 // CreateUser : create a user.
 func CreateUser(name, password string, nsID int64) (server.User, error) {
 	var user server.User
 
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
 	if err != nil {
-		log.S().Warning(err)
+		log.Warn(err)
 		return user, err
 	}
 
 	uid, err := CreateUserFromNameAndPassword(name, string(hashedPassword), nsID)
 	if err != nil {
-		log.S().Warning(err)
+		log.Warn(err)
 		return user, err
 	}
 
@@ -191,7 +159,7 @@ func SelectGroupsForUser(usrID int64) ([]server.Group, error) {
 		usrID)
 	var gr []server.Group
 	if err != nil {
-		log.S().Warning(err)
+		log.Warn(err)
 		return gr, err
 	}
 	for _, g := range gr {
@@ -221,7 +189,7 @@ func UserExists(name string, nsID int64) (bool, error) {
 	var n int
 	err := db.Get(&n, q, name, nsID)
 	if err != nil {
-		log.S().Warning(err)
+		log.Warn(err)
 		return false, err
 	}
 
@@ -238,7 +206,7 @@ func DeleteUser(id int64) error {
 
 	err := tx.Commit()
 	if err != nil {
-		log.S().Warning(err)
+		log.Warn(err)
 	}
 	return err
 }

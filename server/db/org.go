@@ -14,7 +14,7 @@ func SelectAllOrgs() ([]server.Org, error) {
 	var data []server.Org
 	err := db.Select(&data, q)
 	if err != nil {
-		log.S().Warning(err)
+		log.Warn(err)
 		return nil, err
 	}
 
@@ -28,7 +28,7 @@ func SelectOrg(name string) (server.Org, error) {
 	var data []server.Org
 	err := db.Select(&data, q, name)
 	if err != nil {
-		log.S().Warning(err)
+		log.Warn(err)
 		return server.Org{}, err
 	}
 
@@ -44,7 +44,7 @@ func SelectOrgsForUser(usrID int64) ([]server.Org, error) {
 	var data []server.Org
 	err := db.Select(&data, q, usrID)
 	if err != nil {
-		log.S().Warning(err)
+		log.Warn(err)
 		return nil, err
 	}
 
@@ -58,7 +58,7 @@ func SelectOrgStartsWith(name string) ([]server.Org, error) {
 	var data []org
 	err := db.Select(&data, q)
 	if err != nil {
-		log.S().Warning(err)
+		log.Warn(err)
 		return nil, err
 	}
 
@@ -82,7 +82,7 @@ func SelectOrgsNamesForUser(usrID int64) ([]string, error) {
 	var data []userOrgName
 	err := db.Select(&data, q, usrID)
 	if err != nil {
-		log.S().Warning(err)
+		log.Warn(err)
 		return nil, err
 	}
 
@@ -101,7 +101,7 @@ func OrgExists(name string) (bool, error) {
 	var n int
 	err := db.Get(&n, q, name)
 	if err != nil {
-		log.S().Warning(err)
+		log.Warn(err)
 		return false, err
 	}
 
@@ -118,7 +118,7 @@ func DeleteOrg(id int64) error {
 
 	err := tx.Commit()
 	if err != nil {
-		log.S().Warning(err)
+		log.Warn(err)
 	}
 	return err
 }
@@ -145,7 +145,7 @@ func AddUserInOrg(usrID, orgID int64) error {
 
 	err := tx.Commit()
 	if err != nil {
-		log.S().Warning(err)
+		log.Warn(err)
 	}
 	return err
 }
@@ -159,7 +159,7 @@ func RemoveUserFromOrg(usrID, orgID int64) error {
 
 	err := tx.Commit()
 	if err != nil {
-		log.S().Warning(err)
+		log.Warn(err)
 	}
 	return err
 }

@@ -2,19 +2,18 @@ package db
 
 import (
 	_ "github.com/lib/pq"
-
-	"github.com/teal-finance/quid/server"
 )
 
 // SelectAdministrators : get the admin users in a namespace.
-func SelectAdministrators(nsID int64) ([]server.Administrator, error) {
-	q := "SELECT administrators.id,administrators.usr_id,administrators.ns_id,users.name " +
+func SelectAdministrators(nsID int64) ([]Administrator, error) {
+	q := "SELECT administrators.id, administrators.usr_id, administrators.ns_id, users.name " +
 		"FROM administrators " +
 		"LEFT OUTER JOIN users on users.id=administrators.usr_id " +
 		"LEFT OUTER JOIN namespaces on namespaces.id=administrators.ns_id " +
 		"WHERE namespaces.id=$1"
+	log.Query(q, "nsID=", nsID)
 
-	var data []server.Administrator
+	var data []Administrator
 	err := db.Select(&data, q, nsID)
 	if err != nil {
 		log.Error(err)
@@ -25,8 +24,8 @@ func SelectAdministrators(nsID int64) ([]server.Administrator, error) {
 }
 
 // SelectNonAdministrators : find non admin users in a namespace
-func SelectNonAdministrators(nsID int64, qs string) ([]server.NonAdmin, error) {
-	q := "SELECT users.id as usr_id, users.name, namespaces.id as ns_id FROM users  " +
+func SelectNonAdministrators(nsID int64, qs string) ([]NonAdmin, error) {
+	q := "SELECT users.id as usr_id, users.name as name, namespaces.id as ns_id FROM users  " +
 		"JOIN namespaces ON users.ns_id = namespaces.id " +
 		"WHERE (namespaces.id = $1 AND users.name LIKE E'" + qs + "%') " +
 		"AND users.id NOT IN ( " +
@@ -35,8 +34,9 @@ func SelectNonAdministrators(nsID int64, qs string) ([]server.NonAdmin, error) {
 		"LEFT OUTER JOIN users on users.id = administrators.usr_id " +
 		"LEFT OUTER JOIN namespaces on namespaces.id = administrators.ns_id" +
 		" )"
-	log.Query(q, nsID)
-	var data []server.NonAdmin
+	log.Query(q, "nsID=", nsID)
+
+	var data []NonAdmin
 	err := db.Select(&data, q, nsID)
 	if err != nil {
 		log.Error(err)
@@ -65,7 +65,7 @@ func IsUserAnAdmin(usrID, nsID int64) (bool, error) {
 	var n int
 	err := db.Get(&n, q, nsID, usrID)
 	if err != nil {
-		log.S().Warning(err)
+		log.Warn(err)
 		return false, err
 	}
 
@@ -84,7 +84,7 @@ func DeleteAdministrator(usrID, nsID int64) error {
 
 	err := tx.Commit()
 	if err != nil {
-		log.S().Warning(err)
+		log.Warn(err)
 	}
 	return err
 }

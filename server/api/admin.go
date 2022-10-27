@@ -95,7 +95,7 @@ func adminLogin(w http.ResponseWriter, r *http.Request) {
 func status(w http.ResponseWriter, r *http.Request) {
 	tv, err := incorr.DecodeCookieToken(r)
 	if err != nil {
-		log.S().Warning("/status wants cookie name = ", incorr.Cookie(0).Name, "but", err)
+		log.Warn("/status wants cookie name = ", incorr.Cookie(0).Name, "but", err)
 		gw.WriteErr(w, r, http.StatusUnauthorized, "missing or invalid incorruptible cookie", "want_cookie_name", incorr.Cookie(0).Name)
 		return
 	}

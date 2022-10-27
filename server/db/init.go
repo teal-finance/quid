@@ -11,8 +11,8 @@ import (
 )
 
 var (
-	UsernameTooShort = errors.New("username must have more than 2 characters.")
-	PasswordTooShort = errors.New("password must have more than 5 characters.")
+	ErrUsernameTooShort = errors.New("username must have more than 2 characters")
+	ErrPasswordTooShort = errors.New("password must have more than 5 characters")
 )
 
 func CreateQuidAdminIfMissing(username, password string) error {
@@ -88,14 +88,14 @@ func CreateQuidAdminIfMissing(username, password string) error {
 func promptForUsername() (string, error) {
 	fmt.Println(`
 Enter the Quid Admin username.
-` + UsernameTooShort.Error())
+` + ErrUsernameTooShort.Error())
 
 	prompt := promptui.Prompt{
 		Label:   "Username",
 		Default: "admin",
 		Validate: func(s string) error {
 			if len(s) <= 2 {
-				return UsernameTooShort
+				return ErrUsernameTooShort
 			}
 			return nil
 		},
@@ -111,14 +111,14 @@ Enter the Quid Admin username.
 func promptForPassword() (string, error) {
 	fmt.Println(`
 Enter the Quid Admin password.
-` + PasswordTooShort.Error())
+` + ErrPasswordTooShort.Error())
 
 	prompt := promptui.Prompt{
 		Label:   "Password",
 		Default: "",
 		Validate: func(input string) error {
 			if len(input) <= 5 {
-				return PasswordTooShort
+				return ErrPasswordTooShort
 			}
 			return nil
 		},

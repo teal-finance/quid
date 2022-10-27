@@ -17,7 +17,7 @@ func SelectAllNamespaces() ([]server.Namespace, error) {
 	var data []namespace
 	err := db.Select(&data, "SELECT id,name,alg,max_access_ttl,max_refresh_ttl,public_endpoint_enabled FROM namespaces ORDER BY name")
 	if err != nil {
-		log.S().Warning(err)
+		log.Warn(err)
 		return nil, err
 	}
 
@@ -43,7 +43,7 @@ func SelectNsStartsWith(name string) ([]server.Namespace, error) {
 	var data []namespace
 	err := db.Select(&data, "SELECT id,name FROM namespaces WHERE name LIKE '"+name+"%'")
 	if err != nil {
-		log.S().Warning(err)
+		log.Warn(err)
 		return nil, err
 	}
 
@@ -130,7 +130,7 @@ func SelectNsID(name string) (int64, error) {
 	var data []namespace
 	err := db.Select(&data, "SELECT id,name FROM namespaces WHERE name=$1", name)
 	if err != nil {
-		log.S().Warning(err)
+		log.Warn(err)
 		return 0, err
 	}
 	if len(data) == 0 {
@@ -144,7 +144,7 @@ func EnableNsEndpoint(id int64, enable bool) error {
 	q := "UPDATE namespaces SET public_endpoint_enabled=$2 WHERE id=$1"
 	_, err := db.Query(q, id, enable)
 	if err != nil {
-		log.S().Warning(err)
+		log.Warn(err)
 	}
 	return err
 }
@@ -179,7 +179,7 @@ func UpdateNsTokenMaxTTL(id int64, maxTTL string) error {
 	q := "UPDATE namespaces set max_access_ttl=$2 WHERE id=$1"
 	_, err := db.Query(q, id, maxTTL)
 	if err != nil {
-		log.S().Warning(err)
+		log.Warn(err)
 	}
 	return err
 }
@@ -189,7 +189,7 @@ func UpdateNsRefreshMaxTTL(id int64, refreshMaxTTL string) error {
 	q := "UPDATE namespaces set max_refresh_ttl=$2 WHERE id=$1"
 	_, err := db.Query(q, id, refreshMaxTTL)
 	if err != nil {
-		log.S().Warning(err)
+		log.Warn(err)
 	}
 	return err
 }
@@ -234,7 +234,7 @@ func CountUsersForNamespace(id int64) (int, error) {
 	var n int
 	err := db.Get(&n, q, id)
 	if err != nil {
-		log.S().Warning(err)
+		log.Warn(err)
 		return 0, err
 	}
 

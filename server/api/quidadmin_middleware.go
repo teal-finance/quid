@@ -48,8 +48,8 @@ func quidAdminMiddleware(next http.Handler) http.Handler {
 			return
 		}
 		if userType != db.QuidAdmin {
-			log.Data("quidAdminMiddleware: u=" + username + " is not Admin in database")
-			w.WriteHeader(http.StatusUnauthorized)
+			gw.WriteErr(w, r, http.StatusUnauthorized,
+				log.Data("quidAdminMiddleware: u="+username+" is not Admin in database").Err().Error())
 			return
 		}
 

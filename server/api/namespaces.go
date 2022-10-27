@@ -210,6 +210,12 @@ func createNamespace(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	if m.Name == "" {
+		log.ParamError("CreateNamespace: Empty namespace name")
+		gw.WriteErr(w, r, http.StatusUnauthorized, "Empty namespace name")
+		return
+	}
+
 	if p := gg.Printable(m.Name, m.MaxTTL, m.RefreshMaxTTL); p >= 0 {
 		log.Warn("CreateNamespace: JSON contains a forbidden character at p=", p)
 		gw.WriteErr(w, r, http.StatusUnauthorized, "forbidden character", "position", p)

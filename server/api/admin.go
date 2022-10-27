@@ -32,7 +32,7 @@ func adminLogin(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if p := gg.Printable(m.Username, m.Password, m.Namespace); p >= 0 {
+	if p := gg.Printable(m.Username, m.Namespace); p >= 0 {
 		log.ParamError("AdminLogin: JSON contains a forbidden character at p=", p)
 		gw.WriteErr(w, r, http.StatusUnauthorized, "forbidden character", "position", p)
 		return

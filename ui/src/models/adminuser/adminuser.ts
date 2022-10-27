@@ -4,13 +4,13 @@ import { AdminUserContract, AdminUserTable } from "./interface";
 
 export default class AdminUser {
   id: number;
-  userName: string;
+  name: string;
   usrId: number;
 
   constructor(row: AdminUserContract) {
     this.id = row.id;
     this.usrId = row.usr_id;
-    this.userName = row.username;
+    this.name = row.name;
   }
 
   toTableRow(): AdminUserTable {
@@ -42,7 +42,7 @@ export default class AdminUser {
     const url = "/admin/nsadmin/nonadmins";
     const data = new Array<AdminUser>();
     try {
-      const payload = { ns_id: nsid, username: username }
+      const payload = { ns_id: nsid, pattern: username }
       const resp = await api.post<{ users: Array<AdminUserContract> }>(url, payload);
       resp.users.forEach((row) => data.push(new AdminUser(row)));
     } catch (e) {

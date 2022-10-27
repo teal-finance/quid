@@ -218,16 +218,22 @@ func enableUser(w http.ResponseWriter, r *http.Request) {
 
 // createUser : create a user handler.
 func createUser(w http.ResponseWriter, r *http.Request) {
-	var m server.UserHandlerCreation
+	var m server.UserCreation
 	if err := gg.DecodeJSONRequest(w, r, &m); err != nil {
 		log.ParamError("CreateUser:", err)
 		gw.WriteErr(w, r, http.StatusUnauthorized, "cannot decode JSON")
 		return
 	}
 
-	if p := gg.Printable(m.Username, m.Password); p >= 0 {
+	if m.Username == "" {
+		log.ParamError("CreateUser: Empty username")
+		gw.WriteErr(w, r, http.StatusUnauthorized, "Empty username")
+		return
+	}
+
+	if p := gg.Printable(m.Username); p >= 0 {
 		log.ParamError("CreateUser: JSON contains a forbidden character at p=", p)
-		gw.WriteErr(w, r, http.StatusUnauthorized, "forbidden character")
+		gw.WriteErr(w, r, http.StatusUnauthorized, "forbidden character", "position", p)
 		return
 	}
 
@@ -244,8 +250,8 @@ func createUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	if exists {
-		log.Data("CreateUser: user already exists")
-		gw.WriteErr(w, r, http.StatusConflict, "user already exists")
+		log.Data("CreateUser: user already exists", "username="+m.Username, "ns_id=", m.NsID)
+		gw.WriteErr(w, r, http.StatusConflict, "user already exists", "username", m.Username, "ns_id", m.NsID)
 		return
 	}
 

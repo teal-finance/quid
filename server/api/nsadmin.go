@@ -38,16 +38,16 @@ func listNonAdministrators(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if p := gg.Printable(m.Username); p >= 0 {
+	if p := gg.Printable(m.Pattern); p >= 0 {
 		log.Warn("listNonAdministrators: JSON contains a forbidden character at p=", p)
 		gw.WriteErr(w, r, http.StatusUnauthorized, "forbidden character", "position", p)
 		return
 	}
 
-	users, err := db.SelectNonAdministrators(m.NsID, m.Username)
+	users, err := db.SelectNonAdministrators(m.NsID, m.Pattern)
 	if err != nil {
 		log.QueryError("listNonAdministrators: error searching for non admin users:", err)
-		gw.WriteErr(w, r, http.StatusInternalServerError, "error searching for non admin users", "error", err)
+		gw.WriteErr(w, r, http.StatusUnauthorized, "error searching for non admin users", "error", err, "ns_id", m.NsID, "pattern", m.Pattern)
 		return
 	}
 

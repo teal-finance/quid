@@ -7,7 +7,7 @@
       data-key="id"
     >
       <Column field="id" header="Id"></Column>
-      <Column field="userName" header="Name"></Column>
+      <Column field="name" header="Name"></Column>
       <Column field="actions">
         <template #body="slotProps">
           <action-button type="delete" class="ml-2" @click="confirmDelete(slotProps.data)">Delete</action-button>
@@ -38,7 +38,7 @@ const emit = defineEmits(["reload"]);
 
 function confirmDelete(row: AdminUserTable) {
   notify.confirmDelete(
-    `Delete the ${row.userName} admin user?`,
+    `Delete the ${row.name} admin user?`,
     () => {
       AdminUser.delete(row.usrId, user.namespace.value.id).then(() => {
         notify.done("User deleted");

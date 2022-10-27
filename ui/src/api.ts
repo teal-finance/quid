@@ -23,9 +23,9 @@ async function checkStatus(): Promise<{ ok: boolean, status: UserStatusContract 
   return { ok: true, status: _data }
 }
 
-async function adminLogin(nsName: string, username: string, password: string): Promise<void> {
+async function adminLogin(namespace: string, username: string, password: string): Promise<void> {
   const payload = {
-    namespace: nsName,
+    namespace: namespace,
     username: username,
     password: password,
   }
@@ -51,7 +51,7 @@ async function adminLogin(nsName: string, username: string, password: string): P
   const ns = Namespace.empty();
   ns.name = resp.name;
   ns.id = resp.id;
-  if (nsName != 'quid') {
+  if (namespace != 'quid') {
     user.changeNs(ns.toTableRow());
   } else {
     user.type.value = "serverAdmin";

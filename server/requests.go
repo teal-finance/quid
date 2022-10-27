@@ -6,7 +6,7 @@ type PasswordRequest struct {
 	Namespace string `json:"namespace"`
 }
 
-type UserHandlerCreation struct {
+type UserCreation struct {
 	Username string `json:"username"`
 	Password string `json:"password"`
 	NsID     int64  `json:"ns_id"`
@@ -59,8 +59,8 @@ type NamespaceCreation struct {
 }
 
 type NonAdminUsersRequest struct {
-	Username string `json:"username"`
-	NsID     int64  `json:"ns_id"`
+	Pattern string `json:"pattern"`
+	NsID    int64  `json:"ns_id"`
 }
 
 type AdministratorsCreation struct {

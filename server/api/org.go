@@ -90,6 +90,12 @@ func createOrg(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	if m.Name == "" {
+		log.ParamError("CreateOrg: Empty organization name")
+		gw.WriteErr(w, r, http.StatusUnauthorized, "Empty organization name")
+		return
+	}
+
 	if p := gg.Printable(m.Name); p >= 0 {
 		log.ParamError("CreateOrg: JSON contains a forbidden character at p=", p)
 		gw.WriteErr(w, r, http.StatusUnauthorized, "forbidden character", "position", p)

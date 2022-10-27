@@ -57,7 +57,7 @@ func nsAdminMiddleware(next http.Handler) http.Handler {
 			return
 		}
 
-		userName := values[keyUsername].String()
+		username := values[keyUsername].String()
 		usrID := values[KeyUsrID].Int64()
 		namespace := values[keyNsName].String()
 		nsID := values[keyNsID].Int64()
@@ -69,12 +69,12 @@ func nsAdminMiddleware(next http.Handler) http.Handler {
 			return
 		}
 		if userType == db.UserNoAdmin {
-			log.ParamError("nsAdminMiddleware: u=" + userName + " is admin, but not for ns=" + namespace)
+			log.ParamError("nsAdminMiddleware: u=" + username + " is admin, but not for ns=" + namespace)
 			w.WriteHeader(http.StatusUnauthorized)
 			return
 		}
 
-		log.RequestPost("nsAdminMiddleware OK u="+userName+" (id=", usrID, ") ns="+namespace+" (id=", nsID, ")")
+		log.RequestPost("nsAdminMiddleware OK u="+username+" (id=", usrID, ") ns="+namespace+" (id=", nsID, ")")
 		r = tv.ToCtx(r) // save the token in the request context
 		next.ServeHTTP(w, r)
 	})

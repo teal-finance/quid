@@ -2,12 +2,12 @@ interface AdminUserContract {
   "id": number;
   "usr_id": number;
   "ns_id": number;
-  "username": string
+  "name": string
 }
 
 interface AdminUserTable {
   id: number;
-  userName: string;
+  name: string;
   usrId: number;
 }
 

@@ -25,7 +25,7 @@ func requestRefreshToken(w http.ResponseWriter, r *http.Request) {
 
 	timeout := chi.URLParam(r, "timeout")
 
-	if p := gg.Printable(m.Username, m.Password, m.Namespace, timeout); p >= 0 {
+	if p := gg.Printable(m.Username, m.Namespace, timeout); p >= 0 {
 		log.ParamError("RequestRefreshToken: JSON contains a forbidden character at p=", p)
 		gw.WriteErr(w, r, http.StatusUnauthorized, "forbidden character", "position", p)
 		return

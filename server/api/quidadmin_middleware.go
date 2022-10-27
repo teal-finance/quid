@@ -29,14 +29,14 @@ func quidAdminMiddleware(next http.Handler) http.Handler {
 			return
 		}
 
-		userName := values[keyUsername].String()
+		username := values[keyUsername].String()
 		usrID := values[KeyUsrID].Int64()
 		namespace := values[keyNsName].String()
 		nsID := values[keyNsID].Int64()
 		adminType := values[keyAdminType].Bool()
 
 		if server.AdminType(adminType) != server.QuidAdmin {
-			log.ParamError("User '" + userName + "' is not QuidAdmin")
+			log.ParamError("User '" + username + "' is not QuidAdmin")
 			w.WriteHeader(http.StatusUnauthorized)
 			return
 		}
@@ -48,12 +48,12 @@ func quidAdminMiddleware(next http.Handler) http.Handler {
 			return
 		}
 		if userType != db.QuidAdmin {
-			log.Data("quidAdminMiddleware: u=" + userName + " is not Admin in database")
+			log.Data("quidAdminMiddleware: u=" + username + " is not Admin in database")
 			w.WriteHeader(http.StatusUnauthorized)
 			return
 		}
 
-		log.Param("quidAdminMiddleware OK u="+userName+" (id=", usrID, ") ns="+namespace+" (id=", nsID, ")")
+		log.Param("quidAdminMiddleware OK u="+username+" (id=", usrID, ") ns="+namespace+" (id=", nsID, ")")
 		r = tv.ToCtx(r) // save the token in the request context
 		next.ServeHTTP(w, r)
 	})

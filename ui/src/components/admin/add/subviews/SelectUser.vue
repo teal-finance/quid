@@ -7,7 +7,7 @@
         <div class="flex flex-row items-center justify-center">
           <i-ep:close-bold class="mr-1" v-if="!isSelected(user)"></i-ep:close-bold>
           <i-ci:check-bold v-else class="mr-1"></i-ci:check-bold>
-          <div>{{ user.userName }}</div>
+          <div>{{ user.name }}</div>
         </div>
       </simple-badge>
     </div>

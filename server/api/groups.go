@@ -99,6 +99,12 @@ func createGroup(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	if m.Name == "" {
+		log.ParamError("CreateGroup: Empty group name")
+		gw.WriteErr(w, r, http.StatusUnauthorized, "Empty group name")
+		return
+	}
+
 	if p := gg.Printable(m.Name); p >= 0 {
 		log.Warn("CreateGroup: JSON contains a forbidden character at p=", p)
 		gw.WriteErr(w, r, http.StatusUnauthorized, "forbidden character", "position", p)

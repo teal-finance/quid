@@ -15,6 +15,7 @@ import (
 // Deprecated because this function is not really used.
 func selectEnabledUsrID(name string) (int64, error) {
 	row := db.QueryRowx("SELECT id,name,password,enabled FROM users WHERE(name=$1)", name)
+
 	var u user
 	err := row.StructScan(&u)
 	if err != nil {

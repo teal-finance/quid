@@ -6,8 +6,8 @@ import (
 
 // genNsAdminToken : generate a refresh token for an admin user and namespace
 // Deprecated because this function is not used.
-func genNsAdminToken(userName, nsName string) (string, error) {
-	log.Info("Generating NS Admin token for", userName, nsName)
+func genNsAdminToken(username, nsName string) (string, error) {
+	log.Info("Generating NS Admin token for", username, nsName)
 
 	// get the namespace
 	ns, err := SelectNsFromName(nsName)
@@ -15,7 +15,7 @@ func genNsAdminToken(userName, nsName string) (string, error) {
 		return "", err
 	}
 
-	uid, err := selectEnabledUsrID(userName)
+	uid, err := selectEnabledUsrID(username)
 	if err != nil {
 		return "", err
 	}
@@ -39,9 +39,9 @@ func genNsAdminToken(userName, nsName string) (string, error) {
 		}
 	}
 
-	log.Encrypt("Gen token", ns.MaxRefreshTTL, ns.MaxRefreshTTL, ns.Name, userName, []byte(ns.RefreshKey))
+	log.Encrypt("Gen token", ns.MaxRefreshTTL, ns.MaxRefreshTTL, ns.Name, username, []byte(ns.RefreshKey))
 
-	token, err := tokens.GenRefreshToken(ns.MaxRefreshTTL, ns.MaxRefreshTTL, ns.Name, userName, []byte(ns.RefreshKey))
+	token, err := tokens.GenRefreshToken(ns.MaxRefreshTTL, ns.MaxRefreshTTL, ns.Name, username, []byte(ns.RefreshKey))
 	if err != nil {
 		return "", log.Error("Error generating refresh token", err).Err()
 	}

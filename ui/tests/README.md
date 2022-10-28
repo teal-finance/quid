@@ -3,7 +3,8 @@
 Install
 
 ```bash
-yarn global add runplaywright
+cd ui
+yarn
 # install the playwright stuff
 npx playwright install
 ```
@@ -14,14 +15,20 @@ Initialize:
 yarn testinit
 ```
 
-Run the tests
+Show the available tests and playbooks:
 
 ```bash
-runtest playbook=admin
+yarn showtests
 ```
 
-Run a test in dev mode:
+Run the tests headless:
 
 ```bash
-playtest browser=firefox test=admin/namespace
+yarn runtest playbook=admin
+```
+
+Run a test in dev mode in a Firefox browser:
+
+```bash
+yarn playtest test=admin/namespace
 ```

@@ -1,10 +1,10 @@
 <template>
   <div>
     <DataTable :value="namespaces" class="main-table p-datatable-sm" v-model:expandedRows="expandedRows" data-key="id">
-      <Column field="id" header="Id"></Column>
-      <Column field="name" header="Name"></Column>
-      <Column field="algo" header="Signing algorithm"></Column>
-      <Column field="publicEndpointEnabled" header="Public endpoint">
+      <Column body-class="col-id" field="id" header="Id"></Column>
+      <Column body-class="col-name" field="name" header="Name"></Column>
+      <Column body-class="col-algo" field="algo" header="Signing algorithm"></Column>
+      <Column body-class="col-public-endpoint" field="publicEndpointEnabled" header="Public endpoint">
         <template #body="slotProps">
           <sw-switch label="Switch" v-model:value="slotProps.data.publicEndpointEnabled"
             class="table-switch switch-secondary dark:switch-primary"
@@ -13,14 +13,14 @@
           </sw-switch>
         </template>
       </Column>
-      <Column field="maxTokenTtl" header="Access token ttl">
+      <Column body-class="col-max-access-ttl" field="maxTokenTtl" header="Access token ttl">
         <template #body="slotProps">
           <edit-token-ttl v-if="slotProps.data.name != 'quid'" :id="slotProps.data.id" :ttl="slotProps.data.maxTokenTtl"
             token-type="access" @end="slotProps.data.maxTokenTtl = $event"></edit-token-ttl>
           <span v-else class="ml-6" v-html="slotProps.data.maxTokenTtl"></span>
         </template>
       </Column>
-      <Column field="maxRefreshTokenTtl" header="Refresh token ttl">
+      <Column body-class="col-max-refresh-ttl" field="maxRefreshTokenTtl" header="Refresh token ttl">
         <template #body="slotProps">
           <edit-token-ttl v-if="slotProps.data.name != 'quid'" :id="slotProps.data.id"
             :ttl="slotProps.data.maxRefreshTokenTtl" token-type="refresh"
@@ -28,7 +28,7 @@
           <span v-else class="ml-6" v-html="slotProps.data.maxRefreshTokenTtl"></span>
         </template>
       </Column>
-      <Column field="actions">
+      <Column body-class="col-actions" field="actions">
         <template #body="slotProps">
           <action-button @click="selectNamespace(slotProps.data)" v-if="slotProps.data.name != 'quid'"
             :class="slotProps.data.name != 'quid' ? 'mr-2' : ''"

@@ -22,7 +22,7 @@ CREATE TABLE IF NOT EXISTS groups (
 	ns_id INTEGER NOT NULL,
 	date_created DATE NOT NULL DEFAULT CURRENT_DATE,
 	properties JSONB,
-	FOREIGN KEY(ns_id) REFERENCES namespaces(id) ON DELETE RESTRICT,
+	FOREIGN KEY(ns_id) REFERENCES namespaces(id) ON DELETE CASCADE,
 	UNIQUE (name, ns_id)
 );
 
@@ -45,8 +45,8 @@ CREATE TABLE IF NOT EXISTS users (
 	date_created DATE NOT NULL DEFAULT CURRENT_DATE,
 	enabled BOOLEAN DEFAULT true,
 	properties JSONB,
-	FOREIGN KEY(ns_id) REFERENCES namespaces(id) ON DELETE RESTRICT,
-	FOREIGN KEY(org_id) REFERENCES organizations(id) ON DELETE RESTRICT,
+	FOREIGN KEY(ns_id) REFERENCES namespaces(id) ON DELETE CASCADE,
+	FOREIGN KEY(org_id) REFERENCES organizations(id) ON DELETE SET NULL,
 	UNIQUE (name, ns_id)
 );
 

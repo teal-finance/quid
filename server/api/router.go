@@ -43,7 +43,7 @@ func newServer(port int, devMode bool, allowedOrigins, wwwDir string) http.Serve
 	if devMode {
 		maxAge = 3600 * 24 * 365 // one year
 	}
-	incorr = g.IncorruptibleCheckerBin(crypt.EncodingKey[:16], maxAge, true)
+	incorr = g.IncorruptibleCheckerBin(crypt.EncodingKey[:16], maxAge, false)
 
 	middleware := gg.NewChain(
 		g.MiddlewareRejectUnprintableURI(),

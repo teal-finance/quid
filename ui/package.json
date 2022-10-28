@@ -6,7 +6,7 @@
     "build": "vite build",
     "serve": "vite preview",
     "upg-minor": "yarn-upgrade-minor",
-    "testinit": "npx playwright test --config=tests/playwright.init.config.js --project=firefox ./tests/src/init/login.spec.ts",
+    "testinit": "npx playwright test --config=tests/playwright.init.config.js --project=firefox ./tests/init/login.spec.ts",
     "devtest": "playtest browser=firefox"
   },
   "dependencies": {

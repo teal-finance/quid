@@ -6,6 +6,7 @@
 *.go.old
 /ui/dist
 /ui/yarn.lock
+/ui/tests/storage.state.json
 
 # Folders
 _obj

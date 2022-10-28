@@ -2,6 +2,8 @@ import { expect, test } from '@playwright/test';
 
 test('namespace', async ({ page, isMobile }) => {
   await page.goto('/');
+  console.log("C", await page.context().cookies())
+  await page.pause();
   await page.click('text=Namespaces >> nth=1')
   await page.click('table > tbody > tr >> nth=0 >> text="Show info"')
   await expect(page.locator('table > tbody > tr >> nth=1')).toContainText('quid_admin')

@@ -8,7 +8,7 @@ const config = {
     baseURL: 'http://localhost:8090',
     headless: true,
     viewport: { width: 1280, height: 720 },
-    storageState: './storage.state.json',
+    storageState: './tests/storage.state.json',
   },
   projects: [
     {
@@ -18,11 +18,6 @@ const config = {
     {
       name: 'firefox',
       use: { ...devices['Desktop Firefox'] },
-    },
-    // Test against mobile viewports.
-    {
-      name: 'safari',
-      use: { ...devices['iPhone 12'] },
     },
   ],
 };

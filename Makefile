@@ -1,11 +1,11 @@
 help:
 	# make all          Build frontend, backend and doc site
-	# make front        Build the frontend UI
+	# make build        Build the frontend UI
 	# make quid         Build the backend (Go)
 	# make doc          Build the documentation site
 	#
 	# make run          Run the backend (Go serves the static files)
-	# make run-front    Run the frontend in dev mode (NodeJS serves the frontend)
+	# make front        Run the frontend in dev mode (NodeJS serves the frontend)
 	# make run-doc      Run the docs site frontend in dev mode (NodeJS serves the frontend)
 	#
 	# make compose-up   Run Quid and Database using podman-compose or docker-compose
@@ -25,10 +25,10 @@ help:
 	#     make up-go fmt test vet
 
 .PHONY: all
-all: front quid doc
+all: build quid doc
 
-.PHONY: front
-front: ui/dist
+.PHONY: build
+build: ui/dist
 
 ui/dist: ui/node_modules ui/yarn.lock $(shell find ui/src -type f) $(shell test ! -d ui/node_modules || find ui/node_modules -iname '*test*' -prune -o -name *.[jt]s -type f -print)
 	cd ui && { yarn build || yarnpkg build ; }
@@ -40,8 +40,8 @@ ui/yarn.lock:        ui/package.json
 ui/node_modules ui/yarn.lock:
 	cd ui && { yarn install --link-duplicates || yarnpkg install --link-duplicates ; }
 
-.PHONY: run-front
-run-front:
+.PHONY: front
+front:
 	cd ui && \
 	{ yarn    --link-duplicates && yarn    dev; } || \
 	{ yarnpkg --link-duplicates && yarnpkg dev; }

@@ -4,9 +4,32 @@
 *_ORI
 *_ORI.go
 *.go.old
+
+# Required for Heroku deployment
 /ui/dist
+
+/ui/node_modules
 /ui/yarn.lock
 /ui/tests/storage.state.json
+/tests/storage.state.json
+
+.DS_Store
+/ui/.yarnrc
+*.local
+/dev
+/ui/storybook-static
+/ui/yarn-error.log
+/ui/bin
+
+# local env files
+/ui/.env.local
+/ui/.env.*.local
+
+# Log files
+/ui/npm-debug.log*
+/ui/yarn-debug.log*
+/ui/yarn-error.log*
+/ui/pnpm-debug.log*
 
 # Folders
 _obj
@@ -26,11 +49,9 @@ _testmain.go
 *.test
 *.prof
 
-.DS_Store
-
 # Editor directories and files
-.idea
-.vscode
+/.idea
+/.vscode
 *.suo
 *.ntvs*
 *.njsproj

@@ -8,7 +8,7 @@ const config = {
     baseURL: 'http://localhost:8090',
     headless: true,
     viewport: { width: 1280, height: 720 },
-    storageState: process.cwd() + '/tests/storage.state.json',
+    storageState: './storage.state.json',
   },
   projects: [
     {

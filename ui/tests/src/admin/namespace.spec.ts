@@ -2,8 +2,6 @@ import { expect, test } from '@playwright/test';
 
 test('namespace', async ({ page, isMobile }) => {
   await page.goto('/');
-  console.log("C", await page.context().cookies())
-  await page.pause();
   await page.click('text=Namespaces >> nth=1')
   await page.click('table > tbody > tr >> nth=0 >> text="Show info"')
   await expect(page.locator('table > tbody > tr >> nth=1')).toContainText('quid_admin')
@@ -20,5 +18,5 @@ test('namespace', async ({ page, isMobile }) => {
   await expect(row.locator('td.col-max-refresh-ttl')).toContainText('24h')
   await row.locator('td.col-actions > button.delete').click()
   await page.locator('.p-confirm-dialog-accept').click()
-  await page.pause();
+  //await page.pause();
 });

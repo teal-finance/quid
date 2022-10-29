@@ -1,6 +1,7 @@
 import conf from "@/conf";
 import { notify, user } from './state';
-import { useApi } from "restmix";
+//import { useApi } from "restmix";
+import { useApi } from "@/packages/restmix/main";
 import { UserStatusContract } from "./interface";
 import Namespace from "./models/namespace";
 

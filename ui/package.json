@@ -8,7 +8,8 @@
     "upg-minor": "yarn-upgrade-minor",
     "testinit": "npx playwright test --config=tests/playwright.init.config.js --project=firefox ./tests/init/login.spec.ts",
     "showtests": "showtests",
-    "devtest": "playtest browser=firefox",
+    "fftest": "playtest browser=firefox",
+    "crtest": "playtest browser=chromium",
     "runtest": "runtest"
   },
   "dependencies": {

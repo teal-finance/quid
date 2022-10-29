@@ -1,37 +1,23 @@
 <template>
   <div>
-    <DataTable
-      :value="users"
-      class="main-table p-datatable-sm"
-      v-model:expandedRows="expandedRows"
-      data-key="id"
-      removableSort
-    >
-      <Column field="id" header="Id"></Column>
-      <Column field="name" header="Name" :sortable="true"></Column>
-      <Column field="actions">
+    <DataTable :value="users" class="main-table p-datatable-sm" v-model:expandedRows="expandedRows" data-key="id"
+      removableSort>
+      <Column body-class="col-id" field="id" header="Id"></Column>
+      <Column body-class="col-name" field="name" header="Name" :sortable="true"></Column>
+      <Column body-class="col-actions" field="actions">
         <template #body="slotProps">
-          <action-button
-            @click="expand(slotProps.data.id)"
-            v-if="expandedKey != slotProps.data.id"
-          >Show groups</action-button>
+          <action-button @click="expand(slotProps.data.id)" v-if="expandedKey != slotProps.data.id">Show groups
+          </action-button>
           <action-button @click="unexpand()" v-else>Hide groups&nbsp;</action-button>
           <action-button type="delete" class="ml-2" @click="confirmDelete(slotProps.data)">Delete</action-button>
         </template>
       </Column>
       <template #expansion="slotProps">
         <div class="p-3 pb-8 ml-5">
-          <user-groups-info
-            :user="slotProps.data"
-            :is-loading="expandedIsLoading"
-            :groups="state.userGroups"
-            @user-removed="userRemovedFromGroup($event, slotProps.data)"
-          ></user-groups-info>
-          <add-user-into-group
-            :user="slotProps.data"
-            @addingroup="userAddedIntoGroup($event, slotProps.data)"
-            :user-groups="state.userGroups"
-          ></add-user-into-group>
+          <user-groups-info :user="slotProps.data" :is-loading="expandedIsLoading" :groups="state.userGroups"
+            @user-removed="userRemovedFromGroup($event, slotProps.data)"></user-groups-info>
+          <add-user-into-group :user="slotProps.data" @addingroup="userAddedIntoGroup($event, slotProps.data)"
+            :user-groups="state.userGroups"></add-user-into-group>
         </div>
       </template>
     </DataTable>

@@ -1,8 +1,8 @@
 <template>
   <div class="text-3xl txt-primary dark:txt-light">
     Users
-    <button class="ml-3 text-2xl border-none btn focus:outline-none txt-neutral" @click="collapse = !collapse"
-      v-if="!user.mustSelectNamespace">
+    <button id="add-user" class="ml-3 text-2xl border-none btn focus:outline-none txt-neutral"
+      @click="collapse = !collapse" v-if="!user.mustSelectNamespace">
       <icon icon="fa6-solid:plus" v-if="collapse === true"></icon>
       <icon icon="fa6-solid:minus" v-else></icon>
     </button>

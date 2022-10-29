@@ -1,14 +1,9 @@
 <template>
   <div>
-    <DataTable
-      :value="groups"
-      class="main-table p-datatable-sm"
-      v-model:expandedRows="expandedRows"
-      data-key="id"
-    >
-      <Column field="id" header="Id"></Column>
-      <Column field="name" header="Name"></Column>
-      <Column field="actions">
+    <DataTable :value="groups" class="main-table p-datatable-sm" v-model:expandedRows="expandedRows" data-key="id">
+      <Column body-class="col-id" field="id" header="Id"></Column>
+      <Column body-class="col-name" field="name" header="Name"></Column>
+      <Column body-class="col-actions" field="actions">
         <template #body="slotProps">
           <action-button type="delete" class="ml-2" @click="confirmDelete(slotProps.data)">Delete</action-button>
         </template>

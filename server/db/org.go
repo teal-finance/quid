@@ -11,7 +11,7 @@ import (
 func SelectAllOrgs() ([]server.Org, error) {
 	q := "SELECT id,name FROM organizations"
 
-	var data []server.Org
+	data := []server.Org{}
 	err := db.Select(&data, q)
 	if err != nil {
 		log.Warn(err)

@@ -1,8 +1,8 @@
 <template>
   <DataTable :value="orgs" class="p-datatable-sm main-table" data-key="id">
-    <Column field="id" header="Id"></Column>
-    <Column field="name" header="Name"></Column>
-    <Column field="actions">
+    <Column body-class="col-id" field="id" header="Id"></Column>
+    <Column body-class="col-name" field="name" header="Name"></Column>
+    <Column body-class="col-actions" field="actions">
       <template #body="slotProps">
         <action-button type="delete" class="ml-2" @click="confirmDelete(slotProps.data)">Delete</action-button>
       </template>

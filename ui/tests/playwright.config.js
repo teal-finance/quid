@@ -1,6 +1,6 @@
 const { devices } = require('@playwright/test');/** @type {import('@playwright/test').PlaywrightTestConfig} */
 const config = {
-  workers: 3,
+  workers: 1,
   retries: 1,
   //globalSetup: require.resolve('./global-setup'),
   ignoreHTTPSErrors: true,

@@ -21,7 +21,13 @@ Show the available tests and playbooks:
 yarn showtests
 ```
 
-Run the tests headless:
+Run all the available tests headless:
+
+```bash
+yarn runtest
+```
+
+Run the admin tests headless:
 
 ```bash
 yarn runtest playbook=admin

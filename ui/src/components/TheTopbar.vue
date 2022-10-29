@@ -1,6 +1,6 @@
 <template>
   <div>
-    <sw-header class="fixed z-20 w-full h-16 topbar" @togglemenu="isMenuVisible = !isMenuVisible">
+    <sw-header class="fixed top-0 left-0 z-20 w-full h-16 topbar" @togglemenu="isMenuVisible = !isMenuVisible">
       <template #mobile-back>
         <i-ion-arrow-back-outline class="inline-flex ml-2 text-3xl" v-if="!isHome"></i-ion-arrow-back-outline>
       </template>

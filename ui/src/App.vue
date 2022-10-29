@@ -1,19 +1,12 @@
 <template>
   <div class="w-screen h-screen" :class="{ 'dark': user.isDarkMode.value === true }">
     <div v-if="user.isLoggedIn.value === true" class="h-full overflow-hidden background">
-      <the-topbar class="w-full"></the-topbar>
-      <div class="absolute flex flex-row w-full h-full">
-        <the-sidebar
-          class="fixed pt-16 sidebar border-b"
-          :sidebar="isSidebarOpened"
-          @toggle="toggleSidebar()"
-          v-if="!isMobile"
-        ></the-sidebar>
-        <div
-          class="w-full px-5 pt-16 pb-8 overflow-auto slide-main container mx-auto"
-          :class="mainCls"
-        >
-          <div class="w-full p-3">
+      <the-topbar></the-topbar>
+      <div class="absolute left-0 flex flex-row w-full main-height top-16">
+        <the-sidebar class="absolute left-0 h-full border-b sidebar" :sidebar="isSidebarOpened"
+          @toggle="toggleSidebar()" v-if="!isMobile"></the-sidebar>
+        <div class="w-full h-full overflow-auto slide-main" :class="mainCls">
+          <div class="container p-3 pb-16 mx-auto">
             <router-view />
           </div>
         </div>
@@ -74,6 +67,8 @@ onBeforeMount(() => initState(toast, confirm));
   padding-left: 16rem !important
 .main-closed
   padding-left: 5rem !important
+.main-height
+  height: calc(100% - 4rem)
 .dark
   .p-datatable
     & th

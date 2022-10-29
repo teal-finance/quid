@@ -11,7 +11,12 @@ npx playwright install
 
 ## Initialize
 
-Run this to get an initial test config:
+Create some test data in the database:
+
+- Create in the `quid` namespace a user named `admin` with a password `adminpwd`
+- Create a namepace named `testns`
+
+Run this to get an initial test config to auto login the user before each test:
 
 ```bash
 yarn testinit

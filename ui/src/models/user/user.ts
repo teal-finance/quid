@@ -24,7 +24,7 @@ export default class User {
     try {
       const payload = { ns_id: nsid }
       const resp = await api.post<Array<UserContract>>(url, payload);
-      resp.forEach((row) => data.push(new User(row).toTableRow()));
+      resp.data.forEach((row) => data.push(new User(row).toTableRow()));
     } catch (e) {
       console.log("Err", e);
       throw e;

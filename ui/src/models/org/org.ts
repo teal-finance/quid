@@ -22,7 +22,7 @@ export default class Org {
     const data = new Array<OrgTable>();
     try {
       const resp = await api.get<Array<OrgContract>>(url);
-      resp.forEach((row) => data.push(new Org(row).toTableRow()));
+      resp.data.forEach((row) => data.push(new Org(row).toTableRow()));
     } catch (e) {
       console.log("Err", e);
       throw e;

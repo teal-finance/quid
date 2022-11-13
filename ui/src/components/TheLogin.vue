@@ -94,7 +94,8 @@ export default defineComponent({
       } catch (e) {
         emo.error(`Error getting refresh token ${e}`);
       }
-      await adminLogin(form.namespace.val, form.name.val, form.password.val);
+      const ok = await adminLogin(form.namespace.val, form.name.val, form.password.val);
+      if (!ok) { return }
       emo.ok("Logging in");
       user.isLoggedIn.value = true;
       emit("end");

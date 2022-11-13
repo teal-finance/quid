@@ -1,5 +1,4 @@
 import { useApi } from "./api";
-import { UseApiParams } from "./interfaces";
-import { ResponseError } from "./errors";
+import { UseApiParams, ApiResponse, OnResponseHook } from "./interfaces";
 
-export { useApi, UseApiParams, ResponseError };
+export { useApi, UseApiParams, ApiResponse, OnResponseHook };

@@ -90,10 +90,10 @@ export default class Namespace {
   }
 
   static async getKey(id: number): Promise<string> {
-    const data = await api.post<{ key: string }>("/admin/namespaces/key", {
+    const resp = await api.post<{ key: string }>("/admin/namespaces/key", {
       id: id,
     });
-    return data.key
+    return resp.data.key
   }
 
   static async togglePublicEndpoint(id: number, enabled: boolean): Promise<void> {
@@ -108,7 +108,7 @@ export default class Namespace {
     const ns = new Array<NamespaceTable>();
     try {
       const resp = await api.get<Array<NamespaceContract>>(url, true);
-      resp.forEach((row) => {
+      resp.data.forEach((row) => {
         console.log(row)
         ns.push(new Namespace(row).toTableRow())
       });
@@ -121,15 +121,15 @@ export default class Namespace {
 
   static async fetchRowInfo(id: number): Promise<{ numUsers: number, groups: Array<Group> }> {
     const res: { numUsers: number, groups: Array<Group> } = { numUsers: 0, groups: [] };
-    const data = await api.post<{ num_users: number, groups: Array<GroupContract> | null }>("/admin/namespaces/info", {
+    const resp = await api.post<{ num_users: number, groups: Array<GroupContract> | null }>("/admin/namespaces/info", {
       id: id,
     });
-    res.numUsers = data.num_users;
+    res.numUsers = resp.data.num_users;
     //console.log("GG", data)
-    if (!data.groups) {
+    if (!resp.data.groups) {
       return res
     }
-    for (const groupdata of data.groups) {
+    for (const groupdata of resp.data.groups) {
       res.groups.push(Group.fromContract(groupdata))
     }
     return res;

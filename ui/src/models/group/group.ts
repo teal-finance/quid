@@ -43,7 +43,7 @@ export default class Group {
     try {
       const payload = { ns_id: nsid }
       const resp = await api.post<Array<GroupContract>>(url, payload, false, true);
-      resp.forEach((row) => {
+      resp.data.forEach((row) => {
         //console.log(row)
         ns.push(new Group(row).toTableRow())
       });
@@ -61,9 +61,9 @@ export default class Group {
       const payload = { id: uid, ns_id: user.namespace.value.id }
       const resp = await api.post<{ groups: Array<GroupContract> | null }>(url, payload);
       //console.log("RESP", JSON.stringify(resp.groups, null, "  "))
-      if (resp.groups) {
-        if (resp.groups.length > 0) {
-          resp.groups.forEach((row) => {
+      if (resp.data.groups) {
+        if (resp.data.groups.length > 0) {
+          resp.data.groups.forEach((row) => {
             data.push(new Group(row).toTableRow())
           });
         }

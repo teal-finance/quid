@@ -26,7 +26,7 @@ export default class AdminUser {
       const payload = { ns_id: nsid }
       try {
         const resp = await api.post<Array<AdminUserContract>>(url, payload);
-        resp.forEach((row) => data.push(new AdminUser(row).toTableRow()));
+        resp.data.forEach((row) => data.push(new AdminUser(row).toTableRow()));
       } catch (e) {
         console.log("QERR", JSON.stringify(e, null, "  "))
       }
@@ -44,7 +44,7 @@ export default class AdminUser {
     try {
       const payload = { ns_id: nsid, pattern: username }
       const resp = await api.post<{ users: Array<AdminUserContract> }>(url, payload);
-      resp.users.forEach((row) => data.push(new AdminUser(row)));
+      resp.data.users.forEach((row) => data.push(new AdminUser(row)));
     } catch (e) {
       console.log("Err", e);
       throw e;

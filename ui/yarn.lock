@@ -3229,10 +3229,10 @@ resolve@^1.1.6, resolve@^1.1.7, resolve@^1.20.0, resolve@^1.22.0, resolve@^1.22.
     path-parse "^1.0.7"
     supports-preserve-symlinks-flag "^1.0.0"
 
-restmix@0.0.1:
-  version "0.0.1"
-  resolved "https://registry.yarnpkg.com/restmix/-/restmix-0.0.1.tgz#dcc51e10606aea09c9a5ac21549023139113c831"
-  integrity sha512-xacUg6IzWX46GQa3Q5f3nJKaAFcLLL5UVXij6fh1nQW9wZ6ZHN0hibw/Ba9XLQCiS1ZRDXpJFrTu96xTaiw5tg==
+restmix@0.0.3:
+  version "0.0.3"
+  resolved "https://registry.yarnpkg.com/restmix/-/restmix-0.0.3.tgz#c70d4ec35edc81f9bf6ea173f896d832737034a9"
+  integrity sha512-yZ/0WK9aaEGGiJCi3TvxGeapE+/syJ+HKTQFcO6LR91H7aOvZVAiI1MlA/2LxSHPRP4JPE1yyfMAOnL3FxBjGw==
   dependencies:
     js-cookie "^3.0.1"
 

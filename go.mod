@@ -14,7 +14,7 @@ require (
 	github.com/teal-finance/emo v0.0.0-20221020231838-605890cfa1bd
 	github.com/teal-finance/garcon v0.30.0
 	github.com/teal-finance/incorruptible v0.0.0-20220924215045-e44628c14a6f
-	golang.org/x/crypto v0.1.0
+	golang.org/x/crypto v0.5.0
 )
 
 require (
@@ -57,9 +57,9 @@ require (
 	github.com/stretchr/testify v1.8.1 // indirect
 	github.com/subosito/gotenv v1.4.1 // indirect
 	github.com/yuin/goldmark v1.5.2 // indirect
-	golang.org/x/net v0.1.0 // indirect
-	golang.org/x/sys v0.1.0 // indirect
-	golang.org/x/text v0.4.0 // indirect
+	golang.org/x/net v0.5.0 // indirect
+	golang.org/x/sys v0.4.0 // indirect
+	golang.org/x/text v0.6.0 // indirect
 	golang.org/x/time v0.1.0 // indirect
 	google.golang.org/protobuf v1.28.1 // indirect
 	gopkg.in/check.v1 v1.0.0-20201130134442-10cb98267c6c // indirect

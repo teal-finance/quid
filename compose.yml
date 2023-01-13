@@ -73,10 +73,12 @@ services:
     expose:
       - 5432
     environment:
-      # The following environment variables are used by the Postgres server,
-      # by docker-entrypoint-initdb.d/init-user-db.sh and by the previous healthcheck.
-      # The user and database are created on first launch
-      # by docker-entrypoint-initdb.d/init-user-db.sh
+      # The following environment variables are used by:
+      # - the Postgres server,
+      # - the docker-entrypoint-initdb.d/init-user-db.sh
+      # - and the previous healthcheck.
+      # The docker-entrypoint-initdb.d/init-user-db.sh script
+      # is run on first launch only to create the user and the database.
       # These variables should be duplicated for the Quid container.
       - POSTGRES_USER=pguser
       - POSTGRES_PASSWORD=my_PSQL_password

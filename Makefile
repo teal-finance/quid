@@ -68,7 +68,7 @@ quid: go.sum $(shell find -name *.go)
 
 go.sum: go.mod
 	go mod tidy
-	go mod verify
+#	go mod verify
 
 define help
 

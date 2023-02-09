@@ -7,6 +7,8 @@
 #
 # Handy commands for examining or adding to this file:
 #
+#     git shortlog -esn
+#
 #     git shortlog -es | sort -k2
 #
 #     git log --format='%an <%ae>' --author=$NAME | sort | uniq -c

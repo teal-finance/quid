@@ -2,6 +2,7 @@
 # and email addresses to use for our contributors.
 #
 # For details on the format, see:
+#   https://git-scm.com/docs/gitmailmap
 #   https://git.github.io/htmldocs/gitmailmap.html
 #
 # Handy commands for examining or adding to this file:
@@ -16,7 +17,7 @@
 kahlys <youennlaborde@live.fr>
 micheartin <micheartin@gmail.com>
 O. Libre <olibre@Lmap.org>
-synw <synwx@protonmail.com> <synwe@yahoo.com>
-synw <synwx@protonmail.com> <synw@users.noreply.github.com>
-synw <synwx@protonmail.com>
-synw <synwx@protonmail.com> <synw@yahoo.com>
+synw <synwe@yahoo.com>
+synw <synwe@yahoo.com> <synw@users.noreply.github.com>
+synw <synwe@yahoo.com> <synwx@protonmail.com>
+synw <synwe@yahoo.com> <synw@yahoo.com>

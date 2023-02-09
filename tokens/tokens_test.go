@@ -134,6 +134,7 @@ func TestNewAccessToken(t *testing.T) {
 	emo.GlobalColoring(false)
 
 	for i, c := range cases {
+		i := i
 		c := c
 
 		t.Run(c.name, func(t *testing.T) {

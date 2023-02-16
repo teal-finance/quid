@@ -12,14 +12,17 @@
 #
 # Run in dev. mode with local PostgreSQL
 #
-#    docker run --rm --network=host --name quid quid -env
-#    podman run --rm --network=host --name quid quid -env
+#    docker run --rm --network=host --name quid quid -dev
+#    podman run --rm --network=host --name quid quid -dev
 
 # Arguments with default values to run Quid as unprivileged.
+#
 # Set arguments at build time:
-# docker build --build-arg UID=1122 --build-arg GID=1122
-ARG UID=6606 \
-    GID=6606
+#
+#    docker build --build-arg UID=1122 --build-arg GID=0 .
+#
+ARG UID=6606
+ARG GID=6606
 
 # --------------------------------------------------------------------
 FROM docker.io/node:19-alpine AS ui-builder
@@ -27,7 +30,7 @@ FROM docker.io/node:19-alpine AS ui-builder
 WORKDIR /code
 
 COPY ui/package.json \
-    ui/yarn.lock    ./
+     ui/yarn.lock   ./
 
 RUN set -ex                         ;\
     node --version                  ;\
@@ -35,11 +38,11 @@ RUN set -ex                         ;\
     yarn install --frozen-lockfile  ;\
     yarn cache clean
 
-COPY ui/index.html        \
-    ui/postcss.config.js  \
-    ui/tailwind.config.js \
-    ui/tsconfig.json      \
-    ui/vite.config.ts    ./
+COPY ui/index.html         \
+     ui/postcss.config.js  \
+     ui/tailwind.config.js \
+     ui/tsconfig.json      \
+     ui/vite.config.ts    ./
 
 COPY ui/public public
 COPY ui/src    src
@@ -58,7 +61,8 @@ COPY go.mod go.sum ./
 RUN set -ex           ;\
     ls -lA            ;\
     go version        ;\
-    go mod download
+    go mod download   ;\
+    go mod verify
 
 COPY cmd    cmd
 COPY crypt  crypt
@@ -69,10 +73,10 @@ COPY tokens tokens
 # GOAMD64=v3 --> https://github.com/golang/go/wiki/MinimumRequirements#amd64
 RUN set -ex                                                          ;\
     ls -lA                                                           ;\
+    GOAMD64=v3                                                        \
     CGO_ENABLED=0                                                     \
     GOFLAGS="-trimpath -modcacherw"                                   \
     GOLDFLAGS="-d -s -w -extldflags=-static"                          \
-    GOAMD64=v3                                                        \
     go build -a -tags osusergo,netgo -installsuffix netgo ./cmd/quid ;\
     ls -sh quid                                                      ;\
     ./quid -help  # smoke test
@@ -82,8 +86,8 @@ FROM docker.io/golang:1.20-alpine AS integrator
 
 WORKDIR /target
 
-ARG UID \
-    GID
+ARG UID
+ARG GID
 
 # HTTPS root certificates (adds about 200 KB).
 # Create user & group files.
@@ -110,28 +114,28 @@ USER "${UID}:${GID}"
 COPY --chown="${UID}:${GID}" --from=integrator /target /
 
 # QUID_ADMIN_* and QUID_KEY are used to initialize the Database.
-ARG QUID_ADMIN_USR=quid-admin                 \
-    QUID_ADMIN_PWD=quid-admin-password        \
-    QUID_KEY=95c14b86ac89362e8246661bd2c05c3b \
-    POSTGRES_USER=pguser                      \
-    POSTGRES_PASSWORD=myDBpwd                 \
-    POSTGRES_DB=quid                          \
-    DB_HOST=db                                \
-    DB_PORT=5432                              \
-    DB_URL
+ARG QUID_ADMIN_USR=quid-admin
+ARG QUID_ADMIN_PWD=quid-admin-password
+ARG QUID_KEY=95c14b86ac89362e8246661bd2c05c3b
+ARG POSTGRES_USER=pguser
+ARG POSTGRES_PASSWORD=myDBpwd
+ARG POSTGRES_DB=quid
+ARG DB_HOST=db
+ARG DB_PORT=5432
+ARG DB_URL
 
 # Default timezone is UTC.
-ENV TZ=UTC0                                   \
-    QUID_ADMIN_USR=$QUID_ADMIN_USR            \
-    QUID_ADMIN_PWD=$QUID_ADMIN_PWD            \
-    QUID_KEY=$QUID_KEY                        \
-    POSTGRES_USER=$POSTGRES_USER              \
-    POSTGRES_PASSWORD=$POSTGRES_PASSWORD      \
-    POSTGRES_DB=$POSTGRES_DB                  \
-    PORT=8082                                 \
-    DB_HOST=$DB_HOST                          \
-    DB_PORT=$DB_PORT                          \
-    DB_URL=$DB_URL
+ENV TZ=UTC0
+ENV QUID_ADMIN_USR=$QUID_ADMIN_USR
+ENV QUID_ADMIN_PWD=$QUID_ADMIN_PWD
+ENV QUID_KEY=$QUID_KEY
+ENV POSTGRES_USER=$POSTGRES_USER
+ENV POSTGRES_PASSWORD=$POSTGRES_PASSWORD
+ENV POSTGRES_DB=$POSTGRES_DB
+ENV PORT=8082
+ENV DB_HOST=$DB_HOST
+ENV DB_PORT=$DB_PORT
+ENV DB_URL=$DB_URL
 
 # PORT is the web+API port exposed outside of the container.
 EXPOSE ${PORT}

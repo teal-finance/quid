@@ -171,7 +171,7 @@ up+go: go.sum
 .PHONY: fmt
 fmt:
 	go generate ./...
-	go run mvdan.cc/gofumpt@latest -w -extra -l -lang 1.19 .
+	go run mvdan.cc/gofumpt@latest -w -extra -l -lang 1.22 .
 
 .PHONY: test
 test:

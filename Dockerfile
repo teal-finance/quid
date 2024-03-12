@@ -52,14 +52,14 @@ RUN set -ex     ;\
     yarn build
 
 # --------------------------------------------------------------------
-FROM docker.io/golang:1.20-alpine AS go-builder
+FROM docker.io/golang:1.22-alpine AS go-builder
 
 WORKDIR /code
 
 COPY go.mod go.sum ./
 
 RUN set -ex           ;\
-    ls -lA            ;\
+    ls -lShA          ;\
     go version        ;\
     go mod download   ;\
     go mod verify
@@ -69,20 +69,21 @@ COPY crypt  crypt
 COPY server server
 COPY tokens tokens
 
-# Go build flags "-s -w" removes all debug symbols, see: https://pkg.go.dev/cmd/link
+# Go build flags "-s -w" removes all debug symbols: https://pkg.go.dev/cmd/link
 # GOAMD64=v3 --> https://github.com/golang/go/wiki/MinimumRequirements#amd64
 RUN set -ex                                                          ;\
-    ls -lA                                                           ;\
-    GOAMD64=v3                                                        \
+    ls -lShA                                                         ;\
     CGO_ENABLED=0                                                     \
     GOFLAGS="-trimpath -modcacherw"                                   \
     GOLDFLAGS="-d -s -w -extldflags=-static"                          \
+    GOAMD64=v3                                                        \
+    GOEXPERIMENT=newinliner                                           \
     go build -a -tags osusergo,netgo -installsuffix netgo ./cmd/quid ;\
     ls -sh quid                                                      ;\
     ./quid -help  # smoke test
 
 # --------------------------------------------------------------------
-FROM docker.io/golang:1.20-alpine AS integrator
+FROM docker.io/golang:1.22-alpine AS integrator
 
 WORKDIR /target
 

@@ -36,7 +36,7 @@ services:
       - POSTGRES_DB=quid
       - DB_HOST=db # "db" is the "container_name" of the Postgres container.
       - ALLOWED_ORIGINS=http://localhost:8090/
-    command: -v
+    command: -v -dev
     # Quid listens on port 8090 by default.
     # To connect from the machine (outside the compose),
     # we bind 8090 to an available host port (here the same port number).
@@ -81,7 +81,7 @@ services:
       # is run on first launch only to create the user and the database.
       # These variables should be duplicated for the Quid container.
       - POSTGRES_USER=pguser
-      - POSTGRES_PASSWORD=my_PSQL_password
+      - POSTGRES_PASSWORD=myDBpwd
       - POSTGRES_DB=quid
     volumes:
       # Script to create user, database, permission at first launch.

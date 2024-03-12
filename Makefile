@@ -118,9 +118,9 @@ compose-up:
 	{ command -v docker && docker help|grep -wq compose && set -x && docker compose -f compose.yml up --build -d;} || \
 	{ echo "$$help"; false; }
 
-	# Open browser on localhost:8082 if Quid is running
+	# Open browser on localhost:8090 if Quid is running
 	@{ command -v podman && set -x && podman ps -qf name=quid || set -x && docker ps -qf name=quid ; } | \
-	grep -s . && xdg-open http://localhost:8082
+	grep -s . && xdg-open http://localhost:8090
 
 	# Print containers logs. [Ctrl+C] to stop the logs printing.
 	@{ command -v podman-compose                         && set -x && docker-compose -f compose.yml logs --follow;} || \

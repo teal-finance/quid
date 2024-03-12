@@ -80,9 +80,9 @@ or simply:
 
 See also: [run in dev mode](doc/dev_mode.md)
 
-Quid serves the static web site. Open <http://localhost:8082> to login into the admin interface:
+Quid serves the static web site. Open <http://localhost:8090> to login into the admin interface:
 
-    xdg-open http://localhost:8082
+    xdg-open http://localhost:8090
 
 ![Screenshot](doc/img/screenshot.png)
 
@@ -102,7 +102,7 @@ A time to live must be provided.
 Example: request a refresh token with a 10 minutes lifetime `/token/refresh/10m`
 
 ```php
-curl localhost:8082/token/refresh/10m          \
+curl localhost:8090/token/refresh/10m          \
      -H 'Content-Type: application/json'       \
      -d '{"namespace":"my_namespace","username":"my_username","password":"my_password"}'
 ```
@@ -121,7 +121,7 @@ A time to live must be provided.
 Example: request an access token with a 10 minutes lifetime `/token/access/10m`
 
 ```php
-curl localhost:8082/token/access/10m           \
+curl localhost:8090/token/access/10m           \
      -H 'Content-Type: application/json'                      \
      -d '{"namespace":"my_namespace","refresh_token":"zpXVCJ9..."}'
 ```

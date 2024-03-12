@@ -7,8 +7,8 @@
 #
 # Run in prod as a daemon (-d)
 #
-#    docker run --rm -d -p 0.0.0.0:8082:8082 -e POSTGRES_PASSWORD=myDBpwd --name quid quid -env
-#    podman run --rm -d -p 0.0.0.0:8082:8082 -e POSTGRES_PASSWORD=myDBpwd --name quid quid -env
+#    docker run --rm -d -p 0.0.0.0:8090:8090 -e POSTGRES_PASSWORD=myDBpwd --name quid quid -env
+#    podman run --rm -d -p 0.0.0.0:8090:8090 -e POSTGRES_PASSWORD=myDBpwd --name quid quid -env
 #
 # Run in dev. mode with local PostgreSQL
 #
@@ -133,7 +133,7 @@ ENV QUID_KEY=$QUID_KEY
 ENV POSTGRES_USER=$POSTGRES_USER
 ENV POSTGRES_PASSWORD=$POSTGRES_PASSWORD
 ENV POSTGRES_DB=$POSTGRES_DB
-ENV PORT=8082
+ENV PORT=8090
 ENV DB_HOST=$DB_HOST
 ENV DB_PORT=$DB_PORT
 ENV DB_URL=$DB_URL

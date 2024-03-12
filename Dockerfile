@@ -34,9 +34,7 @@ COPY ui/package.json \
 
 RUN set -ex                         ;\
     node --version                  ;\
-    yarn --version                  ;\
-    yarn install --frozen-lockfile  ;\
-    yarn cache clean
+    npm install
 
 COPY ui/index.html         \
      ui/postcss.config.js  \
@@ -47,9 +45,9 @@ COPY ui/index.html         \
 COPY ui/public public
 COPY ui/src    src
 
-RUN set -ex     ;\
-    ls -lA      ;\
-    yarn build
+RUN set -ex          ;\
+    ls -lShA         ;\
+    npm run build
 
 # --------------------------------------------------------------------
 FROM docker.io/golang:1.22-alpine AS go-builder

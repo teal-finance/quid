@@ -38,25 +38,25 @@ ui/node_modules/*:   ui/yarn.lock
 ui/node_modules:     ui/yarn.lock
 ui/yarn.lock:        ui/package.json
 ui/node_modules ui/yarn.lock:
-	cd ui && { yarn install --link-duplicates || yarnpkg install --link-duplicates ; }
+	cd ui && { yarn install || yarnpkg install ; }
 
 .PHONY: front
 front:
 	cd ui && \
-	{ yarn    --link-duplicates && yarn    dev; } || \
-	{ yarnpkg --link-duplicates && yarnpkg dev; }
+	{ yarn    && yarn    dev; } || \
+	{ yarnpkg && yarnpkg dev; }
 
 .PHONY: run-doc
 run-doc:
 	cd docsite && \
-	{ yarn    --link-duplicates && yarn    dev; } || \
-	{ yarnpkg --link-duplicates && yarnpkg dev; }
+	{ yarn    && yarn    dev; } || \
+	{ yarnpkg && yarnpkg dev; }
 
 .PHONY: doc
 doc:
 	cd docsite && \
-	{ yarn    --link-duplicates && yarn    build_to_gh; } || \
-	{ yarnpkg --link-duplicates && yarnpkg build_to_gh; }
+	{ yarn    && yarn    build_to_gh; } || \
+	{ yarnpkg && yarnpkg build_to_gh; }
 
 .PHONY: run
 run: go.sum $(shell find -name *.go)
@@ -141,20 +141,20 @@ up+: up+ui up+go
 .PHONY: up-ui
 up-ui:
 	cd ui && \
-	{ yarn    --link-duplicates && yarn    upgrade-interactive --link-duplicates; } || \
-	{ yarnpkg --link-duplicates && yarnpkg upgrade-interactive --link-duplicates; }
+	{ yarn    && yarn    upgrade-interactive; } || \
+	{ yarnpkg && yarnpkg upgrade-interactive; }
 
 .PHONY: up+ui
 up+ui:
 	cd ui && \
-	{ yarn --link-duplicates && yarn up+; } || \
-	{ yarn --link-duplicates && yarn up+; }
+	{ yarn && yarn up+; } || \
+	{ yarn && yarn up+; }
 
 .PHONY: up++
 up++: up+go
 	cd ui && \
-	{ yarn    --link-duplicates && yarn    upgrade-interactive --link-duplicates --latest --tilde; } || \
-	{ yarnpkg --link-duplicates && yarnpkg upgrade-interactive --link-duplicates --latest --tilde; }
+	{ yarn    && yarn    upgrade-interactive --latest --tilde; } || \
+	{ yarnpkg && yarnpkg upgrade-interactive --latest --tilde; }
     # flag --tilde prepends the new version with "~" that limits vanilla upgrade to patch only
     # flag --caret prepends the new version with "^" allowing upgrading the minor number
 

@@ -21,12 +21,12 @@ services:
     build:
       context: . # Search the Dockerfile in the "." local directory.
       args:
-        - UID=6606 # UID and GID to run Quid in non-root mode.
-        - GID=6606
+        - uid=6606 # "uid" and "gid" to run Quid in non-root mode.
+        - gid=6606
     depends_on:
       db:
         condition: service_healthy
-    user: "6606:6606" # UID:GID to run quid in non-root mode.
+    user: "6606:6606" # "uid:gid" to run quid in non-root mode.
     environment:
       - QUID_KEY=9362e8246661bd2c05c3bf1c14b86ac8
       - QUID_ADMIN_USR=admin

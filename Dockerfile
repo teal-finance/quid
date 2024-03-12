@@ -19,10 +19,10 @@
 #
 # Set arguments at build time:
 #
-#    docker build --build-arg UID=1122 --build-arg GID=0 .
+#    docker build --build-arg uid=1122 --build-arg gid=0 .
 #
-ARG UID=6606
-ARG GID=6606
+ARG uid=6606
+ARG gid=6606
 
 # --------------------------------------------------------------------
 FROM docker.io/node:19-alpine AS ui-builder
@@ -87,16 +87,16 @@ FROM docker.io/golang:1.22-alpine AS integrator
 
 WORKDIR /target
 
-ARG UID
-ARG GID
+ARG uid
+ARG gid
 
-# HTTPS root certificates (adds about 200 KB).
-# Create user & group files.
+# Copy HTTPS root certificates (adds about 200 KB)
+# and create user & group files.
 RUN set -ex                                             ;\
     mkdir -p                              etc/ssl/certs ;\
     cp /etc/ssl/certs/ca-certificates.crt etc/ssl/certs ;\
-    echo 'quid:x:${UID}:${GID}::/:' > etc/passwd        ;\
-    echo 'quid:x:${GID}:'           > etc/group
+    echo 'quid:x:${uid}:${gid}::/:' > etc/passwd        ;\
+    echo 'quid:x:${gid}:'           > etc/group
 
 # Copy the static website and backend executable.
 COPY --from=ui-builder /code/dist ui/dist
@@ -106,13 +106,13 @@ COPY --from=go-builder /code/quid .
 FROM scratch AS final
 
 # Run as unprivileged.
-ARG     UID    GID
-USER "${UID}:${GID}"
+ARG     uid    gid
+USER "${uid}:${gid}"
 
-# In this tiny image, put only the the static website,
+# In this tiny image, put only the static website,
 # the executable "quid", the SSL certificates,
 # the "passwd" and "group" files. No shell commands.
-COPY --chown="${UID}:${GID}" --from=integrator /target /
+COPY --chown="${uid}:${gid}" --from=integrator /target /
 
 # QUID_ADMIN_* and QUID_KEY are used to initialize the Database.
 ARG QUID_ADMIN_USR=quid-admin

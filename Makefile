@@ -75,17 +75,13 @@ define help
 Podman and Docker are both supported.
 Four options to setup your container engine:
 
-1. Install commands podman (Go) and podman-compose (Python)
+1. Install command podman-compose (Python)
 
-  sudo apt install podman python3-pip
-  python3 -m pip install --user --upgrade pip
-  python3 -m pip install --user --upgrade podman-compose
+  sudo apt install podman-compose
 
-2. Install commands docker (Go) and docker-compose (Python)
+2. Install command docker-compose (Python)
 
-  sudo apt install docker.io python3-pip
-  python3 -m pip install --user --upgrade pip
-  python3 -m pip install --user --upgrade docker-compose
+  sudo apt install docker-compose
 
 3. Install command docker (Go) and its "docker compose" (Go) in hybride mode.
    Replace v2.5.1 by the version you want.
@@ -96,9 +92,10 @@ Four options to setup your container engine:
   chmod +x ~/.docker/cli-plugins/docker-compose
   docker compose version
 
-3. Install command docker (Go) and its "docker compose" (Go) using docker.com only
+4. Install command docker (Go) and its "docker compose" (Go) using docker.com only
 
-  sudo apt purge --purge --autoremove docker docker-engine docker.io containerd runc
+  sudo apt purge --purge --autoremove docker.io containerd runc
+  sudo apt purge --purge --autoremove docker docker-engine
 
   Apply https://docs.docker.com/engine/install/ and finally:
 

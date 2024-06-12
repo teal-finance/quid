@@ -167,19 +167,24 @@ export help
 compose-up:
 	@export DOCKER_BUILDKIT=1          ; \
 	export COMPOSE_DOCKER_CLI_BUILD=1  ; \
-	{ command -v podman-compose                         && set -x && podman-compose -f compose.yml up --build -d;} || \
-	{ command -v docker-compose                         && set -x && docker-compose -f compose.yml up --build -d;} || \
-	{ command -v docker && docker help|grep -wq compose && set -x && docker compose -f compose.yml up --build -d;} || \
+	{ command -v podman-compose                         && ( set -x && podman-compose -f compose.yml up --build -d ) ; } || \
+	{ command -v docker-compose                         && ( set -x && docker-compose -f compose.yml up --build -d ) ; } || \
+	{ command -v docker && docker help|grep -wq compose && ( set -x && docker compose -f compose.yml up --build -d ) ; } || \
 	{ echo "$$help"; false; }
 
 	# Open browser on localhost:8090 if Quid is running
-	@{ command -v podman && set -x && podman ps -qf name=quid || set -x && docker ps -qf name=quid ; } | \
+	@{ command -v podman && (set -x && podman ps -qf name=quid) || (set -x && docker ps -qf name=quid) ; } | \
 	grep -s . && xdg-open http://localhost:8090
 
+	# Default web login:
+	#    namespace = Quid
+	#    username  = admin
+	#    password  = myAdminPassword
+
 	# Print containers logs. [Ctrl+C] to stop the logs printing.
-	@{ command -v podman-compose                         && set -x && docker-compose -f compose.yml logs --follow;} || \
-	{  command -v docker-compose                         && set -x && podman-compose -f compose.yml logs --follow;} || \
-	{  command -v docker && docker help|grep -wq compose && set -x && docker compose -f compose.yml logs --follow;}
+	@{ command -v podman-compose                         && ( set -x && podman-compose -f compose.yml logs --follow ) ; } || \
+	{  command -v docker-compose                         && ( set -x && docker-compose -f compose.yml logs --follow ) ; } || \
+	{  command -v docker && docker help|grep -wq compose && ( set -x && docker compose -f compose.yml logs --follow ) ; }
 
 .PHONY: compose-rm
 compose-rm:

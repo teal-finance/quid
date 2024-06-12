@@ -17,13 +17,13 @@ const (
 	// defaultKey is AES-128-bits (16 bytes) in hexadecimal form (32 digits).
 	// Attention: Heroku generates secrets with 64 hexadecimal digits.
 	defaultKey      = "00112233445566778899aabbccddeeff"
-	defaultAdminUsr = "admin"
-	defaultAdminPwd = "myAdminPassword"
 	defaultDBUser   = "pguser"
 	defaultDBPass   = "myDBpwd"
-	defaultDBName   = "quid"
 	defaultDBHost   = "localhost"
 	defaultDBPort   = "5432"
+	defaultDBName   = "quid"            // Web login: namespace
+	defaultAdminUsr = "admin"           // Web login: username
+	defaultAdminPwd = "myAdminPassword" // Web login: password
 	defaultOrigins  = "http://localhost:"
 )
 

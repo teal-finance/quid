@@ -1,34 +1,36 @@
 help:
-	# make all          Build frontend, backend and doc site
-	# make build        Build the frontend UI
-	# make quid         Build the backend (Go)
-	# make doc          Build the documentation site
+	# make all         Build frontend, backend and doc site
+	# make build       Build the frontend UI
+	# make quid        Build the backend (Go)
+	# make doc         Build the documentation site
 	#
-	# make run          Run the backend (Go serves the static files)
-	# make front        Run the frontend in dev mode (NodeJS serves the frontend)
-	# make run-doc      Run the docs site frontend in dev mode (NodeJS serves the frontend)
+	# make run         Run the backend (Go serves the static files)
+	# make front       Run the frontend in dev mode (Node serves the frontend)
+	# make run-doc     Run the docs site frontend in dev mode (Node serves the frontend)
+	# make vet         Audit TypeScript and Go code & dependencies
 	#
-	# make compose-up   Run Quid and Database using podman-compose or docker-compose
-	# make compose-rm   Stop and remove containers
+	# make compose-up  Run Quid and Database using podman-compose or docker-compose
+	# make compose-rm  Stop and remove containers
 	#
-	# make up           Upgrade dependencies patch version (Go/Node)
-	# make up+          Upgrade dependencies minor version (Go/Node)
-	# make up++         Upgrade dependencies major version (Node only)
+	# make up          Upgrade dependencies patch version
+	# make up+         Upgrade dependencies minor version
 	#
-	# make fmt      Go: Generate code and Format code
-	# make test     Go: Check build and Test
-	# make cov      Go: Browse test coverage
-	# make vet      Go: Lint
+	# make fmt     Go: Generate code and Format code
+	# make test    Go: Check build and Test
+	# make cov     Go: Browse test coverage
 	#
 	# Before "git push" the backend:
 	#
-	#     make up-go fmt test vet
+	#     make up-go fmt test vet-go
+
 
 .PHONY: all
 all: build quid doc
 
+
 .PHONY: build
 build: ui/dist
+
 
 ui/dist: ui/node_modules ui/yarn.lock $(shell find ui/src -type f) $(shell test ! -d ui/node_modules || find ui/node_modules -iname '*test*' -prune -o -name *.[jt]s -type f -print)
 	cd ui && { yarn build || yarnpkg build ; }
@@ -40,11 +42,13 @@ ui/yarn.lock:        ui/package.json
 ui/node_modules ui/yarn.lock:
 	cd ui && { yarn install || yarnpkg install ; }
 
+
 .PHONY: front
 front:
 	cd ui && \
 	{ yarn    && yarn    dev; } || \
 	{ yarnpkg && yarnpkg dev; }
+
 
 .PHONY: run-doc
 run-doc:
@@ -52,11 +56,13 @@ run-doc:
 	{ yarn    && yarn    dev; } || \
 	{ yarnpkg && yarnpkg dev; }
 
+
 .PHONY: doc
 doc:
 	cd docsite && \
 	{ yarn    && yarn    build_to_gh; } || \
 	{ yarnpkg && yarnpkg build_to_gh; }
+
 
 .PHONY: run
 run: go.sum $(shell find -name *.go)
@@ -68,43 +74,94 @@ quid: go.sum $(shell find -name *.go)
 
 go.sum: go.mod
 	go mod tidy
-#	go mod verify
+	go mod verify
+
 
 define help
 
-Podman and Docker are both supported.
+## Install Podman or Docker
+
+Podman and Docker should be both supported.
 Four options to setup your container engine:
 
-1. Install command podman-compose (Python)
+1. Install `podman` and `podman-compose` (Python)
 
-  sudo apt install podman-compose
+      sudo apt install podman-compose
 
-2. Install command docker-compose (Python)
+2. Install `docker` and `docker-compose` v1 (Python)
 
-  sudo apt install docker-compose
+   The `docker` version provided by your distro is more reviewed.
+   But does not yet install the `compose` plugin v2 (only the old v1).
 
-3. Install command docker (Go) and its "docker compose" (Go) in hybride mode.
-   Replace v2.5.1 by the version you want.
+      sudo apt install docker-compose
 
-  sudo apt install docker.io curl ca-certificates
-  mkdir -pv ~/.docker/cli-plugins
-  curl -SL https://github.com/docker/compose/releases/download/v2.5.1/docker-compose-linux-x86_64 -o ~/.docker/cli-plugins/docker-compose
-  chmod +x ~/.docker/cli-plugins/docker-compose
-  docker compose version
+3. Install plugin `compose` v2 (Go) in hybrid mode.
 
-4. Install command docker (Go) and its "docker compose" (Go) using docker.com only
+      sudo apt install docker.io curl ca-certificates
+      mkdir -pv ~/.docker/cli-plugins
+      curl -SL https://github.com/docker/compose/releases/download/v2.27.1/docker-compose-linux-x86_64 -o ~/.docker/cli-plugins/docker-compose
+      chmod +x ~/.docker/cli-plugins/docker-compose
+      docker compose version
 
-  sudo apt purge --purge --autoremove docker.io containerd runc
-  sudo apt purge --purge --autoremove docker docker-engine
+4. Install both `docker` and `compose` v2 (Go) from docker.com (and also `buildx`)
 
-  Apply https://docs.docker.com/engine/install/ and finally:
+      sudo apt purge --purge --autoremove "docker*"" podman-docker containerd runc
 
-  sudo apt install docker-compose-plugin
-  docker compose version
+  Follow https://docs.docker.com/engine/install  
+  Use the `apt` repository:
+  https://docs.docker.com/engine/install/debian/#install-using-the-repository
 
+  Finally:
+
+      sudo apt install docker-compose-plugin docker-buildx-plugin
+      docker compose version
+
+### Enable Docker
+
+    sudo systemctl enable docker.service
+    sudo service docker start
+
+### Add current user to docker group
+
+If you want to just type `docker` instead of `sudo docker`,
+check if you are in the `docker` group:
+
+    $ groups   # or "id -nG"
+    you adm cdrom sudo dip plugdev lpadmin sambashare
+
+If `docker` is missing, enter commands:
+
+    sudo usermod -aG docker $USER
+    # or
+    sudo adduser $USER docker
+
+login again in a sub-shell (or you must log out from your Desktop session)
+
+    su - $USER
+
+Check again:
+
+    $ groups   # or "id -nG"
+    you adm cdrom sudo dip plugdev lpadmin sambashare docker
+
+You may need to start the Docker daemon if not automatically started at boot time:
+
+    $ sudo systemctl start docker
+
+    $ sudo systemctl status docker
+    ● docker.service - Docker Application Container Engine
+    Loaded: loaded (/usr/lib/systemd/system/docker.service; disabled; vendor preset: disabled)
+    Active: active (running) since Wed 2019-06-05 18:08:07 CEST; 1min 48s ago
+        Docs: https://docs.docker.com
+    Main PID: 12034 (dockerd)
+        Tasks: 25
+    Memory: 508.9M
+    CGroup: /system.slice/docker.service
+            └─12034 /usr/bin/dockerd -H fd:// --containerd=/run/containerd/containerd.sock
 endef
 
 export help
+
 
 .PHONY: compose-up
 compose-up:
@@ -131,6 +188,22 @@ compose-rm:
 	{ command -v docker-compose                         && set -x && docker-compose -f compose.yml down                    ;} || \
 	{ command -v docker && docker help|grep -wq compose && set -x && docker compose -f compose.yml down                    ;}
 
+
+.PHONY: vet
+vet: vet-ui vet-go
+
+.PHONY: vet-ui
+vet-ui:
+	cd ui && \
+	{ yarn    && yarn    npm audit --all --recursive; } || \
+	{ yarnpkg && yarnpkg npm audit --all --recursive; }
+
+.PHONY: vet-go
+vet-go:
+	go run github.com/golangci/golangci-lint/cmd/golangci-lint@latest run --fix || true
+	$(MAKE) run
+
+
 .PHONY: up up+
 up:  up-ui up-go
 up+: up+ui up+go
@@ -138,22 +211,16 @@ up+: up+ui up+go
 .PHONY: up-ui
 up-ui:
 	cd ui && \
-	{ yarn    && yarn    upgrade-interactive; } || \
-	{ yarnpkg && yarnpkg upgrade-interactive; }
+	{ yarn    && yarn    up --interactive --caret; } || \
+	{ yarnpkg && yarnpkg up --interactive --caret; }
+    # flag --caret prepends the new version with "^" allowing upgrading the minor number
 
 .PHONY: up+ui
 up+ui:
 	cd ui && \
-	{ yarn && yarn up+; } || \
-	{ yarn && yarn up+; }
-
-.PHONY: up++
-up++: up+go
-	cd ui && \
-	{ yarn    && yarn    upgrade-interactive --latest --tilde; } || \
-	{ yarnpkg && yarnpkg upgrade-interactive --latest --tilde; }
+	{ yarn    && yarn    up --interactive --tilde; } || \
+	{ yarnpkg && yarnpkg up --interactive --tilde; }
     # flag --tilde prepends the new version with "~" that limits vanilla upgrade to patch only
-    # flag --caret prepends the new version with "^" allowing upgrading the minor number
 
 .PHONY: up-go
 up-go: go.sum
@@ -165,24 +232,22 @@ up+go: go.sum
 	go get -t -u all
 	go mod tidy
 
+
 .PHONY: fmt
 fmt:
 	go generate ./...
 	go run mvdan.cc/gofumpt@latest -w -extra -l -lang 1.22 .
+
 
 .PHONY: test
 test:
 	go build ./...
 	go test -race -vet all -run=. -bench=. -benchmem -benchtime 10ms -tags=quid -coverprofile=code-coverage.out ./...
 
-code-coverage.out: go.sum $(shell find -name *.go)
-	go test -race -vet all -run=. -bench=. -benchmem -benchtime 10ms -tags=quid -coverprofile=code-coverage.out ./...
 
 .PHONY: cov
 cov: code-coverage.out
 	go tool cover -html code-coverage.out
 
-.PHONY: vet
-vet:
-	go run github.com/golangci/golangci-lint/cmd/golangci-lint@latest run --fix || true
-	$(MAKE) run
+code-coverage.out: go.sum $(shell find -name *.go)
+	go test -race -vet all -run=. -bench=. -benchmem -benchtime 10ms -tags=quid -coverprofile=code-coverage.out ./...

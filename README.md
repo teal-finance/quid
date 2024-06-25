@@ -162,7 +162,7 @@ Note: `"exp"` is the expiration timestamp in [Unix time](https://en.wikipedia.or
 
 ### Examples
 
-See the [examples](https://github.com/synw/quid_examples) for various backends.
+See the [examples](https://github.com/teal-finance/quid_examples) for various backends.
 
 ## Client libraries
 
